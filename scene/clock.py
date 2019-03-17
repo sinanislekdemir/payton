@@ -74,10 +74,13 @@ Example usage:
 
     #  Definitions
     pm_scene = Scene()
+    pm_scene.grid.set_size(100)
+
     ball = Sphere(radius=1)
 
     # Add ball to the scene
     pm_scene.add_object(ball)
+    pm_scene.observers[0].target_object = ball #  Track the ball
     pm_scene.create_clock("motion", 0.01, projectile_motion)
     pm_scene.create_clock("logger", 0.01, logger)
     pm_scene.run()

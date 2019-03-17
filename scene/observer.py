@@ -1,5 +1,7 @@
 import math
+from payton.math.vector import sub_vector
 from OpenGL import GL, GLU
+
 BUTTON_LEFT = 1
 BUTTON_RIGHT = 2
 
@@ -42,21 +44,24 @@ class Observer(object):
         Theta: horizontal
         Phi: vertical
         """
+        diff = sub_vector(self.position, self.target)
+
         r = self.distance()
-        _theta = math.acos(self.position[2] / r)
-        _phi = math.atan2(self.position[1], self.position[0])
+        _theta = math.acos(diff[2] / r)
+        _phi = math.atan2(diff[1], diff[0])
 
         _theta = (math.degrees(_theta) + theta) % 360
         _phi = (math.degrees(_phi) + phi) % 360
 
         _theta = math.radians(_theta)
         _phi = math.radians(_phi)
+        x = r * math.sin(_theta) * math.cos(_phi)
+        y = r * math.sin(_theta) * math.sin(_phi)
+        z = r * math.cos(_theta)
 
-        self.position[0] = (self.target[0] + r * math.sin(_theta) *
-                            math.cos(_phi))
-        self.position[1] = (self.target[1] + r * math.sin(_theta) *
-                            math.sin(_phi))
-        self.position[2] = self.target[2] + r * math.cos(_theta)
+        self.position[0] = x + self.target[0]
+        self.position[1] = y + self.target[1]
+        self.position[2] = z + self.target[2]
 
     def mouse(self, button, shift, ctrl, x, y, xrel, yrel):
         if shift:
@@ -68,8 +73,9 @@ class Observer(object):
                 self.distance_to_target(self.distance() + yrel)
 
     def distance_to_target(self, distance):
-        _theta = math.acos(self.position[2] / self.distance())
-        _phi = math.atan2(self.position[1], self.position[0])
+        diff = sub_vector(self.position, self.target)
+        _theta = math.acos(diff[2] / self.distance())
+        _phi = math.atan2(diff[1], diff[0])
 
         self.position[0] = (self.target[0] + distance * math.sin(_theta) *
                             math.cos(_phi))

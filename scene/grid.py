@@ -35,6 +35,12 @@ class Grid(object):
         self.grid_spacing = args.get('grid_spacing', 1.0)
         self.visible = args.get('visible', True)
         self._grid_start = -(self.grid_size / 2.0)
+    
+    def set_size(self, grid_size):
+        """Set grid size
+        """
+        self.grid_size = grid_size
+        self._grid_start = -(self.grid_size / 2.0)
 
     def build(self):
         self._grid_start = ((self.grid_size * self.grid_spacing) / 2.0) * -1.0
