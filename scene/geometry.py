@@ -2,7 +2,7 @@
 Payton main geometry module
 
 Geometry module holds the basic geometry shapes. They are all inherited
-from `payton.scene.object.Object` class. They are as simple as possible.
+from `payton.scene.Object` class. They are as simple as possible.
 
 Their face informations are generated at the initialization but display
 lists are not generated until rendering.
@@ -11,7 +11,7 @@ lists are not generated until rendering.
 
 import math
 from payton.math.vector import plane_normal
-from payton.scene.object import Object
+from payton.scene import Object
 
 
 class Cube(Object):
@@ -28,7 +28,7 @@ class Cube(Object):
 
     Cube object use case:
 
-        from payton.scene.scene import Scene
+        from payton.scene import Scene
         from payton.scene.geometry import Cube
 
         my_scene = Scene()
@@ -94,7 +94,7 @@ class Sphere(Object):
 
     Sphere object use case
 
-        from payton.scene.scene import Scene
+        from payton.scene import Scene
         from payton.scene.geometry import Sphere
 
         my_scene = Scene()

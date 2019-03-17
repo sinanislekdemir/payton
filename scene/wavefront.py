@@ -4,7 +4,7 @@
 
 import logging
 import os
-from payton.scene.object import Object
+from payton.scene import Object
 
 class Wavefront(Object):
     """

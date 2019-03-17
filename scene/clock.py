@@ -26,7 +26,7 @@ Example usage:
     import logging
     import math
 
-    from payton.scene.scene import Scene
+    from payton.scene import Scene
     from payton.scene.clock import Clock
     from payton.scene.geometry import Sphere
 

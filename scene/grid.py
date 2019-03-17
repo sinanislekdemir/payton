@@ -9,10 +9,8 @@ and positions of objects in space.
 """
 from OpenGL.GL import (glDisable, glColor3f, glBegin, glEnd, glVertex3f,
                        glColor, GL_LIGHTING, GL_LINES, glEnable)
-from payton.scene.object import Object
 
-
-class Grid(Object):
+class Grid(object):
     """
     Properties of Grid:
 
@@ -22,7 +20,7 @@ class Grid(Object):
 
     Example usage:
 
-        from payton.scene.scene import Scene
+        from payton.scene import Scene
 
 
         my_scene = Scene()
@@ -33,7 +31,6 @@ class Grid(Object):
         """
         Initialize the grid.  
         """
-        super().__init__()
         self.grid_size = args.get('grid_size', 10)
         self.grid_spacing = args.get('grid_spacing', 1.0)
         self.visible = args.get('visible', True)

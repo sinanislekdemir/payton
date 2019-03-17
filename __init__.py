@@ -75,7 +75,7 @@ to start creating your "scenes".
 
 A very basic Scene can be generated like:
 
-    from payton.scene.scene import Scene
+    from payton.scene import Scene
 
     my_scene = Scene()
     my_scene.run()
