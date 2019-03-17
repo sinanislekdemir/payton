@@ -1,0 +1,11 @@
+* Payton
+
+** What is Payton?
+
+Payton is a general purpose 3D library on top of SDL and OpenGL.
+
+** Why Python?
+
+Python is one of the easiest programming languages to learn and lately it is very common amongs the Scientific Communities.
+Payton is created to help scientists to create 3D scenes and simulations with ease. So, giving scientists an easy to use
+and familiar platform is the main targe
