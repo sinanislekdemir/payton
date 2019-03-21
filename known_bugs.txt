@@ -1,0 +1,3 @@
+* If observer gets between the light source and object, objects' normals behave
+  weird. Lighting just gets broken.
+
