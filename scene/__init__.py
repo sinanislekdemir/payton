@@ -8,7 +8,7 @@ like Global Interpreter Lock, there will not be much benefit to that)*
 
 Scene has many items elements:
 
-- Objects (`self.objects = []`)
+- Objects (`self.objects = {}`)
 - Observers (`self.observers = []`)
 - Clocks (`self.clocks = {}`)
 - Grid (`self.grid = Grid()`)
@@ -29,20 +29,13 @@ import ctypes
 import sdl2
 import logging
 
-from OpenGL.GL import (glClear, glEnable, glDisable, glMatrixMode, glPushMatrix,
-                       glLoadIdentity, glColor3f, glVertex2f,
-                       glDeleteLists, glMultMatrixf, glCallList, glGenLists,
-                       glNewList, glPopMatrix,
-                       glBegin, glEnd, glNormal3f, glTexCoord2f, glVertex3f,
-                       glEndList, glLightfv, GL_COLOR_BUFFER_BIT, GL_DEPTH_TEST,
-                       GL_PROJECTION, GL_MODELVIEW, GL_LIGHTING, GL_QUADS,
-                       GL_LIGHT0, GL_POSITION, GL_DEPTH_BUFFER_BIT, GL_COMPILE,
-                       GL_QUADS, GL_LINE_STRIP)
+from OpenGL.GL import *
 
 from payton.scene.grid import Grid
 from payton.scene.observer import Observer, BUTTON_LEFT, BUTTON_RIGHT
 from payton.scene.clock import Clock
 from payton.scene.material import Material, SOLID
+from payton.scene.light import Light
 
 class Scene(object):
     """
@@ -60,10 +53,12 @@ class Scene(object):
 
         """
         # All objects list
-        self.objects = []
+        self.objects = {}
         # List of observers. Currently there will be only one default observer
         self.observers = []
-        self.observers.append(Observer())
+        self.observers.append(Observer(active=True))
+
+        self.lights = []
 
         # List of all clocks. Clocks are time based function holders which
         # animate objects in the scene or do other stuff.
@@ -116,7 +111,8 @@ class Scene(object):
         glEnd()
 
         for observer in self.observers:
-            observer.render()
+            if observer.active:
+                observer.render()
 
         # TODO: Grid should be optional.
         self.grid.render()
@@ -127,14 +123,14 @@ class Scene(object):
         glLightfv(GL_LIGHT0, GL_POSITION, [1.0, 1.0, 10.0, 1.0])
 
         for object in self.objects:
-            object.render()
+            self.objects[object].render()
 
         glDisable(GL_LIGHT0)
         glDisable(GL_LIGHTING)
 
         return 0
 
-    def add_object(self, obj):
+    def add_object(self, name, obj):
         """
         Add object to the scene. Object must be an instance of
         `payton.scene.Object`
@@ -153,7 +149,11 @@ class Scene(object):
             logging.error("Given object is not an instance of `scene.Object`")
             return False
 
-        self.objects.append(obj)
+        if name in self.objects:
+            logging.error('Given object name [{}] already exists'.format(name))
+            return False
+
+        self.objects[name] = obj
 
     def add_observer(self, obj):
         """
@@ -271,30 +271,47 @@ class Scene(object):
                         c.join()
 
                 if self.event.type == sdl2.SDL_KEYDOWN:
-                    if self.event.key.keysym.sym == sdl2.SDLK_LSHIFT:
+                    key = self.event.key.keysym.sym
+                    if key == sdl2.SDLK_LSHIFT:
                         self._shift_down = True
-                    if self.event.key.keysym.sym == sdl2.SDLK_LCTRL:
+                    if key == sdl2.SDLK_LCTRL:
                         self._ctrl_down = True
 
                 if self.event.type == sdl2.SDL_KEYUP:
-                    if self.event.key.keysym.sym == sdl2.SDLK_LSHIFT:
+                    key = self.event.key.keysym.sym
+                    if key == sdl2.SDLK_LSHIFT:
                         self._shift_down = False
-                    if self.event.key.keysym.sym == sdl2.SDLK_LCTRL:
+                    if key == sdl2.SDLK_LCTRL:
                         self._ctrl_down = False
 
-                    if self.event.key.keysym.sym == sdl2.SDLK_c:
+                    if key == sdl2.SDLK_c:
                         self.observers[0].perspective = not self.observers[0].perspective
                         logging.debug('Observer[0] Perspective = {}'.format(
                             'True' if self.observers[0].perspective else 'False'))
 
-                    if self.event.key.keysym.sym == sdl2.SDLK_g:
+                    if key == sdl2.SDLK_g:
                         self.grid.visible = not self.grid.visible
 
-                    if self.event.key.keysym.sym == sdl2.SDLK_p:
+                    if key == sdl2.SDLK_p:
                         for clock in self.clocks:
                             c = self.clocks[clock]
                             logging.debug('Pause clock [{}]'.format(clock))
                             c.pause()
+                    if key in [sdl2.SDLK_F2, sdl2.SDLK_F3]:
+                        active = 0
+                        for i in range(len(self.observers)):
+                            if self.observers[i].active:
+                                active = i
+                        if key == sdl2.SDLK_F2:
+                            active -= 1
+                        if key == sdl2.SDLK_F3:
+                            active += 1
+                        if active < 0:
+                            active = len(self.observers) - 1
+                        if active > len(self.observers) - 1:
+                            active = 0
+                        for i in range(len(self.observers)):
+                            self.observers[i].active = (i == active)
 
                 if self.event.type == sdl2.SDL_MOUSEMOTION:
                     button = -1
@@ -314,7 +331,7 @@ class Scene(object):
             sdl2.SDL_Delay(10)
 
         for object in self.objects:
-            object.destroy()
+            self.objects[object].destroy()
 
         sdl2.SDL_GL_DeleteContext(self._context)
         sdl2.SDL_DestroyWindow(self.window)
@@ -335,7 +352,7 @@ class Object(object):
     Display list is a static data so, once the object is built,
     changing vertices or indices won't help with the geometry
     of the object.
-    
+
     To change the geometry, you need to call `build` function once
     more. (Also, display mode changes need a rebuild)
     """
@@ -358,7 +375,7 @@ class Object(object):
         To get the absolute coordinates of a local coordinate in the universe
         you can use to_absolute function.
         """
-        self.children = []
+        self.children = {}
         self.material = Material()
         self.static = True
         self.matrix = [1.0, 0.0, 0.0, 0.0,
@@ -391,18 +408,23 @@ class Object(object):
         self.material.begin_render()
         glCallList(self._list)
         self.material.end_render()
-        for k in self.children:
-            k.render()
+        for child in self.children:
+            self.children[child].render()
         glPopMatrix()
 
-    def set_position(self, x, y, z):
+    def set_position(self, pos):
         """
         Shortcut function for explicitly modifying matrix indices.
 
         Basically just sets 12, 13, 14 = x, y, z
         """
-        self.matrix[12], self.matrix[13], self.matrix[14] = x, y, z
-        
+        self.matrix[12] = pos[0]
+        self.matrix[13] = pos[1]
+        self.matrix[14] = pos[2]
+    
+    def get_position(self):
+        return self.matrix[12:15]
+
     def to_absolute(self, coordinates):
         """
         Return local coordinates (tuple, list) into absolute coordinates in

@@ -11,24 +11,25 @@ class Observer(object):
     Observers are basically cameras in the scene.
     It uses gluLookAt function for Perspective cameras.
     """
-    def __init__(self):
+    def __init__(self, **args):
         """
         Initialize the defaults of an Observer.
         Default observer is a perspective mode camera
         standing at x:10 y:10 z:10 looking at the origin
         and up direction is x:0 y:1 z:0
         """
-        self.position = [10.0, 10.0, 10.0]
-        self.target = [0.0, 0.0, 0.0]
-        self.up = [0.0, 0.0, 1.0]
-        self.target_object = None
-        self.fov = 45.0
-        self.aspect_ratio = 800.0 / 600.0
-        self.near = 0.1
-        self.far = 100.0
-        self.perspective = True
+        self.position = args.get('position', [10.0, 10.0, 10.0])
+        self.target = args.get('target', [0.0, 0.0, 0.0])
+        self.up =  args.get('up', [0.0, 0.0, 1.0])
+        self.target_object = args.get('target', None)
+        self.fov = args.get('fov', 45.0)
+        self.aspect_ratio = args.get('aspect_ratio', 800.0 / 600.0)
+        self.near = args.get('near', 0.1)
+        self.far = args.get('far', 100.0)
+        self.perspective = args.get('perspective', True)
         # zoom factor for Orthographic projection
-        self.zoom = 10
+        self.zoom = args.get('zoom', 10)
+        self.active = args.get('active', False)
 
     def distance(self):
         """
