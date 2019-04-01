@@ -12,6 +12,7 @@ lists are not generated until rendering.
 import math
 from payton.math.vector import plane_normal
 from payton.scene import Object
+from payton.scene.shader import lightless_fragment_shader
 
 
 class Cube(Object):
@@ -19,12 +20,6 @@ class Cube(Object):
     Cube object
 
     This is a simple Cube object with width, height and depth.
-
-    Parameters:
-
-    - `width`: default: `1.0`
-    - `depth`: default: `1.0`
-    - `height`: default: `1.0`
 
     Cube object use case:
 
@@ -45,39 +40,118 @@ class Cube(Object):
 
     """
     def __init__(self, **args):
-        super().__init__()
-        self.width = args.get('width', 1.0)
-        self.height = args.get('height', 1.0)
-        self.depth = args.get('depth', 1.0)
-        self.build_cube()
-        return None
-    
-    def build_cube(self):
-        w = self.width / 2.0
-        h = self.height / 2.0
-        d = self.depth / 2.0
-        self._vertices = [[-w, -d, -h], # A - 0
-                          [w, -d, -h], # B - 1
-                          [w, d, -h], # C - 2
-                          [-w, d, -h], # D - 3
-                          [-w, -d, h], # E - 4
-                          [w, -d, h], # F - 5
-                          [w, d, h], # G - 6
-                          [-w, d, h]] # H - 7
-        self._normals = [[0, -1, 0], # Front - 0
-                         [1, 0, 0], # Right - 1
-                         [0, 1, 0], # Back - 2
-                         [-1, 0, 0], # Left - 3
-                         [0, 0, 1], # Top - 4
-                         [0, 0, -1]] # Bottom - 5
+        """Initialize Cube
+
+        Args:
+          width: Width of the cube (size X)
+          depth: Depth of the cube (size Y)
+          height: Height of the cube (size Z)
+        """
+        super(Cube, self).__init__(**args)
+        width = args.get('width', 1.0) * 0.5
+        depth = args.get('depth', 1.0) * 0.5
+        height = args.get('height', 1.0) * 0.5
+
+        self._vertices = [
+            -width, -depth, height,
+            width, -depth, height,
+            -width, depth, height,
+            width, depth, height,
+             -width, depth, height,
+             width, depth, height,
+             -width, depth, -height,
+             width, depth, -height,
+             -width, depth, -height,
+             width, depth, -height,
+             -width, -depth, -height,
+             width, -depth, -height,
+             -width, -depth, -height,
+             width, -depth, -height,
+             -width, -depth, height,
+             width, -depth, height,
+             width, -depth, height,
+             width, -depth, -height,
+             width, depth, height,
+             width, depth, height,
+             width, depth, -height,
+             -width, -depth, -height,
+             -width, -depth, height,
+             -width, depth, -height,
+             -width, depth, -height,
+             -width, -depth, height,
+             -width, depth, height]
+
+        self._normals = [
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
+            0.0, 0.0, 1.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, 0.0, -1.0,
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+            0.0, -1.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0.0,
+            -1.0, 0.0, 0]
+
+        self._uvs = [
+            0.0, 0.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            0.0, 0.0,
+            1.0, 1.0,
+            1.0, 0.0]
+
         self._indices = [
-            [[0, -1, 0], [1, -1, 0], [5, -1, 0], [4, -1, 0]], # Front
-            [[1, -1, 1], [2, -1, 1], [6, -1, 1], [5, -1, 1]], # Right
-            [[2, -1, 2], [3, -1, 2], [7, -1, 2], [6, -1, 2]], # Back
-            [[3, -1, 3], [0, -1, 3], [4, -1, 3], [7, -1, 3]], # Left
-            [[4, -1, 4], [5, -1, 4], [6, -1, 4], [7, -1, 4]], # Top
-            [[0, -1, 5], [3, -1, 5], [2, -1, 5], [1, -1, 5]]] # Bottom
-        
+            0, 1, 2,
+            2, 1, 3,
+            4, 5, 6,
+            6, 5, 7,
+            8, 9, 10,
+            10, 9, 11,
+            12, 13, 14,
+            14, 13, 15,
+            16, 17, 18, 19, 17, 20, 21, 22, 23, 24, 25, 26]
+
+        return None
+
 class Sphere(Object):
     """
     Sphere object.
@@ -128,6 +202,7 @@ class Sphere(Object):
         step_angle = math.radians(360.0 / self.meridians)
         # step height is the arc in height
         step_height = math.radians(180.0 / self.parallels)
+        indices = 0
 
         for i in range(self.parallels + 1):
             for j in range(self.meridians + 1):
@@ -138,24 +213,26 @@ class Sphere(Object):
                 x2 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * j)
                 y2 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * j)
                 z2 = r * math.cos(step_height * (i + 1))
-                
+
                 x3 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * (j + 1))
                 y3 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * (j + 1))
                 z3 = r * math.cos(step_height * (i + 1))
-                
+
                 x4 = r * math.sin(step_height * i) * math.cos(step_angle * (j + 1))
                 y4 = r * math.sin(step_height * i) * math.sin(step_angle * (j + 1))
                 z4 = r * math.cos(step_height * i)
                 normal = plane_normal([x1, y1, z1],
                                       [x2, y2, z2],
                                       [x3, y3, z3])
-
-                k = len(self._vertices)
-                nk = len(self._normals)
-                self._normals.append(normal)
-                self._vertices.append([x1, y1, z1])
-                self._vertices.append([x2, y2, z2])
-                self._vertices.append([x3, y3, z3])
-                self._vertices.append([x4, y4, z4])
-                self._indices.append([[k, -1, nk], [k+1, -1, nk],
-                                      [k+2, -1, nk], [k+3, -1, nk]])
+                self._vertices += [x1, y1, z1] # 0
+                self._vertices += [x2, y2, z2] # i + 1
+                self._vertices += [x3, y3, z3] # i + 2
+                self._vertices += [x4, y4, z4] # i + 3
+                self._normals += [normal[0], normal[1], normal[2]]
+                self._normals += [normal[0], normal[1], normal[2]]
+                self._normals += [normal[0], normal[1], normal[2]]
+                self._normals += [normal[0], normal[1], normal[2]]
+                self._indices += [indices, indices+1, indices+2]
+                self._indices += [indices, indices+2, indices+3]
+                indices += 4
+        return True

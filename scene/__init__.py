@@ -3,8 +3,8 @@
 Python scene can be thought as a real movie scene, where you have your
 actors, camera and lights. So, in a simulation, there can be
 only one Scene running the show. *(Multiple scenes can be achieved by
-doing things in a parallel programming way but due to Python limitations
-like Global Interpreter Lock, there will not be much benefit to that)*
+multi-threading but due to Python limitations like Global Interpreter
+Lock, there will not be much benefit to that)*
 
 Scene has many items elements:
 
@@ -21,13 +21,15 @@ motion of objects when there is a grid.
 
 **Clocks** give you actual clocks-timers you can program. If you want to
 move your objects one step at a time, you need clocks. A motion can
-not happen without `time` and as Albert Einstein said, *"time is what
+not happen without `time` and as Albert Einstein said, *"time is what the
 clock measures"*
 """
-
+import math
 import ctypes
 import sdl2
 import logging
+import numpy as np
+import pyrr
 
 from OpenGL.GL import *
 
@@ -36,6 +38,208 @@ from payton.scene.observer import Observer, BUTTON_LEFT, BUTTON_RIGHT
 from payton.scene.clock import Clock
 from payton.scene.material import Material, SOLID
 from payton.scene.light import Light
+from payton.scene.shader import Shader, lightless_fragment_shader
+
+
+class Object(object):
+    """Main Payton Object.
+
+    This is an abstract class to define common properties between
+    Mesh / Particle / Virtual objects.
+
+    Objects are not actually built as a 3D object unless they are
+    being rendered. Render function calls `build` function
+    which then creates the opengl display list of the object.
+    Display list is a static data so, once the object is built,
+    changing vertices or indices won't help with the geometry
+    of the object.
+
+    To change the geometry, you need to call `build` function once
+    more. (Also, display mode changes need a rebuild)
+    """
+    def __init__(self):
+        """
+        Initialize the basic object properties here.
+        This is important as to keep track of all self object
+        properties and avoid any assumptions on whether an object
+        property is set or not.
+
+        So if anyhow, you are adding an object property, please
+        do not forget to define its default here.
+
+        Each object can have several children.
+        And each child can have its own children as well.
+        So we have an object tree, which is suitable for complex
+        systems like a solar system.
+        A Star has planets and each planet can have moons or satellites.
+        Each child in the list has their own local object coordinate system.
+        To get the absolute coordinates of a local coordinate in the universe
+        you can use to_absolute function.
+        """
+        self.children = {}
+        self.material = Material()
+        self.static = True
+        self.matrix = [1.0, 0.0, 0.0, 0.0,
+                       0.0, 1.0, 0.0, 0.0,
+                       0.0, 0.0, 1.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0]
+        self._vertices = []
+        self._normals = []
+        self._texcoords = []
+        self._indices = []
+        self._vertex_count = 0
+        self._model_matrix = None
+
+        # Default object uses default shaders.
+        variables = ['model', 'view', 'projection',
+                     'light_pos', 'light_color', 'object_color']
+        self._shader = Shader(variables=variables)
+
+        # Vertex Array Object pointer
+        self._vao = None
+
+    def destroy(self):
+        """
+        Destroy objects self
+        """
+        if self._vao:
+            glDeleteVertexArrays(1, [self._vao])
+        return True
+
+    def render(self, proj, view, light_pos, light_color):
+        """
+        Virtual function for rendering the object.
+
+        Args:
+          proj: Camera projection matrix.
+          view: Camera location/view matrix.
+          light_pos: Light position
+          light_color: Light color
+
+        """
+
+        if not self._vao:
+            self.build()
+
+        # Setup shader arguments
+        self._shader.use()
+        self._model_matrix = np.array(self.matrix, dtype=np.float32)
+
+        self._shader.set_matrix4x4_np('model', self._model_matrix)
+        self._shader.set_matrix4x4_np('view', view)
+        self._shader.set_matrix4x4_np('projection', proj)
+        self._shader.set_vector3_np('light_pos', light_pos)
+        self._shader.set_vector3_np('light_color', light_color)
+        self._shader.set_vector3('object_color', np.array(self.material.color,
+                                                          dtype=np.float32))
+
+        if glIsVertexArray(self._vao):
+            glBindVertexArray(self._vao)
+            pmode = GL_LINE
+            if self.material.display == SOLID:
+                pmode = GL_FILL
+            glPolygonMode(GL_FRONT_AND_BACK, pmode)
+            glDrawElements(GL_TRIANGLES, self._vertex_count,
+                           GL_UNSIGNED_INT, ctypes.c_void_p(0))
+            if pmode != GL_FILL:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+            glBindVertexArray(0)
+
+        # render
+        self._shader.end()
+
+        for child in self.children:
+            self.children[child].render()
+
+
+    def set_position(self, pos):
+        """
+        Shortcut function for explicitly modifying matrix indices.
+
+        Basically just sets 12, 13, 14 = x, y, z
+        """
+        self.matrix[12] = pos[0]
+        self.matrix[13] = pos[1]
+        self.matrix[14] = pos[2]
+
+    def get_position(self):
+        return self.matrix[12:15]
+
+
+    def to_absolute(self, coordinates):
+        """
+        Return local coordinates (tuple, list) into absolute coordinates in
+        space.
+        """
+        pass
+
+    def to_local(self, coordinates):
+        """
+        Return absolute coordinates (tuple, list) into local coordinates
+        """
+        pass
+
+    def build(self):
+        """
+        Build OpenGL Vertex Array for the object
+        This function gets automatically called if `self._vao` does not
+        exists in the first render cycle. Once the display list is built,
+        geometry changes or material display mode changes will not be
+        automatically effected. So, in every geometry or display mode
+        change, a build call is necessary.
+
+        if `self.static` is `True`, then system assumes that another build
+        call is not expected, thus frees `_normals', `_textcoords`,
+        `_vertices` and `_indices` lists to free memory.
+        So in this case, calling `build` function twice will result with
+        an invisible object (will not be drawn)
+
+        """
+        self._vao = glGenVertexArrays(1)
+        vbos = glGenBuffers(4)
+        glBindVertexArray(self._vao)
+
+        self._shader.build()
+        vertices = np.array(self._vertices, dtype=np.float32)
+        normals = np.array(self._normals, dtype=np.float32)
+        texcoords = np.array(self._texcoords, dtype=np.float32)
+        indices = np.array(self._indices, dtype=np.int32)
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbos[0])
+        glEnableVertexAttribArray(0) # shader layout location
+        glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes,
+                     vertices, GL_STATIC_DRAW)
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbos[1])
+        glEnableVertexAttribArray(1) # shader layout location
+        glVertexAttribPointer(1, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glBufferData(GL_ARRAY_BUFFER, normals.nbytes, normals, GL_STATIC_DRAW)
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbos[2])
+        glEnableVertexAttribArray(2) # shader layout location
+        glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glBufferData(GL_ARRAY_BUFFER, texcoords.nbytes, texcoords,
+                     GL_STATIC_DRAW)
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[3])
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
+        self._vertex_count = len(indices)
+
+        glBindVertexArray(0)
+        # glDisableVertexAttribArray(0)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glDeleteBuffers(4, vbos)
+
+        if self.static:
+            # we can clear this data to free some more memory
+            self._normals = []
+            self._texcoords = []
+            self._vertices = []
+            self._indices = []
+
+        return True
+
 
 class Scene(object):
     """
@@ -46,6 +250,7 @@ class Scene(object):
         Initialize the Payton Scene
         There is no parameters here. Every class property must be explicitly
         defined.
+
         Simplest form of usage:
 
             a = Scene()
@@ -54,9 +259,14 @@ class Scene(object):
         """
         # All objects list
         self.objects = {}
-        # List of observers. Currently there will be only one default observer
+        # List of observers (cameras) in the scene. There can be only
+        # one active observer at a time
         self.observers = []
         self.observers.append(Observer(active=True))
+        # Instead of looping through observers to find the active
+        # observer, we are keeping the known index to avoid redundant
+        # loops.
+        self._active_observer = 0
 
         self.lights = []
 
@@ -64,7 +274,6 @@ class Scene(object):
         # animate objects in the scene or do other stuff.
         self.clocks = {}
         self.grid = Grid()
-        self.grid.build()
 
         # SDL Related Stuff
         self.window = None
@@ -87,46 +296,22 @@ class Scene(object):
         """
         # Disable Depth Test to draw background at the very back of the scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glDisable(GL_DEPTH_TEST)
-
-        # Draw gradient background
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-
-        # Gradient background
-        # TODO: Remove hardcoded color codes from here. Give
-        #       developers a chance to change the background.
-        glDisable(GL_LIGHTING)
-        glBegin(GL_QUADS)
-        glColor3f(0.16015625, 0.1796875, 0.19140625)
-        glVertex2f(-1.0, -1.0)
-        glVertex2f(1.0, -1.0)
-        glColor3f(0.03515625, 0.15625, 0.26171875)
-        glVertex2f(1.0, 1.0)
-        glVertex2f(-1.0, 1.0)
-        glEnd()
-
-        for observer in self.observers:
-            if observer.active:
-                observer.render()
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LESS)
 
         # TODO: Grid should be optional.
-        self.grid.render()
+        # Observer location or light location does not change during a frame
+        # render. To avoid redundant calls to re-calculate and convert locations
+        # for each object in the scene, we diretly pass their Numpy array
+        # values to render pipeline.
+        proj, view = self.observers[self._active_observer].render()
+        light_pos = np.array([3.0, 6.0, 9.0], dtype=np.float32)
+        light_color = np.array([1.0, 1.0, 1.0], dtype=np.float32)
 
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
-
-        glLightfv(GL_LIGHT0, GL_POSITION, [1.0, 1.0, 10.0, 1.0])
+        self.grid.render(proj, view, light_pos, light_color)
 
         for object in self.objects:
-            self.objects[object].render()
-
-        glDisable(GL_LIGHT0)
-        glDisable(GL_LIGHTING)
+            self.objects[object].render(proj, view, light_pos, light_color)
 
         return 0
 
@@ -238,12 +423,18 @@ class Scene(object):
         """
         if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
             return -1
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MINOR_VERSION, 3)
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_PROFILE_MASK,
+                                 sdl2.SDL_GL_CONTEXT_PROFILE_CORE)
+
         self.window = sdl2.SDL_CreateWindow(b"Payton Scene",
                                             sdl2.SDL_WINDOWPOS_UNDEFINED,
                                             sdl2.SDL_WINDOWPOS_UNDEFINED,
                                             self.window_width,
                                             self.window_height,
                                             sdl2.SDL_WINDOW_OPENGL)
+
         if not self.window:
             return -1
 
@@ -297,6 +488,8 @@ class Scene(object):
                             c = self.clocks[clock]
                             logging.debug('Pause clock [{}]'.format(clock))
                             c.pause()
+                    if key == sdl2.SDLK_ESCAPE:
+                        self.running = False
                     if key in [sdl2.SDLK_F2, sdl2.SDLK_F3]:
                         active = 0
                         for i in range(len(self.observers)):
@@ -310,6 +503,7 @@ class Scene(object):
                             active = len(self.observers) - 1
                         if active > len(self.observers) - 1:
                             active = 0
+                        self._active_observer = active
                         for i in range(len(self.observers)):
                             self.observers[i].active = (i == active)
 
@@ -338,155 +532,3 @@ class Scene(object):
         self.window = None
         sdl2.SDL_Quit()
         return 0
-
-
-class Object(object):
-    """Main Payton Object.
-
-    This is an abstract class to define common properties between
-    Mesh / Particle / Virtual objects.
-
-    Objects are not actually built as a 3D object unless they are
-    being rendered. Render function calls `build` function
-    which then creates the opengl display list of the object.
-    Display list is a static data so, once the object is built,
-    changing vertices or indices won't help with the geometry
-    of the object.
-
-    To change the geometry, you need to call `build` function once
-    more. (Also, display mode changes need a rebuild)
-    """
-    def __init__(self):
-        """
-        Initialize the basic object properties here.
-        This is important as to keep track of all self object
-        properties and avoid any assumptions on whether an object
-        property is set or not.
-
-        So if anyhow, you are adding an object property, please
-        do not forget to define its default here.
-
-        Each object can have several children.
-        And each child can have its own children as well.
-        So we have an object tree, which is suitable for complex
-        systems like a solar system.
-        A Star has planets and each planet can have moons or satellites.
-        Each child in the list has their own local object coordinate system.
-        To get the absolute coordinates of a local coordinate in the universe
-        you can use to_absolute function.
-        """
-        self.children = {}
-        self.material = Material()
-        self.static = True
-        self.matrix = [1.0, 0.0, 0.0, 0.0,
-                       0.0, 1.0, 0.0, 0.0,
-                       0.0, 0.0, 1.0, 0.0,
-                       0.0, 0.0, 0.0, 1.0]
-        self._vertices = []
-        self._normals = []
-        self._texcoords = []
-        self._indices = []
-
-        self._list = None
-
-    def destroy(self):
-        """
-        Destroy objects self
-        """
-        glDeleteLists(self._list, 1)
-
-    def render(self):
-        """
-        Virtual function for rendering the object.
-        """
-
-        if not self._list:
-            self.build()
-
-        glPushMatrix()
-        glMultMatrixf(self.matrix)
-        self.material.begin_render()
-        glCallList(self._list)
-        self.material.end_render()
-        for child in self.children:
-            self.children[child].render()
-        glPopMatrix()
-
-    def set_position(self, pos):
-        """
-        Shortcut function for explicitly modifying matrix indices.
-
-        Basically just sets 12, 13, 14 = x, y, z
-        """
-        self.matrix[12] = pos[0]
-        self.matrix[13] = pos[1]
-        self.matrix[14] = pos[2]
-    
-    def get_position(self):
-        return self.matrix[12:15]
-
-    def to_absolute(self, coordinates):
-        """
-        Return local coordinates (tuple, list) into absolute coordinates in
-        space.
-        """
-        pass
-
-    def to_local(self, coordinates):
-        """
-        Return absolute coordinates (tuple, list) into local coordinates
-        """
-        pass
-
-    def build(self):
-        """
-        Build OpenGL Display List
-        This function gets automatically called if display list does not
-        exists in the first render cycle. Once the display list is built,
-        geometry changes or material display mode changes will not be
-        automatically effected. So, in every geometry or display mode
-        change, a build call is necessary.
-
-        if self.static is True, then system assumes that another build
-        call is not expected, thus frees `_normals', `_textcoords`,
-        `_vertices` and `_indices` lists to free memory.
-        So in this case, calling `build` function twice will result with
-        an invisible object (will not be drawn)
-
-        """
-        self._list = glGenLists(1)
-        glNewList(self._list, GL_COMPILE)
-        # Draw things here
-        for quad in self._indices:
-            if self.material.display == SOLID:
-                glBegin(GL_QUADS)
-            else:
-                glBegin(GL_LINE_STRIP)
-
-            for index in quad:
-                vertex = index[0]
-                texcoord = index[1]
-                normal = index[2]
-                if normal > -1:
-                    glNormal3f(self._normals[normal][0],
-                               self._normals[normal][1],
-                               self._normals[normal][2])
-
-                if texcoord > -1:
-                    glTexCoord2f(self._texcoords[texcoord][0],
-                                 self._texcoords[texcoord][1])
-
-                glVertex3f(self._vertices[vertex][0],
-                           self._vertices[vertex][1],
-                           self._vertices[vertex][2])
-            glEnd()
-        glEndList()
-
-        if self.static:
-            # we can clear this data to free some more memory
-            self._normals = []
-            self._texcoords = []
-            self._vertices = []
-            self._indices = []
-
-        return True
