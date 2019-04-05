@@ -13,44 +13,31 @@ mathematical graphical formulas.
 ### Why Python?
 
 Python is the current rising star in computational science. Many researchers
-and scientists, as well as students use Python for analytics or statistics,
-or for data science and such. With the power of Numpy library, a researchers
-life becomes so easy. So I wanted to give people a tool within their comfort
-zones.
+and scientists, as well as students, use Python for analytics or statistics,
+or for data science and such. With the power of the Numpy library, a
+researchers' life becomes so easy. So I wanted to give people a tool within
+their comfort zones.
 
 I am well aware that Python is not the best programming language to do 3D.
 But one should also keep in mind that, this library is not designed for
 creating games and such. It is created to be simple and easy to use. To give
-developers a rapid kick-start. Developers does not need to know anything
+developers a rapid kick-start. Developers do not need to know anything
 related to OpenGL or SDL2, or even Threading!
 All they need to know is the basic structure of this library and have a
-look at the sample codes defined. Thats all.
+look at the sample codes defined. That's all.
 
-Also Python is quite extensible. Even-though, this library is created with
-the simplest way possible, it is also easy to extend its objects and create
-for from it.
+### Why a relatively old OpenGL version?
 
-### Why a pre-historyic OpenGL version?
+Current version uses OpenGL 3.3 (GLSL 330) for rendering. Any later versions
+might not be supported by relatively old computers. On the other hand, it was
+hard to keep two different versions maintained. (4.5 and 3.3).
 
-OpenGL 2.1 and later versions differ from OpenGL 1.1 very much. First of all,
-there are shaders and virtual buffer objects and vertex buffer objects,
-and many more cool toys to play with. Also, creating a library by putting
-as many things as possible to the Graphics Card would definitely benefit
-in terms of performance. But on the other hand, I wanted the code base
-to be easily understandable for non-OpenGL developers so that they can
-extend the library. 
-
-It is a fact that, OpenGL 1.x has the most support, tutorial and documentations
- all over the internet. So, it is easier for developers to ask their questions.
-Also, I wanted this library to reach the widest hardware support. Even an
-old old computer should be able to run this library.
-
-Maybe, in the future, I can support later function calls for better performance
-but right now, I don't have enough time to maintain all versions of OpenGL.
+I believe that, within the OpenGL versions, there was a huge difference
+between 3.3 and before. So, ground breaking changes came with the version 3.3.
 
 ### Unit Tests
 
-Unit tests for the render pipeline is missing. It is hard to unit test that
+Unit tests for the render pipeline are missing. It is hard to unit test that
 part of the system and I was lazy. Mathematical functions and objects are
 covered with Python's internal `unittest` framework.
 
@@ -65,7 +52,7 @@ On top of that, more objects mean more complexity.
 
 When a point in space can be described as a list or tuple with 3 elements
 as `[x, y, z]`, why bother with `Vector(x, y, z)` and create a redundant object?
-Also, memory operations with `tuple` or `list` is faster than any memory heavy
+Also, memory operations with `tuple` or `list` are faster than any memory heavy
 object operations.
 
 ## Getting started

@@ -10,6 +10,7 @@ lists are not generated until rendering.
 
 
 import math
+import numpy as np
 from payton.math.vector import plane_normal
 from payton.scene import Object
 from payton.scene.shader import lightless_fragment_shader
@@ -187,7 +188,7 @@ class Sphere(Object):
 
     """
     def __init__(self, **args):
-        super().__init__()
+        super(Sphere, self).__init__(**args)
         self.radius = args.get('radius', 0.5)
         self.parallels = args.get('parallels', 12)
         self.meridians = args.get('meridians', 12)

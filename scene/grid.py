@@ -12,7 +12,6 @@ import numpy as np
 from OpenGL.GL import *
 from payton.scene.shader import lightless_fragment_shader, Shader
 
-
 class Grid(object):
     """
     Properties of Grid:
@@ -37,8 +36,9 @@ class Grid(object):
           xres: Number of lines in X
           yres: Number of lines in Y
         """
-        xres = args.get('xres', 100)
-        yres = args.get('yres', 100)
+        xres = args.get('xres', 20)
+        yres = args.get('yres', 20)
+        self.color = args.get('color', [0.1, 0.1, 0.1])
 
         self.static = True
         self.matrix = [1.0, 0.0, 0.0, 0.0,
@@ -56,26 +56,9 @@ class Grid(object):
                      'light_pos', 'light_color', 'object_color']
         self._shader = Shader(fragment=lightless_fragment_shader,
                               variables=variables)
+        self.visible = True
 
-
-        ystart = -(yres / 2.0)
-        xstart = -(xres / 2.0)
-        for j in range(0, yres):
-            y = ystart + j
-            for i in range(0, xres):
-                x = xstart + i
-                self._vertices += [x, y, 0.0]
-
-        for j in range(0, yres - 1):
-            offset = j * xres
-            for i in range(0, xres - 1):
-                k = offset + i
-                self._indices += [k, k + 1,
-                                  k + 1, k + xres + 1,
-                                  k + xres + 1, k + xres,
-                                  k + xres, k]
-
-        self._vertex_count = len(self._indices)
+        self.resize(xres, yres)
 
     def destroy(self):
         """
@@ -93,6 +76,10 @@ class Grid(object):
           proj: Camera projection matrix.
           view: Camera location/view matrix.
         """
+
+        if not self.visible:
+            return True
+
         if not self._vao:
             self.build()
 
@@ -102,7 +89,7 @@ class Grid(object):
         self._shader.set_matrix4x4_np('model', self._model_matrix)
         self._shader.set_matrix4x4_np('view', view)
         self._shader.set_matrix4x4_np('projection', proj)
-        self._shader.set_vector3('object_color', np.array([1.0, 1.0, 1.0],
+        self._shader.set_vector3('object_color', np.array(self.color,
                                                           dtype=np.float32))
 
         if glIsVertexArray(self._vao):
@@ -115,6 +102,35 @@ class Grid(object):
 
         # render
         self._shader.end()
+
+    def resize(self, xres, yres, spacing=1):
+        self._vertices = []
+        self._indices = []
+        self._vertex_count = 0
+        ystart = -(yres*spacing / 2.0)
+        xstart = -(xres*spacing / 2.0)
+        for j in range(0, yres):
+            y = ystart + (j * spacing)
+            for i in range(0, xres):
+                x = xstart + (i * spacing)
+                self._vertices += [x, y, 0.0]
+
+        for j in range(0, yres - 1):
+            offset = j * xres
+            for i in range(0, xres - 1):
+                k = offset + i
+                self._indices += [k, k + 1,
+                                  k + 1, k + xres + 1,
+                                  k + xres + 1, k + xres,
+                                  k + xres, k]
+
+        self._vertex_count = len(self._indices)
+        if self._vao:
+            glDeleteVertexArrays(1, [self._vao])
+        self._vao = None
+
+    def set_color(color):
+        self.color = color
 
     def build(self):
         self._vao = glGenVertexArrays(1)

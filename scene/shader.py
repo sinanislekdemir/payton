@@ -92,6 +92,32 @@ void main()
 }
 """
 
+background_vertex_shader = """
+#version 330 core
+out vec2 v_uv;
+
+void main()
+{
+  // uint idx = gl_VertexID;
+  gl_Position = vec4( gl_VertexID & 1, gl_VertexID >> 1, 0.0, 0.5 ) * 4.0 - 1.0;
+  v_uv = vec2( gl_Position.xy * 0.5 + 0.5 );
+}
+"""
+
+background_fragment_shader = """
+#version 330 core
+uniform vec4 top_color;
+uniform vec4 bot_color;
+in vec2 v_uv;
+
+out vec4 frag_color;
+void main()
+{
+  frag_color = bot_color * (1 - v_uv.y) + top_color * v_uv.y;
+}
+"""
+
+
 class Shader(object):
     """Payton shader class. Creates shaders / programs
 
@@ -227,6 +253,29 @@ class Shader(object):
                 return False
             self._stack[variable] = location
         glUniform3fv(self._stack[variable], 1, value)
+    
+    def set_vector4_np(self, variable, value):
+        """Set Vector 4 as numpy array value
+
+        If variable not found in `self.variables` then system will try to locate
+        the variable location and store it in `self.variables` for future
+        reference.
+
+        Some elements like Light or pre-set materials can pass their vertices
+        directly as numpy array to reduce number of object conversions.
+
+        Args:
+          variable: Variable name to set
+          value: Vector 4 to set. (Numpy array with 4 elemenets)
+        """
+        if variable not in self.variables:
+            location = glGetUniformLocation(self.program, variable)
+            if not location:
+                logging.error('Variable not found in program [{}]'.format(
+                    variable))
+                return False
+            self._stack[variable] = location
+        glUniform4fv(self._stack[variable], 1, value)
 
     def set_vector3(self, variable, value):
         """Set Vector 3 as array value

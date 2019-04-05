@@ -1,28 +1,20 @@
-"""Payton Scene.
+"""#Payton Scene Module
 
-Python scene can be thought as a real movie scene, where you have your
-actors, camera and lights. So, in a simulation, there can be
-only one Scene running the show. *(Multiple scenes can be achieved by
-multi-threading but due to Python limitations like Global Interpreter
-Lock, there will not be much benefit to that)*
+##Main Scene Module:
 
-Scene has many items elements:
+* SDL2 Window
+  * Scene
+    * Objects
+    * Geometry
+    * Grid
+    * Background
+    * Clock
+    * Light
+    * Shader
+    * Material
+    * Observer
+    * Wavefront
 
-- Objects (`self.objects = {}`)
-- Observers (`self.observers = []`)
-- Clocks (`self.clocks = {}`)
-- Grid (`self.grid = Grid()`)
-- window (SDL)
-
-**Objects** hold the main scene actors.
-
-**Grid** is the default grid in 3D Scene. It is easier to follow the
-motion of objects when there is a grid.
-
-**Clocks** give you actual clocks-timers you can program. If you want to
-move your objects one step at a time, you need clocks. A motion can
-not happen without `time` and as Albert Einstein said, *"time is what the
-clock measures"*
 """
 import math
 import ctypes
@@ -30,6 +22,7 @@ import sdl2
 import logging
 import numpy as np
 import pyrr
+import ctypes
 
 from OpenGL.GL import *
 
@@ -38,7 +31,9 @@ from payton.scene.observer import Observer, BUTTON_LEFT, BUTTON_RIGHT
 from payton.scene.clock import Clock
 from payton.scene.material import Material, SOLID
 from payton.scene.light import Light
-from payton.scene.shader import Shader, lightless_fragment_shader
+from payton.scene.shader import (Shader, lightless_fragment_shader,
+                                 background_fragment_shader,
+                                 background_vertex_shader)
 
 
 class Object(object):
@@ -47,48 +42,47 @@ class Object(object):
     This is an abstract class to define common properties between
     Mesh / Particle / Virtual objects.
 
-    Objects are not actually built as a 3D object unless they are
-    being rendered. Render function calls `build` function
-    which then creates the opengl display list of the object.
-    Display list is a static data so, once the object is built,
-    changing vertices or indices won't help with the geometry
-    of the object.
+    Objects are not actually built as a 3D object until rendering.
+    Render function calls `build` function if needed. Build function creates
+    the OpenGL Vertex Array Object. VAO is a static data so, once the object
+    is built, changing vertices or indices will not take effect at the scene.
 
-    To change the geometry, you need to call `build` function once
-    more. (Also, display mode changes need a rebuild)
+    You need to call `payton.scene.Object.build` function to refresh Vertex
+    Array Object.
     """
     def __init__(self):
         """
-        Initialize the basic object properties here.
-        This is important as to keep track of all self object
-        properties and avoid any assumptions on whether an object
-        property is set or not.
+        Initialize the basic object properties.
 
-        So if anyhow, you are adding an object property, please
-        do not forget to define its default here.
+        Properties:
+ 
+        *Children*: Children hash for object. Each child object follows parent
+        object. They take their parent object as origin and their coordinate
+        system is relative to their parent. This behaviour resembles stars,
+        planets and their moons.
 
-        Each object can have several children.
-        And each child can have its own children as well.
-        So we have an object tree, which is suitable for complex
-        systems like a solar system.
-        A Star has planets and each planet can have moons or satellites.
-        Each child in the list has their own local object coordinate system.
-        To get the absolute coordinates of a local coordinate in the universe
-        you can use to_absolute function.
+        *Material*: Material definitions of the object.
+        *Matrix*: Matrix definition of the object. This is a 4x4 Uniform Matrix.
+        But data is set as an array for easier transformations. First 4 decimals
+        are "Left" vector, Second 4 are "Direction", Third 4 are "Up" and last
+        four decimals are "Position" vectors.
         """
         self.children = {}
         self.material = Material()
         self.static = True
-        self.matrix = [1.0, 0.0, 0.0, 0.0,
-                       0.0, 1.0, 0.0, 0.0,
-                       0.0, 0.0, 1.0, 0.0,
-                       0.0, 0.0, 0.0, 1.0]
+        self.matrix = [[1.0, 0.0, 0.0, 0.0],
+                       [0.0, 1.0, 0.0, 0.0],
+                       [0.0, 0.0, 1.0, 0.0],
+                       [0.0, 0.0, 0.0, 1.0]]
+        # Object vertices. Each vertex has 3 decimals (X, Y, Z). Object vertices
+        # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
+        #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
         self._vertices = []
-        self._normals = []
-        self._texcoords = []
-        self._indices = []
-        self._vertex_count = 0
-        self._model_matrix = None
+        self._normals = [] #  Vertice normals, 1 normal coordinate for 1 Vertex.
+        self._texcoords = [] # Texture coordinates, 1 coordinate for each vertex.
+        self._indices = [] # Indices that make up a face.
+        self._vertex_count = 0 # Number of vertices to report to OpenGL.
+        self._model_matrix = None # Model matrix.
 
         # Default object uses default shaders.
         variables = ['model', 'view', 'projection',
@@ -106,9 +100,10 @@ class Object(object):
             glDeleteVertexArrays(1, [self._vao])
         return True
 
-    def render(self, proj, view, light_pos, light_color):
+    def render(self, proj, view, light_pos, light_color, parent_matrix = None):
         """
-        Virtual function for rendering the object.
+        Virtual function for rendering the object. Some objects can overwrite
+        this function.
 
         Args:
           proj: Camera projection matrix.
@@ -124,6 +119,8 @@ class Object(object):
         # Setup shader arguments
         self._shader.use()
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
+        if parent_matrix is not None:
+            self._model_matrix = parent_matrix.dot(self._model_matrix)
 
         self._shader.set_matrix4x4_np('model', self._model_matrix)
         self._shader.set_matrix4x4_np('view', view)
@@ -145,11 +142,15 @@ class Object(object):
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
 
-        # render
+        # End using the shader program.
         self._shader.end()
 
         for child in self.children:
-            self.children[child].render()
+            self.children[child].render(proj,
+                                        view,
+                                        light_pos,
+                                        light_color,
+                                        self._model_matrix)
 
 
     def set_position(self, pos):
@@ -158,13 +159,21 @@ class Object(object):
 
         Basically just sets 12, 13, 14 = x, y, z
         """
-        self.matrix[12] = pos[0]
-        self.matrix[13] = pos[1]
-        self.matrix[14] = pos[2]
+        self.matrix[3][0] = pos[0]
+        self.matrix[3][1] = pos[1]
+        self.matrix[3][2] = pos[2]
+    
+    def add_child(self, name, obj):
+        if name in self.children:
+            logging.error('Name {} exists in object children'.format(name))
+            return False
+        if not isinstance(obj, Object):
+            logging.error('Object type is not valid')
+            return False
+        self.children[name] = obj
 
     def get_position(self):
-        return self.matrix[12:15]
-
+        return self.matrix[3][:3]
 
     def to_absolute(self, coordinates):
         """
@@ -274,6 +283,7 @@ class Scene(object):
         # animate objects in the scene or do other stuff.
         self.clocks = {}
         self.grid = Grid()
+        self._background = Background()
 
         # SDL Related Stuff
         self.window = None
@@ -296,6 +306,7 @@ class Scene(object):
         """
         # Disable Depth Test to draw background at the very back of the scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        self._background.render()
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
 
@@ -524,11 +535,58 @@ class Scene(object):
             sdl2.SDL_GL_SwapWindow(self.window)
             sdl2.SDL_Delay(10)
 
-        for object in self.objects:
-            self.objects[object].destroy()
+        for obj in self.objects:
+            self.objects[obj].destroy()
+        for clock in self.clocks:
+            self.clocks[clock].kill()
 
         sdl2.SDL_GL_DeleteContext(self._context)
         sdl2.SDL_DestroyWindow(self.window)
         self.window = None
         sdl2.SDL_Quit()
         return 0
+
+class Background(object):
+    """Background is a special object
+
+    Only used by Scene and used for once. It has a special place in the render
+    pipeline. This is the first object to be rendered in each cycle and before
+    rendering this object, Scene disables depth test. So, every other element
+    in the scene can be drawn on top of this background.
+
+    (Shader code and idea derived from the original work of:
+    https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
+    """
+    def __init__(self, **args):
+        super(Background, self).__init__(**args)
+        self.top_color = args.get('top_color', [0.3, 0.3, 0.5, 1.0])
+        self.bottom_color = args.get('bottom_color', [0.1, 0.1, 0.1, 1.0])
+        variables = ['top_color', 'bot_color']
+        self._shader = Shader(fragment=background_fragment_shader,
+                              vertex=background_vertex_shader,
+                              variables=variables)
+        self._vao = None
+        self.visible = True
+
+    def render(self):
+        if not self.visible:
+            return False
+
+        if not self._vao:
+            self._vao = glGenVertexArrays(1)
+            glBindVertexArray(self._vao)
+            self._shader.build()
+            glBindVertexArray(0)
+
+        glDisable(GL_DEPTH_TEST)
+
+        self._shader.use()
+        self._shader.set_vector4_np('top_color', np.array(self.top_color,
+                                                          dtype=np.float32))
+        self._shader.set_vector4_np('bot_color', np.array(self.bottom_color,
+                                                          dtype=np.float32))
+        glBindVertexArray(self._vao)
+        glDrawArrays(GL_TRIANGLES, 0, 3)
+        glBindVertexArray(0)
+        self._shader.end()
+        glEnable(GL_DEPTH_TEST)
