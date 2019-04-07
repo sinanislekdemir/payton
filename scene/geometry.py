@@ -11,9 +11,278 @@ lists are not generated until rendering.
 
 import math
 import numpy as np
+
+from OpenGL.GL import *
+
 from payton.math.vector import plane_normal
-from payton.scene import Object
-from payton.scene.shader import lightless_fragment_shader
+from payton.scene.shader import lightless_fragment_shader, Shader
+from payton.scene.material import WIREFRAME
+from payton.scene.material import Material, SOLID
+
+
+class Object(object):
+    """Main Payton Object.
+
+    This is an abstract class to define common properties between
+    Mesh / Particle / Virtual objects.
+
+    Objects are not actually built as a 3D object until rendering.
+    Render function calls `build` function if needed. Build function creates
+    the OpenGL Vertex Array Object. VAO is a static data so, once the object
+    is built, changing vertices or indices will not take effect at the scene.
+
+    You need to call `payton.scene.Object.build` function to refresh Vertex
+    Array Object.
+
+    Unfortunately, partial updates are not supported in this version as we
+    do not know if data length is changed or not. OpenGL can replace bytes
+    in an existing buffer but can not magically resize it. In case of a
+    resize, a new buffer needs to be created by glBufferData.
+    """
+    def __init__(self, **args):
+        """
+        Initialize the basic object properties.
+
+        Properties:
+
+        *Children*: Children hash for object. Each child object follows parent
+        object. They take their parent object as origin and their coordinate
+        system is relative to their parent. This behaviour resembles stars,
+        planets and their moons.
+
+        *Material*: Material definitions of the object.
+        *Matrix*: Matrix definition of the object. This is a 4x4 Uniform Matrix.
+        But data is set as an array for easier transformations. First 4 decimals
+        are "Left" vector, Second 4 are "Direction", Third 4 are "Up" and last
+        four decimals are "Position" vectors.
+
+        Args:
+          track_motion: Track object motion (default: false). Object tracking is
+        time independent. It just saves the object matrix for every change. Uses
+        matrix position for drawing the motion path.
+          static: (Default `True`) Indicates if object geometry is expected to
+        be changed in the future. If object is not static, then its' vertex
+        buffer object references and vertex informations will not be deleted
+        to be used for future reference. 
+        """
+        self.children = {}
+        self.material = Material()
+        self.static = args.get('static', True)
+        self.matrix = [[1.0, 0.0, 0.0, 0.0],
+                       [0.0, 1.0, 0.0, 0.0],
+                       [0.0, 0.0, 1.0, 0.0],
+                       [0.0, 0.0, 0.0, 1.0]]
+        # Object vertices. Each vertex has 3 decimals (X, Y, Z). Object vertices
+        # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
+        #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
+        self._vertices = []
+        self._normals = [] #  Vertice normals, 1 normal coordinate for 1 Vertex.
+        self._texcoords = [] # Texture coordinates, 1 coordinate for each vertex.
+        self._indices = [] # Indices that make up a face.
+        self._vertex_count = 0 # Number of vertices to report to OpenGL.
+        self._model_matrix = None # Model matrix.
+        self.track_motion = args.get('track_motion', False) # Track object motion
+        self._motion_path = []
+        if not isinstance(self, Line):
+            self._motion_path_line = Line()
+        self._previous_matrix = None
+
+        # Default object uses default shaders.
+        variables = ['model', 'view', 'projection',
+                     'light_pos', 'light_color', 'object_color']
+        self._shader = Shader(variables=variables)
+
+        # Vertex Array Object pointer
+        self._vao = None
+        # I personally prefer not to delete vbos as in some cases I need to
+        # refer to VBOs to update them partially. I don't want to loose
+        # their reference and make things harder. I am not naming them
+        # anyways.
+        self._vbos = None
+
+    def destroy(self):
+        """
+        Destroy objects self
+        """
+        if self._vao:
+            glDeleteVertexArrays(1, [self._vao])
+            self._vao = None
+        return True
+
+    def render(self, proj, view, light_pos, light_color, parent_matrix = None):
+        """
+        Virtual function for rendering the object. Some objects can overwrite
+        this function.
+
+        Args:
+          proj: Camera projection matrix.
+          view: Camera location/view matrix.
+          light_pos: Light position
+          light_color: Light color
+
+        """
+
+        if not self._vao:
+            self.build()
+
+        # Setup shader arguments
+        self._shader.use()
+        self._model_matrix = np.array(self.matrix, dtype=np.float32)
+        if parent_matrix is not None:
+            self._model_matrix = parent_matrix.dot(self._model_matrix)
+
+        if self.track_motion:
+            if self._previous_matrix != self.matrix:
+                self._motion_path.append(self.matrix)
+                self._motion_path_line.append(
+                    [self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]])
+                # Python trick here! need to .copy or it will pass reference.
+                self._previous_matrix = self.matrix[3]
+
+        self._shader.set_matrix4x4_np('model', self._model_matrix)
+        self._shader.set_matrix4x4_np('view', view)
+        self._shader.set_matrix4x4_np('projection', proj)
+        self._shader.set_vector3_np('light_pos', light_pos)
+        self._shader.set_vector3_np('light_color', light_color)
+        self._shader.set_vector3('object_color', np.array(self.material.color,
+                                                          dtype=np.float32))
+
+        if glIsVertexArray(self._vao):
+            glBindVertexArray(self._vao)
+            pmode = GL_LINE
+            primitive = GL_LINES
+            if self.material.display == SOLID:
+                pmode = GL_FILL
+                primitive = GL_TRIANGLES
+            glPolygonMode(GL_FRONT_AND_BACK, pmode)
+
+            glDrawElements(primitive, self._vertex_count,
+                           GL_UNSIGNED_INT, ctypes.c_void_p(0))
+            if pmode != GL_FILL:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+            glBindVertexArray(0)
+
+        # End using the shader program.
+        self._shader.end()
+        if self.track_motion:
+            # self._motion_path_line.build_lines(vertices=self._motion_path)
+            self._motion_path_line.render(proj,
+                                          view,
+                                          light_pos,
+                                          light_color,
+                                          parent_matrix)
+
+        for child in self.children:
+            self.children[child].render(proj,
+                                        view,
+                                        light_pos,
+                                        light_color,
+                                        self._model_matrix)
+
+
+    def set_position(self, pos):
+        """
+        Shortcut function for explicitly modifying matrix indices.
+
+        Basically just sets 12, 13, 14 = x, y, z
+        """
+        self.matrix[3][0] = pos[0]
+        self.matrix[3][1] = pos[1]
+        self.matrix[3][2] = pos[2]
+
+    def add_child(self, name, obj):
+        if name in self.children:
+            logging.error('Name {} exists in object children'.format(name))
+            return False
+        if not isinstance(obj, Object):
+            logging.error('Object type is not valid')
+            return False
+        self.children[name] = obj
+
+    def get_position(self):
+        return self.matrix[3][:3]
+
+    def to_absolute(self, coordinates):
+        """
+        Return local coordinates (tuple, list) into absolute coordinates in
+        space.
+        """
+        pass
+
+    def to_local(self, coordinates):
+        """
+        Return absolute coordinates (tuple, list) into local coordinates
+        """
+        pass
+
+    def build(self):
+        """
+        Build OpenGL Vertex Array for the object
+        This function gets automatically called if `self._vao` does not
+        exists in the first render cycle. Once the vba is built,
+        geometry changes or material display mode changes will not be
+        automatically effected. So, in every geometry or display mode
+        change, a `build` call is necessary.
+
+        if `self.static` is `True`, then system assumes that another update
+        call is not expected, thus frees `_normals', `_textcoords`,
+        `_vertices` and `_indices` lists to free memory.
+        So in this case, calling `build` function twice will result with
+        an invisible object (will not be drawn)
+        """
+        if self._vao is None:
+            self._vao = glGenVertexArrays(1)
+            self._vbos = glGenBuffers(4)
+
+        glBindVertexArray(self._vao)
+
+        self._shader.build()
+        vertices = np.array(self._vertices, dtype=np.float32)
+        normals = np.array(self._normals, dtype=np.float32)
+        texcoords = np.array(self._texcoords, dtype=np.float32)
+        indices = np.array(self._indices, dtype=np.int32)
+        draw = GL_STATIC_DRAW
+        if not self.static:
+            draw = GL_DYNAMIC_DRAW
+
+        # Bind Vertices
+        glBindBuffer(GL_ARRAY_BUFFER, self._vbos[0])
+        glEnableVertexAttribArray(0) # shader layout location
+        glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes,
+                     vertices, draw)
+
+        # Bind Normals
+        glBindBuffer(GL_ARRAY_BUFFER, self._vbos[1])
+        glEnableVertexAttribArray(1) # shader layout location
+        glVertexAttribPointer(1, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glBufferData(GL_ARRAY_BUFFER, normals.nbytes, normals, draw)
+
+        # Bind TexCoords
+        glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
+        glEnableVertexAttribArray(2) # shader layout location
+        glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glBufferData(GL_ARRAY_BUFFER, texcoords.nbytes, texcoords,
+                     draw)
+
+        # Bind Indices
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self._vbos[3])
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, draw)
+        self._vertex_count = len(indices)
+
+        glBindVertexArray(0)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+        if self.static:
+            # we can clear this data to free some more memory
+            glDeleteBuffers(4, self._vbos)
+            self._vbos = None
+            self._normals = []
+            self._texcoords = []
+            self._vertices = []
+            self._indices = []
+
+        return True
 
 
 class Cube(Object):
@@ -237,3 +506,103 @@ class Sphere(Object):
                 self._indices += [indices, indices+2, indices+3]
                 indices += 4
         return True
+
+
+class Line(Object):
+    """Line object
+    """
+    def __init__(self, **args):
+        """Iniitalize line
+      
+        Args:
+          vertices: Vertices array for list of points.
+          color: Color of the line
+        """
+        super(Line, self).__init__(**args)
+        self._vertices = args.get('vertices', [])
+        self.material.color = args.get('color', [1.0, 1.0, 1.0])
+
+        variables = ['model', 'view', 'projection',
+                     'light_pos', 'light_color', 'object_color']
+        self._shader = Shader(fragment=lightless_fragment_shader,
+                              variables=variables)
+        self.visible = True
+        self.static = False # Do not clear the vertices each time.
+        self.material.display = WIREFRAME
+        self.build_lines()
+    
+    def append(self, vertices):
+        """Append vertex or vertices to line.
+
+        Args:
+          vertices: Vertex array of points.
+        """
+        if len(vertices) % 3 != 0:
+            logging.error('Number of vertices must be a power of 3')
+            return False
+        diff = math.ceil(len(vertices) / 3.0)  # Number of vertices added
+        self._vertices.extend(vertices)
+        self._texcoords.extend([0, 0] * diff)
+        self._normals.extend([0, 0, 0] * diff)
+
+        self._vertex_count = math.ceil(len(self._vertices) / 3.0)
+
+        if self._vertex_count == 1:
+            # Not enough to draw any line.
+            return True
+
+        if self._vertex_count == 2:
+            self._indices.extend([0, 1])            
+            if self._vao is not None:
+                self.build()
+            return True
+
+        last = self._indices[-1]        
+
+        for i in range(diff):
+            self._indices.extend([last+i, last+i+1])
+
+        if self._vao is not None:
+            self.build()
+            
+    def build_lines(self, vertices=None, color=None):
+        """Build lines
+
+        Build line vertex array object.
+        """
+        if vertices is not None:
+            self._vertices = vertices
+        if color is not None:
+            self.material.color = color
+        self._vertex_count = math.ceil(len(self._vertices) / 3.0)
+        for i in range(self._vertex_count - 1):
+            self._indices += [i, i+1]
+
+        for i in range(self._vertex_count):
+            self._normals += [0, 0, 0]
+            self._texcoords += [0, 0]
+
+        if self._vao is not None:
+            # This is a dynamic object, destroying the object is not a good idea
+            # so we just update the buffer here.
+            self.build()
+
+    def optimize(self, dist=0.1):
+        """Optimize lines.
+
+        In some cases, (like tracking an object), distance between two
+        vertices in the lines array can be so close and there can be a large
+        number of vertices, leading to a performance issue.
+
+        Optimize function removes redundant vertices from the list upto a given
+        factor as `dist`.
+
+        Args:
+          dist: Expected distance between two line segments.
+        """
+        vc = self._vertex_count
+        vl = self._vertices
+        for i in range(vc):
+            x, y, z = (vl[i*3], vl[i*3 + 1], vl[i*3 + 2])
+            for j in range(vc-i):
+                pass

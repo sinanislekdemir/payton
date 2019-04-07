@@ -76,8 +76,15 @@ to make your life easier.
 
 - **Zoom In-Out**: Left Ctrl + Mouse Drag (up and down)
 - **Rotate**: Left Shift + Mouse Drag (left and right)
-- **C** *(Press c from keyboard)*: Change camera mode (Perspective / Orthographic)
-- **P** *(Press p from keyboard)*: Pause scene (stop all Clocks)
-- **G** *(Press g from keyboard)*: Show/Hide Grid.
+- **ESC**: Quit Simulation
+- **C**: Change camera mode (Perspective / Orthographic)
+- **P**: Pause scene (stop all Clocks)
+- **G**: Show/Hide Grid.
+- **W**: Display mode: Wireframe / Solid
+- **F2**: Previous observer
+- **F3**: Next observer
 
+### IMPORTANT!
+
+All Clocks are initially paused! You must press P to unpause them.
 """

@@ -19,7 +19,10 @@ Each clock is technically a safe thread.
 For accurate data calculations, time stops until the execution of the
 callback function ends.
 
-*Note:* Keyboard shortcut `P` stops time for all clocks in the scene.
+*Note:* All clocks are initially paused. You should hit *P* to unpause them.
+The main reason is, clock threads are created and started before SDL2 and
+whole OpenGL scene is ready, so there is a chance that you can not see
+the beginning of your time based simulations.
 
 Example usage:
 
@@ -45,42 +48,43 @@ Example usage:
         global LAUNCH_ANGLE
         global GRAVITY
         global INITIAL_VELOCITY
-        if scene.objects[0].matrix[14] < 0:
+        position = scene.objects['ball'].get_position()
+        if position[2] < 0:
             # Do not continue simulation if we hit the ground.
             scene.clocks[name].kill()  # We do not need this clock anymore
             return None
 
         # Go towards -Y direction.
-        scene.objects[0].matrix[13] = -(INITIAL_VELOCITY * total *
-                                        math.cos(LAUNCH_ANGLE))
-        scene.objects[0].matrix[14] = (INITIAL_VELOCITY * total *
-                                       math.sin(LAUNCH_ANGLE) -
-                                       0.5 * GRAVITY * (total ** 2))
+        position[1] = -(INITIAL_VELOCITY * total *
+                        math.cos(LAUNCH_ANGLE))
+        position[2] = (INITIAL_VELOCITY * total *
+                       math.sin(LAUNCH_ANGLE) -
+                       0.5 * GRAVITY * (total ** 2))
+        scene.objects['ball'].set_position(position)
         return None
 
 
     def logger(name, scene, period, total):
-        if scene.objects[0].matrix[14] < 0:
+        if scene.objects['ball'].matrix[3][2] < 0:
             # Do not continue simulation if we hit the ground.
             scene.clocks[name].kill()  # We do not need this clock anymore
             return None
 
         # Log ball location
-        logging.debug("Ball position: x:{} y:{} z:{} t={}".format(
-            scene.objects[0].matrix[12],
-            scene.objects[0].matrix[13],
-            scene.objects[0].matrix[14], total))
+        logging.debug('Ball position: x:{} y:{} z:{} t={}'.format(
+            scene.objects['ball'].matrix[3][0],
+            scene.objects['ball'].matrix[3][1],
+            scene.objects['ball'].matrix[3][2], total))
 
 
     #  Definitions
     pm_scene = Scene()
-    pm_scene.grid.set_size(100)
-
-    ball = Sphere(radius=1)
+    ball = Sphere(radius=1, track_motion=True)
 
     # Add ball to the scene
-    pm_scene.add_object(ball)
+    pm_scene.add_object('ball', ball)
     pm_scene.observers[0].target_object = ball #  Track the ball
+    pm_scene.grid.resize(30, 30, 2)
     pm_scene.create_clock("motion", 0.01, projectile_motion)
     pm_scene.create_clock("logger", 0.01, logger)
     pm_scene.run()
@@ -113,7 +117,7 @@ class Clock(threading.Thread):
         self._total_time = 0
         self.callback = callback
         self._kill = False
-        self._pause = False
+        self._pause = True
 
     def kill(self):
         """

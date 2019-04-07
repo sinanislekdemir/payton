@@ -26,228 +26,15 @@ import ctypes
 
 from OpenGL.GL import *
 
+from payton.scene.controller import Controller
 from payton.scene.grid import Grid
+from payton.scene.geometry import Object
 from payton.scene.observer import Observer, BUTTON_LEFT, BUTTON_RIGHT
 from payton.scene.clock import Clock
-from payton.scene.material import Material, SOLID
 from payton.scene.light import Light
 from payton.scene.shader import (Shader, lightless_fragment_shader,
                                  background_fragment_shader,
                                  background_vertex_shader)
-
-
-class Object(object):
-    """Main Payton Object.
-
-    This is an abstract class to define common properties between
-    Mesh / Particle / Virtual objects.
-
-    Objects are not actually built as a 3D object until rendering.
-    Render function calls `build` function if needed. Build function creates
-    the OpenGL Vertex Array Object. VAO is a static data so, once the object
-    is built, changing vertices or indices will not take effect at the scene.
-
-    You need to call `payton.scene.Object.build` function to refresh Vertex
-    Array Object.
-    """
-    def __init__(self):
-        """
-        Initialize the basic object properties.
-
-        Properties:
- 
-        *Children*: Children hash for object. Each child object follows parent
-        object. They take their parent object as origin and their coordinate
-        system is relative to their parent. This behaviour resembles stars,
-        planets and their moons.
-
-        *Material*: Material definitions of the object.
-        *Matrix*: Matrix definition of the object. This is a 4x4 Uniform Matrix.
-        But data is set as an array for easier transformations. First 4 decimals
-        are "Left" vector, Second 4 are "Direction", Third 4 are "Up" and last
-        four decimals are "Position" vectors.
-        """
-        self.children = {}
-        self.material = Material()
-        self.static = True
-        self.matrix = [[1.0, 0.0, 0.0, 0.0],
-                       [0.0, 1.0, 0.0, 0.0],
-                       [0.0, 0.0, 1.0, 0.0],
-                       [0.0, 0.0, 0.0, 1.0]]
-        # Object vertices. Each vertex has 3 decimals (X, Y, Z). Object vertices
-        # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
-        #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
-        self._vertices = []
-        self._normals = [] #  Vertice normals, 1 normal coordinate for 1 Vertex.
-        self._texcoords = [] # Texture coordinates, 1 coordinate for each vertex.
-        self._indices = [] # Indices that make up a face.
-        self._vertex_count = 0 # Number of vertices to report to OpenGL.
-        self._model_matrix = None # Model matrix.
-
-        # Default object uses default shaders.
-        variables = ['model', 'view', 'projection',
-                     'light_pos', 'light_color', 'object_color']
-        self._shader = Shader(variables=variables)
-
-        # Vertex Array Object pointer
-        self._vao = None
-
-    def destroy(self):
-        """
-        Destroy objects self
-        """
-        if self._vao:
-            glDeleteVertexArrays(1, [self._vao])
-        return True
-
-    def render(self, proj, view, light_pos, light_color, parent_matrix = None):
-        """
-        Virtual function for rendering the object. Some objects can overwrite
-        this function.
-
-        Args:
-          proj: Camera projection matrix.
-          view: Camera location/view matrix.
-          light_pos: Light position
-          light_color: Light color
-
-        """
-
-        if not self._vao:
-            self.build()
-
-        # Setup shader arguments
-        self._shader.use()
-        self._model_matrix = np.array(self.matrix, dtype=np.float32)
-        if parent_matrix is not None:
-            self._model_matrix = parent_matrix.dot(self._model_matrix)
-
-        self._shader.set_matrix4x4_np('model', self._model_matrix)
-        self._shader.set_matrix4x4_np('view', view)
-        self._shader.set_matrix4x4_np('projection', proj)
-        self._shader.set_vector3_np('light_pos', light_pos)
-        self._shader.set_vector3_np('light_color', light_color)
-        self._shader.set_vector3('object_color', np.array(self.material.color,
-                                                          dtype=np.float32))
-
-        if glIsVertexArray(self._vao):
-            glBindVertexArray(self._vao)
-            pmode = GL_LINE
-            if self.material.display == SOLID:
-                pmode = GL_FILL
-            glPolygonMode(GL_FRONT_AND_BACK, pmode)
-            glDrawElements(GL_TRIANGLES, self._vertex_count,
-                           GL_UNSIGNED_INT, ctypes.c_void_p(0))
-            if pmode != GL_FILL:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-            glBindVertexArray(0)
-
-        # End using the shader program.
-        self._shader.end()
-
-        for child in self.children:
-            self.children[child].render(proj,
-                                        view,
-                                        light_pos,
-                                        light_color,
-                                        self._model_matrix)
-
-
-    def set_position(self, pos):
-        """
-        Shortcut function for explicitly modifying matrix indices.
-
-        Basically just sets 12, 13, 14 = x, y, z
-        """
-        self.matrix[3][0] = pos[0]
-        self.matrix[3][1] = pos[1]
-        self.matrix[3][2] = pos[2]
-    
-    def add_child(self, name, obj):
-        if name in self.children:
-            logging.error('Name {} exists in object children'.format(name))
-            return False
-        if not isinstance(obj, Object):
-            logging.error('Object type is not valid')
-            return False
-        self.children[name] = obj
-
-    def get_position(self):
-        return self.matrix[3][:3]
-
-    def to_absolute(self, coordinates):
-        """
-        Return local coordinates (tuple, list) into absolute coordinates in
-        space.
-        """
-        pass
-
-    def to_local(self, coordinates):
-        """
-        Return absolute coordinates (tuple, list) into local coordinates
-        """
-        pass
-
-    def build(self):
-        """
-        Build OpenGL Vertex Array for the object
-        This function gets automatically called if `self._vao` does not
-        exists in the first render cycle. Once the display list is built,
-        geometry changes or material display mode changes will not be
-        automatically effected. So, in every geometry or display mode
-        change, a build call is necessary.
-
-        if `self.static` is `True`, then system assumes that another build
-        call is not expected, thus frees `_normals', `_textcoords`,
-        `_vertices` and `_indices` lists to free memory.
-        So in this case, calling `build` function twice will result with
-        an invisible object (will not be drawn)
-
-        """
-        self._vao = glGenVertexArrays(1)
-        vbos = glGenBuffers(4)
-        glBindVertexArray(self._vao)
-
-        self._shader.build()
-        vertices = np.array(self._vertices, dtype=np.float32)
-        normals = np.array(self._normals, dtype=np.float32)
-        texcoords = np.array(self._texcoords, dtype=np.float32)
-        indices = np.array(self._indices, dtype=np.int32)
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbos[0])
-        glEnableVertexAttribArray(0) # shader layout location
-        glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes,
-                     vertices, GL_STATIC_DRAW)
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbos[1])
-        glEnableVertexAttribArray(1) # shader layout location
-        glVertexAttribPointer(1, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        glBufferData(GL_ARRAY_BUFFER, normals.nbytes, normals, GL_STATIC_DRAW)
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbos[2])
-        glEnableVertexAttribArray(2) # shader layout location
-        glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        glBufferData(GL_ARRAY_BUFFER, texcoords.nbytes, texcoords,
-                     GL_STATIC_DRAW)
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[3])
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
-        self._vertex_count = len(indices)
-
-        glBindVertexArray(0)
-        # glDisableVertexAttribArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-        glDeleteBuffers(4, vbos)
-
-        if self.static:
-            # we can clear this data to free some more memory
-            self._normals = []
-            self._texcoords = []
-            self._vertices = []
-            self._indices = []
-
-        return True
 
 
 class Scene(object):
@@ -283,6 +70,7 @@ class Scene(object):
         # animate objects in the scene or do other stuff.
         self.clocks = {}
         self.grid = Grid()
+        self.controller = Controller()
         self._background = Background()
 
         # SDL Related Stuff
@@ -438,7 +226,8 @@ class Scene(object):
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MINOR_VERSION, 3)
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_PROFILE_MASK,
                                  sdl2.SDL_GL_CONTEXT_PROFILE_CORE)
-
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
         self.window = sdl2.SDL_CreateWindow(b"Payton Scene",
                                             sdl2.SDL_WINDOWPOS_UNDEFINED,
                                             sdl2.SDL_WINDOWPOS_UNDEFINED,
@@ -463,73 +252,8 @@ class Scene(object):
 
         while self.running:
             while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
-                if self.event.type == sdl2.SDL_QUIT:
-                    logging.debug('Quit SDL Scene')
-                    self.running = False
-                    for clock in self.clocks:
-                        c = self.clocks[clock]
-                        logging.debug('Kill clock [{}]'.format(clock))
-                        c.kill()
-                        c.join()
-
-                if self.event.type == sdl2.SDL_KEYDOWN:
-                    key = self.event.key.keysym.sym
-                    if key == sdl2.SDLK_LSHIFT:
-                        self._shift_down = True
-                    if key == sdl2.SDLK_LCTRL:
-                        self._ctrl_down = True
-
-                if self.event.type == sdl2.SDL_KEYUP:
-                    key = self.event.key.keysym.sym
-                    if key == sdl2.SDLK_LSHIFT:
-                        self._shift_down = False
-                    if key == sdl2.SDLK_LCTRL:
-                        self._ctrl_down = False
-
-                    if key == sdl2.SDLK_c:
-                        self.observers[0].perspective = not self.observers[0].perspective
-                        logging.debug('Observer[0] Perspective = {}'.format(
-                            'True' if self.observers[0].perspective else 'False'))
-
-                    if key == sdl2.SDLK_g:
-                        self.grid.visible = not self.grid.visible
-
-                    if key == sdl2.SDLK_p:
-                        for clock in self.clocks:
-                            c = self.clocks[clock]
-                            logging.debug('Pause clock [{}]'.format(clock))
-                            c.pause()
-                    if key == sdl2.SDLK_ESCAPE:
-                        self.running = False
-                    if key in [sdl2.SDLK_F2, sdl2.SDLK_F3]:
-                        active = 0
-                        for i in range(len(self.observers)):
-                            if self.observers[i].active:
-                                active = i
-                        if key == sdl2.SDLK_F2:
-                            active -= 1
-                        if key == sdl2.SDLK_F3:
-                            active += 1
-                        if active < 0:
-                            active = len(self.observers) - 1
-                        if active > len(self.observers) - 1:
-                            active = 0
-                        self._active_observer = active
-                        for i in range(len(self.observers)):
-                            self.observers[i].active = (i == active)
-
-                if self.event.type == sdl2.SDL_MOUSEMOTION:
-                    button = -1
-                    if self.event.motion.state == sdl2.SDL_BUTTON_LMASK:
-                        button = BUTTON_LEFT
-                    if self.event.motion.state == sdl2.SDL_BUTTON_RMASK:
-                        button = BUTTON_RIGHT
-                    for o in self.observers:
-                        o.mouse(button, self._shift_down, self._ctrl_down,
-                                self.event.motion.x,
-                                self.event.motion.y,
-                                self.event.motion.xrel,
-                                self.event.motion.yrel)
+                self.controller.keyboard(self.event, self)
+                self.controller.mouse(self.event, self)
 
             self._render()
             sdl2.SDL_GL_SwapWindow(self.window)
@@ -559,7 +283,7 @@ class Background(object):
     """
     def __init__(self, **args):
         super(Background, self).__init__(**args)
-        self.top_color = args.get('top_color', [0.3, 0.3, 0.5, 1.0])
+        self.top_color = args.get('top_color', [0.0, 0.2, 0.4, 1.0])
         self.bottom_color = args.get('bottom_color', [0.1, 0.1, 0.1, 1.0])
         variables = ['top_color', 'bot_color']
         self._shader = Shader(fragment=background_fragment_shader,

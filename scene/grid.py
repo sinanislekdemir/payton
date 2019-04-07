@@ -38,7 +38,7 @@ class Grid(object):
         """
         xres = args.get('xres', 20)
         yres = args.get('yres', 20)
-        self.color = args.get('color', [0.1, 0.1, 0.1])
+        self.color = args.get('color', [0.4, 0.4, 0.4])
 
         self.static = True
         self.matrix = [1.0, 0.0, 0.0, 0.0,
