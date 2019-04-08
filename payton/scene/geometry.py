@@ -19,6 +19,8 @@ from payton.scene.shader import lightless_fragment_shader, Shader
 from payton.scene.material import WIREFRAME
 from payton.scene.material import Material, SOLID
 
+VERTEX_BYTES = np.array([1.0, 1.0, 1.0], dtype=np.float32).nbytes
+
 
 class Object(object):
     """Main Payton Object.
@@ -65,6 +67,7 @@ class Object(object):
         buffer object references and vertex informations will not be deleted
         to be used for future reference. 
         """
+        global VERTEX_BYTES
         self.children = {}
         self.material = Material()
         self.static = args.get('static', True)
@@ -80,7 +83,13 @@ class Object(object):
         self._texcoords = [] # Texture coordinates, 1 coordinate for each vertex.
         self._indices = [] # Indices that make up a face.
         self._vertex_count = 0 # Number of vertices to report to OpenGL.
+        # This is an optimization technique for dynamic objects where there are
+        # increasing number of vertices. We allocate some buffer before-hand and
+        # if we fill all of it, we resize it.
+        self._buffer_size = 500 * VERTEX_BYTES
         self._model_matrix = None # Model matrix.
+        self._buffer_size_changed = True
+
         self.track_motion = args.get('track_motion', False) # Track object motion
         self._motion_path = []
         if not isinstance(self, Line):
@@ -165,7 +174,6 @@ class Object(object):
         # End using the shader program.
         self._shader.end()
         if self.track_motion:
-            # self._motion_path_line.build_lines(vertices=self._motion_path)
             self._motion_path_line.render(proj,
                                           view,
                                           light_pos,
@@ -245,25 +253,41 @@ class Object(object):
         if not self.static:
             draw = GL_DYNAMIC_DRAW
 
+        # Buffer overflow, we need more space.
+        if self._buffer_size < vertices.nbytes:
+            global VERTEX_BYTES
+            self._buffer_size = vertices.nbytes + (500 * VERTEX_BYTES)
+            self._buffer_size_changed = True
+
         # Bind Vertices
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[0])
         glEnableVertexAttribArray(0) # shader layout location
         glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes,
-                     vertices, draw)
+        if self._buffer_size_changed:
+            glBufferData(GL_ARRAY_BUFFER, self._buffer_size,
+                         vertices, draw)
+        else:
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.nbytes, vertices)
 
         # Bind Normals
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[1])
         glEnableVertexAttribArray(1) # shader layout location
         glVertexAttribPointer(1, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        glBufferData(GL_ARRAY_BUFFER, normals.nbytes, normals, draw)
+        if self._buffer_size_changed:
+            glBufferData(GL_ARRAY_BUFFER, self._buffer_size, normals, draw)
+        else:
+            glBufferSubData(GL_ARRAY_BUFFER, 0, normals.nbytes, normals)
 
         # Bind TexCoords
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
         glEnableVertexAttribArray(2) # shader layout location
         glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        glBufferData(GL_ARRAY_BUFFER, texcoords.nbytes, texcoords,
-                     draw)
+        if self._buffer_size_changed:
+            glBufferData(GL_ARRAY_BUFFER, self._buffer_size, texcoords,
+                         draw)
+        else:
+            glBufferSubData(GL_ARRAY_BUFFER, 0, texcoords.nbytes, texcoords)
+        self._buffer_size_changed = False
 
         # Bind Indices
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self._vbos[3])

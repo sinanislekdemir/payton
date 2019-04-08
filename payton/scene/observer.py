@@ -46,6 +46,7 @@ class Observer(object):
         # zoom factor for Orthographic projection
         # self.zoom = args.get('zoom', 10)
         self.active = args.get('active', False)
+        self.perspective = args.get('perspective', True)
 
     def distance(self):
         """
