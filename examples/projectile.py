@@ -2,7 +2,6 @@ import logging
 import math
 
 from payton.scene import Scene
-from payton.scene.clock import Clock
 from payton.scene.geometry import Sphere
 
 logging.basicConfig(level=logging.DEBUG)
@@ -40,10 +39,8 @@ def logger(name, scene, period, total):
     if scene.objects['ball'].matrix[3][2] < 0:
         # Do not continue simulation if we hit the ground.
         scene.clocks[name].kill()  # We do not need this clock anymore
-        print(scene.objects['ball']._motion_path_line._vertices)
         return None
 
-    return None
     # Log ball location
     logging.debug('Ball position: x:{} y:{} z:{} t={}'.format(
         scene.objects['ball'].matrix[3][0],
@@ -60,5 +57,5 @@ pm_scene.add_object('ball', ball)
 pm_scene.observers[0].target_object = ball #  Track the ball
 pm_scene.grid.resize(30, 30, 2)
 pm_scene.create_clock("motion", 0.01, projectile_motion)
-pm_scene.create_clock("logger", 0.01, logger)
+pm_scene.create_clock("logger", 0.05, logger)
 pm_scene.run()

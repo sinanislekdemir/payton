@@ -44,7 +44,7 @@ class Observer(object):
 
         # self.perspective = args.get('perspective', True)
         # zoom factor for Orthographic projection
-        # self.zoom = args.get('zoom', 10)
+        self.zoom = args.get('zoom', 10)
         self.active = args.get('active', False)
         self.perspective = args.get('perspective', True)
 
@@ -52,6 +52,9 @@ class Observer(object):
         """
         Calculate distance to target
         """
+        if not self.perspective:
+            return self.zoom
+
         xdiff = self.position[0] - self.target[0]
         ydiff = self.position[1] - self.target[1]
         zdiff = self.position[2] - self.target[2]
@@ -91,6 +94,9 @@ class Observer(object):
                 self.distance_to_target(self.distance() + yrel)
 
     def distance_to_target(self, distance):
+        if not self.perspective:
+            self.zoom = distance
+            return
         diff = sub_vector(self.position, self.target)
         _theta = math.acos(diff[2] / self.distance())
         _phi = math.atan2(diff[1], diff[0])
@@ -107,11 +113,26 @@ class Observer(object):
         Return:
           (projection_matrix, view_matrix)
         """
-        projection_matrix = pyrr.matrix44.create_perspective_projection(
-            self.fov, self.aspect_ratio, self.near, self.far, dtype=np.float32)
+        if self.perspective:
+            projection_matrix = pyrr.matrix44.create_perspective_projection(
+                self.fov, self.aspect_ratio, self.near, self.far,
+                dtype=np.float32)
+        else:
+            x = 100 * (self.aspect_ratio)
+            y = 100
+            if self.zoom == 0:
+                self.zoom = 0.01
+            projection_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
+                left=(-x / self.zoom),
+                right=(x / self.zoom),
+                top=(y / self.zoom),
+                bottom=(-y /self.zoom),
+                near=self.near, far=self.far, dtype=np.float32)
+
         eye = np.array(self.position, dtype=np.float32)
         if self.target_object:
             self.target = self.target_object.get_position()
+
         target = np.array(self.target, dtype=np.float32)
         up = np.array(self.up, dtype=np.float32)
         view_matrix = pyrr.matrix44.create_look_at(eye, target, up)

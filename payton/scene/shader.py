@@ -16,10 +16,12 @@ essential to Payton Library. That is all.
 """
 
 import numpy as np # We need C floats
-import pyrr
 import logging
 
-from OpenGL.GL import *
+from OpenGL.GL import (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
+                       glGetUniformLocation, glUseProgram, GL_TRUE, GL_FALSE,
+                       glUniformMatrix4fv, glUniform3fv, glUniform4fv)
+
 from OpenGL.GL import shaders
 
 default_fragment_shader = """
@@ -216,7 +218,7 @@ class Shader(object):
         glUniformMatrix4fv(self._stack[variable], 1, transpose,
                            np.asfortranarray(value, dtype=np.float32))
         return True
-    
+
     def set_matrix4x4(self, variable, value, transpose=False):
         """Set 4x4 Matrix value
 
@@ -228,7 +230,6 @@ class Shader(object):
           value: Matrix to set. (Numpy matrix)
           transpose: Transpose matrix.
         """
-        np_array = np.array(value, dtype=np.float32)
         self.set_matrix4x4_np(variable, value, transpose)
 
     def set_vector3_np(self, variable, value):
@@ -253,7 +254,7 @@ class Shader(object):
                 return False
             self._stack[variable] = location
         glUniform3fv(self._stack[variable], 1, value)
-    
+
     def set_vector4_np(self, variable, value):
         """Set Vector 4 as numpy array value
 
@@ -290,5 +291,4 @@ class Shader(object):
           variable: Variable name to set
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         """
-        np_array = np.array(value, dtype=np.float32)
         self.set_vector3_np(variable, value)

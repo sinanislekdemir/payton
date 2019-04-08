@@ -16,23 +16,23 @@
     * Wavefront
 
 """
-import math
 import ctypes
 import sdl2
 import logging
 import numpy as np
-import pyrr
-import ctypes
 
-from OpenGL.GL import *
+from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, glEnable,
+                       GL_DEPTH_TEST, GL_LESS, glGenVertexArrays,
+                       glBindVertexArray, glDisable, glDrawArrays, glClear,
+                       glDepthFunc, GL_TRIANGLES)
 
 from payton.scene.controller import Controller
 from payton.scene.grid import Grid
 from payton.scene.geometry import Object
-from payton.scene.observer import Observer, BUTTON_LEFT, BUTTON_RIGHT
+from payton.scene.observer import Observer
 from payton.scene.clock import Clock
-from payton.scene.light import Light
-from payton.scene.shader import (Shader, lightless_fragment_shader,
+# from payton.scene.light import Light
+from payton.scene.shader import (Shader,
                                  background_fragment_shader,
                                  background_vertex_shader)
 

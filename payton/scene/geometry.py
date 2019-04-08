@@ -11,8 +11,17 @@ lists are not generated until rendering.
 
 import math
 import numpy as np
+import ctypes
+import logging
 
-from OpenGL.GL import *
+from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray, glBindVertexArray,
+                       GL_LINE, GL_LINES, GL_FILL, GL_TRIANGLES, glPolygonMode,
+                       glGenVertexArrays, glGenBuffers, GL_ARRAY_BUFFER,
+                       glEnableVertexAttribArray, glVertexAttribPointer,
+                       GL_FLOAT, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, glBindBuffer,
+                       glBufferData, glBufferSubData, GL_ELEMENT_ARRAY_BUFFER,
+                       glDeleteBuffers,
+                       GL_FRONT_AND_BACK, glDrawElements, GL_UNSIGNED_INT)
 
 from payton.math.vector import plane_normal
 from payton.scene.shader import lightless_fragment_shader, Shader
@@ -146,7 +155,7 @@ class Object(object):
                 self._motion_path_line.append(
                     [self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]])
                 # Python trick here! need to .copy or it will pass reference.
-                self._previous_matrix = self.matrix[3]
+                self._previous_matrix = self.matrix[3].copy()
 
         self._shader.set_matrix4x4_np('model', self._model_matrix)
         self._shader.set_matrix4x4_np('view', view)
@@ -610,23 +619,3 @@ class Line(Object):
             # This is a dynamic object, destroying the object is not a good idea
             # so we just update the buffer here.
             self.build()
-
-    def optimize(self, dist=0.1):
-        """Optimize lines.
-
-        In some cases, (like tracking an object), distance between two
-        vertices in the lines array can be so close and there can be a large
-        number of vertices, leading to a performance issue.
-
-        Optimize function removes redundant vertices from the list upto a given
-        factor as `dist`.
-
-        Args:
-          dist: Expected distance between two line segments.
-        """
-        vc = self._vertex_count
-        vl = self._vertices
-        for i in range(vc):
-            x, y, z = (vl[i*3], vl[i*3 + 1], vl[i*3 + 2])
-            for j in range(vc-i):
-                pass

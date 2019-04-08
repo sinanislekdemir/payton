@@ -8,8 +8,15 @@ Grid size can be adjusted. Grid is a perfect way to visually see the movement
 and positions of objects in space.
 """
 import numpy as np
+import ctypes
 
-from OpenGL.GL import *
+from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray, glPolygonMode,
+                       GL_FRONT_AND_BACK, GL_LINE, glDrawElements,
+                       glBindVertexArray, GL_FILL, glBindBuffer, glBufferData,
+                       glGenVertexArrays, glGenBuffers, GL_ARRAY_BUFFER,
+                       glEnableVertexAttribArray, glVertexAttribPointer,
+                       GL_FLOAT, GL_STATIC_DRAW, GL_ELEMENT_ARRAY_BUFFER,
+                       GL_LINES, GL_UNSIGNED_INT, glDeleteBuffers)
 from payton.scene.shader import lightless_fragment_shader, Shader
 
 class Grid(object):
@@ -129,7 +136,7 @@ class Grid(object):
             glDeleteVertexArrays(1, [self._vao])
         self._vao = None
 
-    def set_color(color):
+    def set_color(self, color):
         self.color = color
 
     def build(self):
