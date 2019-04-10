@@ -75,7 +75,7 @@ class Grid(object):
             glDeleteVertexArrays(1, [self._vao])
         return True
 
-    def render(self, proj, view, _light_pos, _light_color):
+    def render(self, proj, view, _lights):
         """
         Virtual function for rendering the object.
 

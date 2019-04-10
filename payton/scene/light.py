@@ -3,34 +3,33 @@
 Support for scene lights.
 """
 
-import logging
-
-LIGHT_INDEX = 0
+import numpy as np
 
 class Light(object):
     """Main Light object
     """
     def __init__(self, **args):
         """Initialize Payton Light
-        Note that, for every newly created light, a GL_LIGHTx will be
-        consumed. OpenGL 2.1 supports only 8 light sources. So, if you try to
-        create more than 8 lights, system will log an error and will not add
-        new light.
+
+        Args:
+          position: Position of the light in global coordinates
+          default position is [10, 7, 6]
+          color: Color of the light source.
         """
-        global LIGHT_INDEX
-        self.position = args.get('position', [0.0, 0.0, 0.0, 1.0])
-        self.ambient = args.get('ambient', [0.0, 0.0, 0.0, 1.0])
-        self.specular = args.get('specular', [1.0, 1.0, 1.0, 1.0])
+        self.position = args.get('position', [10.0, 7.0, 6.0])
+        self.color = args.get('color', [1.0, 1.0, 1.0])
+        self._position = np.array(self.position, dtype=np.float32)
+        self._color = np.array(self.color, dtype=np.float32)
 
         self.active = True
-        self.index = LIGHT_INDEX
-        LIGHT_INDEX += 1
-        if LIGHT_INDEX >= 8:
-            self.active = False
-            self.index = -1
-            logging.error('Can not create additional lights in the scene')
 
-    def render(self):
+    def set_position(self, position):
         """Render light
         """
-        pass
+        self.position = position
+        self._position = np.array(self.position, dtype=np.float32)
+    
+    def set_color(self, color):
+        self.color = color
+        self._color = np.array(self.color, dtype=np.float32)
+

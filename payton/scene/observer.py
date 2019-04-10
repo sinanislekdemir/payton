@@ -52,9 +52,6 @@ class Observer(object):
         """
         Calculate distance to target
         """
-        if not self.perspective:
-            return self.zoom
-
         xdiff = self.position[0] - self.target[0]
         ydiff = self.position[1] - self.target[1]
         zdiff = self.position[2] - self.target[2]
@@ -91,7 +88,10 @@ class Observer(object):
 
         if ctrl:
             if button == BUTTON_LEFT:
-                self.distance_to_target(self.distance() + yrel)
+                if self.perspective:
+                    self.distance_to_target(self.distance() + yrel)
+                else:
+                    self.distance_to_target(self.zoom + yrel)
 
     def distance_to_target(self, distance):
         if not self.perspective:

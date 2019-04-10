@@ -60,9 +60,7 @@ class Controller(object):
             if key == sdl2.SDLK_w:
                 for obj in scene.objects:
                     if not isinstance(scene.objects[obj], Line):
-                        d = scene.objects[obj].material.display
-                        d = 0 if d == 1 else 1
-                        scene.objects[obj].material.display = d
+                        scene.objects[obj].toggle_wireframe()
 
             if key == sdl2.SDLK_ESCAPE:
                 scene.running = False

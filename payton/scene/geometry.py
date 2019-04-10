@@ -100,6 +100,7 @@ class Object(object):
         self._buffer_size_changed = True
 
         self.track_motion = args.get('track_motion', False) # Track object motion
+
         self._motion_path = []
         if not isinstance(self, Line):
             self._motion_path_line = Line()
@@ -127,7 +128,7 @@ class Object(object):
             self._vao = None
         return True
 
-    def render(self, proj, view, light_pos, light_color, parent_matrix = None):
+    def render(self, proj, view, lights, parent_matrix = None):
         """
         Virtual function for rendering the object. Some objects can overwrite
         this function.
@@ -160,8 +161,12 @@ class Object(object):
         self._shader.set_matrix4x4_np('model', self._model_matrix)
         self._shader.set_matrix4x4_np('view', view)
         self._shader.set_matrix4x4_np('projection', proj)
-        self._shader.set_vector3_np('light_pos', light_pos)
-        self._shader.set_vector3_np('light_color', light_color)
+
+        # Currently we support only one light.
+        for light in lights:
+            self._shader.set_vector3_np('light_pos', light._position)
+            self._shader.set_vector3_np('light_color', light._color)
+
         self._shader.set_vector3('object_color', np.array(self.material.color,
                                                           dtype=np.float32))
 
@@ -185,15 +190,13 @@ class Object(object):
         if self.track_motion:
             self._motion_path_line.render(proj,
                                           view,
-                                          light_pos,
-                                          light_color,
+                                          lights,
                                           parent_matrix)
 
         for child in self.children:
             self.children[child].render(proj,
                                         view,
-                                        light_pos,
-                                        light_color,
+                                        lights,
                                         self._model_matrix)
 
 
@@ -231,6 +234,13 @@ class Object(object):
         Return absolute coordinates (tuple, list) into local coordinates
         """
         pass
+
+    def toggle_wireframe(self):
+        d = self.material.display
+        d = 0 if d == 1 else 1
+        self.material.display = d
+        for n in self.children:
+            self.children[n].toggle_wireframe()
 
     def build(self):
         """

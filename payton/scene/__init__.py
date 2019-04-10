@@ -29,6 +29,7 @@ from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, glEnable,
 from payton.scene.controller import Controller
 from payton.scene.grid import Grid
 from payton.scene.geometry import Object
+from payton.scene.light import Light
 from payton.scene.observer import Observer
 from payton.scene.clock import Clock
 # from payton.scene.light import Light
@@ -65,6 +66,7 @@ class Scene(object):
         self._active_observer = 0
 
         self.lights = []
+        self.lights.append(Light())
 
         # List of all clocks. Clocks are time based function holders which
         # animate objects in the scene or do other stuff.
@@ -104,13 +106,11 @@ class Scene(object):
         # for each object in the scene, we diretly pass their Numpy array
         # values to render pipeline.
         proj, view = self.observers[self._active_observer].render()
-        light_pos = np.array([3.0, 6.0, 9.0], dtype=np.float32)
-        light_color = np.array([1.0, 1.0, 1.0], dtype=np.float32)
 
-        self.grid.render(proj, view, light_pos, light_color)
+        self.grid.render(proj, view, self.lights)
 
         for object in self.objects:
-            self.objects[object].render(proj, view, light_pos, light_color)
+            self.objects[object].render(proj, view, self.lights)
 
         return 0
 
