@@ -91,6 +91,7 @@ void main()
     l_normal = mat3(transpose(inverse(model))) * normal;
 
     gl_Position = projection * view * model * vec4(position, 1.0f);
+    gl_PointSize = 2.0;
 }
 """
 

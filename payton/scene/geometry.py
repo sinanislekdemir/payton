@@ -20,13 +20,12 @@ from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray, glBindVertexArray,
                        glEnableVertexAttribArray, glVertexAttribPointer,
                        GL_FLOAT, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, glBindBuffer,
                        glBufferData, glBufferSubData, GL_ELEMENT_ARRAY_BUFFER,
-                       glDeleteBuffers,
+                       glDeleteBuffers, GL_POINT, GL_POINTS,
                        GL_FRONT_AND_BACK, glDrawElements, GL_UNSIGNED_INT)
 
 from payton.math.vector import plane_normal
-from payton.scene.shader import lightless_fragment_shader, Shader
 from payton.scene.material import WIREFRAME
-from payton.scene.material import Material, SOLID
+from payton.scene.material import Material, SOLID, POINTS
 
 VERTEX_BYTES = np.array([1.0, 1.0, 1.0], dtype=np.float32).nbytes
 
@@ -74,7 +73,7 @@ class Object(object):
           static: (Default `True`) Indicates if object geometry is expected to
         be changed in the future. If object is not static, then its' vertex
         buffer object references and vertex informations will not be deleted
-        to be used for future reference. 
+        to be used for future reference.
         """
         global VERTEX_BYTES
         self.children = {}
@@ -105,11 +104,6 @@ class Object(object):
         if not isinstance(self, Line):
             self._motion_path_line = Line()
         self._previous_matrix = None
-
-        # Default object uses default shaders.
-        variables = ['model', 'view', 'projection',
-                     'light_pos', 'light_color', 'object_color']
-        self._shader = Shader(variables=variables)
 
         # Vertex Array Object pointer
         self._vao = None
@@ -144,8 +138,6 @@ class Object(object):
         if not self._vao:
             self.build()
 
-        # Setup shader arguments
-        self._shader.use()
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
         if parent_matrix is not None:
             self._model_matrix = parent_matrix.dot(self._model_matrix)
@@ -158,17 +150,7 @@ class Object(object):
                 # Python trick here! need to .copy or it will pass reference.
                 self._previous_matrix = self.matrix[3].copy()
 
-        self._shader.set_matrix4x4_np('model', self._model_matrix)
-        self._shader.set_matrix4x4_np('view', view)
-        self._shader.set_matrix4x4_np('projection', proj)
-
-        # Currently we support only one light.
-        for light in lights:
-            self._shader.set_vector3_np('light_pos', light._position)
-            self._shader.set_vector3_np('light_color', light._color)
-
-        self._shader.set_vector3('object_color', np.array(self.material.color,
-                                                          dtype=np.float32))
+        self.material.render(proj, view, self._model_matrix, lights)
 
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
@@ -177,6 +159,9 @@ class Object(object):
             if self.material.display == SOLID:
                 pmode = GL_FILL
                 primitive = GL_TRIANGLES
+            if self.material.display == POINTS:
+                pmode = GL_POINT
+                primitive = GL_POINTS
             glPolygonMode(GL_FRONT_AND_BACK, pmode)
 
             glDrawElements(primitive, self._vertex_count,
@@ -186,7 +171,7 @@ class Object(object):
             glBindVertexArray(0)
 
         # End using the shader program.
-        self._shader.end()
+        self.material.end()
         if self.track_motion:
             self._motion_path_line.render(proj,
                                           view,
@@ -237,7 +222,9 @@ class Object(object):
 
     def toggle_wireframe(self):
         d = self.material.display
-        d = 0 if d == 1 else 1
+        d += 1
+        d = d % 3
+
         self.material.display = d
         for n in self.children:
             self.children[n].toggle_wireframe()
@@ -260,10 +247,12 @@ class Object(object):
         if self._vao is None:
             self._vao = glGenVertexArrays(1)
             self._vbos = glGenBuffers(4)
+            glBindVertexArray(self._vao)
+            self.material.build_shader()
+        else:
+            glBindVertexArray(self._vao)
 
-        glBindVertexArray(self._vao)
 
-        self._shader.build()
         vertices = np.array(self._vertices, dtype=np.float32)
         normals = np.array(self._normals, dtype=np.float32)
         texcoords = np.array(self._texcoords, dtype=np.float32)
@@ -556,7 +545,7 @@ class Line(Object):
     """
     def __init__(self, **args):
         """Iniitalize line
-      
+
         Args:
           vertices: Vertices array for list of points.
           color: Color of the line
@@ -565,15 +554,11 @@ class Line(Object):
         self._vertices = args.get('vertices', [])
         self.material.color = args.get('color', [1.0, 1.0, 1.0])
 
-        variables = ['model', 'view', 'projection',
-                     'light_pos', 'light_color', 'object_color']
-        self._shader = Shader(fragment=lightless_fragment_shader,
-                              variables=variables)
         self.visible = True
         self.static = False # Do not clear the vertices each time.
         self.material.display = WIREFRAME
         self.build_lines()
-    
+
     def append(self, vertices):
         """Append vertex or vertices to line.
 
@@ -595,19 +580,19 @@ class Line(Object):
             return True
 
         if self._vertex_count == 2:
-            self._indices.extend([0, 1])            
+            self._indices.extend([0, 1])
             if self._vao is not None:
                 self.build()
             return True
 
-        last = self._indices[-1]        
+        last = self._indices[-1]
 
         for i in range(diff):
             self._indices.extend([last+i, last+i+1])
 
         if self._vao is not None:
             self.build()
-            
+
     def build_lines(self, vertices=None, color=None):
         """Build lines
 

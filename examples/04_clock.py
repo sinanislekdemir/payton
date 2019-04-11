@@ -49,7 +49,7 @@ def logger(name, scene, period, total):
 
 
 #  Definitions
-pm_scene = Scene()
+pm_scene = Scene(width=1024, height=768)
 ball = Sphere(radius=1, track_motion=True)
 
 # Add ball to the scene

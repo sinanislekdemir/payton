@@ -42,7 +42,7 @@ class Scene(object):
     """
     Main Payton scene.
     """
-    def __init__(self):
+    def __init__(self, **args):
         """
         Initialize the Payton Scene
         There is no parameters here. Every class property must be explicitly
@@ -53,6 +53,9 @@ class Scene(object):
             a = Scene()
             a.run()
 
+        Args:
+          width: Window width
+          height: Window height
         """
         # All objects list
         self.objects = {}
@@ -77,8 +80,8 @@ class Scene(object):
 
         # SDL Related Stuff
         self.window = None
-        self.window_width = 800
-        self.window_height = 600
+        self.window_width = args.get('width', 800)
+        self.window_height = args.get('height', 600)
         self._context = None
         self._mouse = [0, 0]
         self._shift_down = False
