@@ -78,7 +78,7 @@ to make your life easier.
 - **Rotate**: Left Shift + Mouse Drag (left and right)
 - **ESC**: Quit Simulation
 - **C**: Change camera mode (Perspective / Orthographic)
-- **P**: Pause scene (stop all Clocks)
+- **Space**: Pause scene (stop all Clocks)
 - **G**: Show/Hide Grid.
 - **W**: Display mode: Wireframe / Solid
 - **F2**: Previous observer
@@ -86,5 +86,5 @@ to make your life easier.
 
 ### IMPORTANT!
 
-All Clocks are initially paused! You must press P to unpause them.
+All Clocks are initially paused! You must press space to unpause them.
 """

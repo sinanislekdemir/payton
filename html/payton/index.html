@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.5.3" />
+<title>payton API documentation</title>
+<meta name="description" content="Payton Library …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.name small{font-weight:normal}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title"><code>payton</code> module</h1>
+</header>
+<section id="section-intro">
+<h1 id="payton-library">Payton Library</h1>
+<h2 id="what-is-payton">What is Payton?</h2>
+<p>Payton is a Python 3.5 (and hopefully Python 2.7 compatible) library to make
+computational science (such as physics) easy to visualize.</p>
+<p>Many things can be created with ease using Payton. Such as, simulating Newtonian
+Physics or particles, fluids, astronomical objects, chemical compounds, or
+mathematical graphical formulas.</p>
+<h3 id="why-python">Why Python?</h3>
+<p>Python is the current rising star in computational science. Many researchers
+and scientists, as well as students, use Python for analytics or statistics,
+or for data science and such. With the power of the Numpy library, a
+researchers' life becomes so easy. So I wanted to give people a tool within
+their comfort zones.</p>
+<p>I am well aware that Python is not the best programming language to do 3D.
+But one should also keep in mind that, this library is not designed for
+creating games and such. It is created to be simple and easy to use. To give
+developers a rapid kick-start. Developers do not need to know anything
+related to OpenGL or SDL2, or even Threading!
+All they need to know is the basic structure of this library and have a
+look at the sample codes defined. That's all.</p>
+<h3 id="why-a-relatively-old-opengl-version">Why a relatively old OpenGL version?</h3>
+<p>Current version uses OpenGL 3.3 (GLSL 330) for rendering. Any later versions
+might not be supported by relatively old computers. On the other hand, it was
+hard to keep two different versions maintained. (4.5 and 3.3).</p>
+<p>I believe that, within the OpenGL versions, there was a huge difference
+between 3.3 and before. So, ground breaking changes came with the version 3.3.</p>
+<h3 id="unit-tests">Unit Tests</h3>
+<p>Unit tests for the render pipeline are missing. It is hard to unit test that
+part of the system and I was lazy. Mathematical functions and objects are
+covered with Python's internal <code>unittest</code> framework.</p>
+<h3 id="primitives">Primitives</h3>
+<p>Many 3D Libraries come with their own objects for almost everything. There are
+things like <code>Vector3D</code>, <code>Matrix</code>, <code>Face3D</code> etc. Having that kind of mathematical
+objects are often handy in terms of Object Oriented Design. On the other hand,
+those makes developers tightly couple their applications to your library. Also,
+cross-library references require type-object conversations, which are costly.
+On top of that, more objects mean more complexity.</p>
+<p>When a point in space can be described as a list or tuple with 3 elements
+as <code>[x, y, z]</code>, why bother with <code>Vector(x, y, z)</code> and create a redundant object?
+Also, memory operations with <code>tuple</code> or <code>list</code> are faster than any memory heavy
+object operations.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>Everything within Payton comes with pre-set definitions so it is quite easy
+to start creating your "scenes".</p>
+<p>A very basic Scene can be generated like:</p>
+<pre><code>from payton.scene import Scene
+
+my_scene = Scene()
+my_scene.run()
+</code></pre>
+<p>This will bring up a simple SDL2 Window and an empty 3D Scene!</p>
+<h2 id="keyboard-short-cuts">Keyboard short-cuts</h2>
+<p>Moving inside the scene is quite easy. There are pre-defined keyboard controls
+to make your life easier.</p>
+<ul>
+<li><strong>Zoom In-Out</strong>: Left Ctrl + Mouse Drag (up and down)</li>
+<li><strong>Rotate</strong>: Left Shift + Mouse Drag (left and right)</li>
+<li><strong>ESC</strong>: Quit Simulation</li>
+<li><strong>C</strong>: Change camera mode (Perspective / Orthographic)</li>
+<li><strong>Space</strong>: Pause scene (stop all Clocks)</li>
+<li><strong>G</strong>: Show/Hide Grid.</li>
+<li><strong>W</strong>: Display mode: Wireframe / Solid</li>
+<li><strong>F2</strong>: Previous observer</li>
+<li><strong>F3</strong>: Next observer</li>
+</ul>
+<h3 id="important">IMPORTANT!</h3>
+<p>All Clocks are initially paused! You must press space to unpause them.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;
+# Payton Library
+
+## What is Payton?
+
+Payton is a Python 3.5 (and hopefully Python 2.7 compatible) library to make
+computational science (such as physics) easy to visualize.
+
+Many things can be created with ease using Payton. Such as, simulating Newtonian
+Physics or particles, fluids, astronomical objects, chemical compounds, or
+mathematical graphical formulas.
+
+### Why Python?
+
+Python is the current rising star in computational science. Many researchers
+and scientists, as well as students, use Python for analytics or statistics,
+or for data science and such. With the power of the Numpy library, a
+researchers&#39; life becomes so easy. So I wanted to give people a tool within
+their comfort zones.
+
+I am well aware that Python is not the best programming language to do 3D.
+But one should also keep in mind that, this library is not designed for
+creating games and such. It is created to be simple and easy to use. To give
+developers a rapid kick-start. Developers do not need to know anything
+related to OpenGL or SDL2, or even Threading!
+All they need to know is the basic structure of this library and have a
+look at the sample codes defined. That&#39;s all.
+
+### Why a relatively old OpenGL version?
+
+Current version uses OpenGL 3.3 (GLSL 330) for rendering. Any later versions
+might not be supported by relatively old computers. On the other hand, it was
+hard to keep two different versions maintained. (4.5 and 3.3).
+
+I believe that, within the OpenGL versions, there was a huge difference
+between 3.3 and before. So, ground breaking changes came with the version 3.3.
+
+### Unit Tests
+
+Unit tests for the render pipeline are missing. It is hard to unit test that
+part of the system and I was lazy. Mathematical functions and objects are
+covered with Python&#39;s internal `unittest` framework.
+
+### Primitives
+
+Many 3D Libraries come with their own objects for almost everything. There are
+things like `Vector3D`, `Matrix`, `Face3D` etc. Having that kind of mathematical
+objects are often handy in terms of Object Oriented Design. On the other hand,
+those makes developers tightly couple their applications to your library. Also,
+cross-library references require type-object conversations, which are costly.
+On top of that, more objects mean more complexity.
+
+When a point in space can be described as a list or tuple with 3 elements
+as `[x, y, z]`, why bother with `Vector(x, y, z)` and create a redundant object?
+Also, memory operations with `tuple` or `list` are faster than any memory heavy
+object operations.
+
+## Getting started
+
+Everything within Payton comes with pre-set definitions so it is quite easy
+to start creating your &#34;scenes&#34;.
+
+A very basic Scene can be generated like:
+
+    from payton.scene import Scene
+
+    my_scene = Scene()
+    my_scene.run()
+
+This will bring up a simple SDL2 Window and an empty 3D Scene!
+
+## Keyboard short-cuts
+
+Moving inside the scene is quite easy. There are pre-defined keyboard controls
+to make your life easier.
+
+- **Zoom In-Out**: Left Ctrl + Mouse Drag (up and down)
+- **Rotate**: Left Shift + Mouse Drag (left and right)
+- **ESC**: Quit Simulation
+- **C**: Change camera mode (Perspective / Orthographic)
+- **Space**: Pause scene (stop all Clocks)
+- **G**: Show/Hide Grid.
+- **W**: Display mode: Wireframe / Solid
+- **F2**: Previous observer
+- **F3**: Next observer
+
+### IMPORTANT!
+
+All Clocks are initially paused! You must press space to unpause them.
+&#34;&#34;&#34;</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="payton.math" href="math/index.html">payton.math</a></code></dt>
+<dd>
+<section class="desc"><p>Payton math library …</p></section>
+</dd>
+<dt><code class="name"><a title="payton.scene" href="scene/index.html">payton.scene</a></code></dt>
+<dd>
+<section class="desc"><p>Payton Scene Module …</p></section>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#payton-library">Payton Library</a><ul>
+<li><a href="#what-is-payton">What is Payton?</a><ul>
+<li><a href="#why-python">Why Python?</a></li>
+<li><a href="#why-a-relatively-old-opengl-version">Why a relatively old OpenGL version?</a></li>
+<li><a href="#unit-tests">Unit Tests</a></li>
+<li><a href="#primitives">Primitives</a></li>
+</ul>
+</li>
+<li><a href="#getting-started">Getting started</a></li>
+<li><a href="#keyboard-short-cuts">Keyboard short-cuts</a><ul>
+<li><a href="#important">IMPORTANT!</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="payton.math" href="math/index.html">payton.math</a></code></li>
+<li><code><a title="payton.scene" href="scene/index.html">payton.scene</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.5.3</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

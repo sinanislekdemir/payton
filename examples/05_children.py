@@ -21,14 +21,13 @@ def motion(name, scene, period, total):
      .children['particle']
      .children['sub_particle']
      .set_position([sx, sy, 0]))
-    scene.lights[0].set_position([py, py, 0])
+    scene.lights[0].set_position([px, py, 0])
 
 space = Scene()
 space.observers[0].position = [20, 20, 20]
 space.grid.resize(40, 40, 1)
 
 nucleus = Sphere(radius=5)
-
 particle = Sphere()
 particle.set_position([8, 0, 0])
 
@@ -41,5 +40,5 @@ particle.add_child('sub_particle', sub_particle)
 space.add_object('nucleus', nucleus)
 
 space.create_clock("motion", 0.01, motion)
-print("Hit P to continue animation")
+print("Hit SPACE to continue animation")
 space.run()

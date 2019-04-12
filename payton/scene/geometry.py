@@ -8,7 +8,7 @@ Their face informations are generated at the initialization but display
 lists are not generated until rendering.
 """
 
-
+import pyrr
 import math
 import numpy as np
 import ctypes
@@ -23,6 +23,7 @@ from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray, glBindVertexArray,
                        glDeleteBuffers, GL_POINT, GL_POINTS,
                        GL_FRONT_AND_BACK, glDrawElements, GL_UNSIGNED_INT)
 
+from payton.math.geometry import raycast_sphere_intersect
 from payton.math.vector import plane_normal
 from payton.scene.material import WIREFRAME
 from payton.scene.material import Material, SOLID, POINTS
@@ -105,6 +106,11 @@ class Object(object):
             self._motion_path_line = Line()
         self._previous_matrix = None
 
+        # For raycast tests - bounding radius is the radius of the bounding
+        # sphere
+        self._bounding_radius = 0
+        self._selected = False
+
         # Vertex Array Object pointer
         self._vao = None
         # I personally prefer not to delete vbos as in some cases I need to
@@ -112,6 +118,20 @@ class Object(object):
         # their reference and make things harder. I am not naming them
         # anyways.
         self._vbos = None
+
+    def select(self, start, vector):
+        self._selected = raycast_sphere_intersect(start,
+                                                  vector,
+                                                  np.array(self.matrix[3],
+                                                           dtype=np.float32),
+                                                  self._bounding_radius)
+
+        for obj in self.children:
+            x = self.children[obj].select(start, vector)
+            if not self._selected and x:
+                self._selected = True
+
+        return self._selected
 
     def destroy(self):
         """
@@ -257,6 +277,11 @@ class Object(object):
         normals = np.array(self._normals, dtype=np.float32)
         texcoords = np.array(self._texcoords, dtype=np.float32)
         indices = np.array(self._indices, dtype=np.int32)
+        for i in range(math.ceil(len(vertices) / 3)):
+            d = pyrr.vector3.length(vertices[i*3:i*3+3])
+            if d > self._bounding_radius:
+                self._bounding_radius = d
+
         draw = GL_STATIC_DRAW
         if not self.static:
             draw = GL_DYNAMIC_DRAW

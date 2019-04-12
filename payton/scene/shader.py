@@ -18,7 +18,8 @@ essential to Payton Library. That is all.
 import numpy as np # We need C floats
 import logging
 
-from OpenGL.GL import (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
+from OpenGL.GL import (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable,
+                       glDisable, GL_PROGRAM_POINT_SIZE,
                        glGetUniformLocation, glUseProgram, GL_TRUE, GL_FALSE,
                        glUniformMatrix4fv, glUniform3fv, glUniform4fv)
 
@@ -184,12 +185,14 @@ class Shader(object):
             logging.error('Shader not compiled')
             return False
         glUseProgram(self.program)
+        glEnable(GL_PROGRAM_POINT_SIZE)
         return True
 
     def end(self):
         """Set the active GLSL program to 0
         """
         glUseProgram(0)
+        glDisable(GL_PROGRAM_POINT_SIZE)
 
     def set_matrix4x4_np(self, variable, value, transpose=False):
         """Set 4x4 Numpy matrix value
