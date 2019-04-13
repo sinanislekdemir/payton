@@ -133,16 +133,19 @@ class Controller(object):
             inv_view = pyrr.matrix44.inverse(view)
 
             ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
-            
             ray_dir = pyrr.vector.normalize(ray_end[0:4])
 
             # Now shoot the ray to the scene.
             eye = np.array([observer.position[0], observer.position[1],
                             observer.position[2], 1.0], dtype=np.float32)
+
+            list = []
             for obj in scene.objects:
                 hit = scene.objects[obj].select(eye, ray_dir)
                 if hit:
-                    print(&#34;hit {}&#34;.format(obj))
+                    list.append(scene.objects[obj])
+            if callable(scene.on_select):
+                scene.on_select(list)
 
         if event.type == sdl2.SDL_MOUSEMOTION:
             button = -1
@@ -266,16 +269,19 @@ class Controller(object):
             inv_view = pyrr.matrix44.inverse(view)
 
             ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
-            
             ray_dir = pyrr.vector.normalize(ray_end[0:4])
 
             # Now shoot the ray to the scene.
             eye = np.array([observer.position[0], observer.position[1],
                             observer.position[2], 1.0], dtype=np.float32)
+
+            list = []
             for obj in scene.objects:
                 hit = scene.objects[obj].select(eye, ray_dir)
                 if hit:
-                    print(&#34;hit {}&#34;.format(obj))
+                    list.append(scene.objects[obj])
+            if callable(scene.on_select):
+                scene.on_select(list)
 
         if event.type == sdl2.SDL_MOUSEMOTION:
             button = -1
@@ -404,16 +410,19 @@ class Controller(object):
         inv_view = pyrr.matrix44.inverse(view)
 
         ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
-        
         ray_dir = pyrr.vector.normalize(ray_end[0:4])
 
         # Now shoot the ray to the scene.
         eye = np.array([observer.position[0], observer.position[1],
                         observer.position[2], 1.0], dtype=np.float32)
+
+        list = []
         for obj in scene.objects:
             hit = scene.objects[obj].select(eye, ray_dir)
             if hit:
-                print(&#34;hit {}&#34;.format(obj))
+                list.append(scene.objects[obj])
+        if callable(scene.on_select):
+            scene.on_select(list)
 
     if event.type == sdl2.SDL_MOUSEMOTION:
         button = -1

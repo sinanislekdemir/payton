@@ -56,6 +56,26 @@ class Scene(object):
         Args:
           width: Window width
           height: Window height
+          on_select: On object select callback function. Controller passes
+        selected objects in a list as the first parameter of the function.
+
+        on_select sample:
+
+            from payton.scene import Scene
+            from payton.scene.geometry import Cube
+
+            def select(objects):
+                print(objects)
+                for obj in objects:
+                    obj.material.color = [1.0, 0.0, 0.0]
+
+            scene = Scene(on_select=select)
+            cube1 = Cube()
+
+            scene.add_object('cube1', cube1)
+
+            scene.run()
+
         """
         # All objects list
         self.objects = {}
@@ -87,6 +107,8 @@ class Scene(object):
         self._shift_down = False
         self._ctrl_down = False
         self._rotate = False
+        
+        self.on_select = args.get('on_select', None)
 
         # Main running state
         self.running = False

@@ -81,10 +81,10 @@ class Wavefront(Object):
         but for now, the assumption is there will always be triangulated
         wavefront object files and always a single object at a time.
         &#34;&#34;&#34;
-        self._vertices = []
-        self._indices = []
-        self._normals = []
-        self._texcoords = []
+        _vertices = []
+        _indices = []
+        _normals = []
+        _texcoords = []
         lines = obj_string.splitlines()
         for line in lines:
             command = line[0:2].lower()
@@ -93,16 +93,16 @@ class Wavefront(Object):
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
-                self._vertices.append((x, y, z))
+                _vertices.append([x, y, z])
             if command == &#39;vt&#39;:
                 u = float(parts[1])
                 w = float(parts[2]) if len(parts) &gt; 2 else 0
-                self._texcoords.append((u, w))
+                _texcoords.append([u, w])
             if command == &#39;vn&#39;:
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
-                self._normals.append((x, y, z))
+                _normals.append([x, y, z])
             if command == &#39;f &#39;:
                 # I guess this part of the code should be compatable
                 # with POLYGON as well but IDK.
@@ -115,7 +115,23 @@ class Wavefront(Object):
                     textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
                     normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
                     face.append((vertex, textcoord, normal))
-                self._indices.append(face)
+                _indices.append(face)
+
+        # Now unpack indices to actual object data
+        i = 0
+        for index in _indices:
+            for f in index:
+                vertex = _vertices[f[0]]
+                normal = _normals[f[2]]
+                tex = [0, 0]
+                if f[1] &gt; -1:
+                    tex = _texcoords[f[1]]
+                self._vertices.extend(vertex)
+                self._normals.extend(normal)
+                self._texcoords.extend(tex)
+                self._indices.append(i)
+                i += 1
+
         logging.debug(&#34;&#34;&#34;Loaded {} vertices, {} textcoords, {} normals, {} faces&#34;&#34;&#34;.format(
             len(self._vertices), len(self._texcoords), len(self._normals), len(self._indices)))</code></pre>
 </details>
@@ -191,10 +207,10 @@ Only designed to accept your designs.</p></section>
         but for now, the assumption is there will always be triangulated
         wavefront object files and always a single object at a time.
         &#34;&#34;&#34;
-        self._vertices = []
-        self._indices = []
-        self._normals = []
-        self._texcoords = []
+        _vertices = []
+        _indices = []
+        _normals = []
+        _texcoords = []
         lines = obj_string.splitlines()
         for line in lines:
             command = line[0:2].lower()
@@ -203,16 +219,16 @@ Only designed to accept your designs.</p></section>
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
-                self._vertices.append((x, y, z))
+                _vertices.append([x, y, z])
             if command == &#39;vt&#39;:
                 u = float(parts[1])
                 w = float(parts[2]) if len(parts) &gt; 2 else 0
-                self._texcoords.append((u, w))
+                _texcoords.append([u, w])
             if command == &#39;vn&#39;:
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
-                self._normals.append((x, y, z))
+                _normals.append([x, y, z])
             if command == &#39;f &#39;:
                 # I guess this part of the code should be compatable
                 # with POLYGON as well but IDK.
@@ -225,7 +241,23 @@ Only designed to accept your designs.</p></section>
                     textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
                     normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
                     face.append((vertex, textcoord, normal))
-                self._indices.append(face)
+                _indices.append(face)
+
+        # Now unpack indices to actual object data
+        i = 0
+        for index in _indices:
+            for f in index:
+                vertex = _vertices[f[0]]
+                normal = _normals[f[2]]
+                tex = [0, 0]
+                if f[1] &gt; -1:
+                    tex = _texcoords[f[1]]
+                self._vertices.extend(vertex)
+                self._normals.extend(normal)
+                self._texcoords.extend(tex)
+                self._indices.append(i)
+                i += 1
+
         logging.debug(&#34;&#34;&#34;Loaded {} vertices, {} textcoords, {} normals, {} faces&#34;&#34;&#34;.format(
             len(self._vertices), len(self._texcoords), len(self._normals), len(self._indices)))</code></pre>
 </details>
@@ -291,10 +323,10 @@ wavefront object files and always a single object at a time.</p></section>
     but for now, the assumption is there will always be triangulated
     wavefront object files and always a single object at a time.
     &#34;&#34;&#34;
-    self._vertices = []
-    self._indices = []
-    self._normals = []
-    self._texcoords = []
+    _vertices = []
+    _indices = []
+    _normals = []
+    _texcoords = []
     lines = obj_string.splitlines()
     for line in lines:
         command = line[0:2].lower()
@@ -303,16 +335,16 @@ wavefront object files and always a single object at a time.</p></section>
             x = float(parts[1])
             y = float(parts[2])
             z = float(parts[3])
-            self._vertices.append((x, y, z))
+            _vertices.append([x, y, z])
         if command == &#39;vt&#39;:
             u = float(parts[1])
             w = float(parts[2]) if len(parts) &gt; 2 else 0
-            self._texcoords.append((u, w))
+            _texcoords.append([u, w])
         if command == &#39;vn&#39;:
             x = float(parts[1])
             y = float(parts[2])
             z = float(parts[3])
-            self._normals.append((x, y, z))
+            _normals.append([x, y, z])
         if command == &#39;f &#39;:
             # I guess this part of the code should be compatable
             # with POLYGON as well but IDK.
@@ -325,7 +357,23 @@ wavefront object files and always a single object at a time.</p></section>
                 textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
                 normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
                 face.append((vertex, textcoord, normal))
-            self._indices.append(face)
+            _indices.append(face)
+
+    # Now unpack indices to actual object data
+    i = 0
+    for index in _indices:
+        for f in index:
+            vertex = _vertices[f[0]]
+            normal = _normals[f[2]]
+            tex = [0, 0]
+            if f[1] &gt; -1:
+                tex = _texcoords[f[1]]
+            self._vertices.extend(vertex)
+            self._normals.extend(normal)
+            self._texcoords.extend(tex)
+            self._indices.append(i)
+            i += 1
+
     logging.debug(&#34;&#34;&#34;Loaded {} vertices, {} textcoords, {} normals, {} faces&#34;&#34;&#34;.format(
         len(self._vertices), len(self._texcoords), len(self._normals), len(self._indices)))</code></pre>
 </details>
@@ -360,6 +408,7 @@ wavefront object files and always a single object at a time.</p></section>
 <li><code><a title="payton.scene.geometry.Object.build" href="geometry.html#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.destroy" href="geometry.html#payton.scene.geometry.Object.destroy">destroy</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.render" href="geometry.html#payton.scene.geometry.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.select" href="geometry.html#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.set_position" href="geometry.html#payton.scene.geometry.Object.set_position">set_position</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_absolute" href="geometry.html#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_local" href="geometry.html#payton.scene.geometry.Object.to_local">to_local</a></code></li>

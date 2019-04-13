@@ -149,6 +149,13 @@ class Object(object):
         self._vbos = None
 
     def select(self, start, vector):
+        &#34;&#34;&#34;Select test for object using bounding Sphere.
+
+        Note: this method is not 100% accurate as it is based on a rough
+        assumption. Sphere area will be larger than actual object.
+
+        If you want to have a more accurate way to handle this, try
+        using raycast triangle intersect&#34;&#34;&#34;
         self._selected = raycast_sphere_intersect(start,
                                                   vector,
                                                   np.array(self.matrix[3],
@@ -980,6 +987,7 @@ my_scene.run()
 <li><code><a title="payton.scene.geometry.Object.build" href="#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.destroy" href="#payton.scene.geometry.Object.destroy">destroy</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.render" href="#payton.scene.geometry.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.set_position" href="#payton.scene.geometry.Object.set_position">set_position</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_local" href="#payton.scene.geometry.Object.to_local">to_local</a></code></li>
@@ -1189,6 +1197,7 @@ my_scene.run()
 <li><code><a title="payton.scene.geometry.Object.build" href="#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.destroy" href="#payton.scene.geometry.Object.destroy">destroy</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.render" href="#payton.scene.geometry.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.set_position" href="#payton.scene.geometry.Object.set_position">set_position</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_local" href="#payton.scene.geometry.Object.to_local">to_local</a></code></li>
@@ -1304,6 +1313,13 @@ resize, a new buffer needs to be created by glBufferData.</p></section>
         self._vbos = None
 
     def select(self, start, vector):
+        &#34;&#34;&#34;Select test for object using bounding Sphere.
+
+        Note: this method is not 100% accurate as it is based on a rough
+        assumption. Sphere area will be larger than actual object.
+
+        If you want to have a more accurate way to handle this, try
+        using raycast triangle intersect&#34;&#34;&#34;
         self._selected = raycast_sphere_intersect(start,
                                                   vector,
                                                   np.array(self.matrix[3],
@@ -1874,10 +1890,24 @@ this function.</p>
 <span>def <span class="ident">select</span></span>(<span>self, start, vector)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Select test for object using bounding Sphere.</p>
+<dl>
+<dt><strong><code>Note</code></strong> :&ensp;<code>this</code> <code>method</code> <code>is</code> <code>not</code> <code>100</code>% <code>accurate</code> <code>as</code> <code>it</code> <code>is</code> <code>based</code> <code>on</code> <code>a</code> <code>rough</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>assumption. Sphere area will be larger than actual object.</p>
+<p>If you want to have a more accurate way to handle this, try
+using raycast triangle intersect</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def select(self, start, vector):
+    &#34;&#34;&#34;Select test for object using bounding Sphere.
+
+    Note: this method is not 100% accurate as it is based on a rough
+    assumption. Sphere area will be larger than actual object.
+
+    If you want to have a more accurate way to handle this, try
+    using raycast triangle intersect&#34;&#34;&#34;
     self._selected = raycast_sphere_intersect(start,
                                               vector,
                                               np.array(self.matrix[3],
@@ -2143,6 +2173,7 @@ my_scene.run()
 <li><code><a title="payton.scene.geometry.Object.build" href="#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.destroy" href="#payton.scene.geometry.Object.destroy">destroy</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.render" href="#payton.scene.geometry.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.set_position" href="#payton.scene.geometry.Object.set_position">set_position</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_local" href="#payton.scene.geometry.Object.to_local">to_local</a></code></li>

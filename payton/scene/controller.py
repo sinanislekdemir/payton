@@ -110,10 +110,14 @@ class Controller(object):
             # Now shoot the ray to the scene.
             eye = np.array([observer.position[0], observer.position[1],
                             observer.position[2], 1.0], dtype=np.float32)
+
+            list = []
             for obj in scene.objects:
                 hit = scene.objects[obj].select(eye, ray_dir)
                 if hit:
-                    print("hit {}".format(obj))
+                    list.append(scene.objects[obj])
+            if callable(scene.on_select):
+                scene.on_select(list)
 
         if event.type == sdl2.SDL_MOUSEMOTION:
             button = -1
