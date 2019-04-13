@@ -8,8 +8,18 @@ sources or not.
 
 There are also pre-defined colors in this module
 """
+import os
+import PIL
+from PIL import Image
 import numpy as np
-from payton.scene.shader import (Shader, lightless_fragment_shader)
+from payton.scene.shader import Shader
+from OpenGL.GL import (glGenTextures, glPixelStorei, GL_UNPACK_ALIGNMENT,
+                       glBindTexture, GL_TEXTURE_2D, glTexParameterf,
+                       GL_TEXTURE_MAG_FILTER, GL_LINEAR, GL_TEXTURE_MIN_FILTER,
+                       GL_LINEAR_MIPMAP_LINEAR, GL_TEXTURE_WRAP_S,
+                       GL_CLAMP_TO_EDGE, GL_TEXTURE_WRAP_T, glTexImage2D,
+                       glActiveTexture, GL_TEXTURE0, glUniform1i,
+                       GL_RGBA, GL_UNSIGNED_BYTE, glGenerateMipmap)
 
 
 SOLID = 0
@@ -66,19 +76,20 @@ class Material(object):
           color: Color of material
           display: Display type of material, SOLID / WIREFRAME (Default SOLID)
           lights: Effected by lights? (Default true)
+          texture: Texture file name
         """
 
         self.color = args.get('color', [1.0, 1.0, 1.0])
         self.display = args.get('display', SOLID)
         self.lights = args.get('lights', True)
+        self.texture = args.get('texture', '')
 
-        variables = ['model', 'view', 'projection',
+        variables = ['model', 'view', 'projection', 'material_mode',
                      'light_pos', 'light_color', 'object_color']
-        self._shader_normal = Shader(variables=variables)
-        self._shader_lightless = Shader(fragment=lightless_fragment_shader,
-                                        variables=variables)
+        self.shader = Shader(variables=variables)
+
         self._initialized = False
-        self.shader = None
+        self._texture = None
 
     def build_shader(self):
         """Build material shaders
@@ -86,10 +97,26 @@ class Material(object):
         Must be called at object build stage after generating vba.
         An active vba is required for building shader properly.
         """
-        self._shader_normal.build()
-        self._shader_lightless.build()
+        self.shader.build()
         self._initialized = True
+        if os.path.isfile(self.texture):
+            self.load_texture()
         return True
+    
+    def load_texture(self):
+        img = Image.open(self.texture).transpose(Image.FLIP_TOP_BOTTOM)
+        img_data = np.fromstring(img.tobytes(), np.uint8)
+        width, height = img.size
+        self._texture = glGenTextures(1)
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glBindTexture(GL_TEXTURE_2D, self._texture)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, img_data)
+        glGenerateMipmap(GL_TEXTURE_2D)
 
     def render(self, proj, view, model, lights):
         """Render material
@@ -98,19 +125,32 @@ class Material(object):
         """
         if not self._initialized:
             self.build_shader()
-        self.shader = None
 
         if self.display == SOLID:
             if self.lights:
-                self.shader = self._shader_normal
+                if self._texture is not None:
+                    self.shader._mode = Shader.LIGHT_TEXTURE
+                else:
+                    self.shader._mode = Shader.LIGHT_COLOR
             else:
-                self.shader = self._shader_lightless
+                if self._texture is not None:
+                    self.shader._mode = Shader.NO_LIGHT_TEXTURE
+                else:
+                    self.shader._mode = Shader.NO_LIGHT_COLOR
         else:
-            self.shader = self._shader_lightless
+            self.shader._mode = Shader.NO_LIGHT_COLOR
+
         self.shader.use()
+        self.shader.set_int('material_mode', self.shader._mode)
         self.shader.set_matrix4x4_np('model', model)
         self.shader.set_matrix4x4_np('view', view)
         self.shader.set_matrix4x4_np('projection', proj)
+
+        if self._texture is not None:
+            glActiveTexture(GL_TEXTURE0)
+            glBindTexture(GL_TEXTURE_2D, self._texture)
+            self.shader.set_int('tex_unit', 0)
+
         for light in lights:
             self.shader.set_vector3_np('light_pos', light._position)
             self.shader.set_vector3_np('light_color', light._color)

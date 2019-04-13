@@ -15,11 +15,12 @@ essential to Payton Library. That is all.
 
 """
 
+import ctypes
 import numpy as np # We need C floats
 import logging
 
 from OpenGL.GL import (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable,
-                       glDisable, GL_PROGRAM_POINT_SIZE,
+                       glDisable, GL_PROGRAM_POINT_SIZE, glUniform1i, GLuint,
                        glGetUniformLocation, glUseProgram, GL_TRUE, GL_FALSE,
                        glUniformMatrix4fv, glUniform3fv, glUniform4fv)
 
@@ -31,44 +32,46 @@ out vec4 FragColor;
 
 in vec3 l_normal;
 in vec3 l_fragpos;
+in vec2 tex_coords;
 
 uniform vec3 light_pos;
 uniform vec3 light_color;
 uniform vec3 object_color;
+uniform int material_mode;
+
+uniform sampler2D tex_unit;
 
 void main()
 {
-    // ambient
-    float ambientStrength = 0.3;
-    vec3 ambient = ambientStrength * light_color;
+    if (material_mode == 0) {
+        // lightless material with color
+        FragColor = vec4(object_color, 1.0);
+    }
+    if (material_mode == 1) {
+        // lightless material with texture
+        FragColor = texture(tex_unit, tex_coords);
+    }
+    if (material_mode == 2 || material_mode == 3) {
+        // light material
+        // ambient
+        float ambientStrength = 0.3;
+        vec3 ambient = ambientStrength * light_color;
 
-    // diffuse
-    vec3 norm = normalize(l_normal);
+        // diffuse
+        vec3 norm = normalize(l_normal);
 
-    vec3 lightDir = normalize(light_pos - l_fragpos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * light_color;
-
-    vec3 result = (ambient + diffuse) * object_color;
-    FragColor = vec4(result, 1.0);
+        vec3 lightDir = normalize(light_pos - l_fragpos);
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = diff * light_color;
+        if (material_mode == 2) {
+            // color material
+            FragColor = vec4((ambient + diffuse) * object_color, 1.0);
+        }else{
+            // texture material
+            FragColor = vec4(ambient + diffuse, 1.0) * texture(tex_unit, tex_coords);
+        }
+    }
 }"""
-
-lightless_fragment_shader = """
-#version 330 core
-out vec4 FragColor;
-
-in vec3 l_normal; // Not used
-in vec3 l_fragpos; // Not used
-
-uniform vec3 light_pos; // Not used
-uniform vec3 light_color; // Not used
-uniform vec3 object_color;
-
-void main()
-{
-    FragColor = vec4(object_color, 1.0);
-}
-"""
 
 
 default_vertex_shader = """
@@ -77,7 +80,7 @@ layout ( location = 0 ) in vec3 position;
 layout ( location = 1 ) in vec3 normal;
 layout ( location = 2 ) in vec2 texCoords;
 
-out vec2 TexCoords;
+out vec2 tex_coords;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -94,7 +97,7 @@ void main()
     gl_Position = projection * view * model * vec4(position, 1.0f);
     gl_PointSize = 2.0;
 
-    TexCoords = texCoords;
+    tex_coords = texCoords;
 }
 """
 
@@ -137,6 +140,10 @@ class Shader(object):
     If you provide the list of variable names in build function call then
     it will overwrite existing list.
     """
+    NO_LIGHT_COLOR = 0
+    NO_LIGHT_TEXTURE = 1
+    LIGHT_COLOR = 2
+    LIGHT_TEXTURE = 3
     def __init__(self, **args):
         """Initialize Shader.
 
@@ -152,6 +159,7 @@ class Shader(object):
                                              default_vertex_shader)
         self.variables = args.get('variables', [])
         self._stack = {} # Variable stack.
+        self._mode = self.NO_LIGHT_COLOR # Lightless color material
 
         self.program = None
 
@@ -213,17 +221,24 @@ class Shader(object):
           transpose: Transpose matrix.
         """
         transpose = GL_TRUE if transpose else GL_FALSE
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error('Variable not found in program [{}]'.format(
-                    variable))
-                return False
-            self._stack[variable] = location
+        location = self.get_location(variable)
+        if not location:
+            logging.error('Variable not found in program [{}]'.format(
+                variable))
+            return False
 
-        glUniformMatrix4fv(self._stack[variable], 1, transpose,
+        glUniformMatrix4fv(location, 1, transpose,
                            np.asfortranarray(value, dtype=np.float32))
         return True
+    
+    def get_location(self, variable):
+        if variable in self._stack:
+            return self._stack[variable]
+        location = glGetUniformLocation(self.program, variable)
+        if location == -1:
+            return False
+        self._stack[variable] = location
+        return location
 
     def set_matrix4x4(self, variable, value, transpose=False):
         """Set 4x4 Matrix value
@@ -236,7 +251,9 @@ class Shader(object):
           value: Matrix to set. (Numpy matrix)
           transpose: Transpose matrix.
         """
-        self.set_matrix4x4_np(variable, value, transpose)
+        self.set_matrix4x4_np(variable,
+                              np.array(value, np.float32),
+                              transpose)
 
     def set_vector3_np(self, variable, value):
         """Set Vector 3 as numpy array value
@@ -252,14 +269,12 @@ class Shader(object):
           variable: Variable name to set
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         """
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error('Variable not found in program [{}]'.format(
-                    variable))
-                return False
-            self._stack[variable] = location
-        glUniform3fv(self._stack[variable], 1, value)
+        location = self.get_location(variable)
+        if location < 0:
+            logging.error('Variable not found in program [{}]'.format(
+                variable))
+            return False
+        glUniform3fv(location, 1, value)
 
     def set_vector4_np(self, variable, value):
         """Set Vector 4 as numpy array value
@@ -275,14 +290,12 @@ class Shader(object):
           variable: Variable name to set
           value: Vector 4 to set. (Numpy array with 4 elemenets)
         """
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error('Variable not found in program [{}]'.format(
-                    variable))
-                return False
-            self._stack[variable] = location
-        glUniform4fv(self._stack[variable], 1, value)
+        location = self.get_location(variable)
+        if location < 0:
+            logging.error('Variable not found in program [{}]'.format(
+                variable))
+            return False
+        glUniform4fv(location, 1, value)
 
     def set_vector3(self, variable, value):
         """Set Vector 3 as array value
@@ -297,4 +310,24 @@ class Shader(object):
           variable: Variable name to set
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         """
-        self.set_vector3_np(variable, value)
+        self.set_vector3_np(variable,
+                            np.array(value, dtype=np.float32))
+
+    def set_int(self, variable, value):
+        """Set Integer value
+
+        If variable not found in `self.variables` then system will try to locate
+        the variable location and store it in `self.variables` for future
+        reference.
+
+        Args:
+          variable: Variable name to set
+          value: Integer value to set
+        """
+        location = self.get_location(variable)
+        if location < 0:
+            logging.error('Variable not found in program [{}]'.format(
+                variable))
+            return False
+
+        glUniform1i(location, ctypes.c_int(value))

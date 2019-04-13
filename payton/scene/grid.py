@@ -17,7 +17,7 @@ from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray, glPolygonMode,
                        glEnableVertexAttribArray, glVertexAttribPointer,
                        GL_FLOAT, GL_STATIC_DRAW, GL_ELEMENT_ARRAY_BUFFER,
                        GL_LINES, GL_UNSIGNED_INT, glDeleteBuffers)
-from payton.scene.shader import lightless_fragment_shader, Shader
+from payton.scene.material import Material
 
 class Grid(object):
     """
@@ -56,13 +56,11 @@ class Grid(object):
         self._indices = []
         self._vertex_count = 0
         self._model_matrix = None
+        self._material = Material(display=1, lights=False)
+        self._material.color = self.color
 
         # Vertex Array Object pointer
         self._vao = None
-        variables = ['model', 'view', 'projection',
-                     'light_pos', 'light_color', 'object_color']
-        self._shader = Shader(fragment=lightless_fragment_shader,
-                              variables=variables)
         self.visible = True
 
         self.resize(xres, yres)
@@ -90,14 +88,8 @@ class Grid(object):
         if not self._vao:
             self.build()
 
-        # Setup shader arguments
-        self._shader.use()
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
-        self._shader.set_matrix4x4_np('model', self._model_matrix)
-        self._shader.set_matrix4x4_np('view', view)
-        self._shader.set_matrix4x4_np('projection', proj)
-        self._shader.set_vector3('object_color', np.array(self.color,
-                                                          dtype=np.float32))
+        self._material.render(proj, view, self._model_matrix, [])
 
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
@@ -106,9 +98,7 @@ class Grid(object):
                            GL_UNSIGNED_INT, ctypes.c_void_p(0))
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
-
-        # render
-        self._shader.end()
+        self._material.end()
 
     def resize(self, xres, yres, spacing=1):
         self._vertices = []
@@ -138,13 +128,14 @@ class Grid(object):
 
     def set_color(self, color):
         self.color = color
+        self._material.color = color
 
     def build(self):
         self._vao = glGenVertexArrays(1)
         vbos = glGenBuffers(2)
         glBindVertexArray(self._vao)
 
-        self._shader.build()
+        self._material.build_shader()
         vertices = np.array(self._vertices, dtype=np.float32)
         indices = np.array(self._indices, dtype=np.int32)
 

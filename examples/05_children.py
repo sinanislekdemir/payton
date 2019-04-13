@@ -28,6 +28,7 @@ space.observers[0].position = [20, 20, 20]
 space.grid.resize(40, 40, 1)
 
 nucleus = Sphere(radius=5)
+nucleus.material.texture = 'map.png'
 particle = Sphere()
 particle.set_position([8, 0, 0])
 

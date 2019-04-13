@@ -444,7 +444,7 @@ class Cube(Object):
             -1.0, 0.0, 0.0,
             -1.0, 0.0, 0]
 
-        self._uvs = [
+        self._texcoords = [
             0.0, 0.0,
             0.0, 1.0,
             1.0, 0.0,
@@ -537,24 +537,36 @@ class Sphere(Object):
         # step height is the arc in height
         step_height = math.radians(180.0 / self.parallels)
         indices = 0
+        u_step = 1.0 / self.meridians
+        v_step = 1.0 / self.parallels
 
         for i in range(self.parallels + 1):
             for j in range(self.meridians + 1):
                 x1 = r * math.sin(step_height * i) * math.cos(step_angle * j)
                 y1 = r * math.sin(step_height * i) * math.sin(step_angle * j)
                 z1 = r * math.cos(step_height * i)
+                u1 = u_step * j
+                v1 = 1.0 - (v_step * i)
 
                 x2 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * j)
                 y2 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * j)
                 z2 = r * math.cos(step_height * (i + 1))
+                u2 = u_step * j
+                v2 = 1.0 - (v_step * (i + 1))
 
                 x3 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * (j + 1))
                 y3 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * (j + 1))
                 z3 = r * math.cos(step_height * (i + 1))
+                u3 = u_step * (j + 1)
+                v3 = 1.0 - (v_step * (i + 1))
 
                 x4 = r * math.sin(step_height * i) * math.cos(step_angle * (j + 1))
                 y4 = r * math.sin(step_height * i) * math.sin(step_angle * (j + 1))
                 z4 = r * math.cos(step_height * i)
+                u4 = u_step * (j + 1)
+                v4 = 1.0 - (v_step * i)
+
+
                 normal = plane_normal([x1, y1, z1],
                                       [x2, y2, z2],
                                       [x3, y3, z3])
@@ -562,6 +574,7 @@ class Sphere(Object):
                 self._vertices += [x2, y2, z2] # i + 1
                 self._vertices += [x3, y3, z3] # i + 2
                 self._vertices += [x4, y4, z4] # i + 3
+                self._texcoords.extend([u1, v1, u2, v2, u3, v3, u4, v4])
                 self._normals += [normal[0], normal[1], normal[2]]
                 self._normals += [normal[0], normal[1], normal[2]]
                 self._normals += [normal[0], normal[1], normal[2]]
