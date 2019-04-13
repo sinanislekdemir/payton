@@ -120,6 +120,13 @@ class Object(object):
         self._vbos = None
 
     def select(self, start, vector):
+        """Select test for object using bounding Sphere.
+
+        Note: this method is not 100% accurate as it is based on a rough
+        assumption. Sphere area will be larger than actual object.
+
+        If you want to have a more accurate way to handle this, try
+        using raycast triangle intersect"""
         self._selected = raycast_sphere_intersect(start,
                                                   vector,
                                                   np.array(self.matrix[3],

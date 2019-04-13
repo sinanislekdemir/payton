@@ -105,7 +105,6 @@ class Controller(object):
             inv_view = pyrr.matrix44.inverse(view)
 
             ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
-            
             ray_dir = pyrr.vector.normalize(ray_end[0:4])
 
             # Now shoot the ray to the scene.

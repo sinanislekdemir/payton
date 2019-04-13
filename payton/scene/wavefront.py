@@ -57,10 +57,10 @@ class Wavefront(Object):
         but for now, the assumption is there will always be triangulated
         wavefront object files and always a single object at a time.
         """
-        self._vertices = []
-        self._indices = []
-        self._normals = []
-        self._texcoords = []
+        _vertices = []
+        _indices = []
+        _normals = []
+        _texcoords = []
         lines = obj_string.splitlines()
         for line in lines:
             command = line[0:2].lower()
@@ -69,16 +69,16 @@ class Wavefront(Object):
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
-                self._vertices.append((x, y, z))
+                _vertices.append([x, y, z])
             if command == 'vt':
                 u = float(parts[1])
                 w = float(parts[2]) if len(parts) > 2 else 0
-                self._texcoords.append((u, w))
+                _texcoords.append([u, w])
             if command == 'vn':
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
-                self._normals.append((x, y, z))
+                _normals.append([x, y, z])
             if command == 'f ':
                 # I guess this part of the code should be compatable
                 # with POLYGON as well but IDK.
@@ -91,6 +91,22 @@ class Wavefront(Object):
                     textcoord = int(subs[1]) - 1 if len(subs) > 1 else -1
                     normal = int(subs[2]) - 1 if len(subs) > 2 else -1
                     face.append((vertex, textcoord, normal))
-                self._indices.append(face)
+                _indices.append(face)
+
+        # Now unpack indices to actual object data
+        i = 0
+        for index in _indices:
+            for f in index:
+                vertex = _vertices[f[0]]
+                normal = _normals[f[2]]
+                tex = [0, 0]
+                if f[1] > -1:
+                    tex = _texcoords[f[1]]
+                self._vertices.extend(vertex)
+                self._normals.extend(normal)
+                self._texcoords.extend(tex)
+                self._indices.append(i)
+                i += 1
+
         logging.debug("""Loaded {} vertices, {} textcoords, {} normals, {} faces""".format(
             len(self._vertices), len(self._texcoords), len(self._normals), len(self._indices)))
