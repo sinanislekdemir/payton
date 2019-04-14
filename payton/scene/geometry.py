@@ -540,8 +540,8 @@ class Sphere(Object):
         u_step = 1.0 / self.meridians
         v_step = 1.0 / self.parallels
 
-        for i in range(self.parallels + 1):
-            for j in range(self.meridians + 1):
+        for i in range(self.parallels):
+            for j in range(self.meridians):
                 x1 = r * math.sin(step_height * i) * math.cos(step_angle * j)
                 y1 = r * math.sin(step_height * i) * math.sin(step_angle * j)
                 z1 = r * math.cos(step_height * i)

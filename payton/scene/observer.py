@@ -118,7 +118,7 @@ class Observer(object):
           (projection_matrix, view_matrix)
         """
         if self.perspective:
-            projection_matrix = pyrr.matrix44.create_perspective_projection(
+            proj_matrix = pyrr.matrix44.create_perspective_projection(
                 self.fov, self.aspect_ratio, self.near, self.far,
                 dtype=np.float32)
         else:
