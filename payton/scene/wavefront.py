@@ -12,7 +12,7 @@ class Wavefront(Object):
     Wavefront object file class.
     Only supports ascii obj files in a limited way.
     So do not depend so much on this class.
-    Only designed to accept your designs.
+    Only designed to accept your triangular geometries.
     """
     def __init__(self, filename=''):
         """
@@ -42,8 +42,10 @@ class Wavefront(Object):
         This part of the code is a bit messy. Ideally, a file format
         parsing shouldn't be here. But on the other hand, this is still
         a proof of concept so technical debts can be taken.
+
         @TODO: Create an importer mechanism instead of directly parsing
                Wavefront Object file format inside Object class.
+
         A 3D object can be imported from many different file formats
         we can not restrict it to a single format and embed it to Object.
         That is an anti-pattern. Ok. I know.
