@@ -30,6 +30,7 @@ import logging
 import os
 from payton.scene import Object
 
+
 class Wavefront(Object):
     &#34;&#34;&#34;
     Wavefront object file class.
@@ -45,7 +46,7 @@ class Wavefront(Object):
         self.filename = filename
         if filename != &#39;&#39;:
             self.load_file(filename)
-    
+
     def load_file(self, filename):
         &#34;&#34;&#34;
         Load obj file.
@@ -59,7 +60,7 @@ class Wavefront(Object):
         data = f.read()
         f.close()
         self.load(data)
-    
+
     def load(self, obj_string):
         &#34;&#34;&#34;
         This part of the code is a bit messy. Ideally, a file format
@@ -130,10 +131,7 @@ class Wavefront(Object):
                 self._normals.extend(normal)
                 self._texcoords.extend(tex)
                 self._indices.append(i)
-                i += 1
-
-        logging.debug(&#34;&#34;&#34;Loaded {} vertices, {} textcoords, {} normals, {} faces&#34;&#34;&#34;.format(
-            len(self._vertices), len(self._texcoords), len(self._normals), len(self._indices)))</code></pre>
+                i += 1</code></pre>
 </details>
 </section>
 <section>
@@ -171,7 +169,7 @@ Only designed to accept your designs.</p></section>
         self.filename = filename
         if filename != &#39;&#39;:
             self.load_file(filename)
-    
+
     def load_file(self, filename):
         &#34;&#34;&#34;
         Load obj file.
@@ -185,7 +183,7 @@ Only designed to accept your designs.</p></section>
         data = f.read()
         f.close()
         self.load(data)
-    
+
     def load(self, obj_string):
         &#34;&#34;&#34;
         This part of the code is a bit messy. Ideally, a file format
@@ -256,10 +254,7 @@ Only designed to accept your designs.</p></section>
                 self._normals.extend(normal)
                 self._texcoords.extend(tex)
                 self._indices.append(i)
-                i += 1
-
-        logging.debug(&#34;&#34;&#34;Loaded {} vertices, {} textcoords, {} normals, {} faces&#34;&#34;&#34;.format(
-            len(self._vertices), len(self._texcoords), len(self._normals), len(self._indices)))</code></pre>
+                i += 1</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -372,10 +367,7 @@ wavefront object files and always a single object at a time.</p></section>
             self._normals.extend(normal)
             self._texcoords.extend(tex)
             self._indices.append(i)
-            i += 1
-
-    logging.debug(&#34;&#34;&#34;Loaded {} vertices, {} textcoords, {} normals, {} faces&#34;&#34;&#34;.format(
-        len(self._vertices), len(self._texcoords), len(self._normals), len(self._indices)))</code></pre>
+            i += 1</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.wavefront.Wavefront.load_file"><code class="name flex">

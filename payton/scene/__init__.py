@@ -107,7 +107,7 @@ class Scene(object):
         self._shift_down = False
         self._ctrl_down = False
         self._rotate = False
-        
+
         self.on_select = args.get('on_select', None)
 
         # Main running state
@@ -127,9 +127,9 @@ class Scene(object):
 
         # TODO: Grid should be optional.
         # Observer location or light location does not change during a frame
-        # render. To avoid redundant calls to re-calculate and convert locations
-        # for each object in the scene, we diretly pass their Numpy array
-        # values to render pipeline.
+        # render. To avoid redundant calls to re-calculate and convert
+        # locations for each object in the scene, we diretly pass their
+        # Numpy array values to render pipeline.
         proj, view = self.observers[self._active_observer].render()
 
         self.grid.render(proj, view, self.lights)
@@ -171,7 +171,7 @@ class Scene(object):
         Generally this is not needed as scene has already a default observer.
         """
         if not isinstance(obj, Observer):
-            logging.error("Given observer is not an instance of `scene.Observer`")
+            logging.error("Observer is not an instance of `scene.Observer`")
             return False
 
         self.observers.append(obj)
@@ -184,8 +184,8 @@ class Scene(object):
 
     def create_clock(self, name, period, callback):
         """
-        Creates a clock in the scene. This is the preffered way to create a clock
-        in the scene as it binds the clock to the scene by itself.
+        Creates a clock in the scene. This is the preffered way to create a
+        clock in the scene as it binds the clock to the scene by itself.
 
         Note that, name should be unique within the scene so any duplicating
         clock names will be logged as an error and will not be added.
@@ -294,6 +294,7 @@ class Scene(object):
         self.window = None
         sdl2.SDL_Quit()
         return 0
+
 
 class Background(object):
     """Background is a special object

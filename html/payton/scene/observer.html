@@ -58,7 +58,7 @@ class Observer(object):
         &#34;&#34;&#34;
         self.position = args.get(&#39;position&#39;, [10.0, 10.0, 5.0])
         self.target = args.get(&#39;target&#39;, [0.0, 0.0, 0.0])
-        self.up =  args.get(&#39;up&#39;, [0.0, 0.0, 1.0])
+        self.up = args.get(&#39;up&#39;, [0.0, 0.0, 1.0])
 
         self.target_object = args.get(&#39;target_object&#39;, None)
         self.fov = args.get(&#39;fov&#39;, 45.0)
@@ -71,11 +71,10 @@ class Observer(object):
         self.zoom = args.get(&#39;zoom&#39;, 10)
         self.active = args.get(&#39;active&#39;, False)
         self.perspective = args.get(&#39;perspective&#39;, True)
-        
+
         # Store matrices for future reference.
         self._projection = None
         self._view = None
-        
 
     def distance(self):
         &#34;&#34;&#34;
@@ -151,14 +150,14 @@ class Observer(object):
             y = 100
             if self.zoom == 0:
                 self.zoom = 0.01
-            projection_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
+            proj_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
                 left=(-x / self.zoom),
                 right=(x / self.zoom),
                 top=(y / self.zoom),
-                bottom=(-y /self.zoom),
+                bottom=(-y / self.zoom),
                 near=self.near, far=self.far, dtype=np.float32)
 
-        self._projection = projection_matrix
+        self._projection = proj_matrix
         eye = np.array(self.position, dtype=np.float32)
         if self.target_object:
             self.target = self.target_object.get_position()
@@ -167,7 +166,7 @@ class Observer(object):
         up = np.array(self.up, dtype=np.float32)
         view_matrix = pyrr.matrix44.create_look_at(eye, target, up)
         self._view = view_matrix
-        return projection_matrix, view_matrix</code></pre>
+        return proj_matrix, view_matrix</code></pre>
 </details>
 </section>
 <section>
@@ -212,7 +211,7 @@ class Observer(object):
         &#34;&#34;&#34;
         self.position = args.get(&#39;position&#39;, [10.0, 10.0, 5.0])
         self.target = args.get(&#39;target&#39;, [0.0, 0.0, 0.0])
-        self.up =  args.get(&#39;up&#39;, [0.0, 0.0, 1.0])
+        self.up = args.get(&#39;up&#39;, [0.0, 0.0, 1.0])
 
         self.target_object = args.get(&#39;target_object&#39;, None)
         self.fov = args.get(&#39;fov&#39;, 45.0)
@@ -225,11 +224,10 @@ class Observer(object):
         self.zoom = args.get(&#39;zoom&#39;, 10)
         self.active = args.get(&#39;active&#39;, False)
         self.perspective = args.get(&#39;perspective&#39;, True)
-        
+
         # Store matrices for future reference.
         self._projection = None
         self._view = None
-        
 
     def distance(self):
         &#34;&#34;&#34;
@@ -305,14 +303,14 @@ class Observer(object):
             y = 100
             if self.zoom == 0:
                 self.zoom = 0.01
-            projection_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
+            proj_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
                 left=(-x / self.zoom),
                 right=(x / self.zoom),
                 top=(y / self.zoom),
-                bottom=(-y /self.zoom),
+                bottom=(-y / self.zoom),
                 near=self.near, far=self.far, dtype=np.float32)
 
-        self._projection = projection_matrix
+        self._projection = proj_matrix
         eye = np.array(self.position, dtype=np.float32)
         if self.target_object:
             self.target = self.target_object.get_position()
@@ -321,7 +319,7 @@ class Observer(object):
         up = np.array(self.up, dtype=np.float32)
         view_matrix = pyrr.matrix44.create_look_at(eye, target, up)
         self._view = view_matrix
-        return projection_matrix, view_matrix</code></pre>
+        return proj_matrix, view_matrix</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -380,7 +378,7 @@ and up direction is x:0 y:1 z:0</p>
     &#34;&#34;&#34;
     self.position = args.get(&#39;position&#39;, [10.0, 10.0, 5.0])
     self.target = args.get(&#39;target&#39;, [0.0, 0.0, 0.0])
-    self.up =  args.get(&#39;up&#39;, [0.0, 0.0, 1.0])
+    self.up = args.get(&#39;up&#39;, [0.0, 0.0, 1.0])
 
     self.target_object = args.get(&#39;target_object&#39;, None)
     self.fov = args.get(&#39;fov&#39;, 45.0)
@@ -393,7 +391,7 @@ and up direction is x:0 y:1 z:0</p>
     self.zoom = args.get(&#39;zoom&#39;, 10)
     self.active = args.get(&#39;active&#39;, False)
     self.perspective = args.get(&#39;perspective&#39;, True)
-    
+
     # Store matrices for future reference.
     self._projection = None
     self._view = None</code></pre>
@@ -482,14 +480,14 @@ and up direction is x:0 y:1 z:0</p>
         y = 100
         if self.zoom == 0:
             self.zoom = 0.01
-        projection_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
+        proj_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
             left=(-x / self.zoom),
             right=(x / self.zoom),
             top=(y / self.zoom),
-            bottom=(-y /self.zoom),
+            bottom=(-y / self.zoom),
             near=self.near, far=self.far, dtype=np.float32)
 
-    self._projection = projection_matrix
+    self._projection = proj_matrix
     eye = np.array(self.position, dtype=np.float32)
     if self.target_object:
         self.target = self.target_object.get_position()
@@ -498,7 +496,7 @@ and up direction is x:0 y:1 z:0</p>
     up = np.array(self.up, dtype=np.float32)
     view_matrix = pyrr.matrix44.create_look_at(eye, target, up)
     self._view = view_matrix
-    return projection_matrix, view_matrix</code></pre>
+    return proj_matrix, view_matrix</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.observer.Observer.rotate_around_target"><code class="name flex">

@@ -55,7 +55,7 @@ ball = Sphere(radius=1, track_motion=True)
 
 # Add ball to the scene
 pm_scene.add_object('ball', ball)
-pm_scene.observers[0].target_object = ball #  Track the ball
+pm_scene.observers[0].target_object = ball  # Track the ball
 
 pm_scene.grid.resize(30, 30, 2)
 

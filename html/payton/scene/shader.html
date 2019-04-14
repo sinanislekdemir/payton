@@ -50,11 +50,12 @@ essential to Payton Library. That is all.
 
 &#34;&#34;&#34;
 
-import numpy as np # We need C floats
+import ctypes
+import numpy as np
 import logging
 
 from OpenGL.GL import (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable,
-                       glDisable, GL_PROGRAM_POINT_SIZE,
+                       glDisable, GL_PROGRAM_POINT_SIZE, glUniform1i, GLuint,
                        glGetUniformLocation, glUseProgram, GL_TRUE, GL_FALSE,
                        glUniformMatrix4fv, glUniform3fv, glUniform4fv)
 
@@ -66,44 +67,47 @@ out vec4 FragColor;
 
 in vec3 l_normal;
 in vec3 l_fragpos;
+in vec2 tex_coords;
 
 uniform vec3 light_pos;
 uniform vec3 light_color;
 uniform vec3 object_color;
+uniform int material_mode;
+
+uniform sampler2D tex_unit;
 
 void main()
 {
-    // ambient
-    float ambientStrength = 0.3;
-    vec3 ambient = ambientStrength * light_color;
+    if (material_mode == 0) {
+        // lightless material with color
+        FragColor = vec4(object_color, 1.0);
+    }
+    if (material_mode == 1) {
+        // lightless material with texture
+        FragColor = texture(tex_unit, tex_coords);
+    }
+    if (material_mode == 2 || material_mode == 3) {
+        // light material
+        // ambient
+        float ambientStrength = 0.3;
+        vec3 ambient = ambientStrength * light_color;
 
-    // diffuse
-    vec3 norm = normalize(l_normal);
+        // diffuse
+        vec3 norm = normalize(l_normal);
 
-    vec3 lightDir = normalize(light_pos - l_fragpos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * light_color;
-
-    vec3 result = (ambient + diffuse) * object_color;
-    FragColor = vec4(result, 1.0);
+        vec3 lightDir = normalize(light_pos - l_fragpos);
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = diff * light_color;
+        if (material_mode == 2) {
+            // color material
+            FragColor = vec4((ambient + diffuse) * object_color, 1.0);
+        }else{
+            // texture material
+            FragColor = (vec4(ambient + diffuse, 1.0) *
+                         texture(tex_unit, tex_coords));
+        }
+    }
 }&#34;&#34;&#34;
-
-lightless_fragment_shader = &#34;&#34;&#34;
-#version 330 core
-out vec4 FragColor;
-
-in vec3 l_normal; // Not used
-in vec3 l_fragpos; // Not used
-
-uniform vec3 light_pos; // Not used
-uniform vec3 light_color; // Not used
-uniform vec3 object_color;
-
-void main()
-{
-    FragColor = vec4(object_color, 1.0);
-}
-&#34;&#34;&#34;
 
 
 default_vertex_shader = &#34;&#34;&#34;
@@ -112,7 +116,7 @@ layout ( location = 0 ) in vec3 position;
 layout ( location = 1 ) in vec3 normal;
 layout ( location = 2 ) in vec2 texCoords;
 
-out vec2 TexCoords;
+out vec2 tex_coords;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -129,7 +133,7 @@ void main()
     gl_Position = projection * view * model * vec4(position, 1.0f);
     gl_PointSize = 2.0;
 
-    TexCoords = texCoords;
+    tex_coords = texCoords;
 }
 &#34;&#34;&#34;
 
@@ -140,7 +144,8 @@ out vec2 v_uv;
 void main()
 {
   // uint idx = gl_VertexID;
-  gl_Position = vec4( gl_VertexID &amp; 1, gl_VertexID &gt;&gt; 1, 0.0, 0.5 ) * 4.0 - 1.0;
+  gl_Position = (vec4( gl_VertexID &amp; 1, gl_VertexID &gt;&gt; 1, 0.0, 0.5 )
+                 * 4.0 - 1.0);
   v_uv = vec2( gl_Position.xy * 0.5 + 0.5 );
 }
 &#34;&#34;&#34;
@@ -172,6 +177,11 @@ class Shader(object):
     If you provide the list of variable names in build function call then
     it will overwrite existing list.
     &#34;&#34;&#34;
+    NO_LIGHT_COLOR = 0
+    NO_LIGHT_TEXTURE = 1
+    LIGHT_COLOR = 2
+    LIGHT_TEXTURE = 3
+
     def __init__(self, **args):
         &#34;&#34;&#34;Initialize Shader.
 
@@ -186,7 +196,8 @@ class Shader(object):
         self.vertex_shader_source = args.get(&#39;vertex&#39;,
                                              default_vertex_shader)
         self.variables = args.get(&#39;variables&#39;, [])
-        self._stack = {} # Variable stack.
+        self._stack = {}  # Variable stack.
+        self._mode = self.NO_LIGHT_COLOR  # Lightless color material
 
         self.program = None
 
@@ -199,7 +210,7 @@ class Shader(object):
             self.program
         &#34;&#34;&#34;
         vertex_shader = shaders.compileShader(self.vertex_shader_source,
-                                                    GL_VERTEX_SHADER)
+                                              GL_VERTEX_SHADER)
         fragment_shader = shaders.compileShader(self.fragment_shader_source,
                                                 GL_FRAGMENT_SHADER)
         self.program = shaders.compileProgram(vertex_shader,
@@ -234,13 +245,13 @@ class Shader(object):
     def set_matrix4x4_np(self, variable, value, transpose=False):
         &#34;&#34;&#34;Set 4x4 Numpy matrix value
 
-        Some elements like Observer and Light can pass their matrices directly as
-        numpy array to reduce number of object conversions. This is the ideal way
-        if possible.
+        Some elements like Observer and Light can pass their matrices directly
+        as numpy array to reduce number of object conversions. This is the
+        ideal way if possible.
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         Args:
           variable: Variable name to set
@@ -248,17 +259,24 @@ class Shader(object):
           transpose: Transpose matrix.
         &#34;&#34;&#34;
         transpose = GL_TRUE if transpose else GL_FALSE
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                    variable))
-                return False
-            self._stack[variable] = location
+        location = self.get_location(variable)
+        if not location:
+            logging.error(&#39;Variable not found in program [{}]&#39;.format(
+                variable))
+            return False
 
-        glUniformMatrix4fv(self._stack[variable], 1, transpose,
+        glUniformMatrix4fv(location, 1, transpose,
                            np.asfortranarray(value, dtype=np.float32))
         return True
+
+    def get_location(self, variable):
+        if variable in self._stack:
+            return self._stack[variable]
+        location = glGetUniformLocation(self.program, variable)
+        if location == -1:
+            return False
+        self._stack[variable] = location
+        return location
 
     def set_matrix4x4(self, variable, value, transpose=False):
         &#34;&#34;&#34;Set 4x4 Matrix value
@@ -271,37 +289,38 @@ class Shader(object):
           value: Matrix to set. (Numpy matrix)
           transpose: Transpose matrix.
         &#34;&#34;&#34;
-        self.set_matrix4x4_np(variable, value, transpose)
+        self.set_matrix4x4_np(variable,
+                              np.array(value, np.float32),
+                              transpose)
 
     def set_vector3_np(self, variable, value):
         &#34;&#34;&#34;Set Vector 3 as numpy array value
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
-        Some elements like Light or pre-set materials can pass their vertices
-        directly as numpy array to reduce number of object conversions.
+        Some elements like Light or pre-set materials can pass their
+        vertices directly as numpy array to reduce number of object
+        conversions.
 
         Args:
           variable: Variable name to set
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         &#34;&#34;&#34;
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                    variable))
-                return False
-            self._stack[variable] = location
-        glUniform3fv(self._stack[variable], 1, value)
+        location = self.get_location(variable)
+        if location &lt; 0:
+            logging.error(&#39;Variable not found in program [{}]&#39;.format(
+                variable))
+            return False
+        glUniform3fv(location, 1, value)
 
     def set_vector4_np(self, variable, value):
         &#34;&#34;&#34;Set Vector 4 as numpy array value
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         Some elements like Light or pre-set materials can pass their vertices
         directly as numpy array to reduce number of object conversions.
@@ -310,20 +329,18 @@ class Shader(object):
           variable: Variable name to set
           value: Vector 4 to set. (Numpy array with 4 elemenets)
         &#34;&#34;&#34;
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                    variable))
-                return False
-            self._stack[variable] = location
-        glUniform4fv(self._stack[variable], 1, value)
+        location = self.get_location(variable)
+        if location &lt; 0:
+            logging.error(&#39;Variable not found in program [{}]&#39;.format(
+                variable))
+            return False
+        glUniform4fv(location, 1, value)
 
     def set_vector3(self, variable, value):
         &#34;&#34;&#34;Set Vector 3 as array value
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         This method will simply convert `value` into numpy array and call
         `payton.scene.shader.Shader.set_vector3_np` method.
@@ -332,7 +349,27 @@ class Shader(object):
           variable: Variable name to set
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         &#34;&#34;&#34;
-        self.set_vector3_np(variable, value)</code></pre>
+        self.set_vector3_np(variable,
+                            np.array(value, dtype=np.float32))
+
+    def set_int(self, variable, value):
+        &#34;&#34;&#34;Set Integer value
+
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
+
+        Args:
+          variable: Variable name to set
+          value: Integer value to set
+        &#34;&#34;&#34;
+        location = self.get_location(variable)
+        if location &lt; 0:
+            logging.error(&#39;Variable not found in program [{}]&#39;.format(
+                variable))
+            return False
+
+        glUniform1i(location, ctypes.c_int(value))</code></pre>
 </details>
 </section>
 <section>
@@ -371,6 +408,11 @@ it will overwrite existing list.</p></section>
     If you provide the list of variable names in build function call then
     it will overwrite existing list.
     &#34;&#34;&#34;
+    NO_LIGHT_COLOR = 0
+    NO_LIGHT_TEXTURE = 1
+    LIGHT_COLOR = 2
+    LIGHT_TEXTURE = 3
+
     def __init__(self, **args):
         &#34;&#34;&#34;Initialize Shader.
 
@@ -385,7 +427,8 @@ it will overwrite existing list.</p></section>
         self.vertex_shader_source = args.get(&#39;vertex&#39;,
                                              default_vertex_shader)
         self.variables = args.get(&#39;variables&#39;, [])
-        self._stack = {} # Variable stack.
+        self._stack = {}  # Variable stack.
+        self._mode = self.NO_LIGHT_COLOR  # Lightless color material
 
         self.program = None
 
@@ -398,7 +441,7 @@ it will overwrite existing list.</p></section>
             self.program
         &#34;&#34;&#34;
         vertex_shader = shaders.compileShader(self.vertex_shader_source,
-                                                    GL_VERTEX_SHADER)
+                                              GL_VERTEX_SHADER)
         fragment_shader = shaders.compileShader(self.fragment_shader_source,
                                                 GL_FRAGMENT_SHADER)
         self.program = shaders.compileProgram(vertex_shader,
@@ -433,13 +476,13 @@ it will overwrite existing list.</p></section>
     def set_matrix4x4_np(self, variable, value, transpose=False):
         &#34;&#34;&#34;Set 4x4 Numpy matrix value
 
-        Some elements like Observer and Light can pass their matrices directly as
-        numpy array to reduce number of object conversions. This is the ideal way
-        if possible.
+        Some elements like Observer and Light can pass their matrices directly
+        as numpy array to reduce number of object conversions. This is the
+        ideal way if possible.
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         Args:
           variable: Variable name to set
@@ -447,17 +490,24 @@ it will overwrite existing list.</p></section>
           transpose: Transpose matrix.
         &#34;&#34;&#34;
         transpose = GL_TRUE if transpose else GL_FALSE
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                    variable))
-                return False
-            self._stack[variable] = location
+        location = self.get_location(variable)
+        if not location:
+            logging.error(&#39;Variable not found in program [{}]&#39;.format(
+                variable))
+            return False
 
-        glUniformMatrix4fv(self._stack[variable], 1, transpose,
+        glUniformMatrix4fv(location, 1, transpose,
                            np.asfortranarray(value, dtype=np.float32))
         return True
+
+    def get_location(self, variable):
+        if variable in self._stack:
+            return self._stack[variable]
+        location = glGetUniformLocation(self.program, variable)
+        if location == -1:
+            return False
+        self._stack[variable] = location
+        return location
 
     def set_matrix4x4(self, variable, value, transpose=False):
         &#34;&#34;&#34;Set 4x4 Matrix value
@@ -470,37 +520,38 @@ it will overwrite existing list.</p></section>
           value: Matrix to set. (Numpy matrix)
           transpose: Transpose matrix.
         &#34;&#34;&#34;
-        self.set_matrix4x4_np(variable, value, transpose)
+        self.set_matrix4x4_np(variable,
+                              np.array(value, np.float32),
+                              transpose)
 
     def set_vector3_np(self, variable, value):
         &#34;&#34;&#34;Set Vector 3 as numpy array value
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
-        Some elements like Light or pre-set materials can pass their vertices
-        directly as numpy array to reduce number of object conversions.
+        Some elements like Light or pre-set materials can pass their
+        vertices directly as numpy array to reduce number of object
+        conversions.
 
         Args:
           variable: Variable name to set
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         &#34;&#34;&#34;
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                    variable))
-                return False
-            self._stack[variable] = location
-        glUniform3fv(self._stack[variable], 1, value)
+        location = self.get_location(variable)
+        if location &lt; 0:
+            logging.error(&#39;Variable not found in program [{}]&#39;.format(
+                variable))
+            return False
+        glUniform3fv(location, 1, value)
 
     def set_vector4_np(self, variable, value):
         &#34;&#34;&#34;Set Vector 4 as numpy array value
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         Some elements like Light or pre-set materials can pass their vertices
         directly as numpy array to reduce number of object conversions.
@@ -509,20 +560,18 @@ it will overwrite existing list.</p></section>
           variable: Variable name to set
           value: Vector 4 to set. (Numpy array with 4 elemenets)
         &#34;&#34;&#34;
-        if variable not in self.variables:
-            location = glGetUniformLocation(self.program, variable)
-            if not location:
-                logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                    variable))
-                return False
-            self._stack[variable] = location
-        glUniform4fv(self._stack[variable], 1, value)
+        location = self.get_location(variable)
+        if location &lt; 0:
+            logging.error(&#39;Variable not found in program [{}]&#39;.format(
+                variable))
+            return False
+        glUniform4fv(location, 1, value)
 
     def set_vector3(self, variable, value):
         &#34;&#34;&#34;Set Vector 3 as array value
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         This method will simply convert `value` into numpy array and call
         `payton.scene.shader.Shader.set_vector3_np` method.
@@ -531,8 +580,47 @@ it will overwrite existing list.</p></section>
           variable: Variable name to set
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         &#34;&#34;&#34;
-        self.set_vector3_np(variable, value)</code></pre>
+        self.set_vector3_np(variable,
+                            np.array(value, dtype=np.float32))
+
+    def set_int(self, variable, value):
+        &#34;&#34;&#34;Set Integer value
+
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
+
+        Args:
+          variable: Variable name to set
+          value: Integer value to set
+        &#34;&#34;&#34;
+        location = self.get_location(variable)
+        if location &lt; 0:
+            logging.error(&#39;Variable not found in program [{}]&#39;.format(
+                variable))
+            return False
+
+        glUniform1i(location, ctypes.c_int(value))</code></pre>
 </details>
+<h3>Class variables</h3>
+<dl>
+<dt id="payton.scene.shader.Shader.LIGHT_COLOR"><code class="name">var <span class="ident">LIGHT_COLOR</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="payton.scene.shader.Shader.LIGHT_TEXTURE"><code class="name">var <span class="ident">LIGHT_TEXTURE</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="payton.scene.shader.Shader.NO_LIGHT_COLOR"><code class="name">var <span class="ident">NO_LIGHT_COLOR</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="payton.scene.shader.Shader.NO_LIGHT_TEXTURE"><code class="name">var <span class="ident">NO_LIGHT_TEXTURE</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="payton.scene.shader.Shader.__init__"><code class="name flex">
@@ -565,7 +653,8 @@ it will overwrite existing list.</p></section>
     self.vertex_shader_source = args.get(&#39;vertex&#39;,
                                          default_vertex_shader)
     self.variables = args.get(&#39;variables&#39;, [])
-    self._stack = {} # Variable stack.
+    self._stack = {}  # Variable stack.
+    self._mode = self.NO_LIGHT_COLOR  # Lightless color material
 
     self.program = None</code></pre>
 </details>
@@ -594,7 +683,7 @@ Compile shaders and compile glsl program</p>
         self.program
     &#34;&#34;&#34;
     vertex_shader = shaders.compileShader(self.vertex_shader_source,
-                                                GL_VERTEX_SHADER)
+                                          GL_VERTEX_SHADER)
     fragment_shader = shaders.compileShader(self.fragment_shader_source,
                                             GL_FRAGMENT_SHADER)
     self.program = shaders.compileProgram(vertex_shader,
@@ -621,6 +710,60 @@ Compile shaders and compile glsl program</p>
     &#34;&#34;&#34;
     glUseProgram(0)
     glDisable(GL_PROGRAM_POINT_SIZE)</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.shader.Shader.get_location"><code class="name flex">
+<span>def <span class="ident">get_location</span></span>(<span>self, variable)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_location(self, variable):
+    if variable in self._stack:
+        return self._stack[variable]
+    location = glGetUniformLocation(self.program, variable)
+    if location == -1:
+        return False
+    self._stack[variable] = location
+    return location</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.shader.Shader.set_int"><code class="name flex">
+<span>def <span class="ident">set_int</span></span>(<span>self, variable, value)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Set Integer value</p>
+<p>If variable not found in <code>self.variables</code> then system will try to
+locate the variable location and store it in <code>self.variables</code> for
+future reference.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>variable</code></strong></dt>
+<dd>Variable name to set</dd>
+<dt><strong><code>value</code></strong></dt>
+<dd>Integer value to set</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def set_int(self, variable, value):
+    &#34;&#34;&#34;Set Integer value
+
+    If variable not found in `self.variables` then system will try to
+    locate the variable location and store it in `self.variables` for
+    future reference.
+
+    Args:
+      variable: Variable name to set
+      value: Integer value to set
+    &#34;&#34;&#34;
+    location = self.get_location(variable)
+    if location &lt; 0:
+        logging.error(&#39;Variable not found in program [{}]&#39;.format(
+            variable))
+        return False
+
+    glUniform1i(location, ctypes.c_int(value))</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.shader.Shader.set_matrix4x4"><code class="name flex">
@@ -652,7 +795,9 @@ Compile shaders and compile glsl program</p>
       value: Matrix to set. (Numpy matrix)
       transpose: Transpose matrix.
     &#34;&#34;&#34;
-    self.set_matrix4x4_np(variable, value, transpose)</code></pre>
+    self.set_matrix4x4_np(variable,
+                          np.array(value, np.float32),
+                          transpose)</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.shader.Shader.set_matrix4x4_np"><code class="name flex">
@@ -660,12 +805,12 @@ Compile shaders and compile glsl program</p>
 </code></dt>
 <dd>
 <section class="desc"><p>Set 4x4 Numpy matrix value</p>
-<p>Some elements like Observer and Light can pass their matrices directly as
-numpy array to reduce number of object conversions. This is the ideal way
-if possible.</p>
-<p>If variable not found in <code>self.variables</code> then system will try to locate
-the variable location and store it in <code>self.variables</code> for future
-reference.</p>
+<p>Some elements like Observer and Light can pass their matrices directly
+as numpy array to reduce number of object conversions. This is the
+ideal way if possible.</p>
+<p>If variable not found in <code>self.variables</code> then system will try to
+locate the variable location and store it in <code>self.variables</code> for
+future reference.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>variable</code></strong></dt>
@@ -680,13 +825,13 @@ reference.</p>
 <pre><code class="python">def set_matrix4x4_np(self, variable, value, transpose=False):
     &#34;&#34;&#34;Set 4x4 Numpy matrix value
 
-    Some elements like Observer and Light can pass their matrices directly as
-    numpy array to reduce number of object conversions. This is the ideal way
-    if possible.
+    Some elements like Observer and Light can pass their matrices directly
+    as numpy array to reduce number of object conversions. This is the
+    ideal way if possible.
 
-    If variable not found in `self.variables` then system will try to locate
-    the variable location and store it in `self.variables` for future
-    reference.
+    If variable not found in `self.variables` then system will try to
+    locate the variable location and store it in `self.variables` for
+    future reference.
 
     Args:
       variable: Variable name to set
@@ -694,15 +839,13 @@ reference.</p>
       transpose: Transpose matrix.
     &#34;&#34;&#34;
     transpose = GL_TRUE if transpose else GL_FALSE
-    if variable not in self.variables:
-        location = glGetUniformLocation(self.program, variable)
-        if not location:
-            logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                variable))
-            return False
-        self._stack[variable] = location
+    location = self.get_location(variable)
+    if not location:
+        logging.error(&#39;Variable not found in program [{}]&#39;.format(
+            variable))
+        return False
 
-    glUniformMatrix4fv(self._stack[variable], 1, transpose,
+    glUniformMatrix4fv(location, 1, transpose,
                        np.asfortranarray(value, dtype=np.float32))
     return True</code></pre>
 </details>
@@ -712,9 +855,9 @@ reference.</p>
 </code></dt>
 <dd>
 <section class="desc"><p>Set Vector 3 as array value
-If variable not found in <code>self.variables</code> then system will try to locate
-the variable location and store it in <code>self.variables</code> for future
-reference.</p>
+If variable not found in <code>self.variables</code> then system will try to
+locate the variable location and store it in <code>self.variables</code> for
+future reference.</p>
 <p>This method will simply convert <code>value</code> into numpy array and call
 <a title="payton.scene.shader.Shader.set_vector3_np" href="#payton.scene.shader.Shader.set_vector3_np"><code>Shader.set_vector3_np()</code></a> method.</p>
 <h2 id="args">Args</h2>
@@ -728,9 +871,9 @@ reference.</p>
 <summary>Source code</summary>
 <pre><code class="python">def set_vector3(self, variable, value):
     &#34;&#34;&#34;Set Vector 3 as array value
-    If variable not found in `self.variables` then system will try to locate
-    the variable location and store it in `self.variables` for future
-    reference.
+    If variable not found in `self.variables` then system will try to
+    locate the variable location and store it in `self.variables` for
+    future reference.
 
     This method will simply convert `value` into numpy array and call
     `payton.scene.shader.Shader.set_vector3_np` method.
@@ -739,7 +882,8 @@ reference.</p>
       variable: Variable name to set
       value: Vector 3 to set. (Numpy array with 3 elemenets)
     &#34;&#34;&#34;
-    self.set_vector3_np(variable, value)</code></pre>
+    self.set_vector3_np(variable,
+                        np.array(value, dtype=np.float32))</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.shader.Shader.set_vector3_np"><code class="name flex">
@@ -747,11 +891,12 @@ reference.</p>
 </code></dt>
 <dd>
 <section class="desc"><p>Set Vector 3 as numpy array value</p>
-<p>If variable not found in <code>self.variables</code> then system will try to locate
-the variable location and store it in <code>self.variables</code> for future
-reference.</p>
-<p>Some elements like Light or pre-set materials can pass their vertices
-directly as numpy array to reduce number of object conversions.</p>
+<p>If variable not found in <code>self.variables</code> then system will try to
+locate the variable location and store it in <code>self.variables</code> for
+future reference.</p>
+<p>Some elements like Light or pre-set materials can pass their
+vertices directly as numpy array to reduce number of object
+conversions.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>variable</code></strong></dt>
@@ -764,25 +909,24 @@ directly as numpy array to reduce number of object conversions.</p>
 <pre><code class="python">def set_vector3_np(self, variable, value):
     &#34;&#34;&#34;Set Vector 3 as numpy array value
 
-    If variable not found in `self.variables` then system will try to locate
-    the variable location and store it in `self.variables` for future
-    reference.
+    If variable not found in `self.variables` then system will try to
+    locate the variable location and store it in `self.variables` for
+    future reference.
 
-    Some elements like Light or pre-set materials can pass their vertices
-    directly as numpy array to reduce number of object conversions.
+    Some elements like Light or pre-set materials can pass their
+    vertices directly as numpy array to reduce number of object
+    conversions.
 
     Args:
       variable: Variable name to set
       value: Vector 3 to set. (Numpy array with 3 elemenets)
     &#34;&#34;&#34;
-    if variable not in self.variables:
-        location = glGetUniformLocation(self.program, variable)
-        if not location:
-            logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                variable))
-            return False
-        self._stack[variable] = location
-    glUniform3fv(self._stack[variable], 1, value)</code></pre>
+    location = self.get_location(variable)
+    if location &lt; 0:
+        logging.error(&#39;Variable not found in program [{}]&#39;.format(
+            variable))
+        return False
+    glUniform3fv(location, 1, value)</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.shader.Shader.set_vector4_np"><code class="name flex">
@@ -790,9 +934,9 @@ directly as numpy array to reduce number of object conversions.</p>
 </code></dt>
 <dd>
 <section class="desc"><p>Set Vector 4 as numpy array value</p>
-<p>If variable not found in <code>self.variables</code> then system will try to locate
-the variable location and store it in <code>self.variables</code> for future
-reference.</p>
+<p>If variable not found in <code>self.variables</code> then system will try to
+locate the variable location and store it in <code>self.variables</code> for
+future reference.</p>
 <p>Some elements like Light or pre-set materials can pass their vertices
 directly as numpy array to reduce number of object conversions.</p>
 <h2 id="args">Args</h2>
@@ -807,9 +951,9 @@ directly as numpy array to reduce number of object conversions.</p>
 <pre><code class="python">def set_vector4_np(self, variable, value):
     &#34;&#34;&#34;Set Vector 4 as numpy array value
 
-    If variable not found in `self.variables` then system will try to locate
-    the variable location and store it in `self.variables` for future
-    reference.
+    If variable not found in `self.variables` then system will try to
+    locate the variable location and store it in `self.variables` for
+    future reference.
 
     Some elements like Light or pre-set materials can pass their vertices
     directly as numpy array to reduce number of object conversions.
@@ -818,14 +962,12 @@ directly as numpy array to reduce number of object conversions.</p>
       variable: Variable name to set
       value: Vector 4 to set. (Numpy array with 4 elemenets)
     &#34;&#34;&#34;
-    if variable not in self.variables:
-        location = glGetUniformLocation(self.program, variable)
-        if not location:
-            logging.error(&#39;Variable not found in program [{}]&#39;.format(
-                variable))
-            return False
-        self._stack[variable] = location
-    glUniform4fv(self._stack[variable], 1, value)</code></pre>
+    location = self.get_location(variable)
+    if location &lt; 0:
+        logging.error(&#39;Variable not found in program [{}]&#39;.format(
+            variable))
+        return False
+    glUniform4fv(location, 1, value)</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.shader.Shader.use"><code class="name flex">
@@ -871,9 +1013,15 @@ any entities</p></section>
 <li>
 <h4><code><a title="payton.scene.shader.Shader" href="#payton.scene.shader.Shader">Shader</a></code></h4>
 <ul class="two-column">
+<li><code><a title="payton.scene.shader.Shader.LIGHT_COLOR" href="#payton.scene.shader.Shader.LIGHT_COLOR">LIGHT_COLOR</a></code></li>
+<li><code><a title="payton.scene.shader.Shader.LIGHT_TEXTURE" href="#payton.scene.shader.Shader.LIGHT_TEXTURE">LIGHT_TEXTURE</a></code></li>
+<li><code><a title="payton.scene.shader.Shader.NO_LIGHT_COLOR" href="#payton.scene.shader.Shader.NO_LIGHT_COLOR">NO_LIGHT_COLOR</a></code></li>
+<li><code><a title="payton.scene.shader.Shader.NO_LIGHT_TEXTURE" href="#payton.scene.shader.Shader.NO_LIGHT_TEXTURE">NO_LIGHT_TEXTURE</a></code></li>
 <li><code><a title="payton.scene.shader.Shader.__init__" href="#payton.scene.shader.Shader.__init__">__init__</a></code></li>
 <li><code><a title="payton.scene.shader.Shader.build" href="#payton.scene.shader.Shader.build">build</a></code></li>
 <li><code><a title="payton.scene.shader.Shader.end" href="#payton.scene.shader.Shader.end">end</a></code></li>
+<li><code><a title="payton.scene.shader.Shader.get_location" href="#payton.scene.shader.Shader.get_location">get_location</a></code></li>
+<li><code><a title="payton.scene.shader.Shader.set_int" href="#payton.scene.shader.Shader.set_int">set_int</a></code></li>
 <li><code><a title="payton.scene.shader.Shader.set_matrix4x4" href="#payton.scene.shader.Shader.set_matrix4x4">set_matrix4x4</a></code></li>
 <li><code><a title="payton.scene.shader.Shader.set_matrix4x4_np" href="#payton.scene.shader.Shader.set_matrix4x4_np">set_matrix4x4_np</a></code></li>
 <li><code><a title="payton.scene.shader.Shader.set_vector3" href="#payton.scene.shader.Shader.set_vector3">set_vector3</a></code></li>

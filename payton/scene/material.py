@@ -48,6 +48,7 @@ BLACK = [0.0, 0.0, 0.0]
 DARK_GRAY = [0.2, 0.2, 0.2]
 LIGHT_GRAY = [0.8, 0.8, 0.8]
 
+
 class Material(object):
     """
     Material information holder.
@@ -57,7 +58,7 @@ class Material(object):
         Initialize Material
 
         Color is constructed as a tuple of 3 floats. (Payton does not currently
-        support transparency at MVP.) [1.0, 1.0, 1.0] which are Red, Green, Blue
+        support transparency at MVP.) [1.0, 1.0, 1.0] are [Red, Green, Blue]
 
         Each element of color is a float between 0 and 1.
         (0 - 255 respectively)
@@ -102,7 +103,7 @@ class Material(object):
         if os.path.isfile(self.texture):
             self.load_texture()
         return True
-    
+
     def load_texture(self):
         img = Image.open(self.texture).transpose(Image.FLIP_TOP_BOTTOM)
         img_data = np.fromstring(img.tobytes(), np.uint8)
@@ -111,7 +112,8 @@ class Material(object):
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         glBindTexture(GL_TEXTURE_2D, self._texture)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        GL_LINEAR_MIPMAP_LINEAR)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,

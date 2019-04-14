@@ -2,6 +2,7 @@ import math
 from payton.scene import Scene
 from payton.scene.geometry import Sphere
 
+
 def motion(name, scene, period, total):
     particle_position = (scene
                          .objects['nucleus']
@@ -13,8 +14,8 @@ def motion(name, scene, period, total):
     px = math.cos(math.radians(angle)) * 8
     py = math.sin(math.radians(angle)) * 8
     scene.objects['nucleus'].children['particle'].set_position([px, py, 0])
-    
-    sx = math.cos(math.radians(angle * 10)) * 2 # 10 times faster
+
+    sx = math.cos(math.radians(angle * 10)) * 2  # 10 times faster
     sy = math.sin(math.radians(angle * 10)) * 2
     (scene
      .objects['nucleus']
@@ -22,6 +23,7 @@ def motion(name, scene, period, total):
      .children['sub_particle']
      .set_position([sx, sy, 0]))
     scene.lights[0].set_position([px, py, 0])
+
 
 space = Scene()
 space.observers[0].position = [20, 20, 20]

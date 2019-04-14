@@ -2,9 +2,11 @@ import random
 from payton.scene import Scene
 from payton.scene.geometry import Cube
 
+
 def select(list):
     for obj in list:
         obj.material.color = [1, 1, 1]
+
 
 scene = Scene(on_select=select)
 for i in range(10):
@@ -20,5 +22,5 @@ for i in range(10):
     scene.add_object("cube_{}".format(i), cube)
 
 print("Try clicking on objects")
-    
+
 scene.run()

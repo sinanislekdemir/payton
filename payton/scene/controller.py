@@ -13,6 +13,7 @@ from payton.math.geometry import raycast_sphere_intersect
 from payton.scene.observer import BUTTON_LEFT, BUTTON_RIGHT
 from payton.scene.geometry import Line
 
+
 class Controller(object):
     """SDL2 OpenGL controller."""
     def keyboard(self, event, scene):
@@ -47,7 +48,8 @@ class Controller(object):
                 scene._ctrl_down = False
 
             if key == sdl2.SDLK_c:
-                scene.observers[0].perspective = not scene.observers[0].perspective
+                scene.observers[0].perspective = (not scene
+                                                  .observers[0].perspective)
                 logging.debug('Observer[0] Perspective = {}'.format(
                     'True' if scene.observers[0].perspective else 'False'))
 

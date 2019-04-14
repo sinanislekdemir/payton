@@ -47,9 +47,10 @@ Example definition:
 
 import math
 
+
 def sub_vector(v1, v2):
     &#34;&#34;&#34;
-    Substract two vectors. Each component of vectors are substracted separately.
+    Substract two vectors. Each component of vectors are substracted separately
 
     Example usage:
 
@@ -66,14 +67,15 @@ def sub_vector(v1, v2):
             v1[1] - v2[1],
             v1[2] - v2[2]]
 
+
 def cross_product(v1, v2):
     &#34;&#34;&#34;
     Vector cross product.
 
-    From wikipedia: The cross product `a x b` is defined as a vector `c` that is
-    perpendicular (orthogonal) to both a and b, with a direction given by the
-    right-hand rule and a magnitude equal to the area of the parallelogram that
-    the vectors span.
+    From wikipedia: The cross product `a x b` is defined as a vector `c` that
+    is perpendicular (orthogonal) to both a and b, with a direction given by
+    the right-hand rule and a magnitude equal to the area of the
+    parallelogram that the vectors span.
 
     Example usage:
 
@@ -88,6 +90,7 @@ def cross_product(v1, v2):
     return [v1[1] * v2[2] - v1[2] * v2[1],
             v1[2] * v2[0] - v1[0] * v2[2],
             v1[0] * v2[1] - v1[1] * v2[0]]
+
 
 def vector_norm(v):
     &#34;&#34;&#34;
@@ -104,6 +107,7 @@ def vector_norm(v):
     &#34;&#34;&#34;
     return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))
 
+
 def normalize_vector(v):
     &#34;&#34;&#34;
     Normalize the given vector. Turn the given vector into a unit vector, where
@@ -115,7 +119,7 @@ def normalize_vector(v):
 
         v1 = [3.0, 4.0, -6.0]
         result = normalize_vector(v1)
-        # result = [0.3841106397986879, 0.5121475197315839, -0.7682212795973759]
+        # result = [0.384110639798687, 0.512147519731583, -0.768221279597375]
     &#34;&#34;&#34;
     vn = vector_norm(v)
     if vn == 0.0:
@@ -126,10 +130,11 @@ def normalize_vector(v):
             v[1] * invlen,
             v[2] * invlen]
 
+
 def plane_normal(v1, v2, v3):
     &#34;&#34;&#34;
-    Calculate plane normal. Mathematically, three vectors in space define a plane
-    and Normal of the plane is the direction that plane faces.
+    Calculate plane normal. Mathematically, three vectors in space define a
+    plane and Normal of the plane is the direction that plane faces.
 
     This is important in terms of calculating the light shading etc. OpenGL
     calculates how a triangle or a plane is lit by looking at the direction
@@ -152,6 +157,7 @@ def plane_normal(v1, v2, v3):
     t2 = sub_vector(v3, v1)
     r = cross_product(t1, t2)
     return normalize_vector(r)
+
 
 def invert_vector(v):
     &#34;&#34;&#34;
@@ -180,10 +186,10 @@ def invert_vector(v):
 </code></dt>
 <dd>
 <section class="desc"><p>Vector cross product.</p>
-<p>From wikipedia: The cross product <code>a x b</code> is defined as a vector <code>c</code> that is
-perpendicular (orthogonal) to both a and b, with a direction given by the
-right-hand rule and a magnitude equal to the area of the parallelogram that
-the vectors span.</p>
+<p>From wikipedia: The cross product <code>a x b</code> is defined as a vector <code>c</code> that
+is perpendicular (orthogonal) to both a and b, with a direction given by
+the right-hand rule and a magnitude equal to the area of the
+parallelogram that the vectors span.</p>
 <p>Example usage:</p>
 <pre><code>from payton.math.vector import cross_product
 
@@ -199,10 +205,10 @@ result = cross_product(v1, v2)
     &#34;&#34;&#34;
     Vector cross product.
 
-    From wikipedia: The cross product `a x b` is defined as a vector `c` that is
-    perpendicular (orthogonal) to both a and b, with a direction given by the
-    right-hand rule and a magnitude equal to the area of the parallelogram that
-    the vectors span.
+    From wikipedia: The cross product `a x b` is defined as a vector `c` that
+    is perpendicular (orthogonal) to both a and b, with a direction given by
+    the right-hand rule and a magnitude equal to the area of the
+    parallelogram that the vectors span.
 
     Example usage:
 
@@ -259,7 +265,7 @@ the vector length is equal to 1.0</p>
 
 v1 = [3.0, 4.0, -6.0]
 result = normalize_vector(v1)
-# result = [0.3841106397986879, 0.5121475197315839, -0.7682212795973759]
+# result = [0.384110639798687, 0.512147519731583, -0.768221279597375]
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
@@ -274,7 +280,7 @@ result = normalize_vector(v1)
 
         v1 = [3.0, 4.0, -6.0]
         result = normalize_vector(v1)
-        # result = [0.3841106397986879, 0.5121475197315839, -0.7682212795973759]
+        # result = [0.384110639798687, 0.512147519731583, -0.768221279597375]
     &#34;&#34;&#34;
     vn = vector_norm(v)
     if vn == 0.0:
@@ -290,8 +296,8 @@ result = normalize_vector(v1)
 <span>def <span class="ident">plane_normal</span></span>(<span>v1, v2, v3)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Calculate plane normal. Mathematically, three vectors in space define a plane
-and Normal of the plane is the direction that plane faces.</p>
+<section class="desc"><p>Calculate plane normal. Mathematically, three vectors in space define a
+plane and Normal of the plane is the direction that plane faces.</p>
 <p>This is important in terms of calculating the light shading etc. OpenGL
 calculates how a triangle or a plane is lit by looking at the direction
 that it faces.</p>
@@ -310,8 +316,8 @@ result = plane_normal(v1, v2, v3)
 <summary>Source code</summary>
 <pre><code class="python">def plane_normal(v1, v2, v3):
     &#34;&#34;&#34;
-    Calculate plane normal. Mathematically, three vectors in space define a plane
-    and Normal of the plane is the direction that plane faces.
+    Calculate plane normal. Mathematically, three vectors in space define a
+    plane and Normal of the plane is the direction that plane faces.
 
     This is important in terms of calculating the light shading etc. OpenGL
     calculates how a triangle or a plane is lit by looking at the direction
@@ -340,7 +346,7 @@ result = plane_normal(v1, v2, v3)
 <span>def <span class="ident">sub_vector</span></span>(<span>v1, v2)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Substract two vectors. Each component of vectors are substracted separately.</p>
+<section class="desc"><p>Substract two vectors. Each component of vectors are substracted separately</p>
 <p>Example usage:</p>
 <pre><code>from payton.math.vector import sub_vector
 
@@ -354,7 +360,7 @@ result = sub_vector(v1, v2)
 <summary>Source code</summary>
 <pre><code class="python">def sub_vector(v1, v2):
     &#34;&#34;&#34;
-    Substract two vectors. Each component of vectors are substracted separately.
+    Substract two vectors. Each component of vectors are substracted separately
 
     Example usage:
 

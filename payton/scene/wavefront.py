@@ -6,6 +6,7 @@ import logging
 import os
 from payton.scene import Object
 
+
 class Wavefront(Object):
     """
     Wavefront object file class.
@@ -21,7 +22,7 @@ class Wavefront(Object):
         self.filename = filename
         if filename != '':
             self.load_file(filename)
-    
+
     def load_file(self, filename):
         """
         Load obj file.
@@ -35,7 +36,7 @@ class Wavefront(Object):
         data = f.read()
         f.close()
         self.load(data)
-    
+
     def load(self, obj_string):
         """
         This part of the code is a bit messy. Ideally, a file format
@@ -107,6 +108,3 @@ class Wavefront(Object):
                 self._texcoords.extend(tex)
                 self._indices.append(i)
                 i += 1
-
-        logging.debug("""Loaded {} vertices, {} textcoords, {} normals, {} faces""".format(
-            len(self._vertices), len(self._texcoords), len(self._normals), len(self._indices)))

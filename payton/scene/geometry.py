@@ -14,8 +14,9 @@ import numpy as np
 import ctypes
 import logging
 
-from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray, glBindVertexArray,
-                       GL_LINE, GL_LINES, GL_FILL, GL_TRIANGLES, glPolygonMode,
+from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray,
+                       glBindVertexArray, GL_LINE, GL_LINES, GL_FILL,
+                       GL_TRIANGLES, glPolygonMode,
                        glGenVertexArrays, glGenBuffers, GL_ARRAY_BUFFER,
                        glEnableVertexAttribArray, glVertexAttribPointer,
                        GL_FLOAT, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, glBindBuffer,
@@ -62,19 +63,19 @@ class Object(object):
         planets and their moons.
 
         *Material*: Material definitions of the object.
-        *Matrix*: Matrix definition of the object. This is a 4x4 Uniform Matrix.
-        But data is set as an array for easier transformations. First 4 decimals
-        are "Left" vector, Second 4 are "Direction", Third 4 are "Up" and last
-        four decimals are "Position" vectors.
+        *Matrix*: Matrix definition of the object. This is a 4x4 Uniform Matrix
+        But data is set as an array for easier transformations. First 4
+        decimals are "Left" vector, Second 4 are "Direction", Third 4 are "Up"
+        and last four decimals are "Position" vectors.
 
         Args:
-          track_motion: Track object motion (default: false). Object tracking is
-        time independent. It just saves the object matrix for every change. Uses
-        matrix position for drawing the motion path.
-          static: (Default `True`) Indicates if object geometry is expected to
-        be changed in the future. If object is not static, then its' vertex
-        buffer object references and vertex informations will not be deleted
-        to be used for future reference.
+          track_motion: Track object motion (default: false). Object tracking
+        is time independent. It just saves the object matrix for every change.
+        Uses matrix position for drawing the motion path.
+          static: (Default `True`) Indicates if object geometry is expected
+        to be changed in the future. If object is not static, then its'
+        vertex buffer object references and vertex informations will not be
+        deleted to be used for future reference.
         """
         global VERTEX_BYTES
         self.children = {}
@@ -84,22 +85,23 @@ class Object(object):
                        [0.0, 1.0, 0.0, 0.0],
                        [0.0, 0.0, 1.0, 0.0],
                        [0.0, 0.0, 0.0, 1.0]]
-        # Object vertices. Each vertex has 3 decimals (X, Y, Z). Object vertices
+        # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
         #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
         self._vertices = []
-        self._normals = [] #  Vertice normals, 1 normal coordinate for 1 Vertex.
-        self._texcoords = [] # Texture coordinates, 1 coordinate for each vertex.
-        self._indices = [] # Indices that make up a face.
-        self._vertex_count = 0 # Number of vertices to report to OpenGL.
+        self._normals = []  # Vertice normals, 1 normal coordinate for 1 Vertex
+        self._texcoords = []  # Texture coordinates, 1 coordinate for each
+        # vertex.
+        self._indices = []  # Indices that make up a face.
+        self._vertex_count = 0  # Number of vertices to report to OpenGL.
         # This is an optimization technique for dynamic objects where there are
-        # increasing number of vertices. We allocate some buffer before-hand and
-        # if we fill all of it, we resize it.
+        # increasing number of vertices. We allocate some buffer before-hand
+        # and if we fill all of it, we resize it.
         self._buffer_size = 500 * VERTEX_BYTES
-        self._model_matrix = None # Model matrix.
+        self._model_matrix = None  # Model matrix.
         self._buffer_size_changed = True
-
-        self.track_motion = args.get('track_motion', False) # Track object motion
+        # Track object motion
+        self.track_motion = args.get('track_motion', False)
 
         self._motion_path = []
         if not isinstance(self, Line):
@@ -149,7 +151,7 @@ class Object(object):
             self._vao = None
         return True
 
-    def render(self, proj, view, lights, parent_matrix = None):
+    def render(self, proj, view, lights, parent_matrix=None):
         """
         Virtual function for rendering the object. Some objects can overwrite
         this function.
@@ -210,7 +212,6 @@ class Object(object):
                                         view,
                                         lights,
                                         self._model_matrix)
-
 
     def set_position(self, pos):
         """
@@ -279,7 +280,6 @@ class Object(object):
         else:
             glBindVertexArray(self._vao)
 
-
         vertices = np.array(self._vertices, dtype=np.float32)
         normals = np.array(self._normals, dtype=np.float32)
         texcoords = np.array(self._texcoords, dtype=np.float32)
@@ -301,7 +301,7 @@ class Object(object):
 
         # Bind Vertices
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[0])
-        glEnableVertexAttribArray(0) # shader layout location
+        glEnableVertexAttribArray(0)  # shader layout location
         glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
         if self._buffer_size_changed:
             glBufferData(GL_ARRAY_BUFFER, self._buffer_size,
@@ -311,7 +311,7 @@ class Object(object):
 
         # Bind Normals
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[1])
-        glEnableVertexAttribArray(1) # shader layout location
+        glEnableVertexAttribArray(1)  # shader layout location
         glVertexAttribPointer(1, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
         if self._buffer_size_changed:
             glBufferData(GL_ARRAY_BUFFER, self._buffer_size, normals, draw)
@@ -320,7 +320,7 @@ class Object(object):
 
         # Bind TexCoords
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
-        glEnableVertexAttribArray(2) # shader layout location
+        glEnableVertexAttribArray(2)  # shader layout location
         glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
         if self._buffer_size_changed:
             glBufferData(GL_ARRAY_BUFFER, self._buffer_size, texcoords,
@@ -362,7 +362,7 @@ class Cube(Object):
 
         my_scene = Scene()
         cube1 = Cube() # generates 1 x 1 x 1 Cube.
-        cube2 = Cube(width=2.0, height=3.0, depth=5.0) # generates 2 x 3 x 5 Cube.
+        cube2 = Cube(width=2.0, height=3.0, depth=5.0) # generates 2x3x5 Cube.
 
         cube1.matrix[12] = -3.0
         cube1.matrix[13] = -2.0
@@ -386,34 +386,33 @@ class Cube(Object):
         depth = args.get('depth', 1.0) * 0.5
         height = args.get('height', 1.0) * 0.5
 
-        self._vertices = [
-            -width, -depth, height,
-            width, -depth, height,
-            -width, depth, height,
-            width, depth, height,
-             -width, depth, height,
-             width, depth, height,
-             -width, depth, -height,
-             width, depth, -height,
-             -width, depth, -height,
-             width, depth, -height,
-             -width, -depth, -height,
-             width, -depth, -height,
-             -width, -depth, -height,
-             width, -depth, -height,
-             -width, -depth, height,
-             width, -depth, height,
-             width, -depth, height,
-             width, -depth, -height,
-             width, depth, height,
-             width, depth, height,
-             width, depth, -height,
-             -width, -depth, -height,
-             -width, -depth, height,
-             -width, depth, -height,
-             -width, depth, -height,
-             -width, -depth, height,
-             -width, depth, height]
+        self._vertices = [-width, -depth, height,
+                          width, -depth, height,
+                          -width, depth, height,
+                          width, depth, height,
+                          -width, depth, height,
+                          width, depth, height,
+                          -width, depth, -height,
+                          width, depth, -height,
+                          -width, depth, -height,
+                          width, depth, -height,
+                          -width, -depth, -height,
+                          width, -depth, -height,
+                          -width, -depth, -height,
+                          width, -depth, -height,
+                          -width, -depth, height,
+                          width, -depth, height,
+                          width, -depth, height,
+                          width, -depth, -height,
+                          width, depth, height,
+                          width, depth, height,
+                          width, depth, -height,
+                          -width, -depth, -height,
+                          -width, -depth, height,
+                          -width, depth, -height,
+                          -width, depth, -height,
+                          -width, -depth, height,
+                          -width, depth, height]
 
         self._normals = [
             0.0, 0.0, 1.0,
@@ -486,6 +485,7 @@ class Cube(Object):
 
         return None
 
+
 class Sphere(Object):
     """
     Sphere object.
@@ -548,32 +548,37 @@ class Sphere(Object):
                 u1 = u_step * j
                 v1 = 1.0 - (v_step * i)
 
-                x2 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * j)
-                y2 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * j)
+                x2 = (r * math.sin(step_height * (i + 1))
+                      * math.cos(step_angle * j))
+                y2 = (r * math.sin(step_height * (i + 1))
+                      * math.sin(step_angle * j))
                 z2 = r * math.cos(step_height * (i + 1))
                 u2 = u_step * j
                 v2 = 1.0 - (v_step * (i + 1))
 
-                x3 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * (j + 1))
-                y3 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * (j + 1))
+                x3 = (r * math.sin(step_height * (i + 1))
+                      * math.cos(step_angle * (j + 1)))
+                y3 = (r * math.sin(step_height * (i + 1))
+                      * math.sin(step_angle * (j + 1)))
                 z3 = r * math.cos(step_height * (i + 1))
                 u3 = u_step * (j + 1)
                 v3 = 1.0 - (v_step * (i + 1))
 
-                x4 = r * math.sin(step_height * i) * math.cos(step_angle * (j + 1))
-                y4 = r * math.sin(step_height * i) * math.sin(step_angle * (j + 1))
+                x4 = (r * math.sin(step_height * i)
+                      * math.cos(step_angle * (j + 1)))
+                y4 = (r * math.sin(step_height * i)
+                      * math.sin(step_angle * (j + 1)))
                 z4 = r * math.cos(step_height * i)
                 u4 = u_step * (j + 1)
                 v4 = 1.0 - (v_step * i)
 
-
                 normal = plane_normal([x1, y1, z1],
                                       [x2, y2, z2],
                                       [x3, y3, z3])
-                self._vertices += [x1, y1, z1] # 0
-                self._vertices += [x2, y2, z2] # i + 1
-                self._vertices += [x3, y3, z3] # i + 2
-                self._vertices += [x4, y4, z4] # i + 3
+                self._vertices += [x1, y1, z1]  # 0
+                self._vertices += [x2, y2, z2]  # i + 1
+                self._vertices += [x3, y3, z3]  # i + 2
+                self._vertices += [x4, y4, z4]  # i + 3
                 self._texcoords.extend([u1, v1, u2, v2, u3, v3, u4, v4])
                 self._normals += [normal[0], normal[1], normal[2]]
                 self._normals += [normal[0], normal[1], normal[2]]
@@ -600,7 +605,7 @@ class Line(Object):
         self.material.color = args.get('color', [1.0, 1.0, 1.0])
 
         self.visible = True
-        self.static = False # Do not clear the vertices each time.
+        self.static = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
         self.build_lines()
 
@@ -656,6 +661,6 @@ class Line(Object):
             self._texcoords += [0, 0]
 
         if self._vao is not None:
-            # This is a dynamic object, destroying the object is not a good idea
-            # so we just update the buffer here.
+            # This is a dynamic object, destroying the object is not a good
+            # idea so we just update the buffer here.
             self.build()

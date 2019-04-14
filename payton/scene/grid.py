@@ -19,6 +19,7 @@ from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray, glPolygonMode,
                        GL_LINES, GL_UNSIGNED_INT, glDeleteBuffers)
 from payton.scene.material import Material
 
+
 class Grid(object):
     """
     Properties of Grid:
@@ -140,13 +141,14 @@ class Grid(object):
         indices = np.array(self._indices, dtype=np.int32)
 
         glBindBuffer(GL_ARRAY_BUFFER, vbos[0])
-        glEnableVertexAttribArray(0) # shader layout location
+        glEnableVertexAttribArray(0)  # shader layout location
         glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
         glBufferData(GL_ARRAY_BUFFER, vertices.nbytes,
                      vertices, GL_STATIC_DRAW)
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[1])
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes,
+                     indices, GL_STATIC_DRAW)
         self._vertex_count = len(indices)
 
         glBindVertexArray(0)

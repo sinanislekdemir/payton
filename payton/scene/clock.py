@@ -14,7 +14,7 @@ and `total` variables.
 A clock can be used for several occasions like moving objects in time,
 logging data and etc.
 
-Each clock is technically a safe thread. 
+Each clock is technically a safe thread.
 
 For accurate data calculations, time stops until the execution of the
 callback function ends.

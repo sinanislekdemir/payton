@@ -149,7 +149,7 @@ class Scene(object):
         self._shift_down = False
         self._ctrl_down = False
         self._rotate = False
-        
+
         self.on_select = args.get(&#39;on_select&#39;, None)
 
         # Main running state
@@ -169,9 +169,9 @@ class Scene(object):
 
         # TODO: Grid should be optional.
         # Observer location or light location does not change during a frame
-        # render. To avoid redundant calls to re-calculate and convert locations
-        # for each object in the scene, we diretly pass their Numpy array
-        # values to render pipeline.
+        # render. To avoid redundant calls to re-calculate and convert
+        # locations for each object in the scene, we diretly pass their
+        # Numpy array values to render pipeline.
         proj, view = self.observers[self._active_observer].render()
 
         self.grid.render(proj, view, self.lights)
@@ -213,7 +213,7 @@ class Scene(object):
         Generally this is not needed as scene has already a default observer.
         &#34;&#34;&#34;
         if not isinstance(obj, Observer):
-            logging.error(&#34;Given observer is not an instance of `scene.Observer`&#34;)
+            logging.error(&#34;Observer is not an instance of `scene.Observer`&#34;)
             return False
 
         self.observers.append(obj)
@@ -226,8 +226,8 @@ class Scene(object):
 
     def create_clock(self, name, period, callback):
         &#34;&#34;&#34;
-        Creates a clock in the scene. This is the preffered way to create a clock
-        in the scene as it binds the clock to the scene by itself.
+        Creates a clock in the scene. This is the preffered way to create a
+        clock in the scene as it binds the clock to the scene by itself.
 
         Note that, name should be unique within the scene so any duplicating
         clock names will be logged as an error and will not be added.
@@ -336,6 +336,7 @@ class Scene(object):
         self.window = None
         sdl2.SDL_Quit()
         return 0
+
 
 class Background(object):
     &#34;&#34;&#34;Background is a special object
@@ -621,7 +622,7 @@ See help(type(self)) for accurate signature.</p></section>
         self._shift_down = False
         self._ctrl_down = False
         self._rotate = False
-        
+
         self.on_select = args.get(&#39;on_select&#39;, None)
 
         # Main running state
@@ -641,9 +642,9 @@ See help(type(self)) for accurate signature.</p></section>
 
         # TODO: Grid should be optional.
         # Observer location or light location does not change during a frame
-        # render. To avoid redundant calls to re-calculate and convert locations
-        # for each object in the scene, we diretly pass their Numpy array
-        # values to render pipeline.
+        # render. To avoid redundant calls to re-calculate and convert
+        # locations for each object in the scene, we diretly pass their
+        # Numpy array values to render pipeline.
         proj, view = self.observers[self._active_observer].render()
 
         self.grid.render(proj, view, self.lights)
@@ -685,7 +686,7 @@ See help(type(self)) for accurate signature.</p></section>
         Generally this is not needed as scene has already a default observer.
         &#34;&#34;&#34;
         if not isinstance(obj, Observer):
-            logging.error(&#34;Given observer is not an instance of `scene.Observer`&#34;)
+            logging.error(&#34;Observer is not an instance of `scene.Observer`&#34;)
             return False
 
         self.observers.append(obj)
@@ -698,8 +699,8 @@ See help(type(self)) for accurate signature.</p></section>
 
     def create_clock(self, name, period, callback):
         &#34;&#34;&#34;
-        Creates a clock in the scene. This is the preffered way to create a clock
-        in the scene as it binds the clock to the scene by itself.
+        Creates a clock in the scene. This is the preffered way to create a
+        clock in the scene as it binds the clock to the scene by itself.
 
         Note that, name should be unique within the scene so any duplicating
         clock names will be logged as an error and will not be added.
@@ -915,7 +916,7 @@ scene.run()
     self._shift_down = False
     self._ctrl_down = False
     self._rotate = False
-    
+
     self.on_select = args.get(&#39;on_select&#39;, None)
 
     # Main running state
@@ -981,7 +982,7 @@ Generally this is not needed as scene has already a default observer.</p></secti
     Generally this is not needed as scene has already a default observer.
     &#34;&#34;&#34;
     if not isinstance(obj, Observer):
-        logging.error(&#34;Given observer is not an instance of `scene.Observer`&#34;)
+        logging.error(&#34;Observer is not an instance of `scene.Observer`&#34;)
         return False
 
     self.observers.append(obj)</code></pre>
@@ -991,8 +992,8 @@ Generally this is not needed as scene has already a default observer.</p></secti
 <span>def <span class="ident">create_clock</span></span>(<span>self, name, period, callback)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Creates a clock in the scene. This is the preffered way to create a clock
-in the scene as it binds the clock to the scene by itself.</p>
+<section class="desc"><p>Creates a clock in the scene. This is the preffered way to create a
+clock in the scene as it binds the clock to the scene by itself.</p>
 <p>Note that, name should be unique within the scene so any duplicating
 clock names will be logged as an error and will not be added.</p>
 <p>Example usage:</p>
@@ -1025,8 +1026,8 @@ Total time passed since beginning 10.0secs
 <summary>Source code</summary>
 <pre><code class="python">def create_clock(self, name, period, callback):
     &#34;&#34;&#34;
-    Creates a clock in the scene. This is the preffered way to create a clock
-    in the scene as it binds the clock to the scene by itself.
+    Creates a clock in the scene. This is the preffered way to create a
+    clock in the scene as it binds the clock to the scene by itself.
 
     Note that, name should be unique within the scene so any duplicating
     clock names will be logged as an error and will not be added.

@@ -31,6 +31,7 @@ Support for scene lights.
 
 import numpy as np
 
+
 class Light(object):
     &#34;&#34;&#34;Main Light object
     &#34;&#34;&#34;
@@ -54,7 +55,7 @@ class Light(object):
         &#34;&#34;&#34;
         self.position = position
         self._position = np.array(self.position, dtype=np.float32)
-    
+
     def set_color(self, color):
         self.color = color
         self._color = np.array(self.color, dtype=np.float32)</code></pre>
@@ -99,7 +100,7 @@ class Light(object):
         &#34;&#34;&#34;
         self.position = position
         self._position = np.array(self.position, dtype=np.float32)
-    
+
     def set_color(self, color):
         self.color = color
         self._color = np.array(self.color, dtype=np.float32)</code></pre>

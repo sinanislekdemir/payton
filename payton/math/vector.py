@@ -15,9 +15,10 @@ Example definition:
 
 import math
 
+
 def sub_vector(v1, v2):
     """
-    Substract two vectors. Each component of vectors are substracted separately.
+    Substract two vectors. Each component of vectors are substracted separately
 
     Example usage:
 
@@ -34,14 +35,15 @@ def sub_vector(v1, v2):
             v1[1] - v2[1],
             v1[2] - v2[2]]
 
+
 def cross_product(v1, v2):
     """
     Vector cross product.
 
-    From wikipedia: The cross product `a x b` is defined as a vector `c` that is
-    perpendicular (orthogonal) to both a and b, with a direction given by the
-    right-hand rule and a magnitude equal to the area of the parallelogram that
-    the vectors span.
+    From wikipedia: The cross product `a x b` is defined as a vector `c` that
+    is perpendicular (orthogonal) to both a and b, with a direction given by
+    the right-hand rule and a magnitude equal to the area of the
+    parallelogram that the vectors span.
 
     Example usage:
 
@@ -56,6 +58,7 @@ def cross_product(v1, v2):
     return [v1[1] * v2[2] - v1[2] * v2[1],
             v1[2] * v2[0] - v1[0] * v2[2],
             v1[0] * v2[1] - v1[1] * v2[0]]
+
 
 def vector_norm(v):
     """
@@ -72,6 +75,7 @@ def vector_norm(v):
     """
     return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))
 
+
 def normalize_vector(v):
     """
     Normalize the given vector. Turn the given vector into a unit vector, where
@@ -83,7 +87,7 @@ def normalize_vector(v):
 
         v1 = [3.0, 4.0, -6.0]
         result = normalize_vector(v1)
-        # result = [0.3841106397986879, 0.5121475197315839, -0.7682212795973759]
+        # result = [0.384110639798687, 0.512147519731583, -0.768221279597375]
     """
     vn = vector_norm(v)
     if vn == 0.0:
@@ -94,10 +98,11 @@ def normalize_vector(v):
             v[1] * invlen,
             v[2] * invlen]
 
+
 def plane_normal(v1, v2, v3):
     """
-    Calculate plane normal. Mathematically, three vectors in space define a plane
-    and Normal of the plane is the direction that plane faces.
+    Calculate plane normal. Mathematically, three vectors in space define a
+    plane and Normal of the plane is the direction that plane faces.
 
     This is important in terms of calculating the light shading etc. OpenGL
     calculates how a triangle or a plane is lit by looking at the direction
@@ -120,6 +125,7 @@ def plane_normal(v1, v2, v3):
     t2 = sub_vector(v3, v1)
     r = cross_product(t1, t2)
     return normalize_vector(r)
+
 
 def invert_vector(v):
     """

@@ -16,7 +16,7 @@ essential to Payton Library. That is all.
 """
 
 import ctypes
-import numpy as np # We need C floats
+import numpy as np
 import logging
 
 from OpenGL.GL import (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable,
@@ -68,7 +68,8 @@ void main()
             FragColor = vec4((ambient + diffuse) * object_color, 1.0);
         }else{
             // texture material
-            FragColor = vec4(ambient + diffuse, 1.0) * texture(tex_unit, tex_coords);
+            FragColor = (vec4(ambient + diffuse, 1.0) *
+                         texture(tex_unit, tex_coords));
         }
     }
 }"""
@@ -108,7 +109,8 @@ out vec2 v_uv;
 void main()
 {
   // uint idx = gl_VertexID;
-  gl_Position = vec4( gl_VertexID & 1, gl_VertexID >> 1, 0.0, 0.5 ) * 4.0 - 1.0;
+  gl_Position = (vec4( gl_VertexID & 1, gl_VertexID >> 1, 0.0, 0.5 )
+                 * 4.0 - 1.0);
   v_uv = vec2( gl_Position.xy * 0.5 + 0.5 );
 }
 """
@@ -144,6 +146,7 @@ class Shader(object):
     NO_LIGHT_TEXTURE = 1
     LIGHT_COLOR = 2
     LIGHT_TEXTURE = 3
+
     def __init__(self, **args):
         """Initialize Shader.
 
@@ -158,8 +161,8 @@ class Shader(object):
         self.vertex_shader_source = args.get('vertex',
                                              default_vertex_shader)
         self.variables = args.get('variables', [])
-        self._stack = {} # Variable stack.
-        self._mode = self.NO_LIGHT_COLOR # Lightless color material
+        self._stack = {}  # Variable stack.
+        self._mode = self.NO_LIGHT_COLOR  # Lightless color material
 
         self.program = None
 
@@ -172,7 +175,7 @@ class Shader(object):
             self.program
         """
         vertex_shader = shaders.compileShader(self.vertex_shader_source,
-                                                    GL_VERTEX_SHADER)
+                                              GL_VERTEX_SHADER)
         fragment_shader = shaders.compileShader(self.fragment_shader_source,
                                                 GL_FRAGMENT_SHADER)
         self.program = shaders.compileProgram(vertex_shader,
@@ -207,13 +210,13 @@ class Shader(object):
     def set_matrix4x4_np(self, variable, value, transpose=False):
         """Set 4x4 Numpy matrix value
 
-        Some elements like Observer and Light can pass their matrices directly as
-        numpy array to reduce number of object conversions. This is the ideal way
-        if possible.
+        Some elements like Observer and Light can pass their matrices directly
+        as numpy array to reduce number of object conversions. This is the
+        ideal way if possible.
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         Args:
           variable: Variable name to set
@@ -230,7 +233,7 @@ class Shader(object):
         glUniformMatrix4fv(location, 1, transpose,
                            np.asfortranarray(value, dtype=np.float32))
         return True
-    
+
     def get_location(self, variable):
         if variable in self._stack:
             return self._stack[variable]
@@ -258,12 +261,13 @@ class Shader(object):
     def set_vector3_np(self, variable, value):
         """Set Vector 3 as numpy array value
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
-        Some elements like Light or pre-set materials can pass their vertices
-        directly as numpy array to reduce number of object conversions.
+        Some elements like Light or pre-set materials can pass their
+        vertices directly as numpy array to reduce number of object
+        conversions.
 
         Args:
           variable: Variable name to set
@@ -279,9 +283,9 @@ class Shader(object):
     def set_vector4_np(self, variable, value):
         """Set Vector 4 as numpy array value
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         Some elements like Light or pre-set materials can pass their vertices
         directly as numpy array to reduce number of object conversions.
@@ -299,9 +303,9 @@ class Shader(object):
 
     def set_vector3(self, variable, value):
         """Set Vector 3 as array value
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         This method will simply convert `value` into numpy array and call
         `payton.scene.shader.Shader.set_vector3_np` method.
@@ -316,9 +320,9 @@ class Shader(object):
     def set_int(self, variable, value):
         """Set Integer value
 
-        If variable not found in `self.variables` then system will try to locate
-        the variable location and store it in `self.variables` for future
-        reference.
+        If variable not found in `self.variables` then system will try to
+        locate the variable location and store it in `self.variables` for
+        future reference.
 
         Args:
           variable: Variable name to set
