@@ -33,6 +33,7 @@ out vec4 FragColor;
 in vec3 l_normal;
 in vec3 l_fragpos;
 in vec2 tex_coords;
+in vec3 frag_color;
 
 uniform vec3 light_pos;
 uniform vec3 light_color;
@@ -72,6 +73,10 @@ void main()
                          texture(tex_unit, tex_coords));
         }
     }
+    if (material_mode == 4) {
+        // Lightless per vertex color
+        FragColor = vec4(frag_color, 1.0);
+    }
 }"""
 
 
@@ -80,8 +85,10 @@ default_vertex_shader = """
 layout ( location = 0 ) in vec3 position;
 layout ( location = 1 ) in vec3 normal;
 layout ( location = 2 ) in vec2 texCoords;
+layout ( location = 3 ) in vec3 colors; // optional
 
 out vec2 tex_coords;
+out vec3 frag_color;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -99,6 +106,7 @@ void main()
     gl_PointSize = 2.0;
 
     tex_coords = texCoords;
+    frag_color = colors;
 }
 """
 
@@ -146,6 +154,7 @@ class Shader(object):
     NO_LIGHT_TEXTURE = 1
     LIGHT_COLOR = 2
     LIGHT_TEXTURE = 3
+    PER_VERTEX_COLOR = 4
 
     def __init__(self, **args):
         """Initialize Shader.

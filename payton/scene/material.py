@@ -119,10 +119,17 @@ class Material(object):
                      GL_RGBA, GL_UNSIGNED_BYTE, img_data)
         glGenerateMipmap(GL_TEXTURE_2D)
 
-    def render(self, proj, view, model, lights):
+    def render(self, proj, view, model, lights, mode=None):
         """Render material
 
         This function must be called before rendering the actual object
+
+        Args:
+          proj: Projection materix
+          view: View matrix
+          model: Model matrix
+          lights: Light objects in the scene
+          mode: Set explicit shader mode (optional - used for vertex colors)
         """
         if not self._initialized:
             self.build_shader()
@@ -140,6 +147,9 @@ class Material(object):
                     self.shader._mode = Shader.NO_LIGHT_COLOR
         else:
             self.shader._mode = Shader.NO_LIGHT_COLOR
+
+        if mode is not None:
+            self.shader._mode = mode
 
         self.shader.use()
         self.shader.set_int('material_mode', self.shader._mode)

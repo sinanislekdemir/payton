@@ -28,6 +28,7 @@ from payton.math.geometry import raycast_sphere_intersect
 from payton.math.vector import plane_normal
 from payton.scene.material import WIREFRAME
 from payton.scene.material import Material, SOLID, POINTS
+from payton.scene.shader import Shader
 
 VERTEX_BYTES = np.array([1.0, 1.0, 1.0], dtype=np.float32).nbytes
 
@@ -93,6 +94,8 @@ class Object(object):
         self._vertices = []
         self._normals = []  # Vertice normals, 1 normal coordinate for 1 Vertex
         self._texcoords = []  # Texture coordinates, 1 coordinate for each
+        self._vertex_colors = []  # per-vertex colors, optional.
+        self._has_vertex_colors = False  # flag for using vertex colors
         # vertex.
         self._indices = []  # Indices that make up a face.
         self._vertex_count = 0  # Number of vertices to report to OpenGL.
@@ -188,7 +191,11 @@ class Object(object):
                 # Python trick here! need to .copy or it will pass reference.
                 self._previous_matrix = self.matrix[3].copy()
 
-        self.material.render(proj, view, self._model_matrix, lights)
+        mode = None
+        if self._has_vertex_colors:
+            mode = Shader.PER_VERTEX_COLOR
+
+        self.material.render(proj, view, self._model_matrix, lights, mode)
 
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
@@ -312,7 +319,7 @@ class Object(object):
         """
         if self._vao is None:
             self._vao = glGenVertexArrays(1)
-            self._vbos = glGenBuffers(4)
+            self._vbos = glGenBuffers(5)
             glBindVertexArray(self._vao)
             self.material.build_shader()
         else:
@@ -321,7 +328,9 @@ class Object(object):
         vertices = np.array(self._vertices, dtype=np.float32)
         normals = np.array(self._normals, dtype=np.float32)
         texcoords = np.array(self._texcoords, dtype=np.float32)
+        colors = np.array(self._vertex_colors, dtype=np.float32)
         indices = np.array(self._indices, dtype=np.int32)
+
         for i in range(math.ceil(len(vertices) / 3)):
             d = pyrr.vector3.length(vertices[i*3:i*3+3])
             if d > self._bounding_radius:
@@ -365,6 +374,20 @@ class Object(object):
                          draw)
         else:
             glBufferSubData(GL_ARRAY_BUFFER, 0, texcoords.nbytes, texcoords)
+
+        # Bind Vertex Colors
+        if len(self._vertex_colors) == len(self._vertices):
+            glBindBuffer(GL_ARRAY_BUFFER, self._vbos[4])
+            glEnableVertexAttribArray(3)  # shader layout location
+            glVertexAttribPointer(3, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+            self._has_vertex_colors = True
+            if self._buffer_size_changed:
+                glBufferData(GL_ARRAY_BUFFER, self._buffer_size, colors,
+                             draw)
+            else:
+                glBufferSubData(GL_ARRAY_BUFFER, 0, colors.nbytes,
+                                colors)
+
         self._buffer_size_changed = False
 
         # Bind Indices
@@ -381,6 +404,7 @@ class Object(object):
             self._vbos = None
             self._normals = []
             self._texcoords = []
+            self._vertex_colors = []
             self._vertices = []
             self._indices = []
 
@@ -645,7 +669,6 @@ class Line(Object):
         self.visible = True
         self.static = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
-        self.material
         self.build_lines()
 
     def toggle_wireframe(self):
@@ -720,7 +743,8 @@ class Mesh(Object):
     or sub-division or cutting and so forth. It is a way of designing objects
     by code.
     """
-    def add_triangle(self, vertices, normals=None, texcoords=None):
+    def add_triangle(self, vertices, normals=None, texcoords=None,
+                     colors=None):
         """Add triangle to Mesh
 
         Args:
@@ -730,8 +754,25 @@ class Mesh(Object):
         calculate the surface normal based on vertices and assign it per
         given vertex.)_
           texcoords: Texture UV coordinates.
+          colors: Per vertex colors (optional)
+
+        Example:
+
+            from payton.scene import Scene
+            from payton.scene.geometry import Mesh
 
 
+            scene = Scene()
+            mesh = Mesh()
+            mesh.add_triangle([[-2, 0, 0],
+                               [2, 0, 0],
+                               [0, 2, 0]], texcoords=[[0, 0],
+                                                      [1, 0],
+                                                      [1, 1]],
+                              colors=[1, 0, 0, 0, 1, 0, 0, 0, 1])
+
+            scene.add_object('mesh', mesh)
+            scene.run()
         """
         if len(vertices) != 3:
             logging.error('A triangle must have 3 vertices')
@@ -748,6 +789,8 @@ class Mesh(Object):
             normals = [normal, normal, normal]
         if texcoords is None:
             texcoords = [[0, 0], [1, 0], [1, 1]]
+        if colors:
+            self._vertex_colors = colors
 
         self._vertices.extend(vertices[0])
         self._vertices.extend(vertices[1])

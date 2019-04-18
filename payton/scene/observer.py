@@ -106,8 +106,6 @@ class Observer(object):
 
                 self.target[0] += diff[0]
                 self.target[1] += diff[1]
-
-                # self._prev_intersection = hit
             return
 
         if shift:
