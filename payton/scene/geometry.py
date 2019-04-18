@@ -2,10 +2,10 @@
 Payton main geometry module
 
 Geometry module holds the basic geometry shapes. They are all inherited
-from `payton.scene.Object` class. They are as simple as possible.
+from `payton.scene.geometr.yObject` class. They are as simple as possible.
 
-Their face informations are generated at the initialization but display
-lists are not generated until rendering.
+Their face informations are generated at the initialization but vertex array
+object is not generated until it arrives in render pipeline.
 """
 
 import pyrr
@@ -35,10 +35,10 @@ VERTEX_BYTES = np.array([1.0, 1.0, 1.0], dtype=np.float32).nbytes
 class Object(object):
     """Main Payton Object.
 
-    This is an abstract class to define common properties between
+    This is an abstract class to define common properties and methods between
     Mesh / Particle / Virtual objects.
 
-    Objects are not actually built as a 3D object until rendering.
+    Objects are not actually built as a 3D object until render.
     Render function calls `build` function if needed. Build function creates
     the OpenGL Vertex Array Object. VAO is a static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
@@ -46,24 +46,26 @@ class Object(object):
     You need to call `payton.scene.Object.build` function to refresh Vertex
     Array Object.
 
-    Unfortunately, partial updates are not supported in this version as we
-    do not know if data length is changed or not. OpenGL can replace bytes
-    in an existing buffer but can not magically resize it. In case of a
-    resize, a new buffer needs to be created by glBufferData.
+    OpenGL can not magically extend a memory buffer, so for every new vertices
+    added to the object, OpenGL needs to re-create the buffer area. This is
+    not an efficitient technique if number of vertices increase in time.
+    As a result Payton allocates buffer for 500 vertices in the beginning and
+    uses a part of it. If object exceeds 500 vertices, a new buffer is created
+    with 500 more vertices, copies existing vertices to new and old buffer
+    is deleted.
+
     """
     def __init__(self, **args):
         """
         Initialize the basic object properties.
 
         Properties:
-
-        *Children*: Children hash for object. Each child object follows parent
+          children: Children hash for object. Each child object follows parent
         object. They take their parent object as origin and their coordinate
         system is relative to their parent. This behaviour resembles stars,
         planets and their moons.
-
-        *Material*: Material definitions of the object.
-        *Matrix*: Matrix definition of the object. This is a 4x4 Uniform Matrix
+          material: Material definitions of the object.
+          matrix: Matrix definition of the object. This is a 4x4 Uniform Matrix
         But data is set as an array for easier transformations. First 4
         decimals are "Left" vector, Second 4 are "Direction", Third 4 are "Up"
         and last four decimals are "Position" vectors.
@@ -128,7 +130,13 @@ class Object(object):
         assumption. Sphere area will be larger than actual object.
 
         If you want to have a more accurate way to handle this, try
-        using raycast triangle intersect"""
+        using raycast triangle intersect
+
+        Args:
+          start: Starting point of the ray (such as eye position)
+          vector: Ray direction. This is not the end point of a line! This is
+        a unit vector showing the ray direction.
+        """
         self._selected = raycast_sphere_intersect(start,
                                                   vector,
                                                   np.array(self.matrix[3],
@@ -159,9 +167,10 @@ class Object(object):
         Args:
           proj: Camera projection matrix.
           view: Camera location/view matrix.
-          light_pos: Light position
-          light_color: Light color
-
+          lights: Light objects in the scene
+          parent_matrix: Parent matrix is the matrix of the parent. Parent can
+        be the scene itself or another object. In case of another object,
+        object will position itself relative to its parent object.
         """
 
         if not self._vao:
@@ -217,13 +226,38 @@ class Object(object):
         """
         Shortcut function for explicitly modifying matrix indices.
 
-        Basically just sets 12, 13, 14 = x, y, z
+        Basically just sets x, y, z of the matrix. Does not change its
+        direction or up vectors.
+
+        Args:
+          pos: Position list ([x, y, z])
         """
         self.matrix[3][0] = pos[0]
         self.matrix[3][1] = pos[1]
         self.matrix[3][2] = pos[2]
 
     def add_child(self, name, obj):
+        """Add child to this object.
+
+        In a basic example:
+
+            from payton.scene import Scene
+            from payton.scene.geometry import Sphere
+
+            scene = Scene()
+            earth = Sphere(radius=3)
+            moon = Sphere()
+            moon.set_position([2, 0, 0])  # Relative to earth
+            earth.add_child('moon', moon)
+            scene.run()
+
+        Args:
+          name: Name of the object, must be unique within its siblings
+          obj: Object. Must be an instance of `payton.scene.geometry.Object`
+
+        Return:
+          bool: False in case of an error
+        """
         if name in self.children:
             logging.error('Name {} exists in object children'.format(name))
             return False
@@ -233,6 +267,10 @@ class Object(object):
         self.children[name] = obj
 
     def get_position(self):
+        """Get position of the Object.
+
+        Return matrix position list
+        """
         return self.matrix[3][:3]
 
     def to_absolute(self, coordinates):
@@ -607,7 +645,12 @@ class Line(Object):
         self.visible = True
         self.static = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
+        self.material
         self.build_lines()
+
+    def toggle_wireframe(self):
+        """Toggle Wireframe overwrite to disable mode change"""
+        pass
 
     def append(self, vertices):
         """Append vertex or vertices to line.
@@ -664,3 +707,56 @@ class Line(Object):
             # This is a dynamic object, destroying the object is not a good
             # idea so we just update the buffer here.
             self.build()
+
+
+class Mesh(Object):
+    """Mesh Object
+
+    Mesh is almost like the Object except with some extra methods to make
+    things easier. If you want to have custom geometries/shapes, it is
+    better to extend `payton.scene.geometry.Mesh` instead of
+    `payton.scene.geometry.Object`. Because Mesh will give you better
+    and easier constructing capabilities such as adding triangles on the fly
+    or sub-division or cutting and so forth. It is a way of designing objects
+    by code.
+    """
+    def add_triangle(self, vertices, normals=None, texcoords=None):
+        """Add triangle to Mesh
+
+        Args:
+          vertices: Vertices of the triangle. This is required. Ex:
+        `[[0, 0, 0], [2, 0, 0], [1, 1, 0]]`
+          normals: Normals of the triangle. _(When left as None, Payton will
+        calculate the surface normal based on vertices and assign it per
+        given vertex.)_
+          texcoords: Texture UV coordinates.
+
+
+        """
+        if len(vertices) != 3:
+            logging.error('A triangle must have 3 vertices')
+            return False
+        if normals is not None and len(normals) != 3:
+            logging.error('There must be one normal per vertex')
+            return False
+        if texcoords is not None and len(texcoords) != 3:
+            logging.error('There must be one texcoord per vertex')
+            return False
+        if normals is None:
+            v1, v2, v3 = vertices[0], vertices[1], vertices[2]
+            normal = plane_normal(v1, v2, v3)
+            normals = [normal, normal, normal]
+        if texcoords is None:
+            texcoords = [[0, 0], [1, 0], [1, 1]]
+
+        self._vertices.extend(vertices[0])
+        self._vertices.extend(vertices[1])
+        self._vertices.extend(vertices[2])
+        i = len(self._indices)
+        self._indices.extend([i, i+1, i+2])
+        self._normals.extend(normals[0])
+        self._normals.extend(normals[1])
+        self._normals.extend(normals[2])
+        self._texcoords.extend(texcoords[0])
+        self._texcoords.extend(texcoords[1])
+        self._texcoords.extend(texcoords[2])

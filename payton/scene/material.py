@@ -9,7 +9,6 @@ sources or not.
 There are also pre-defined colors in this module
 """
 import os
-import PIL
 from PIL import Image
 import numpy as np
 from payton.scene.shader import Shader
@@ -18,7 +17,7 @@ from OpenGL.GL import (glGenTextures, glPixelStorei, GL_UNPACK_ALIGNMENT,
                        GL_TEXTURE_MAG_FILTER, GL_LINEAR, GL_TEXTURE_MIN_FILTER,
                        GL_LINEAR_MIPMAP_LINEAR, GL_TEXTURE_WRAP_S,
                        GL_CLAMP_TO_EDGE, GL_TEXTURE_WRAP_T, glTexImage2D,
-                       glActiveTexture, GL_TEXTURE0, glUniform1i,
+                       glActiveTexture, GL_TEXTURE0,
                        GL_RGBA, GL_UNSIGNED_BYTE, glGenerateMipmap)
 
 

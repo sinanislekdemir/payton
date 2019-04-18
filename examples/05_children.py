@@ -4,12 +4,6 @@ from payton.scene.geometry import Sphere
 
 
 def motion(name, scene, period, total):
-    particle_position = (scene
-                         .objects['nucleus']
-                         .children['particle'].get_position())
-    sub_position = (scene.objects['nucleus']
-                    .children['particle']
-                    .children['sub_particle'].get_position())
     angle = (total * 10) % 360
     px = math.cos(math.radians(angle)) * 8
     py = math.sin(math.radians(angle)) * 8

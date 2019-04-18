@@ -6,9 +6,9 @@
 Payton is a Python 3.5 (and hopefully Python 2.7 compatible) library to make
 computational science (such as physics) easy to visualize.
 
-Many things can be created with ease using Payton. Such as, simulating Newtonian
-Physics or particles, fluids, astronomical objects, chemical compounds, or
-mathematical graphical formulas.
+Many things can be created with ease using Payton. Such as, simulating
+Newtonian Physics or particles, fluids, astronomical objects, chemical
+compounds, or mathematical graphical formulas.
 
 ### Why Python?
 
@@ -44,16 +44,16 @@ covered with Python's internal `unittest` framework.
 ### Primitives
 
 Many 3D Libraries come with their own objects for almost everything. There are
-things like `Vector3D`, `Matrix`, `Face3D` etc. Having that kind of mathematical
-objects are often handy in terms of Object Oriented Design. On the other hand,
-those makes developers tightly couple their applications to your library. Also,
-cross-library references require type-object conversations, which are costly.
-On top of that, more objects mean more complexity.
+things like `Vector3D`, `Matrix`, `Face3D` etc. Having that kind of
+mathematical objects are often handy in terms of Object Oriented Design. On
+the other hand, those makes developers tightly couple their applications to
+your library. Also, cross-library references require type-object conversations,
+which are costly. On top of that, more objects mean more complexity.
 
 When a point in space can be described as a list or tuple with 3 elements
-as `[x, y, z]`, why bother with `Vector(x, y, z)` and create a redundant object?
-Also, memory operations with `tuple` or `list` are faster than any memory heavy
-object operations.
+as `[x, y, z]`, why bother with `Vector(x, y, z)` and create a redundant
+object? Also, memory operations with `tuple` or `list` are faster than any
+memory heavy object operations.
 
 ## Getting started
 
@@ -83,6 +83,11 @@ to make your life easier.
 - **W**: Display mode: Wireframe / Solid
 - **F2**: Previous observer
 - **F3**: Next observer
+
+## Mouse controls
+- L_CTRL + Mouse(Left) Drag: Zoom In-Out
+- L_SHIFT + Mouse(Left) Drag: Rotate around target
+- L_SHIFT + L_CTRL + Mouse(Left) Drag: Panning
 
 ### IMPORTANT!
 

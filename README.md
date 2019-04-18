@@ -2,8 +2,25 @@
 
 ## What is Payton?
 
-Payton is a generic 3D library on top of SDL and OpenGL. It is designed to
-help Computational Science experts to simulate their tests and findings.
+Payton is a general purpose 3D programming toolkit. It is designed with the
+theory that us, humans, we understand better by seeing things.
+
+We draw 2D graphs and charts in reports and we generally understand much more
+easily when we visualise the data. But in some cases, visualising exceeds 2
+dimensions. We require to have third and even forth dimensions. (And on top of
+those, definition of forth dimension as time can get foggy in terms of
+relativity.)
+
+Payton gives you ability to extend your graphics into 4 dimensions. It is not
+a software but a software development toolkit/library built with Python.
+This will give users ability to read real time data from sensors, cameras or
+any other data sources in realtime and visualise them in real time. Data source
+can be a thermometer, a random number generator, a toy car connected to a speed
+sensor, a map, a vehicle port or anything that generates time based 3d data.
+Further more, it can be a time based formula. As this can get too complex,
+a software with that complexity will probably be too hard to use and understand
+where Payton is designed to be as simple as it can be. So easy to program that
+a newbie can kick-start it just by following the tutorials.
 
 More information can be found in documents.
 
@@ -25,7 +42,7 @@ To start to fiddle with it, `python setup.py develop` will install all
 requirements and will add `payton` to site-packages. But changes to code will
 immediately take effect. (Rather than `install` command).
 
-To kick start, after `python setup.py develop` run `python examples/projectile.py`
+To kick start, after `python setup.py develop` run `python examples/04_clock.py`
 
-And once you see the white ball on the screen, hit `c` from keyboard to unpause
+And once you see the white ball on the screen, hit `SPACE` from keyboard to unpause
 the animation mode and see the projectile motion demo.

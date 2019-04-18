@@ -3,6 +3,7 @@ import pyrr
 import numpy as np
 
 from payton.math.vector import sub_vector
+from payton.math.geometry import raycast_plane_intersect
 
 BUTTON_LEFT = 1
 BUTTON_RIGHT = 2
@@ -51,6 +52,7 @@ class Observer(object):
         # Store matrices for future reference.
         self._projection = None
         self._view = None
+        self._prev_intersection = None
 
     def distance(self):
         """
@@ -85,7 +87,29 @@ class Observer(object):
         self.position[1] = y + self.target[1]
         self.position[2] = z + self.target[2]
 
-    def mouse(self, button, shift, ctrl, x, y, xrel, yrel):
+    def mouse(self, button, shift, ctrl, x, y, xrel, yrel, w, h):
+        if shift and ctrl and button == BUTTON_LEFT:  # Panning
+            eye, vector = self.screen_to_world(x, y, w, h)
+            hit = raycast_plane_intersect(eye, vector, [0, 0, 0, 1],
+                                          [0, 0, 1, 0])
+
+            if hit is None:
+                return
+
+            if self._prev_intersection is None:
+                self._prev_intersection = hit
+            else:
+                diff = np.subtract(self._prev_intersection, hit)
+                # print(diff)
+                self.position[0] += diff[0]
+                self.position[1] += diff[1]
+
+                self.target[0] += diff[0]
+                self.target[1] += diff[1]
+
+                # self._prev_intersection = hit
+            return
+
         if shift:
             if button == BUTTON_LEFT:
                 self.rotate_around_target(xrel, -yrel)
@@ -143,3 +167,39 @@ class Observer(object):
         view_matrix = pyrr.matrix44.create_look_at(eye, target, up)
         self._view = view_matrix
         return proj_matrix, view_matrix
+
+    def screen_to_world(self, x, y, width, height):
+        """Convert screen coordinates to world coordinates
+
+        Unlike gluUnproject, this method returns a tuple of ray start
+        (eye position) and ray vector (look at direction)
+
+        Args:
+          x: X Coordinate
+          y: Y Coordinate
+          width: Screen width
+          height: Screen height
+
+        Returns:
+          (ray_start, ray_vector): Numpy arrays
+        """
+        x = (2.0 * x) / width - 1.0
+        y = 1.0 - (2.0 * y) / height
+
+        ray_start = np.array([x, y, -1.0, 1.0], dtype=np.float32)
+        proj = self._projection
+        inv_proj = pyrr.matrix44.inverse(proj)
+        eye_coords = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
+
+        eye_coords = np.array([eye_coords[0], eye_coords[1],
+                               -1.0, 0.0], dtype=np.float32)
+
+        view = self._view
+        inv_view = pyrr.matrix44.inverse(view)
+
+        ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
+        ray_dir = pyrr.vector.normalize(ray_end[0:4])
+
+        eye = np.array([self.position[0], self.position[1],
+                        self.position[2], 1.0], dtype=np.float32)
+        return (eye, ray_dir)

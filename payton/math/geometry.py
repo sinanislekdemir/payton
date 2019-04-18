@@ -1,6 +1,8 @@
 import numpy as np
 import pyrr
 
+DIFF = 0.0000001
+
 
 def point_project(p, origin, direction):
     return (direction[0] * (p[0] - origin[0]) +
@@ -44,3 +46,28 @@ def raycast_sphere_intersect(start, vector, sphere_center, sphere_radius):
     vc = combine(start, vector, 1.0, proj)
     dist = distance2(sphere_center, vc)
     return dist < (sphere_radius ** 2)
+
+
+def raycast_plane_intersect(start, vector, plane_point, plane_normal):
+    """Raycast Plane Intersection Test
+
+    Args:
+      start: Start of the ray
+      vector: Vector (direction) of the ray
+      plane_point: Point on plane
+      plane_norma: Normal of the plane
+
+    Returns:
+      intersection: Intersection point or None
+    """
+    global DIFF
+    d = np.dot(vector, plane_normal)
+    res = ((d > DIFF) or (d < -DIFF))
+    if not res:
+        return None
+    sp = np.subtract(plane_point, start)
+    d = 1.0 / d
+    t = np.dot(sp, plane_normal) * d
+    if t <= 0:
+        return None
+    return combine(start, vector, 1.0, t)

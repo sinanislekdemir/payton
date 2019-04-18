@@ -20,7 +20,7 @@ import numpy as np
 import logging
 
 from OpenGL.GL import (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable,
-                       glDisable, GL_PROGRAM_POINT_SIZE, glUniform1i, GLuint,
+                       glDisable, GL_PROGRAM_POINT_SIZE, glUniform1i,
                        glGetUniformLocation, glUseProgram, GL_TRUE, GL_FALSE,
                        glUniformMatrix4fv, glUniform3fv, glUniform4fv)
 

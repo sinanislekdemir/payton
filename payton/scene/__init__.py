@@ -50,6 +50,7 @@ class Scene(object):
 
         Simplest form of usage:
 
+            from payton.scene import Scene
             a = Scene()
             a.run()
 
@@ -125,12 +126,7 @@ class Scene(object):
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
 
-        # TODO: Grid should be optional.
-        # Observer location or light location does not change during a frame
-        # render. To avoid redundant calls to re-calculate and convert
-        # locations for each object in the scene, we diretly pass their
-        # Numpy array values to render pipeline.
-        proj, view = self.observers[self._active_observer].render()
+        proj, view = self.active_observer.render()
 
         self.grid.render(proj, view, self.lights)
 
@@ -141,8 +137,14 @@ class Scene(object):
 
     def add_object(self, name, obj):
         """
-        Add object to the scene. Object must be an instance of
-        `payton.scene.Object`
+        Add object to the scene root.
+
+        Args:
+          name: Name of the object, must be unique within its' scope.
+          obj: Object (must be an instance of `payton.scene.geometry.Object`
+
+        Return:
+          bool: False in case of an error.
 
         Example usage:
 
@@ -151,7 +153,7 @@ class Scene(object):
 
             my_scene = Scene()
             cube = Cube()
-            my_scene.add_object(cube)
+            my_scene.add_object('cube', cube)
             my_scene.run()
         """
         if not isinstance(obj, Object):
@@ -163,22 +165,39 @@ class Scene(object):
             return False
 
         self.objects[name] = obj
+        return True
 
     def add_observer(self, obj):
         """
         Add observer to the scene. Observer must be an instance of
         `payton.scene.observer.Observer`
         Generally this is not needed as scene has already a default observer.
+
+        Args:
+          obj: Observer object, instance of `payton.scene.observer.Observer`
+
+        Return:
+          bool: False in case of an error.
         """
         if not isinstance(obj, Observer):
             logging.error("Observer is not an instance of `scene.Observer`")
             return False
 
         self.observers.append(obj)
+        return True
+
+    @property
+    def active_observer(self):
+        """Return active observer
+
+        Returns:
+          observer
+        """
+        return self.observers[self._active_observer]
 
     def create_observer(self):
         """
-        Create a new observer in the scene.
+        Create a new observer in the scene and add to scene observers.
         """
         self.observers.append(Observer())
 
@@ -187,8 +206,15 @@ class Scene(object):
         Creates a clock in the scene. This is the preffered way to create a
         clock in the scene as it binds the clock to the scene by itself.
 
-        Note that, name should be unique within the scene so any duplicating
-        clock names will be logged as an error and will not be added.
+        Args:
+          name: Name of the clock. Must be unique within the scene.
+          period: Period of the clock (in seconds), time between each iteration
+          callback: Callback function to call in each iteration. Callback
+        function must have these arguments:
+            name: Name of the clock that triggers callback function.
+            scene: Scene reference to the callback function.
+            period: Period of the clock (time difference between iterations)
+            total: Total time elapsed from the beginning.
 
         Example usage:
 
@@ -308,6 +334,12 @@ class Background(object):
     https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
     """
     def __init__(self, **args):
+        """Initialize background
+
+        Args:
+          top_color: Color at the top of the scene screen
+          bottom_color: Color at the bottom of the screen
+        """
         super(Background, self).__init__(**args)
         self.top_color = args.get('top_color', [0.0, 0.2, 0.4, 1.0])
         self.bottom_color = args.get('bottom_color', [0.1, 0.1, 0.1, 1.0])
@@ -319,6 +351,7 @@ class Background(object):
         self.visible = True
 
     def render(self):
+        """Render background of the scene"""
         if not self.visible:
             return False
 
