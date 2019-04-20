@@ -33,6 +33,7 @@ class Collision(object):
         self.callback = args.get('callback', None)
         if not callable(self.callback):
             logging.error('callback should be a callable')
+        self._pairs = []
 
     def add_object(self, obj):
         self.objects.append(obj)
@@ -48,6 +49,23 @@ class Collision(object):
         dist = self._dist(obj1, obj2)
         total_radius = obj1.bounding_radius + obj2.bounding_radius
         return dist <= total_radius
+
+    def _sphere_in_sphere_collision(self, obj1, obj2):
+        """Test if one object is completely in another object.
+
+        In some cases, object 1 can be wrapping object 2 or vice versa.
+        As a result of this, triangular tests will fail.
+
+        Args:
+          obj1: First object to test
+          obj2: Second object to test
+        """
+        dist = self._dist(obj1, obj2)
+        if obj1.bounding_radius > dist + obj2.bounding_radius:
+            return True
+        if obj2.bounding_radius > dist + obj1.bounding_radius:
+            return True
+        return False
 
     def _mesh_collision(self, obj1, obj2):
         for i in range(math.floor(len(obj1._indices) / 3)):
@@ -112,20 +130,50 @@ class Collision(object):
         return False
 
     def _test(self, obj1, obj2):
+        """Test if obj1 and obj2 are colliding"""
         if isinstance(obj1, Sphere) and isinstance(obj2, Sphere):
+            # If both objects are Spheres, this check is enough
             return self._bounding_sphere_collision(obj1, obj2)
         if not self._bounding_sphere_collision(obj1, obj2):
+            # If bounding spheres are not colliding, there is no way
+            # that these objects are colliding.
             return False
+        # No faces are colliding but an object wraps other one
+        if self._sphere_in_sphere_collision(obj1, obj2):
+            return True
+        # This is a costly detection algorithm which does detection
+        # triangle by triangle.
         return self._mesh_collision(obj1, obj2)
 
+    def resolve(self, obj1, obj2):
+        """Report that you have solved the collision between objects
+
+        For a better performance, once two objects collide, system will
+        not check for a collision between two objects in the next iteration.
+        If you want these two objects to be tested again, you have to
+        resolve the conflict and report this to collision test class.
+
+        Args:
+          obj1: First object in test
+          obj2: Second object in test
+        """
+        pair = [obj1, obj2]
+        pair2 = [obj2, obj1]
+        if pair in self._pairs:
+            self._pairs.remove(pair)
+        if pair2 in self._pairs:
+            self._pairs.remove(pair2)
+
     def check(self):
-        pairs = []
         for i in range(len(self.objects) - 1):
             for j in range(len(self.objects) - i - 1):
                 obj1 = self.objects[i]
                 obj2 = self.objects[i+j+1]
-                res = self._test(obj1, obj2)
-                if res:
-                    pairs.append([obj1, obj2])
+                pair = [obj1, obj2]
+                pair2 = [obj2, obj1]
+                if pair not in self._pairs and pair2 not in self._pairs:
+                    res = self._test(obj1, obj2)
+                    if res:
+                        self._pairs.append([obj1, obj2])
 
-        self.callback(pairs)
+        self.callback(self, self._pairs)

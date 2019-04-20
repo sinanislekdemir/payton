@@ -4,10 +4,14 @@ from payton.scene.geometry import Sphere, Cube
 from payton.scene.collision import Collision
 
 
-def hit(pairs):
+def hit(collision, pairs):
     for pair in pairs:
         pair[0].material.color = [1.0, 0, 0]
         pair[1].material.color = [1.0, 0, 0]
+        # Once there is a hit, system will not check
+        # for the same collision, if you want to have the objects
+        # back in the collision detection pipeline, you have to do
+        # collision.resolve(pair[0], pair[1])
 
 
 scene = Scene()

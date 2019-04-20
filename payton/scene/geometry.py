@@ -128,6 +128,7 @@ class Object(object):
         # Vertex Array Object pointer
         self._vao = None
         self._needs_update = False  # Object geometry has changed.
+        self._hit = False
         # I personally prefer not to delete vbos as in some cases I need to
         # refer to VBOs to update them partially. I don't want to loose
         # their reference and make things harder. I am not naming them

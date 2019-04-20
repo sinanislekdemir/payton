@@ -39,3 +39,19 @@ class TestGeometryMethods(unittest.TestCase):
         c = Collision(callback=dummy, objects=[a, b])
         check = c._mesh_collision(a, b)
         self.assertTrue(check)
+
+    def test_sphere_in_sphere(self):
+        a = Sphere(radius=10)
+        b = Sphere(radius=2)
+        b.set_position([2, 2, 0])
+        c = Collision(callback=dummy, objects=[a, b])
+        check = c._sphere_in_sphere_collision(a, b)
+        self.assertTrue(check)
+
+    def test_sphere_in_sphere_false(self):
+        a = Sphere(radius=10)
+        b = Sphere(radius=2)
+        b.set_position([10, 2, 0])
+        c = Collision(callback=dummy, objects=[a, b])
+        check = c._sphere_in_sphere_collision(a, b)
+        self.assertFalse(check)
