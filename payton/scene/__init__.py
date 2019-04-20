@@ -32,7 +32,8 @@ from payton.scene.geometry import Object
 from payton.scene.light import Light
 from payton.scene.observer import Observer
 from payton.scene.clock import Clock
-# from payton.scene.light import Light
+from payton.scene.collision import Collision
+
 from payton.scene.shader import (Shader,
                                  background_fragment_shader,
                                  background_vertex_shader)
@@ -108,6 +109,7 @@ class Scene(object):
         self._shift_down = False
         self._ctrl_down = False
         self._rotate = False
+        self._collision_detectors = []
 
         self.on_select = args.get('on_select', None)
 
@@ -129,11 +131,23 @@ class Scene(object):
         proj, view = self.active_observer.render()
 
         self.grid.render(proj, view, self.lights)
+        for test in self._collision_detectors:
+            test.check()
 
         for object in self.objects:
             self.objects[object].render(proj, view, self.lights)
 
         return 0
+
+    def add_collision_test(self, tester):
+        """Add collision test to the scene
+
+        Args:
+          tester: Tester class
+        """
+        if not isinstance(tester, Collision):
+            logging.error('tester must be an instance of Collision')
+        self._collision_detectors.append(tester)
 
     def add_object(self, name, obj):
         """

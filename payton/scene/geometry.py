@@ -26,8 +26,7 @@ from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray,
 
 from payton.math.geometry import raycast_sphere_intersect
 from payton.math.vector import plane_normal
-from payton.scene.material import WIREFRAME
-from payton.scene.material import Material, SOLID, POINTS
+from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
 from payton.scene.shader import Shader
 
 VERTEX_BYTES = np.array([1.0, 1.0, 1.0], dtype=np.float32).nbytes
@@ -39,13 +38,13 @@ class Object(object):
     This is an abstract class to define common properties and methods between
     Mesh / Particle / Virtual objects.
 
-    Objects are not actually built as a 3D object until render.
+    Objects are not actually built as 3D vertex arrays until render.
     Render function calls `build` function if needed. Build function creates
     the OpenGL Vertex Array Object. VAO is a static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
 
-    You need to call `payton.scene.Object.build` function to refresh Vertex
-    Array Object.
+    You need to call `payton.scene.geometry.Object.build` function to refresh
+    Vertex Array Object.
 
     OpenGL can not magically extend a memory buffer, so for every new vertices
     added to the object, OpenGL needs to re-create the buffer area. This is
@@ -91,40 +90,56 @@ class Object(object):
         # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
         #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
-        self._vertices = []
-        self._normals = []  # Vertice normals, 1 normal coordinate for 1 Vertex
-        self._texcoords = []  # Texture coordinates, 1 coordinate for each
+
+        self._vertices = []  # Object vertex list
+        self._normals = []  # Vertex normals, 1 normal coordinate for 1 Vertex
+        self._texcoords = []  # Texture coordinates, 1 coordinate per Vertex
         self._vertex_colors = []  # per-vertex colors, optional.
         self._has_vertex_colors = False  # flag for using vertex colors
-        # vertex.
-        self._indices = []  # Indices that make up a face.
+
+        # Vertices do not mean anything unless we define how to use them.
+        # For instance, 3 vertices make a triangle or 2 vertices define a line
+        # order of vertices are defined in self._indices.
+        self._indices = []
         self._vertex_count = 0  # Number of vertices to report to OpenGL.
+
         # This is an optimization technique for dynamic objects where there are
         # increasing number of vertices. We allocate some buffer before-hand
         # and if we fill all of it, we resize it.
         self._buffer_size = 500 * VERTEX_BYTES
         self._model_matrix = None  # Model matrix.
+        # Check if buffer size allocated for the object has changed.
         self._buffer_size_changed = True
+
         # Track object motion
         self.track_motion = args.get('track_motion', False)
-
+        # Motion path, stores every matrix change.
         self._motion_path = []
         if not isinstance(self, Line):
+            # _motion_path_line is used to display the motion path in scene
             self._motion_path_line = Line()
         self._previous_matrix = None
 
         # For raycast tests - bounding radius is the radius of the bounding
-        # sphere
+        # sphere.
         self._bounding_radius = 0
         self._selected = False
 
         # Vertex Array Object pointer
         self._vao = None
+        self._needs_update = False  # Object geometry has changed.
         # I personally prefer not to delete vbos as in some cases I need to
         # refer to VBOs to update them partially. I don't want to loose
         # their reference and make things harder. I am not naming them
         # anyways.
         self._vbos = None
+
+    def refresh(self):
+        """Refresh object
+
+        Forces object to get built again
+        """
+        self._needs_update = True
 
     def select(self, start, vector):
         """Select test for object using bounding Sphere.
@@ -162,6 +177,22 @@ class Object(object):
             self._vao = None
         return True
 
+    def update_matrix(self, parent_matrix=None):
+        """Update matrix
+
+        Turn object matrix into numpy array.
+
+        Args:
+          parent_matrix: Parent objects matrix
+        """
+        # Turn matrix into numpy array. Numpy arrays are C Type arrays
+        # suitable for OpenGL Pipeline
+        self._model_matrix = np.array(self.matrix, dtype=np.float32)
+
+        # When there is a parent object, child object follows parents matrix
+        if parent_matrix is not None:
+            self._model_matrix = parent_matrix.dot(self._model_matrix)
+
     def render(self, proj, view, lights, parent_matrix=None):
         """
         Virtual function for rendering the object. Some objects can overwrite
@@ -176,27 +207,34 @@ class Object(object):
         object will position itself relative to its parent object.
         """
 
-        if not self._vao:
+        if not self._vao or self._needs_update:
             self.build()
 
-        self._model_matrix = np.array(self.matrix, dtype=np.float32)
-        if parent_matrix is not None:
-            self._model_matrix = parent_matrix.dot(self._model_matrix)
+        if self._vertex_count == 0:
+            return
+
+        self.update_matrix(parent_matrix=parent_matrix)
 
         if self.track_motion:
+            # Has the matrix changed from previous matrix?
             if self._previous_matrix != self.matrix:
+                # Add the new matrix to motion path records
                 self._motion_path.append(self.matrix)
+                # Add the matrix position to motion math line for visualisation
                 self._motion_path_line.append(
                     [self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]])
+
                 # Python trick here! need to .copy or it will pass reference.
                 self._previous_matrix = self.matrix[3].copy()
 
+        # Material shading mode.
         mode = None
         if self._has_vertex_colors:
             mode = Shader.PER_VERTEX_COLOR
 
         self.material.render(proj, view, self._model_matrix, lights, mode)
 
+        # Actual rendering
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
             pmode = GL_LINE
@@ -217,12 +255,14 @@ class Object(object):
 
         # End using the shader program.
         self.material.end()
+        # Render motion path
         if self.track_motion:
             self._motion_path_line.render(proj,
                                           view,
                                           lights,
                                           parent_matrix)
 
+        # render children
         for child in self.children:
             self.children[child].render(proj,
                                         view,
@@ -302,6 +342,29 @@ class Object(object):
         for n in self.children:
             self.children[n].toggle_wireframe()
 
+    def _calc_bounding_radius(self):
+        # Calculate the bounding sphere radius
+        vertices = np.array(self._vertices, dtype=np.float32)
+        for i in range(math.ceil(len(vertices) / 3)):
+            d = pyrr.vector3.length(vertices[i*3:i*3+3])
+            if d > self._bounding_radius:
+                self._bounding_radius = d
+        return self._bounding_radius
+
+    @property
+    def bounding_radius(self):
+        """Return bounding radius
+
+        Note: This property function *WILL NOT* update the previously
+        calculated value. If you add vertices to the object, you must call
+        `payton.scene.geometry.Object.refresh` function to get radius
+        and the whole object updated.
+        """
+
+        if self._bounding_radius > 0:
+            return self._bounding_radius
+        return self._calc_bounding_radius()
+
     def build(self):
         """
         Build OpenGL Vertex Array for the object
@@ -317,30 +380,43 @@ class Object(object):
         So in this case, calling `build` function twice will result with
         an invisible object (will not be drawn)
         """
+        if len(self._indices) == 0:
+            return
+
+        # If we don't have a VAO yet, we need to create one
         if self._vao is None:
+            # Generate Vertex Array
             self._vao = glGenVertexArrays(1)
+            # We need 5 buffers (vertex, normal, texcoord, color, indices)
             self._vbos = glGenBuffers(5)
             glBindVertexArray(self._vao)
+            # Material shader must be built when there is an active binding
+            # to vertex array
             self.material.build_shader()
         else:
+            # Ok, we already have vertex array object, just bind it to modify
             glBindVertexArray(self._vao)
 
+        # Turn python arrays into C type arrays using Numpy.
+        # This is required for OpenGL. Python memory model is a bit
+        # different than raw memory model of C (OpenGL)
         vertices = np.array(self._vertices, dtype=np.float32)
         normals = np.array(self._normals, dtype=np.float32)
         texcoords = np.array(self._texcoords, dtype=np.float32)
         colors = np.array(self._vertex_colors, dtype=np.float32)
         indices = np.array(self._indices, dtype=np.int32)
+        self._calc_bounding_radius()
 
-        for i in range(math.ceil(len(vertices) / 3)):
-            d = pyrr.vector3.length(vertices[i*3:i*3+3])
-            if d > self._bounding_radius:
-                self._bounding_radius = d
-
+        # OpenGL allocates buffers in different mechanisms between
+        # STATIC and DYNAMIC draw modes. If you select STATIC, then OpenGL
+        # will assume that object buffer will not change and allocate it in a
+        # more suitable way.
         draw = GL_STATIC_DRAW
         if not self.static:
             draw = GL_DYNAMIC_DRAW
 
         # Buffer overflow, we need more space.
+        # For dynamic objects, we allocate +500 vertices at all times.
         if self._buffer_size < vertices.nbytes:
             global VERTEX_BYTES
             self._buffer_size = vertices.nbytes + (500 * VERTEX_BYTES)
@@ -351,9 +427,12 @@ class Object(object):
         glEnableVertexAttribArray(0)  # shader layout location
         glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
         if self._buffer_size_changed:
+            # glBufferData creates a new data area
             glBufferData(GL_ARRAY_BUFFER, self._buffer_size,
                          vertices, draw)
         else:
+            # glBufferSubData just replaces memory area in buffer so it is
+            # much more efficient way to handle things.
             glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.nbytes, vertices)
 
         # Bind Normals
@@ -402,11 +481,6 @@ class Object(object):
             # we can clear this data to free some more memory
             glDeleteBuffers(4, self._vbos)
             self._vbos = None
-            self._normals = []
-            self._texcoords = []
-            self._vertex_colors = []
-            self._vertices = []
-            self._indices = []
 
         return True
 
@@ -448,102 +522,41 @@ class Cube(Object):
         depth = args.get('depth', 1.0) * 0.5
         height = args.get('height', 1.0) * 0.5
 
-        self._vertices = [-width, -depth, height,
-                          width, -depth, height,
-                          -width, depth, height,
-                          width, depth, height,
-                          -width, depth, height,
-                          width, depth, height,
-                          -width, depth, -height,
-                          width, depth, -height,
-                          -width, depth, -height,
-                          width, depth, -height,
-                          -width, -depth, -height,
-                          width, -depth, -height,
-                          -width, -depth, -height,
-                          width, -depth, -height,
-                          -width, -depth, height,
-                          width, -depth, height,
-                          width, -depth, height,
-                          width, -depth, -height,
-                          width, depth, height,
-                          width, depth, height,
-                          width, depth, -height,
-                          -width, -depth, -height,
-                          -width, -depth, height,
-                          -width, depth, -height,
-                          -width, depth, -height,
-                          -width, -depth, height,
+        self._vertices = [-width, -depth, height, width, -depth, height,
+                          -width, depth, height, width, depth, height,
+                          -width, depth, height, width, depth, height,
+                          -width, depth, -height, width, depth, -height,
+                          -width, depth, -height, width, depth, -height,
+                          -width, -depth, -height, width, -depth, -height,
+                          -width, -depth, -height, width, -depth, -height,
+                          -width, -depth, height, width, -depth, height,
+                          width, -depth, height, width, -depth, -height,
+                          width, depth, height, width, depth, height,
+                          width, depth, -height, -width, -depth, -height,
+                          -width, -depth, height, -width, depth, -height,
+                          -width, depth, -height, -width, -depth, height,
                           -width, depth, height]
 
-        self._normals = [
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-            0.0, 0.0, 1.0,
-            0.0, 1.0, 0.0,
-            0.0, 1.0, 0.0,
-            0.0, 1.0, 0.0,
-            0.0, 1.0, 0.0,
-            0.0, 0.0, -1.0,
-            0.0, 0.0, -1.0,
-            0.0, 0.0, -1.0,
-            0.0, 0.0, -1.0,
-            0.0, -1.0, 0.0,
-            0.0, -1.0, 0.0,
-            0.0, -1.0, 0.0,
-            0.0, -1.0, 0.0,
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 0.0,
-            -1.0, 0.0, 0.0,
-            -1.0, 0.0, 0.0,
-            -1.0, 0.0, 0.0,
-            -1.0, 0.0, 0.0,
-            -1.0, 0.0, 0.0,
-            -1.0, 0.0, 0]
+        self._normals = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+                         0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+                         0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0,
+                         0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
+                         0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
+                         0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                         1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                         -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+                         -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0]
 
-        self._texcoords = [
-            0.0, 0.0,
-            0.0, 1.0,
-            1.0, 0.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            0.0, 1.0,
-            1.0, 0.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            0.0, 1.0,
-            1.0, 0.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            0.0, 1.0,
-            1.0, 0.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            0.0, 1.0,
-            1.0, 0.0,
-            1.0, 0.0,
-            1.0, 1.0,
-            0.0, 1.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            0.0, 0.0,
-            1.0, 1.0,
-            1.0, 0.0]
+        self._texcoords = [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0,
+                           0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+                           1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0,
+                           1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0,
+                           1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+                           1.0, 1.0, 1.0, 0.0]
 
-        self._indices = [
-            0, 1, 2,
-            2, 1, 3,
-            4, 5, 6,
-            6, 5, 7,
-            8, 9, 10,
-            10, 9, 11,
-            12, 13, 14,
-            14, 13, 15,
-            16, 17, 18, 19, 17, 20, 21, 22, 23, 24, 25, 26]
+        self._indices = [0, 1, 2, 2, 1, 3, 4, 5, 6, 6, 5, 7, 8, 9, 10,
+                         10, 9, 11, 12, 13, 14, 14, 13, 15, 16, 17, 18,
+                         19, 17, 20, 21, 22, 23, 24, 25, 26]
 
         return None
 
@@ -707,7 +720,7 @@ class Line(Object):
             self._indices.extend([last+i, last+i+1])
 
         if self._vao is not None:
-            self.build()
+            self._needs_update = True
 
     def build_lines(self, vertices=None, color=None):
         """Build lines
@@ -769,7 +782,7 @@ class Mesh(Object):
                                [0, 2, 0]], texcoords=[[0, 0],
                                                       [1, 0],
                                                       [1, 1]],
-                              colors=[1, 0, 0, 0, 1, 0, 0, 0, 1])
+                              colors=[[1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
             scene.add_object('mesh', mesh)
             scene.run()
@@ -790,7 +803,9 @@ class Mesh(Object):
         if texcoords is None:
             texcoords = [[0, 0], [1, 0], [1, 1]]
         if colors:
-            self._vertex_colors = colors
+            self._vertex_colors.extend(colors[0])
+            self._vertex_colors.extend(colors[1])
+            self._vertex_colors.extend(colors[2])
 
         self._vertices.extend(vertices[0])
         self._vertices.extend(vertices[1])
@@ -803,3 +818,40 @@ class Mesh(Object):
         self._texcoords.extend(texcoords[0])
         self._texcoords.extend(texcoords[1])
         self._texcoords.extend(texcoords[2])
+
+
+class PointCloud(Object):
+    """Point cloud
+    """
+    def __init__(self, **args):
+        super(PointCloud, self).__init__(**args)
+        self._vertices = args.get('vertices', [])
+        self._vertex_colors = args.get('colors', [])
+        self.material.display = POINTS
+        self.static = False
+
+    def toggle_wireframe(self):
+        """Toggle wireframe overwrite to disable mode change"""
+        pass
+
+    def add(self, vertices, colors=None):
+        """Add a point to the cloud
+
+        Args:
+          vertices: Vertices to add
+          colors: Colors of the vertices in the same order. (Optional)
+        """
+        i = len(self._indices)
+        for vertex in vertices:
+            self._vertices.extend(vertex)
+            self._indices.append(i)
+            i += 1
+
+        if colors is not None:
+            if len(colors) != len(vertices):
+                logging.error('len(colors) != len(vertices)')
+                return
+            for color in colors:
+                self._vertex_colors.extend(color)
+
+        self._needs_update = True
