@@ -859,6 +859,7 @@ class PointCloud(Object):
         # Expose vertices by reference for modification
         self.vertices = self._vertices
         self._vertex_colors = args.get('colors', [])
+        self._vertex_history = []
         self.material.display = POINTS
         self.static = False
 
@@ -867,10 +868,7 @@ class PointCloud(Object):
         pass
 
     def track(self):
-        """Track point cloud
-
-        Instead of tracking the matrix, we are now tracking the vertex
-        positions
+        """Tracking point cloud is not possible at the moment
         """
         pass
 
@@ -895,3 +893,26 @@ class PointCloud(Object):
                 self._vertex_colors.append(color)
 
         self._needs_update = True
+
+
+class Plane(Mesh):
+    """Plane object
+
+    This is a 2D Plane in 3D World. Has a width in X and height in Y.
+    If you need to place it in another axis, try modifying its matrix.
+    """
+    def __init__(self, **args):
+        """Initialize plane
+
+        Args:
+          width: Width of the plane
+          height: Height of the plane
+        """
+        super(Plane, self).__init__(**args)
+        width = args.get('width', 1.0) * 0.5
+        height = args.get('height', 1.0) * 0.5
+        self._vertices = [[-width, -height, 0], [width, -height, 0],
+                          [width, height, 0], [-width, height, 0]]
+        self._normals = [[0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]]
+        self._texcoords = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+        self._indices = [[0, 1, 2], [0, 2, 3]]
