@@ -15,8 +15,8 @@ import ctypes
 import logging
 
 from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray,
-                       glBindVertexArray, GL_LINE, GL_LINES, GL_FILL,
-                       GL_TRIANGLES, glPolygonMode,
+                       glBindVertexArray, GL_LINE, GL_FILL,
+                       GL_TRIANGLES, glPolygonMode, GL_LINE_STRIP,
                        glGenVertexArrays, glGenBuffers, GL_ARRAY_BUFFER,
                        glEnableVertexAttribArray, glVertexAttribPointer,
                        GL_FLOAT, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, glBindBuffer,
@@ -25,11 +25,9 @@ from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray,
                        GL_FRONT_AND_BACK, glDrawElements, GL_UNSIGNED_INT)
 
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.vector import plane_normal
+from payton.math.vector import plane_normal, vector_transform
 from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
 from payton.scene.shader import Shader
-
-VERTEX_BYTES = np.array([1.0, 1.0, 1.0], dtype=np.float32).nbytes
 
 
 class Object(object):
@@ -79,7 +77,6 @@ class Object(object):
         vertex buffer object references and vertex informations will not be
         deleted to be used for future reference.
         """
-        global VERTEX_BYTES
         self.children = {}
         self.material = Material()
         self.static = args.get('static', True)
@@ -106,10 +103,12 @@ class Object(object):
         # This is an optimization technique for dynamic objects where there are
         # increasing number of vertices. We allocate some buffer before-hand
         # and if we fill all of it, we resize it.
-        self._buffer_size = 500 * VERTEX_BYTES
+        self._buffer_size = 500 * 12
+        self._t_buffer_size = 500 * 8
         self._model_matrix = None  # Model matrix.
         # Check if buffer size allocated for the object has changed.
         self._buffer_size_changed = True
+        self._t_buffer_size_changed = True
 
         # Track object motion
         self.track_motion = args.get('track_motion', False)
@@ -123,6 +122,7 @@ class Object(object):
         # For raycast tests - bounding radius is the radius of the bounding
         # sphere.
         self._bounding_radius = 0
+        self._bounding_box = []
         self._selected = False
 
         # Vertex Array Object pointer
@@ -194,6 +194,25 @@ class Object(object):
         if parent_matrix is not None:
             self._model_matrix = parent_matrix.dot(self._model_matrix)
 
+    def track(self):
+        """
+        Track object motion
+        """
+        if not self.track_motion:
+            return False
+        if self._previous_matrix == self.matrix[3]:
+            return True
+
+        # Add the new matrix to motion path records
+        self._motion_path.append(self.matrix)
+        # Add the matrix position to motion math line for visualisation
+        if self._motion_path_line is not None:
+            self._motion_path_line.append(
+                [[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]])
+
+        # Python trick here! need to .copy or it will pass reference.
+        self._previous_matrix = self.matrix[3].copy()
+
     def render(self, proj, view, lights, parent_matrix=None):
         """
         Virtual function for rendering the object. Some objects can overwrite
@@ -215,18 +234,7 @@ class Object(object):
             return
 
         self.update_matrix(parent_matrix=parent_matrix)
-
-        if self.track_motion:
-            # Has the matrix changed from previous matrix?
-            if self._previous_matrix != self.matrix:
-                # Add the new matrix to motion path records
-                self._motion_path.append(self.matrix)
-                # Add the matrix position to motion math line for visualisation
-                self._motion_path_line.append(
-                    [self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]])
-
-                # Python trick here! need to .copy or it will pass reference.
-                self._previous_matrix = self.matrix[3].copy()
+        self.track()
 
         # Material shading mode.
         mode = None
@@ -239,7 +247,7 @@ class Object(object):
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
             pmode = GL_LINE
-            primitive = GL_LINES
+            primitive = GL_LINE_STRIP
             if self.material.display == SOLID:
                 pmode = GL_FILL
                 primitive = GL_TRIANGLES
@@ -326,7 +334,10 @@ class Object(object):
         Return local coordinates (tuple, list) into absolute coordinates in
         space.
         """
-        pass
+        return vector_transform(coordinates, self.matrix)
+
+    def absolute_vertices(self):
+        return map(lambda v: self.to_absolute(v), self._vertices)
 
     def to_local(self, coordinates):
         """
@@ -343,13 +354,35 @@ class Object(object):
         for n in self.children:
             self.children[n].toggle_wireframe()
 
-    def _calc_bounding_radius(self):
+    def _calc_bounds(self):
         # Calculate the bounding sphere radius
         vertices = np.array(self._vertices, dtype=np.float32)
-        for i in range(math.ceil(len(vertices) / 3)):
-            d = pyrr.vector3.length(vertices[i*3:i*3+3])
+        bmin = None
+        bmax = None
+        for v in vertices:
+            if bmin is None:
+                bmin = [0, 0, 0]
+                bmin[0], bmin[1], bmin[2] = v[0], v[1], v[2]
+            if bmax is None:
+                bmax = [0, 0, 0]
+                bmax[0], bmax[1], bmax[2] = v[0], v[1], v[2]
+            if v[0] < bmin[0]:
+                bmin[0] = v[0]
+            if v[1] < bmin[1]:
+                bmin[1] = v[1]
+            if v[2] < bmin[2]:
+                bmin[2] = v[2]
+            if v[0] > bmax[0]:
+                bmax[0] = v[0]
+            if v[1] > bmax[1]:
+                bmax[1] = v[1]
+            if v[2] > bmax[2]:
+                bmax[2] = v[2]
+
+            d = pyrr.vector3.length(v)
             if d > self._bounding_radius:
                 self._bounding_radius = d
+        self._bounding_box = [bmin, bmax]
         return self._bounding_radius
 
     @property
@@ -364,7 +397,7 @@ class Object(object):
 
         if self._bounding_radius > 0:
             return self._bounding_radius
-        return self._calc_bounding_radius()
+        return self._calc_bounds()
 
     def build(self):
         """
@@ -401,12 +434,12 @@ class Object(object):
         # Turn python arrays into C type arrays using Numpy.
         # This is required for OpenGL. Python memory model is a bit
         # different than raw memory model of C (OpenGL)
-        vertices = np.array(self._vertices, dtype=np.float32)
-        normals = np.array(self._normals, dtype=np.float32)
-        texcoords = np.array(self._texcoords, dtype=np.float32)
-        colors = np.array(self._vertex_colors, dtype=np.float32)
-        indices = np.array(self._indices, dtype=np.int32)
-        self._calc_bounding_radius()
+        vertices = np.array(self._vertices, dtype=np.float32).flatten()
+        normals = np.array(self._normals, dtype=np.float32).flatten()
+        texcoords = np.array(self._texcoords, dtype=np.float32).flatten()
+        colors = np.array(self._vertex_colors, dtype=np.float32).flatten()
+        indices = np.array(self._indices, dtype=np.int32).flatten()
+        self._calc_bounds()
 
         # OpenGL allocates buffers in different mechanisms between
         # STATIC and DYNAMIC draw modes. If you select STATIC, then OpenGL
@@ -419,9 +452,11 @@ class Object(object):
         # Buffer overflow, we need more space.
         # For dynamic objects, we allocate +500 vertices at all times.
         if self._buffer_size < vertices.nbytes:
-            global VERTEX_BYTES
-            self._buffer_size = vertices.nbytes + (500 * VERTEX_BYTES)
+            self._buffer_size = vertices.nbytes + (500 * 12)
             self._buffer_size_changed = True
+        if self._t_buffer_size < texcoords.nbytes:
+            self._t_buffer_size = texcoords.nbytes + (500 * 8)
+            self._t_buffer_size_changed = True
 
         # Bind Vertices
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[0])
@@ -446,14 +481,16 @@ class Object(object):
             glBufferSubData(GL_ARRAY_BUFFER, 0, normals.nbytes, normals)
 
         # Bind TexCoords
-        glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
-        glEnableVertexAttribArray(2)  # shader layout location
-        glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        if self._buffer_size_changed:
-            glBufferData(GL_ARRAY_BUFFER, self._buffer_size, texcoords,
-                         draw)
-        else:
-            glBufferSubData(GL_ARRAY_BUFFER, 0, texcoords.nbytes, texcoords)
+        if len(self._texcoords) == len(self._vertices):
+            glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
+            glEnableVertexAttribArray(2)  # shader layout location
+            glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+            if self._t_buffer_size_changed:
+                glBufferData(GL_ARRAY_BUFFER, self._t_buffer_size,
+                             texcoords, draw)
+            else:
+                glBufferSubData(GL_ARRAY_BUFFER, 0, texcoords.nbytes,
+                                texcoords)
 
         # Bind Vertex Colors
         if len(self._vertex_colors) == len(self._vertices):
@@ -469,6 +506,7 @@ class Object(object):
                                 colors)
 
         self._buffer_size_changed = False
+        self._t_buffer_size_changed = False
 
         # Bind Indices
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self._vbos[3])
@@ -486,7 +524,79 @@ class Object(object):
         return True
 
 
-class Cube(Object):
+class Mesh(Object):
+    """Mesh Object
+
+    Mesh is almost like the Object except with some extra methods to make
+    things easier. If you want to have custom geometries/shapes, it is
+    better to extend `payton.scene.geometry.Mesh` instead of
+    `payton.scene.geometry.Object`. Because Mesh will give you better
+    and easier constructing capabilities such as adding triangles on the fly
+    or sub-division or cutting and so forth. It is a way of designing objects
+    by code.
+    """
+    def add_triangle(self, vertices, normals=None, texcoords=None,
+                     colors=None):
+        """Add triangle to Mesh
+
+        Args:
+          vertices: Vertices of the triangle. This is required. Ex:
+        `[[0, 0, 0], [2, 0, 0], [1, 1, 0]]`
+          normals: Normals of the triangle. _(When left as None, Payton will
+        calculate the surface normal based on vertices and assign it per
+        given vertex.)_
+          texcoords: Texture UV coordinates.
+          colors: Per vertex colors (optional)
+
+        Example:
+
+            from payton.scene import Scene
+            from payton.scene.geometry import Mesh
+
+
+            scene = Scene()
+            mesh = Mesh()
+            mesh.add_triangle([[-2, 0, 0],
+                               [2, 0, 0],
+                               [0, 2, 0]], texcoords=[[0, 0],
+                                                      [1, 0],
+                                                      [1, 1]],
+                              colors=[[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+            scene.add_object('mesh', mesh)
+            scene.run()
+        """
+        if len(vertices) != 3:
+            logging.error('A triangle must have 3 vertices')
+            return False
+        if normals is not None and len(normals) != 3:
+            logging.error('There must be one normal per vertex')
+            return False
+        if texcoords is not None and len(texcoords) != 3:
+            logging.error('There must be one texcoord per vertex')
+            return False
+        if normals is None:
+            v1, v2, v3 = vertices[0], vertices[1], vertices[2]
+            normal = plane_normal(v1, v2, v3)
+            normals = [normal, normal, normal]
+        if texcoords is None:
+            texcoords = [[0, 0], [1, 0], [1, 1]]
+        if colors:
+            for color in colors:
+                self._vertex_colors.append(color)
+
+        for v in vertices:
+            self._vertices.append(v)
+
+        i = len(self._indices)
+        self._indices.append([i, i+1, i+2])
+        for normal in normals:
+            self._normals.append(normal)
+        for t in texcoords:
+            self._texcoords.append(t)
+
+
+class Cube(Mesh):
     """
     Cube object
 
@@ -523,46 +633,48 @@ class Cube(Object):
         depth = args.get('depth', 1.0) * 0.5
         height = args.get('height', 1.0) * 0.5
 
-        self._vertices = [-width, -depth, height, width, -depth, height,
-                          -width, depth, height, width, depth, height,
-                          -width, depth, height, width, depth, height,
-                          -width, depth, -height, width, depth, -height,
-                          -width, depth, -height, width, depth, -height,
-                          -width, -depth, -height, width, -depth, -height,
-                          -width, -depth, -height, width, -depth, -height,
-                          -width, -depth, height, width, -depth, height,
-                          width, -depth, height, width, -depth, -height,
-                          width, depth, height, width, depth, height,
-                          width, depth, -height, -width, -depth, -height,
-                          -width, -depth, height, -width, depth, -height,
-                          -width, depth, -height, -width, -depth, height,
-                          -width, depth, height]
+        self._vertices = [[-width, -depth, height], [width, -depth, height],
+                          [-width, depth, height], [width, depth, height],
+                          [-width, depth, height], [width, depth, height],
+                          [-width, depth, -height], [width, depth, -height],
+                          [-width, depth, -height], [width, depth, -height],
+                          [-width, -depth, -height], [width, -depth, -height],
+                          [-width, -depth, -height], [width, -depth, -height],
+                          [-width, -depth, height], [width, -depth, height],
+                          [width, -depth, height], [width, -depth, -height],
+                          [width, depth, height], [width, depth, height],
+                          [width, depth, -height], [-width, -depth, -height],
+                          [-width, -depth, height], [-width, depth, -height],
+                          [-width, depth, -height], [-width, -depth, height],
+                          [-width, depth, height]]
 
-        self._normals = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
-                         0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-                         0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0,
-                         0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
-                         0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
-                         0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-                         1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-                         -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
-                         -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0]
+        self._normals = [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0],
+                         [0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0],
+                         [0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0],
+                         [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0],
+                         [0.0, -1.0, 0.0], [0.0, -1.0, 0.0], [0.0, -1.0, 0.0],
+                         [0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0],
+                         [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0],
+                         [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0],
+                         [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, 0.0, 0]]
 
-        self._texcoords = [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0,
-                           0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-                           1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0,
-                           1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0,
-                           1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0,
-                           1.0, 1.0, 1.0, 0.0]
+        self._texcoords = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0],
+                           [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0],
+                           [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0],
+                           [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0],
+                           [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 0.0],
+                           [1.0, 1.0], [0.0, 1.0], [1.0, 1.0], [0.0, 0.0],
+                           [0.0, 0.0], [1.0, 1.0], [1.0, 0.0]]
 
-        self._indices = [0, 1, 2, 2, 1, 3, 4, 5, 6, 6, 5, 7, 8, 9, 10,
-                         10, 9, 11, 12, 13, 14, 14, 13, 15, 16, 17, 18,
-                         19, 17, 20, 21, 22, 23, 24, 25, 26]
+        self._indices = [[0, 1, 2], [2, 1, 3], [4, 5, 6], [6, 5, 7],
+                         [8, 9, 10], [10, 9, 11], [12, 13, 14],
+                         [14, 13, 15], [16, 17, 18], [19, 17, 20],
+                         [21, 22, 23], [24, 25, 26]]
 
         return None
 
 
-class Sphere(Object):
+class Sphere(Mesh):
     """
     Sphere object.
 
@@ -651,17 +763,20 @@ class Sphere(Object):
                 normal = plane_normal([x1, y1, z1],
                                       [x2, y2, z2],
                                       [x3, y3, z3])
-                self._vertices += [x1, y1, z1]  # 0
-                self._vertices += [x2, y2, z2]  # i + 1
-                self._vertices += [x3, y3, z3]  # i + 2
-                self._vertices += [x4, y4, z4]  # i + 3
-                self._texcoords.extend([u1, v1, u2, v2, u3, v3, u4, v4])
-                self._normals += [normal[0], normal[1], normal[2]]
-                self._normals += [normal[0], normal[1], normal[2]]
-                self._normals += [normal[0], normal[1], normal[2]]
-                self._normals += [normal[0], normal[1], normal[2]]
-                self._indices += [indices, indices+1, indices+2]
-                self._indices += [indices, indices+2, indices+3]
+                self._vertices.append([x1, y1, z1])
+                self._vertices.append([x2, y2, z2])
+                self._vertices.append([x3, y3, z3])
+                self._vertices.append([x4, y4, z4])
+                self._texcoords.append([u1, v1])
+                self._texcoords.append([u2, v2])
+                self._texcoords.append([u3, v3])
+                self._texcoords.append([u4, v4])
+                self._normals.append([normal[0], normal[1], normal[2]])
+                self._normals.append([normal[0], normal[1], normal[2]])
+                self._normals.append([normal[0], normal[1], normal[2]])
+                self._normals.append([normal[0], normal[1], normal[2]])
+                self._indices.append([indices, indices+1, indices+2])
+                self._indices.append([indices, indices+2, indices+3])
                 indices += 4
         return True
 
@@ -693,32 +808,18 @@ class Line(Object):
         """Append vertex or vertices to line.
 
         Args:
-          vertices: Vertex array of points.
+          vertice: Vertex array of points.
         """
-        if len(vertices) % 3 != 0:
-            logging.error('Number of vertices must be a power of 3')
-            return False
-        diff = math.ceil(len(vertices) / 3.0)  # Number of vertices added
-        self._vertices.extend(vertices)
-        self._texcoords.extend([0, 0] * diff)
-        self._normals.extend([0, 0, 0] * diff)
 
-        self._vertex_count = math.ceil(len(self._vertices) / 3.0)
+        diff = len(vertices)  # Number of vertices added
+        last_index = len(self._vertices)
+        self._vertices += vertices
 
-        if self._vertex_count == 1:
-            # Not enough to draw any line.
-            return True
-
-        if self._vertex_count == 2:
-            self._indices.extend([0, 1])
-            if self._vao is not None:
-                self.build()
-            return True
-
-        last = self._indices[-1]
-
-        for i in range(diff):
-            self._indices.extend([last+i, last+i+1])
+        self._texcoords += [[0, 0]] * diff
+        self._normals += [[0, 0, 0]] * diff
+        self._vertex_count = len(self._vertices)
+        indices = map(lambda x: x+last_index, range(diff))
+        self._indices += indices
 
         if self._vao is not None:
             self._needs_update = True
@@ -732,13 +833,13 @@ class Line(Object):
             self._vertices = vertices
         if color is not None:
             self.material.color = color
-        self._vertex_count = math.ceil(len(self._vertices) / 3.0)
+        self._vertex_count = len(self._vertices)
         for i in range(self._vertex_count - 1):
-            self._indices += [i, i+1]
+            self._indices.append([i, i+1])
 
         for i in range(self._vertex_count):
-            self._normals += [0, 0, 0]
-            self._texcoords += [0, 0]
+            self._normals.append([0, 0, 0])
+            self._texcoords.append([0, 0])
 
         if self._vao is not None:
             # This is a dynamic object, destroying the object is not a good
@@ -746,93 +847,31 @@ class Line(Object):
             self.build()
 
 
-class Mesh(Object):
-    """Mesh Object
-
-    Mesh is almost like the Object except with some extra methods to make
-    things easier. If you want to have custom geometries/shapes, it is
-    better to extend `payton.scene.geometry.Mesh` instead of
-    `payton.scene.geometry.Object`. Because Mesh will give you better
-    and easier constructing capabilities such as adding triangles on the fly
-    or sub-division or cutting and so forth. It is a way of designing objects
-    by code.
-    """
-    def add_triangle(self, vertices, normals=None, texcoords=None,
-                     colors=None):
-        """Add triangle to Mesh
-
-        Args:
-          vertices: Vertices of the triangle. This is required. Ex:
-        `[[0, 0, 0], [2, 0, 0], [1, 1, 0]]`
-          normals: Normals of the triangle. _(When left as None, Payton will
-        calculate the surface normal based on vertices and assign it per
-        given vertex.)_
-          texcoords: Texture UV coordinates.
-          colors: Per vertex colors (optional)
-
-        Example:
-
-            from payton.scene import Scene
-            from payton.scene.geometry import Mesh
-
-
-            scene = Scene()
-            mesh = Mesh()
-            mesh.add_triangle([[-2, 0, 0],
-                               [2, 0, 0],
-                               [0, 2, 0]], texcoords=[[0, 0],
-                                                      [1, 0],
-                                                      [1, 1]],
-                              colors=[[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-
-            scene.add_object('mesh', mesh)
-            scene.run()
-        """
-        if len(vertices) != 3:
-            logging.error('A triangle must have 3 vertices')
-            return False
-        if normals is not None and len(normals) != 3:
-            logging.error('There must be one normal per vertex')
-            return False
-        if texcoords is not None and len(texcoords) != 3:
-            logging.error('There must be one texcoord per vertex')
-            return False
-        if normals is None:
-            v1, v2, v3 = vertices[0], vertices[1], vertices[2]
-            normal = plane_normal(v1, v2, v3)
-            normals = [normal, normal, normal]
-        if texcoords is None:
-            texcoords = [[0, 0], [1, 0], [1, 1]]
-        if colors:
-            self._vertex_colors.extend(colors[0])
-            self._vertex_colors.extend(colors[1])
-            self._vertex_colors.extend(colors[2])
-
-        self._vertices.extend(vertices[0])
-        self._vertices.extend(vertices[1])
-        self._vertices.extend(vertices[2])
-        i = len(self._indices)
-        self._indices.extend([i, i+1, i+2])
-        self._normals.extend(normals[0])
-        self._normals.extend(normals[1])
-        self._normals.extend(normals[2])
-        self._texcoords.extend(texcoords[0])
-        self._texcoords.extend(texcoords[1])
-        self._texcoords.extend(texcoords[2])
-
-
 class PointCloud(Object):
     """Point cloud
+
+    Note: If you change the vertices, do not forget to do a `refresh` to take
+    effect.
     """
     def __init__(self, **args):
         super(PointCloud, self).__init__(**args)
         self._vertices = args.get('vertices', [])
+        # Expose vertices by reference for modification
+        self.vertices = self._vertices
         self._vertex_colors = args.get('colors', [])
         self.material.display = POINTS
         self.static = False
 
     def toggle_wireframe(self):
         """Toggle wireframe overwrite to disable mode change"""
+        pass
+
+    def track(self):
+        """Track point cloud
+
+        Instead of tracking the matrix, we are now tracking the vertex
+        positions
+        """
         pass
 
     def add(self, vertices, colors=None):
@@ -844,7 +883,7 @@ class PointCloud(Object):
         """
         i = len(self._indices)
         for vertex in vertices:
-            self._vertices.extend(vertex)
+            self._vertices.append(vertex)
             self._indices.append(i)
             i += 1
 
@@ -853,6 +892,6 @@ class PointCloud(Object):
                 logging.error('len(colors) != len(vertices)')
                 return
             for color in colors:
-                self._vertex_colors.extend(color)
+                self._vertex_colors.append(color)
 
         self._needs_update = True

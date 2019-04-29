@@ -4,10 +4,10 @@
 
 import logging
 import os
-from payton.scene import Object
+from payton.scene.geometry import Mesh
 
 
-class Wavefront(Object):
+class Wavefront(Mesh):
     """
     Wavefront object file class.
     Only supports ascii obj files in a limited way.
@@ -39,17 +39,6 @@ class Wavefront(Object):
 
     def load(self, obj_string):
         """
-        This part of the code is a bit messy. Ideally, a file format
-        parsing shouldn't be here. But on the other hand, this is still
-        a proof of concept so technical debts can be taken.
-
-        @TODO: Create an importer mechanism instead of directly parsing
-               Wavefront Object file format inside Object class.
-
-        A 3D object can be imported from many different file formats
-        we can not restrict it to a single format and embed it to Object.
-        That is an anti-pattern. Ok. I know.
-
         A bit of information on file format,
         v -> x, y, z, (w)
         vt -> u, [v, (w)]
@@ -99,14 +88,16 @@ class Wavefront(Object):
         # Now unpack indices to actual object data
         i = 0
         for index in _indices:
+            ind = []
             for f in index:
                 vertex = _vertices[f[0]]
                 normal = _normals[f[2]]
                 tex = [0, 0]
                 if f[1] > -1:
                     tex = _texcoords[f[1]]
-                self._vertices.extend(vertex)
-                self._normals.extend(normal)
-                self._texcoords.extend(tex)
-                self._indices.append(i)
+                self._vertices.append(vertex)
+                self._normals.append(normal)
+                self._texcoords.append(tex)
+                ind.append(i)
                 i += 1
+            self._indices.append(ind)

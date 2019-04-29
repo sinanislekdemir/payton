@@ -132,4 +132,4 @@ def line_triangle_intersect(start, end, p1, p2, p3):
     d2 = distance(ip, end)
     d3 = distance(start, end)
     diff = d3 - (d1 + d2)
-    return diff < DIFF
+    return diff < DIFF and diff > -DIFF

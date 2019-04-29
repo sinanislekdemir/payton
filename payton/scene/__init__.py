@@ -32,7 +32,7 @@ from payton.scene.geometry import Object
 from payton.scene.light import Light
 from payton.scene.observer import Observer
 from payton.scene.clock import Clock
-from payton.scene.collision import Collision
+from payton.scene.collision import CollisionTest
 
 from payton.scene.shader import (Shader,
                                  background_fragment_shader,
@@ -131,11 +131,12 @@ class Scene(object):
         proj, view = self.active_observer.render()
 
         self.grid.render(proj, view, self.lights)
-        for test in self._collision_detectors:
-            test.check()
 
         for object in self.objects:
             self.objects[object].render(proj, view, self.lights)
+
+        for test in self._collision_detectors:
+            test.check()
 
         return 0
 
@@ -145,8 +146,8 @@ class Scene(object):
         Args:
           tester: Tester class
         """
-        if not isinstance(tester, Collision):
-            logging.error('tester must be an instance of Collision')
+        if not isinstance(tester, CollisionTest):
+            logging.error('tester must be an instance of CollisionTest')
         self._collision_detectors.append(tester)
 
     def add_object(self, name, obj):
@@ -321,6 +322,7 @@ class Scene(object):
                 self.controller.mouse(self.event, self)
 
             self._render()
+
             sdl2.SDL_GL_SwapWindow(self.window)
             sdl2.SDL_Delay(10)
 

@@ -9,6 +9,7 @@ sources or not.
 There are also pre-defined colors in this module
 """
 import os
+import copy
 from PIL import Image
 import numpy as np
 from payton.scene.shader import Shader
@@ -46,6 +47,8 @@ WHITE = [1.0, 1.0, 1.0]
 BLACK = [0.0, 0.0, 0.0]
 DARK_GRAY = [0.2, 0.2, 0.2]
 LIGHT_GRAY = [0.8, 0.8, 0.8]
+
+GLOBAL_SHADER = None
 
 
 class Material(object):
@@ -86,6 +89,7 @@ class Material(object):
 
         variables = ['model', 'view', 'projection', 'material_mode',
                      'light_pos', 'light_color', 'object_color']
+
         self.shader = Shader(variables=variables)
 
         self._initialized = False
@@ -97,7 +101,12 @@ class Material(object):
         Must be called at object build stage after generating vba.
         An active vba is required for building shader properly.
         """
-        self.shader.build()
+        global GLOBAL_SHADER
+        if GLOBAL_SHADER is None:
+            self.shader.build()
+            GLOBAL_SHADER = copy.deepcopy(self.shader)
+        else:
+            self.shader = GLOBAL_SHADER
         self._initialized = True
         if os.path.isfile(self.texture):
             self.load_texture()

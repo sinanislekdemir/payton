@@ -3,10 +3,11 @@ from payton.scene import Scene
 from payton.scene.geometry import Cube
 
 scene = Scene()
-for i in range(10):
-    x = random.randint(-5, 5)
-    y = random.randint(-5, 5)
-    z = random.randint(-5, 5)
+
+for i in range(100):
+    x = random.randint(-50, 50)
+    y = random.randint(-50, 50)
+    z = random.randint(-50, 50)
     r = random.randint(0, 255) / 255.0
     g = random.randint(0, 255) / 255.0
     b = random.randint(0, 255) / 255.0

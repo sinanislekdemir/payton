@@ -1,7 +1,7 @@
 import random
 from payton.scene import Scene
 from payton.scene.geometry import Sphere, Cube
-from payton.scene.collision import Collision
+from payton.scene.collision import CollisionTest
 
 
 def hit(collision, pairs):
@@ -15,7 +15,7 @@ def hit(collision, pairs):
 
 
 scene = Scene()
-collision = Collision(callback=hit)
+collision = CollisionTest(callback=hit)
 for i in range(50):
     x = random.randint(-5, 5)
     y = random.randint(-5, 5)

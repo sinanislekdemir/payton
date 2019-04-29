@@ -120,11 +120,55 @@ def plane_normal(v1, v2, v3):
 
         result = plane_normal(v1, v2, v3)
         # result = [0.0, -0.9982048454657786, -0.05989229072794672]
+
+    Args:
+      v1: Plane point 1
+      v2: Plane point 2
+      v3: Plane point 3
+
+    Returns:
+      vector
     """
     t1 = sub_vector(v2, v1)
     t2 = sub_vector(v3, v1)
     r = cross_product(t1, t2)
     return normalize_vector(r)
+
+
+def vector_transform(v, matrix):
+    """Transform Vector by a matrix.
+
+    Assuming that the base matrix for the scene is a uniform matrix,
+    this function converts a local vector to scen matrix. So, this can
+    be assumed as calculating the absolute vertex from a local matrix.
+
+    Args:
+      v: Vector to transform
+      matrix: Local matrix
+
+    Returns:
+      vector
+    """
+    mx = matrix[0]
+    my = matrix[1]
+    mz = matrix[2]
+    mw = matrix[3]
+
+    rx = v[0] * mx[0] + v[1] * my[0] + v[2] * mz[0]
+    ry = v[0] * mx[1] + v[1] * my[1] + v[2] * mz[1]
+    rz = v[0] * mx[2] + v[1] * my[2] + v[2] * mz[2]
+
+    if len(v) == 3:
+        rx += mw[0]
+        ry += mw[1]
+        rz += mw[2]
+        return [rx, ry, rz]
+
+    rx += v[3] * mw[0]
+    ry += v[3] * mw[1]
+    rz += v[3] * mw[2]
+    rw = v[0] * mx[3] + v[1] * my[3] + v[2] * mz[3] + v[3] * mw[3]
+    return [rx, ry, rz, rw]
 
 
 def invert_vector(v):

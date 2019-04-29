@@ -1,6 +1,6 @@
 import unittest
 from payton.scene.geometry import Sphere, Cube
-from payton.scene.collision import Collision
+from payton.scene.collision import CollisionTest
 
 
 def dummy():
@@ -12,7 +12,7 @@ class TestGeometryMethods(unittest.TestCase):
         a = Sphere()
         b = Sphere()
         b.set_position([3, 0, 4])
-        c = Collision(callback=dummy, objects=[a, b])
+        c = CollisionTest(callback=dummy, objects=[a, b])
         dist = c._dist(a, b)
         self.assertAlmostEqual(dist, 5)
 
@@ -20,7 +20,7 @@ class TestGeometryMethods(unittest.TestCase):
         a = Sphere(radius=2.0)
         b = Sphere()
         b.set_position([0.5, 0.5, 0])
-        c = Collision(callback=dummy, objects=[a, b])
+        c = CollisionTest(callback=dummy, objects=[a, b])
         check = c._bounding_sphere_collision(a, b)
         self.assertTrue(check)
 
@@ -28,7 +28,7 @@ class TestGeometryMethods(unittest.TestCase):
         a = Sphere(radius=2.0)
         b = Sphere()
         b.set_position([4.5, 0.5, 0])
-        c = Collision(callback=dummy, objects=[a, b])
+        c = CollisionTest(callback=dummy, objects=[a, b])
         check = c._bounding_sphere_collision(a, b)
         self.assertFalse(check)
 
@@ -36,7 +36,7 @@ class TestGeometryMethods(unittest.TestCase):
         a = Cube()
         b = Cube(width=2.0, height=1.23, depth=1.0)
         b.set_position([1.0, 0.2, 0.1])
-        c = Collision(callback=dummy, objects=[a, b])
+        c = CollisionTest(callback=dummy, objects=[a, b])
         check = c._mesh_collision(a, b)
         self.assertTrue(check)
 
@@ -44,7 +44,7 @@ class TestGeometryMethods(unittest.TestCase):
         a = Sphere(radius=10)
         b = Sphere(radius=2)
         b.set_position([2, 2, 0])
-        c = Collision(callback=dummy, objects=[a, b])
+        c = CollisionTest(callback=dummy, objects=[a, b])
         check = c._sphere_in_sphere_collision(a, b)
         self.assertTrue(check)
 
@@ -52,6 +52,6 @@ class TestGeometryMethods(unittest.TestCase):
         a = Sphere(radius=10)
         b = Sphere(radius=2)
         b.set_position([10, 2, 0])
-        c = Collision(callback=dummy, objects=[a, b])
+        c = CollisionTest(callback=dummy, objects=[a, b])
         check = c._sphere_in_sphere_collision(a, b)
         self.assertFalse(check)

@@ -1,14 +1,20 @@
 """
 Collision detection module
 """
-import math
 import logging
-import numpy as np
-from payton.scene.geometry import Sphere
-from payton.math.geometry import (distance, line_triangle_intersect)
+from payton.scene.geometry import Sphere, Line, Mesh
+from payton.math.geometry import distance
 
 
 class Collision(object):
+    """Collision pair result class"""
+    def __init__(self, obj1, obj2):
+        self.object_1 = obj1
+        self.object_2 = obj2
+        self.segment = 1
+
+
+class CollisionTest(object):
     """Collision detection class
 
     Collision detection is made between selected objects so instead
@@ -16,21 +22,39 @@ class Collision(object):
     objects must be selected for testing.
 
     Collision detection is a costly operation and often times, to increase
-    the performance, making some assumptions can work well. As an instance,
+    the performance, making some assumptions can work well. As an example,
     objects' bounding sphere check is a very simple arithmetic operation.
     But collision detection using mesh triangles is quite costly.
 
-    Therefore, collision detection class uses some approximations.
+    Collision test uses several techniques:
+      - Bounding sphere collision test for Sphere2Sphere test.
+      - Bounding sphere collision test for elimination
+      - Sphere in sphere collision test for objects in objects
+      - AABB collision test for object elimination and aproximate calculations
+      - Mesh collision test for triangular objects.
+
+    Therefore, collision detection class uses some approximations. There are
+    three different approximations:
+
+      - SPHERICAL: Does a bounding sphere check only
+      - AABB: Does an Axis Alinged Bounding Box check only (DEFAULT)
+      - TRIANGULAR: Checks for each triangle if it penetrates the target object
     """
+    SPHERICAL = 0
+    AABB = 1
+    TRIANGULAR = 2
+
     def __init__(self, **args):
         """Initialize collision detector
 
         Args:
           objects: List of object references to test
           callback: Callback function to call incase of collision
+          level: Level of collision detection accuracy
         """
         self.objects = args.get('objects', [])
         self.callback = args.get('callback', None)
+        self.level = args.get('level', self.AABB)
         if not callable(self.callback):
             logging.error('callback should be a callable')
         self._pairs = []
@@ -67,83 +91,44 @@ class Collision(object):
             return True
         return False
 
-    def _mesh_collision(self, obj1, obj2):
-        for i in range(math.floor(len(obj1._indices) / 3)):
-            ix = i * 3
-            i1, i2, i3 = (obj1._indices[ix],
-                          obj1._indices[ix + 1],
-                          obj1._indices[ix + 2])
-            p1 = [obj1._vertices[i1 * 3],
-                  obj1._vertices[i1 * 3 + 1],
-                  obj1._vertices[i1 * 3 + 2]]
-            p2 = [obj1._vertices[i2 * 3],
-                  obj1._vertices[i2 * 3 + 1],
-                  obj1._vertices[i2 * 3 + 2]]
-            p3 = [obj1._vertices[i3 * 3],
-                  obj1._vertices[i3 * 3 + 1],
-                  obj1._vertices[i3 * 3 + 2]]
-            p1 = np.array(p1, dtype=np.float32)
-            p2 = np.array(p2, dtype=np.float32)
-            p3 = np.array(p3, dtype=np.float32)
+    def _aabb_collision_test(self, obj1, obj2):
+        bb1_min = obj1.to_absolute(obj1._bounding_box[0])
+        bb1_max = obj1.to_absolute(obj1._bounding_box[1])
+        bb2_min = obj2.to_absolute(obj2._bounding_box[0])
+        bb2_max = obj2.to_absolute(obj2._bounding_box[1])
 
-            for j in range(math.floor(len(obj2._indices) / 3)):
-                jx = j * 3
-                i1, i2, i3 = (obj2._indices[jx],
-                              obj2._indices[jx + 1],
-                              obj1._indices[jx + 2])
-                q1 = [obj2._vertices[i1 * 3],
-                      obj2._vertices[i1 * 3 + 1],
-                      obj2._vertices[i1 * 3 + 2]]
-                q2 = [obj2._vertices[i2 * 3],
-                      obj2._vertices[i2 * 3 + 1],
-                      obj2._vertices[i2 * 3 + 2]]
-                q3 = [obj2._vertices[i3 * 3],
-                      obj2._vertices[i3 * 3 + 1],
-                      obj2._vertices[i3 * 3 + 2]]
-                q1 = np.array(q1, dtype=np.float32)
-                q2 = np.array(q2, dtype=np.float32)
-                q3 = np.array(q3, dtype=np.float32)
-                c = line_triangle_intersect(p1, p2,
-                                            q1, q2, q3)
-                if c:
-                    return True
-                c = line_triangle_intersect(p1, p3,
-                                            q1, q2, q3)
-                if c:
-                    return True
-                c = line_triangle_intersect(p2, p3,
-                                            q1, q2, q3)
-                if c:
-                    return True
-                c = line_triangle_intersect(q1, q2,
-                                            p1, p2, p3)
-                if c:
-                    return True
-                c = line_triangle_intersect(q1, q3,
-                                            p1, p2, p3)
-                if c:
-                    return True
-                c = line_triangle_intersect(q2, q3,
-                                            p1, p2, p3)
-                if c:
-                    return True
-        return False
+        if (bb1_max[0] < bb2_min[0]) or (bb2_max[0] < bb1_min[0]):
+            return False
+        if (bb1_max[1] < bb2_min[1]) or (bb2_max[1] < bb1_min[1]):
+            return False
+        if (bb1_max[2] < bb2_min[2]) or (bb2_max[2] < bb1_min[2]):
+            return False
+        return True
 
     def _test(self, obj1, obj2):
         """Test if obj1 and obj2 are colliding"""
+        bs_test = self._bounding_sphere_collision(obj1, obj2)
+        if not bs_test:
+            return False
         if isinstance(obj1, Sphere) and isinstance(obj2, Sphere):
             # If both objects are Spheres, this check is enough
-            return self._bounding_sphere_collision(obj1, obj2)
-        if not self._bounding_sphere_collision(obj1, obj2):
-            # If bounding spheres are not colliding, there is no way
-            # that these objects are colliding.
-            return False
+            return True
         # No faces are colliding but an object wraps other one
         if self._sphere_in_sphere_collision(obj1, obj2):
             return True
-        # This is a costly detection algorithm which does detection
-        # triangle by triangle.
-        return self._mesh_collision(obj1, obj2)
+        if isinstance(obj1, Line) and isinstance(obj2, Sphere):
+            # Line - Sphere test
+            pass
+        if isinstance(obj1, Sphere) and isinstance(obj2, Line):
+            # Sphere - Line test (obj2, obj1)
+            pass
+        if isinstance(obj1, Mesh) and isinstance(obj2, Mesh):
+            # This is a costly detection algorithm which does detection
+            # triangle by triangle.
+            if self.level == self.SPHERICAL:
+                return True
+            return self._aabb_collision_test(obj1, obj2)
+        return False
 
     def resolve(self, obj1, obj2):
         """Report that you have solved the collision between objects
@@ -169,6 +154,7 @@ class Collision(object):
             for j in range(len(self.objects) - i - 1):
                 obj1 = self.objects[i]
                 obj2 = self.objects[i+j+1]
+                pair = {}
                 pair = [obj1, obj2]
                 pair2 = [obj2, obj1]
                 if pair not in self._pairs and pair2 not in self._pairs:
