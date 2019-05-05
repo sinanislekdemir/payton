@@ -103,6 +103,7 @@ class Clock(threading.Thread):
     reference of the scene.
     Timer function carries a callback function to be called.
     """
+
     def __init__(self, name, period, scene, callback):
         """
         name of the thread is a freetext for logging purposes
@@ -148,10 +149,7 @@ class Clock(threading.Thread):
                 # sleep a safe time to avoid excessive cpu usage
                 time.sleep(SAFE_ASSUMPTION)
                 continue
-            self.callback(self.name,
-                          self.scene,
-                          self.period,
-                          self._total_time)
+            self.callback(self.name, self.scene, self.period, self._total_time)
 
             time.sleep(self.period)
             self._total_time += self.period

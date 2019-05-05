@@ -19,10 +19,21 @@ import ctypes
 import numpy as np
 import logging
 
-from OpenGL.GL import (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable,
-                       glDisable, GL_PROGRAM_POINT_SIZE, glUniform1i,
-                       glGetUniformLocation, glUseProgram, GL_TRUE, GL_FALSE,
-                       glUniformMatrix4fv, glUniform3fv, glUniform4fv)
+from OpenGL.GL import (
+    GL_VERTEX_SHADER,
+    GL_FRAGMENT_SHADER,
+    glEnable,
+    glDisable,
+    GL_PROGRAM_POINT_SIZE,
+    glUniform1i,
+    glGetUniformLocation,
+    glUseProgram,
+    GL_TRUE,
+    GL_FALSE,
+    glUniformMatrix4fv,
+    glUniform3fv,
+    glUniform4fv,
+)
 
 from OpenGL.GL import shaders
 
@@ -150,6 +161,7 @@ class Shader(object):
     If you provide the list of variable names in build function call then
     it will overwrite existing list.
     """
+
     NO_LIGHT_COLOR = 0
     NO_LIGHT_TEXTURE = 1
     LIGHT_COLOR = 2
@@ -165,11 +177,9 @@ class Shader(object):
           variables: List of in/out/uniform variable names.
         """
         global default_fragment_shader, default_vertex_shader
-        self.fragment_shader_source = args.get('fragment',
-                                               default_fragment_shader)
-        self.vertex_shader_source = args.get('vertex',
-                                             default_vertex_shader)
-        self.variables = args.get('variables', [])
+        self.fragment_shader_source = args.get("fragment", default_fragment_shader)
+        self.vertex_shader_source = args.get("vertex", default_vertex_shader)
+        self.variables = args.get("variables", [])
         self._stack = {}  # Variable stack.
         self._mode = self.NO_LIGHT_COLOR  # Lightless color material
 
@@ -183,12 +193,13 @@ class Shader(object):
         Return:
             self.program
         """
-        vertex_shader = shaders.compileShader(self.vertex_shader_source,
-                                              GL_VERTEX_SHADER)
-        fragment_shader = shaders.compileShader(self.fragment_shader_source,
-                                                GL_FRAGMENT_SHADER)
-        self.program = shaders.compileProgram(vertex_shader,
-                                              fragment_shader)
+        vertex_shader = shaders.compileShader(
+            self.vertex_shader_source, GL_VERTEX_SHADER
+        )
+        fragment_shader = shaders.compileShader(
+            self.fragment_shader_source, GL_FRAGMENT_SHADER
+        )
+        self.program = shaders.compileProgram(vertex_shader, fragment_shader)
         if variables:
             self.variables = variables
 
@@ -204,7 +215,7 @@ class Shader(object):
         any entities
         """
         if not self.program:
-            logging.error('Shader not compiled')
+            logging.error("Shader not compiled")
             return False
         glUseProgram(self.program)
         glEnable(GL_PROGRAM_POINT_SIZE)
@@ -235,12 +246,12 @@ class Shader(object):
         transpose = GL_TRUE if transpose else GL_FALSE
         location = self.get_location(variable)
         if not location:
-            logging.error('Variable not found in program [{}]'.format(
-                variable))
+            logging.error("Variable not found in program [{}]".format(variable))
             return False
 
-        glUniformMatrix4fv(location, 1, transpose,
-                           np.asfortranarray(value, dtype=np.float32))
+        glUniformMatrix4fv(
+            location, 1, transpose, np.asfortranarray(value, dtype=np.float32)
+        )
         return True
 
     def get_location(self, variable):
@@ -263,9 +274,7 @@ class Shader(object):
           value: Matrix to set. (Numpy matrix)
           transpose: Transpose matrix.
         """
-        self.set_matrix4x4_np(variable,
-                              np.array(value, np.float32),
-                              transpose)
+        self.set_matrix4x4_np(variable, np.array(value, np.float32), transpose)
 
     def set_vector3_np(self, variable, value):
         """Set Vector 3 as numpy array value
@@ -284,8 +293,7 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error('Variable not found in program [{}]'.format(
-                variable))
+            logging.error("Variable not found in program [{}]".format(variable))
             return False
         glUniform3fv(location, 1, value)
 
@@ -305,8 +313,7 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error('Variable not found in program [{}]'.format(
-                variable))
+            logging.error("Variable not found in program [{}]".format(variable))
             return False
         glUniform4fv(location, 1, value)
 
@@ -323,8 +330,7 @@ class Shader(object):
           variable: Variable name to set
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         """
-        self.set_vector3_np(variable,
-                            np.array(value, dtype=np.float32))
+        self.set_vector3_np(variable, np.array(value, dtype=np.float32))
 
     def set_int(self, variable, value):
         """Set Integer value
@@ -339,8 +345,7 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error('Variable not found in program [{}]'.format(
-                variable))
+            logging.error("Variable not found in program [{}]".format(variable))
             return False
 
         glUniform1i(location, ctypes.c_int(value))

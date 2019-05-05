@@ -21,10 +21,20 @@ import sdl2
 import logging
 import numpy as np
 
-from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, glEnable,
-                       GL_DEPTH_TEST, GL_LESS, glGenVertexArrays,
-                       glBindVertexArray, glDisable, glDrawArrays, glClear,
-                       glDepthFunc, GL_TRIANGLES)
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    glEnable,
+    GL_DEPTH_TEST,
+    GL_LESS,
+    glGenVertexArrays,
+    glBindVertexArray,
+    glDisable,
+    glDrawArrays,
+    glClear,
+    glDepthFunc,
+    GL_TRIANGLES,
+)
 
 from payton.scene.controller import Controller
 from payton.scene.grid import Grid
@@ -34,15 +44,18 @@ from payton.scene.observer import Observer
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
 
-from payton.scene.shader import (Shader,
-                                 background_fragment_shader,
-                                 background_vertex_shader)
+from payton.scene.shader import (
+    Shader,
+    background_fragment_shader,
+    background_vertex_shader,
+)
 
 
 class Scene(object):
     """
     Main Payton scene.
     """
+
     def __init__(self, **args):
         """
         Initialize the Payton Scene
@@ -102,8 +115,8 @@ class Scene(object):
 
         # SDL Related Stuff
         self.window = None
-        self.window_width = args.get('width', 800)
-        self.window_height = args.get('height', 600)
+        self.window_width = args.get("width", 800)
+        self.window_height = args.get("height", 600)
         self._context = None
         self._mouse = [0, 0]
         self._shift_down = False
@@ -111,7 +124,7 @@ class Scene(object):
         self._rotate = False
         self._collision_detectors = []
 
-        self.on_select = args.get('on_select', None)
+        self.on_select = args.get("on_select", None)
 
         # Main running state
         self.running = False
@@ -147,7 +160,7 @@ class Scene(object):
           tester: Tester class
         """
         if not isinstance(tester, CollisionTest):
-            logging.error('tester must be an instance of CollisionTest')
+            logging.error("tester must be an instance of CollisionTest")
         self._collision_detectors.append(tester)
 
     def add_object(self, name, obj):
@@ -176,7 +189,7 @@ class Scene(object):
             return False
 
         if name in self.objects:
-            logging.error('Given object name [{}] already exists'.format(name))
+            logging.error("Given object name [{}] already exists".format(name))
             return False
 
         self.objects[name] = obj
@@ -290,16 +303,19 @@ class Scene(object):
             return -1
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MINOR_VERSION, 3)
-        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_PROFILE_MASK,
-                                 sdl2.SDL_GL_CONTEXT_PROFILE_CORE)
+        sdl2.SDL_GL_SetAttribute(
+            sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE
+        )
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
-        self.window = sdl2.SDL_CreateWindow(b"Payton Scene",
-                                            sdl2.SDL_WINDOWPOS_UNDEFINED,
-                                            sdl2.SDL_WINDOWPOS_UNDEFINED,
-                                            self.window_width,
-                                            self.window_height,
-                                            sdl2.SDL_WINDOW_OPENGL)
+        self.window = sdl2.SDL_CreateWindow(
+            b"Payton Scene",
+            sdl2.SDL_WINDOWPOS_UNDEFINED,
+            sdl2.SDL_WINDOWPOS_UNDEFINED,
+            self.window_width,
+            self.window_height,
+            sdl2.SDL_WINDOW_OPENGL,
+        )
 
         if not self.window:
             return -1
@@ -310,8 +326,7 @@ class Scene(object):
 
         # Fix aspect ratios of observers
         for observer in self.observers:
-            observer.aspect_ratio = (self.window_width /
-                                     self.window_height * 1.0)
+            observer.aspect_ratio = self.window_width / self.window_height * 1.0
 
         for clock in self.clocks:
             self.clocks[clock].start()
@@ -349,6 +364,7 @@ class Background(object):
     (Shader code and idea derived from the original work of:
     https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
     """
+
     def __init__(self, **args):
         """Initialize background
 
@@ -357,12 +373,14 @@ class Background(object):
           bottom_color: Color at the bottom of the screen
         """
         super(Background, self).__init__(**args)
-        self.top_color = args.get('top_color', [0.0, 0.2, 0.4, 1.0])
-        self.bottom_color = args.get('bottom_color', [0.1, 0.1, 0.1, 1.0])
-        variables = ['top_color', 'bot_color']
-        self._shader = Shader(fragment=background_fragment_shader,
-                              vertex=background_vertex_shader,
-                              variables=variables)
+        self.top_color = args.get("top_color", [0.0, 0.2, 0.4, 1.0])
+        self.bottom_color = args.get("bottom_color", [0.1, 0.1, 0.1, 1.0])
+        variables = ["top_color", "bot_color"]
+        self._shader = Shader(
+            fragment=background_fragment_shader,
+            vertex=background_vertex_shader,
+            variables=variables,
+        )
         self._vao = None
         self.visible = True
 
@@ -380,10 +398,12 @@ class Background(object):
         glDisable(GL_DEPTH_TEST)
 
         self._shader.use()
-        self._shader.set_vector4_np('top_color', np.array(self.top_color,
-                                                          dtype=np.float32))
-        self._shader.set_vector4_np('bot_color', np.array(self.bottom_color,
-                                                          dtype=np.float32))
+        self._shader.set_vector4_np(
+            "top_color", np.array(self.top_color, dtype=np.float32)
+        )
+        self._shader.set_vector4_np(
+            "bot_color", np.array(self.bottom_color, dtype=np.float32)
+        )
         glBindVertexArray(self._vao)
         glDrawArrays(GL_TRIANGLES, 0, 3)
         glBindVertexArray(0)

@@ -19,33 +19,36 @@ def projectile_motion(name, scene, period, total):
     global LAUNCH_ANGLE
     global GRAVITY
     global INITIAL_VELOCITY
-    position = scene.objects['ball'].get_position()
+    position = scene.objects["ball"].get_position()
     if position[2] < 0:
         # Do not continue simulation if we hit the ground.
         scene.clocks[name].kill()  # We do not need this clock anymore
         return None
 
     # Go towards -Y direction.
-    position[1] = -(INITIAL_VELOCITY * total *
-                    math.cos(LAUNCH_ANGLE))
-    position[2] = (INITIAL_VELOCITY * total *
-                   math.sin(LAUNCH_ANGLE) -
-                   0.5 * GRAVITY * (total ** 2))
-    scene.objects['ball'].set_position(position)
+    position[1] = -(INITIAL_VELOCITY * total * math.cos(LAUNCH_ANGLE))
+    position[2] = INITIAL_VELOCITY * total * math.sin(LAUNCH_ANGLE) - 0.5 * GRAVITY * (
+        total ** 2
+    )
+    scene.objects["ball"].set_position(position)
     return None
 
 
 def logger(name, scene, period, total):
-    if scene.objects['ball'].matrix[3][2] < 0:
+    if scene.objects["ball"].matrix[3][2] < 0:
         # Do not continue simulation if we hit the ground.
         scene.clocks[name].kill()  # We do not need this clock anymore
         return None
 
     # Log ball location
-    logging.debug('Ball position: x:{} y:{} z:{} t={}'.format(
-        scene.objects['ball'].matrix[3][0],
-        scene.objects['ball'].matrix[3][1],
-        scene.objects['ball'].matrix[3][2], total))
+    logging.debug(
+        "Ball position: x:{} y:{} z:{} t={}".format(
+            scene.objects["ball"].matrix[3][0],
+            scene.objects["ball"].matrix[3][1],
+            scene.objects["ball"].matrix[3][2],
+            total,
+        )
+    )
 
 
 #  Definitions
@@ -54,7 +57,7 @@ pm_scene = Scene()
 ball = Sphere(radius=1, track_motion=True)
 
 # Add ball to the scene
-pm_scene.add_object('ball', ball)
+pm_scene.add_object("ball", ball)
 pm_scene.observers[0].target_object = ball  # Track the ball
 
 pm_scene.grid.resize(30, 30, 2)

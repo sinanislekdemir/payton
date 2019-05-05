@@ -13,13 +13,27 @@ import copy
 from PIL import Image
 import numpy as np
 from payton.scene.shader import Shader
-from OpenGL.GL import (glGenTextures, glPixelStorei, GL_UNPACK_ALIGNMENT,
-                       glBindTexture, GL_TEXTURE_2D, glTexParameterf,
-                       GL_TEXTURE_MAG_FILTER, GL_LINEAR, GL_TEXTURE_MIN_FILTER,
-                       GL_LINEAR_MIPMAP_LINEAR, GL_TEXTURE_WRAP_S,
-                       GL_CLAMP_TO_EDGE, GL_TEXTURE_WRAP_T, glTexImage2D,
-                       glActiveTexture, GL_TEXTURE0,
-                       GL_RGBA, GL_UNSIGNED_BYTE, glGenerateMipmap)
+from OpenGL.GL import (
+    glGenTextures,
+    glPixelStorei,
+    GL_UNPACK_ALIGNMENT,
+    glBindTexture,
+    GL_TEXTURE_2D,
+    glTexParameterf,
+    GL_TEXTURE_MAG_FILTER,
+    GL_LINEAR,
+    GL_TEXTURE_MIN_FILTER,
+    GL_LINEAR_MIPMAP_LINEAR,
+    GL_TEXTURE_WRAP_S,
+    GL_CLAMP_TO_EDGE,
+    GL_TEXTURE_WRAP_T,
+    glTexImage2D,
+    glActiveTexture,
+    GL_TEXTURE0,
+    GL_RGBA,
+    GL_UNSIGNED_BYTE,
+    glGenerateMipmap,
+)
 
 
 SOLID = 0
@@ -29,20 +43,20 @@ POINTS = 2
 RED = [1.0, 0.0, 0.0]
 GREEN = [0.0, 1.0, 0.0]
 BLUE = [0.0, 0.0, 1.0]
-CRIMSON = [220/255.0, 20/255.0, 60/255.0]
-PINK = [1.0, 192/255.0, 203/255.0]
-VIOLET_RED = [1.0, 62/255.0, 150/255.0]
-DEEP_PINK = [1.0, 20/255.0, 147/255.0]
-ORCHID = [218/255.0, 112/255.0, 214/255.0]
-PURPLE = [128/255.0, 0.0, 128/255.0]
+CRIMSON = [220 / 255.0, 20 / 255.0, 60 / 255.0]
+PINK = [1.0, 192 / 255.0, 203 / 255.0]
+VIOLET_RED = [1.0, 62 / 255.0, 150 / 255.0]
+DEEP_PINK = [1.0, 20 / 255.0, 147 / 255.0]
+ORCHID = [218 / 255.0, 112 / 255.0, 214 / 255.0]
+PURPLE = [128 / 255.0, 0.0, 128 / 255.0]
 NAVY = [0.0, 0.0, 0.5]
-ROYAL_BLUE = [65/255.0, 105/255.0, 225/255.0]
-LIGHT_STEEL_BLUE = [176/255.0, 196/255.0, 222/255.0]
-STEEL_BLUE = [70/255.0, 130/255.0, 180/255.0]
-TURQUOISE = [0.0, 245/255.0, 1.0]
+ROYAL_BLUE = [65 / 255.0, 105 / 255.0, 225 / 255.0]
+LIGHT_STEEL_BLUE = [176 / 255.0, 196 / 255.0, 222 / 255.0]
+STEEL_BLUE = [70 / 255.0, 130 / 255.0, 180 / 255.0]
+TURQUOISE = [0.0, 245 / 255.0, 1.0]
 YELLOW = [1.0, 1.0, 0.0]
-GOLD = [1.0, 225/255.0, 0.0]
-ORANGE = [1.0, 165/255.0, 0.0]
+GOLD = [1.0, 225 / 255.0, 0.0]
+ORANGE = [1.0, 165 / 255.0, 0.0]
 WHITE = [1.0, 1.0, 1.0]
 BLACK = [0.0, 0.0, 0.0]
 DARK_GRAY = [0.2, 0.2, 0.2]
@@ -55,6 +69,7 @@ class Material(object):
     """
     Material information holder.
     """
+
     def __init__(self, **args):
         """
         Initialize Material
@@ -82,13 +97,20 @@ class Material(object):
           texture: Texture file name
         """
 
-        self.color = args.get('color', [1.0, 1.0, 1.0])
-        self.display = args.get('display', SOLID)
-        self.lights = args.get('lights', True)
-        self.texture = args.get('texture', '')
+        self.color = args.get("color", [1.0, 1.0, 1.0])
+        self.display = args.get("display", SOLID)
+        self.lights = args.get("lights", True)
+        self.texture = args.get("texture", "")
 
-        variables = ['model', 'view', 'projection', 'material_mode',
-                     'light_pos', 'light_color', 'object_color']
+        variables = [
+            "model",
+            "view",
+            "projection",
+            "material_mode",
+            "light_pos",
+            "light_color",
+            "object_color",
+        ]
 
         self.shader = Shader(variables=variables)
 
@@ -120,12 +142,20 @@ class Material(object):
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         glBindTexture(GL_TEXTURE_2D, self._texture)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                        GL_LINEAR_MIPMAP_LINEAR)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                     GL_RGBA, GL_UNSIGNED_BYTE, img_data)
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            width,
+            height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            img_data,
+        )
         glGenerateMipmap(GL_TEXTURE_2D)
 
     def render(self, proj, view, model, lights, mode=None):
@@ -161,21 +191,22 @@ class Material(object):
             self.shader._mode = mode
 
         self.shader.use()
-        self.shader.set_int('material_mode', self.shader._mode)
-        self.shader.set_matrix4x4_np('model', model)
-        self.shader.set_matrix4x4_np('view', view)
-        self.shader.set_matrix4x4_np('projection', proj)
+        self.shader.set_int("material_mode", self.shader._mode)
+        self.shader.set_matrix4x4_np("model", model)
+        self.shader.set_matrix4x4_np("view", view)
+        self.shader.set_matrix4x4_np("projection", proj)
 
         if self._texture is not None:
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, self._texture)
-            self.shader.set_int('tex_unit', 0)
+            self.shader.set_int("tex_unit", 0)
 
         for light in lights:
-            self.shader.set_vector3_np('light_pos', light._position)
-            self.shader.set_vector3_np('light_color', light._color)
-        self.shader.set_vector3_np('object_color', np.array(self.color,
-                                                            dtype=np.float32))
+            self.shader.set_vector3_np("light_pos", light._position)
+            self.shader.set_vector3_np("light_color", light._color)
+        self.shader.set_vector3_np(
+            "object_color", np.array(self.color, dtype=np.float32)
+        )
 
     def end(self):
         self.shader.end()

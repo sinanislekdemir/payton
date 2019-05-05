@@ -23,12 +23,12 @@ for i in range(50):
     if i % 2 == 0:
         s = Sphere()
         s.set_position([x, y, z])
-        scene.add_object('s_{}'.format(i), s)
+        scene.add_object("s_{}".format(i), s)
         collision.add_object(s)
     else:
         c = Cube()
         c.set_position([x, y, z])
-        scene.add_object('c_{}'.format(i), c)
+        scene.add_object("c_{}".format(i), c)
         collision.add_object(c)
 
 scene.add_collision_test(collision)

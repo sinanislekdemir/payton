@@ -31,9 +31,7 @@ def sub_vector(v1, v2):
         # result = [10.0, 5.0, 0.0]
 
     """
-    return [v1[0] - v2[0],
-            v1[1] - v2[1],
-            v1[2] - v2[2]]
+    return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]]
 
 
 def cross_product(v1, v2):
@@ -55,9 +53,11 @@ def cross_product(v1, v2):
         result = cross_product(v1, v2)
         # result = [30.0, 20.0, -100.0]
     """
-    return [v1[1] * v2[2] - v1[2] * v2[1],
-            v1[2] * v2[0] - v1[0] * v2[2],
-            v1[0] * v2[1] - v1[1] * v2[0]]
+    return [
+        v1[1] * v2[2] - v1[2] * v2[1],
+        v1[2] * v2[0] - v1[0] * v2[2],
+        v1[0] * v2[1] - v1[1] * v2[0],
+    ]
 
 
 def vector_norm(v):
@@ -93,10 +93,9 @@ def normalize_vector(v):
     if vn == 0.0:
         return vn
     invlen = 1.0 / vn
+    res = [n * invlen for n in v]
 
-    return [v[0] * invlen,
-            v[1] * invlen,
-            v[2] * invlen]
+    return res
 
 
 def plane_normal(v1, v2, v3):

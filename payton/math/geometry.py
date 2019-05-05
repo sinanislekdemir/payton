@@ -5,9 +5,11 @@ DIFF = 0.0000001
 
 
 def point_project(p, origin, direction):
-    return (direction[0] * (p[0] - origin[0]) +
-            direction[1] * (p[1] - origin[1]) +
-            direction[2] * (p[2] - origin[2]))
+    return (
+        direction[0] * (p[0] - origin[0])
+        + direction[1] * (p[1] - origin[1])
+        + direction[2] * (p[2] - origin[2])
+    )
 
 
 def distance(v1, v2):
@@ -17,7 +19,7 @@ def distance(v1, v2):
 
 def distance2(v1, v2):
     v3 = v2 - v1
-    return (pyrr.vector3.length(v3) ** 2)
+    return pyrr.vector3.length(v3) ** 2
 
 
 def combine(v1, v2, f1, f2):
@@ -65,7 +67,7 @@ def raycast_plane_intersect(start, vector, plane_point, plane_normal):
     """
     global DIFF
     d = np.dot(vector, plane_normal)
-    res = ((d > DIFF) or (d < -DIFF))
+    res = (d > DIFF) or (d < -DIFF)
     if not res:
         return None
     sp = np.subtract(plane_point, start)
@@ -123,8 +125,7 @@ def line_triangle_intersect(start, end, p1, p2, p3):
     if norm == 0:
         return False
     direction /= norm
-    ip, _inor = raycast_triangle_intersect(start, direction,
-                                           p1, p2, p3)
+    ip, _inor = raycast_triangle_intersect(start, direction, p1, p2, p3)
     if ip is None:
         return False
     # a---c----b

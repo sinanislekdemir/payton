@@ -3,7 +3,7 @@ from payton.scene.geometry import Cube
 
 scene = Scene()
 cube = Cube()
-cube.material.texture = 'cube.png'
-scene.add_object('cube', cube)
+cube.material.texture = "cube.png"
+scene.add_object("cube", cube)
 
 scene.run()

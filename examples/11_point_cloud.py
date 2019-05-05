@@ -10,13 +10,13 @@ def generate(name, scene, period, total):
     r = random.randint(0, 255) / 255
     g = random.randint(0, 255) / 255
     b = random.randint(0, 255) / 255
-    scene.objects['pc'].add([[x, y, z]], [[r, g, b]])
+    scene.objects["pc"].add([[x, y, z]], [[r, g, b]])
 
 
 scene = Scene()
 pc = PointCloud()
 
-scene.add_object('pc', pc)
-scene.create_clock('generate', 0.001, generate)
+scene.add_object("pc", pc)
+scene.create_clock("generate", 0.001, generate)
 
 scene.run()

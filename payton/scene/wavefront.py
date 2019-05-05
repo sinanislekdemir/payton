@@ -14,13 +14,14 @@ class Wavefront(Mesh):
     So do not depend so much on this class.
     Only designed to accept your triangular geometries.
     """
-    def __init__(self, filename=''):
+
+    def __init__(self, filename=""):
         """
         Initialize Wavefront Object.
         """
         super().__init__()
         self.filename = filename
-        if filename != '':
+        if filename != "":
             self.load_file(filename)
 
     def load_file(self, filename):
@@ -56,29 +57,29 @@ class Wavefront(Mesh):
         lines = obj_string.splitlines()
         for line in lines:
             command = line[0:2].lower()
-            parts = line.split(' ')
-            if command == 'v ':
+            parts = line.split(" ")
+            if command == "v ":
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
                 _vertices.append([x, y, z])
-            if command == 'vt':
+            if command == "vt":
                 u = float(parts[1])
                 w = float(parts[2]) if len(parts) > 2 else 0
                 _texcoords.append([u, w])
-            if command == 'vn':
+            if command == "vn":
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
                 _normals.append([x, y, z])
-            if command == 'f ':
+            if command == "f ":
                 # I guess this part of the code should be compatable
                 # with POLYGON as well but IDK.
                 face = []
                 for i in range(len(parts)):
                     if i == 0:
                         continue
-                    subs = parts[i].split('/')
+                    subs = parts[i].split("/")
                     vertex = int(subs[0]) - 1
                     textcoord = int(subs[1]) - 1 if len(subs) > 1 else -1
                     normal = int(subs[2]) - 1 if len(subs) > 2 else -1

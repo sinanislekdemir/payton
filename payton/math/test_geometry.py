@@ -1,8 +1,11 @@
 import unittest
 import numpy as np
-from payton.math.geometry import (raycast_triangle_intersect, distance,
-                                  distance2,
-                                  point_project)
+from payton.math.geometry import (
+    raycast_triangle_intersect,
+    distance,
+    distance2,
+    point_project,
+)
 
 
 class TestGeometryMethods(unittest.TestCase):
@@ -12,8 +15,7 @@ class TestGeometryMethods(unittest.TestCase):
         p1 = np.array([-1, -1, 0], dtype=np.float32)
         p2 = np.array([1, -1, 0], dtype=np.float32)
         p3 = np.array([0, 1, 0], dtype=np.float32)
-        ip, inor = raycast_triangle_intersect(start, vector,
-                                              p1, p2, p3)
+        ip, inor = raycast_triangle_intersect(start, vector, p1, p2, p3)
         expected = np.array([0, 0, 0, 1], dtype=np.float32)
         expected_n = np.array([0, 0, 1], dtype=np.float32)
         np.testing.assert_array_almost_equal(ip, expected)
@@ -25,8 +27,7 @@ class TestGeometryMethods(unittest.TestCase):
         p1 = np.array([-1, -1, 0], dtype=np.float32)
         p2 = np.array([1, -1, 0], dtype=np.float32)
         p3 = np.array([0, 1, 0], dtype=np.float32)
-        ip, inor = raycast_triangle_intersect(start, vector,
-                                              p1, p2, p3)
+        ip, inor = raycast_triangle_intersect(start, vector, p1, p2, p3)
         self.assertIsNone(ip)
         self.assertIsNone(inor)
 
@@ -51,5 +52,5 @@ class TestGeometryMethods(unittest.TestCase):
         self.assertEqual(pp, expect)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

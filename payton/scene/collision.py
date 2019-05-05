@@ -8,6 +8,7 @@ from payton.math.geometry import distance
 
 class Collision(object):
     """Collision pair result class"""
+
     def __init__(self, obj1, obj2):
         self.object_1 = obj1
         self.object_2 = obj2
@@ -40,6 +41,7 @@ class CollisionTest(object):
       - AABB: Does an Axis Alinged Bounding Box check only (DEFAULT)
       - TRIANGULAR: Checks for each triangle if it penetrates the target object
     """
+
     SPHERICAL = 0
     AABB = 1
     TRIANGULAR = 2
@@ -52,11 +54,11 @@ class CollisionTest(object):
           callback: Callback function to call incase of collision
           level: Level of collision detection accuracy
         """
-        self.objects = args.get('objects', [])
-        self.callback = args.get('callback', None)
-        self.level = args.get('level', self.AABB)
+        self.objects = args.get("objects", [])
+        self.callback = args.get("callback", None)
+        self.level = args.get("level", self.AABB)
         if not callable(self.callback):
-            logging.error('callback should be a callable')
+            logging.error("callback should be a callable")
         self._pairs = []
 
     def add_object(self, obj):
@@ -153,7 +155,7 @@ class CollisionTest(object):
         for i in range(len(self.objects) - 1):
             for j in range(len(self.objects) - i - 1):
                 obj1 = self.objects[i]
-                obj2 = self.objects[i+j+1]
+                obj2 = self.objects[i + j + 1]
                 pair = {}
                 pair = [obj1, obj2]
                 pair2 = [obj2, obj1]

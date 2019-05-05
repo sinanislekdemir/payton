@@ -14,18 +14,38 @@ import numpy as np
 import ctypes
 import logging
 
-from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray,
-                       glBindVertexArray, GL_LINE, GL_FILL,
-                       GL_TRIANGLES, glPolygonMode, GL_LINE_STRIP,
-                       glGenVertexArrays, glGenBuffers, GL_ARRAY_BUFFER,
-                       glEnableVertexAttribArray, glVertexAttribPointer,
-                       GL_FLOAT, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, glBindBuffer,
-                       glBufferData, glBufferSubData, GL_ELEMENT_ARRAY_BUFFER,
-                       glDeleteBuffers, GL_POINT, GL_POINTS,
-                       GL_FRONT_AND_BACK, glDrawElements, GL_UNSIGNED_INT)
+from OpenGL.GL import (
+    glDeleteVertexArrays,
+    glIsVertexArray,
+    glBindVertexArray,
+    GL_LINE,
+    GL_FILL,
+    GL_TRIANGLES,
+    glPolygonMode,
+    GL_LINE_STRIP,
+    glGenVertexArrays,
+    glGenBuffers,
+    GL_ARRAY_BUFFER,
+    glEnableVertexAttribArray,
+    glVertexAttribPointer,
+    GL_FLOAT,
+    GL_STATIC_DRAW,
+    GL_DYNAMIC_DRAW,
+    glBindBuffer,
+    glBufferData,
+    glBufferSubData,
+    GL_ELEMENT_ARRAY_BUFFER,
+    glDeleteBuffers,
+    GL_POINT,
+    GL_POINTS,
+    GL_FRONT_AND_BACK,
+    glDrawElements,
+    GL_UNSIGNED_INT,
+)
 
 from payton.math.geometry import raycast_sphere_intersect
 from payton.math.vector import plane_normal, vector_transform
+from payton.math.matrix import create_rotation_matrix
 from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
 from payton.scene.shader import Shader
 
@@ -53,6 +73,7 @@ class Object(object):
     is deleted.
 
     """
+
     def __init__(self, **args):
         """
         Initialize the basic object properties.
@@ -79,11 +100,13 @@ class Object(object):
         """
         self.children = {}
         self.material = Material()
-        self.static = args.get('static', True)
-        self.matrix = [[1.0, 0.0, 0.0, 0.0],
-                       [0.0, 1.0, 0.0, 0.0],
-                       [0.0, 0.0, 1.0, 0.0],
-                       [0.0, 0.0, 0.0, 1.0]]
+        self.static = args.get("static", True)
+        self.matrix = [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]
         # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
         #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
@@ -111,7 +134,7 @@ class Object(object):
         self._t_buffer_size_changed = True
 
         # Track object motion
-        self.track_motion = args.get('track_motion', False)
+        self.track_motion = args.get("track_motion", False)
         # Motion path, stores every matrix change.
         self._motion_path = []
         if not isinstance(self, Line):
@@ -142,6 +165,43 @@ class Object(object):
         """
         self._needs_update = True
 
+    def yaw(self, angle):
+        """Yaw - Rotate around Z Axis
+
+        Args:
+          angle: Angle in radians
+        """
+        rot_matrix = create_rotation_matrix([0, 0, 1], angle, True)
+        local_matrix = np.array(self.matrix, dtype=np.float32)
+        local_matrix = rot_matrix.dot(local_matrix)
+        self.matrix = local_matrix.tolist()
+
+    def rotate(self, angle):
+        """Rotate around Z axis, alias for yaw function"""
+        return self.yaw(angle)
+
+    def pitch(self, angle):
+        """Pitch - Rotate around X axis
+
+        Args:
+          angle: Angle in radians
+        """
+        rot_matrix = create_rotation_matrix([1, 0, 0], angle, True)
+        local_matrix = np.array(self.matrix, dtype=np.float32)
+        local_matrix = rot_matrix.dot(local_matrix)
+        self.matrix = local_matrix.tolist()
+
+    def roll(self, angle):
+        """Roll - Rotate around Y Axis (Direction)
+
+        Args:
+          angle: Angle in radians
+        """
+        rot_matrix = create_rotation_matrix([0, 1, 0], angle, True)
+        local_matrix = np.array(self.matrix, dtype=np.float32)
+        local_matrix = rot_matrix.dot(local_matrix)
+        self.matrix = local_matrix.tolist()
+
     def select(self, start, vector):
         """Select test for object using bounding Sphere.
 
@@ -156,11 +216,12 @@ class Object(object):
           vector: Ray direction. This is not the end point of a line! This is
         a unit vector showing the ray direction.
         """
-        self._selected = raycast_sphere_intersect(start,
-                                                  vector,
-                                                  np.array(self.matrix[3],
-                                                           dtype=np.float32),
-                                                  self._bounding_radius)
+        self._selected = raycast_sphere_intersect(
+            start,
+            vector,
+            np.array(self.matrix[3], dtype=np.float32),
+            self._bounding_radius,
+        )
 
         for obj in self.children:
             x = self.children[obj].select(start, vector)
@@ -208,7 +269,8 @@ class Object(object):
         # Add the matrix position to motion math line for visualisation
         if self._motion_path_line is not None:
             self._motion_path_line.append(
-                [[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]])
+                [[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]]
+            )
 
         # Python trick here! need to .copy or it will pass reference.
         self._previous_matrix = self.matrix[3].copy()
@@ -256,8 +318,9 @@ class Object(object):
                 primitive = GL_POINTS
             glPolygonMode(GL_FRONT_AND_BACK, pmode)
 
-            glDrawElements(primitive, self._vertex_count,
-                           GL_UNSIGNED_INT, ctypes.c_void_p(0))
+            glDrawElements(
+                primitive, self._vertex_count, GL_UNSIGNED_INT, ctypes.c_void_p(0)
+            )
             if pmode != GL_FILL:
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
@@ -266,17 +329,11 @@ class Object(object):
         self.material.end()
         # Render motion path
         if self.track_motion:
-            self._motion_path_line.render(proj,
-                                          view,
-                                          lights,
-                                          parent_matrix)
+            self._motion_path_line.render(proj, view, lights, parent_matrix)
 
         # render children
         for child in self.children:
-            self.children[child].render(proj,
-                                        view,
-                                        lights,
-                                        self._model_matrix)
+            self.children[child].render(proj, view, lights, self._model_matrix)
 
     def set_position(self, pos):
         """
@@ -315,10 +372,10 @@ class Object(object):
           bool: False in case of an error
         """
         if name in self.children:
-            logging.error('Name {} exists in object children'.format(name))
+            logging.error("Name {} exists in object children".format(name))
             return False
         if not isinstance(obj, Object):
-            logging.error('Object type is not valid')
+            logging.error("Object type is not valid")
             return False
         self.children[name] = obj
 
@@ -464,8 +521,7 @@ class Object(object):
         glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
         if self._buffer_size_changed:
             # glBufferData creates a new data area
-            glBufferData(GL_ARRAY_BUFFER, self._buffer_size,
-                         vertices, draw)
+            glBufferData(GL_ARRAY_BUFFER, self._buffer_size, vertices, draw)
         else:
             # glBufferSubData just replaces memory area in buffer so it is
             # much more efficient way to handle things.
@@ -486,11 +542,9 @@ class Object(object):
             glEnableVertexAttribArray(2)  # shader layout location
             glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
             if self._t_buffer_size_changed:
-                glBufferData(GL_ARRAY_BUFFER, self._t_buffer_size,
-                             texcoords, draw)
+                glBufferData(GL_ARRAY_BUFFER, self._t_buffer_size, texcoords, draw)
             else:
-                glBufferSubData(GL_ARRAY_BUFFER, 0, texcoords.nbytes,
-                                texcoords)
+                glBufferSubData(GL_ARRAY_BUFFER, 0, texcoords.nbytes, texcoords)
 
         # Bind Vertex Colors
         if len(self._vertex_colors) == len(self._vertices):
@@ -499,11 +553,9 @@ class Object(object):
             glVertexAttribPointer(3, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
             self._has_vertex_colors = True
             if self._buffer_size_changed:
-                glBufferData(GL_ARRAY_BUFFER, self._buffer_size, colors,
-                             draw)
+                glBufferData(GL_ARRAY_BUFFER, self._buffer_size, colors, draw)
             else:
-                glBufferSubData(GL_ARRAY_BUFFER, 0, colors.nbytes,
-                                colors)
+                glBufferSubData(GL_ARRAY_BUFFER, 0, colors.nbytes, colors)
 
         self._buffer_size_changed = False
         self._t_buffer_size_changed = False
@@ -535,8 +587,8 @@ class Mesh(Object):
     or sub-division or cutting and so forth. It is a way of designing objects
     by code.
     """
-    def add_triangle(self, vertices, normals=None, texcoords=None,
-                     colors=None):
+
+    def add_triangle(self, vertices, normals=None, texcoords=None, colors=None):
         """Add triangle to Mesh
 
         Args:
@@ -567,13 +619,13 @@ class Mesh(Object):
             scene.run()
         """
         if len(vertices) != 3:
-            logging.error('A triangle must have 3 vertices')
+            logging.error("A triangle must have 3 vertices")
             return False
         if normals is not None and len(normals) != 3:
-            logging.error('There must be one normal per vertex')
+            logging.error("There must be one normal per vertex")
             return False
         if texcoords is not None and len(texcoords) != 3:
-            logging.error('There must be one texcoord per vertex')
+            logging.error("There must be one texcoord per vertex")
             return False
         if normals is None:
             v1, v2, v3 = vertices[0], vertices[1], vertices[2]
@@ -589,7 +641,7 @@ class Mesh(Object):
             self._vertices.append(v)
 
         i = len(self._indices)
-        self._indices.append([i, i+1, i+2])
+        self._indices.append([i, i + 1, i + 2])
         for normal in normals:
             self._normals.append(normal)
         for t in texcoords:
@@ -620,6 +672,7 @@ class Cube(Mesh):
 
 
     """
+
     def __init__(self, **args):
         """Initialize Cube
 
@@ -629,47 +682,114 @@ class Cube(Mesh):
           height: Height of the cube (size Z)
         """
         super(Cube, self).__init__(**args)
-        width = args.get('width', 1.0) * 0.5
-        depth = args.get('depth', 1.0) * 0.5
-        height = args.get('height', 1.0) * 0.5
+        width = args.get("width", 1.0) * 0.5
+        depth = args.get("depth", 1.0) * 0.5
+        height = args.get("height", 1.0) * 0.5
 
-        self._vertices = [[-width, -depth, height], [width, -depth, height],
-                          [-width, depth, height], [width, depth, height],
-                          [-width, depth, height], [width, depth, height],
-                          [-width, depth, -height], [width, depth, -height],
-                          [-width, depth, -height], [width, depth, -height],
-                          [-width, -depth, -height], [width, -depth, -height],
-                          [-width, -depth, -height], [width, -depth, -height],
-                          [-width, -depth, height], [width, -depth, height],
-                          [width, -depth, height], [width, -depth, -height],
-                          [width, depth, height], [width, depth, height],
-                          [width, depth, -height], [-width, -depth, -height],
-                          [-width, -depth, height], [-width, depth, -height],
-                          [-width, depth, -height], [-width, -depth, height],
-                          [-width, depth, height]]
+        self._vertices = [
+            [-width, -depth, height],
+            [width, -depth, height],
+            [-width, depth, height],
+            [width, depth, height],
+            [-width, depth, height],
+            [width, depth, height],
+            [-width, depth, -height],
+            [width, depth, -height],
+            [-width, depth, -height],
+            [width, depth, -height],
+            [-width, -depth, -height],
+            [width, -depth, -height],
+            [-width, -depth, -height],
+            [width, -depth, -height],
+            [-width, -depth, height],
+            [width, -depth, height],
+            [width, -depth, height],
+            [width, -depth, -height],
+            [width, depth, height],
+            [width, depth, height],
+            [width, depth, -height],
+            [-width, -depth, -height],
+            [-width, -depth, height],
+            [-width, depth, -height],
+            [-width, depth, -height],
+            [-width, -depth, height],
+            [-width, depth, height],
+        ]
 
-        self._normals = [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0],
-                         [0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0],
-                         [0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0],
-                         [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0],
-                         [0.0, -1.0, 0.0], [0.0, -1.0, 0.0], [0.0, -1.0, 0.0],
-                         [0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0],
-                         [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0],
-                         [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0],
-                         [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, 0.0, 0]]
+        self._normals = [
+            [0.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, -1.0],
+            [0.0, 0.0, -1.0],
+            [0.0, 0.0, -1.0],
+            [0.0, 0.0, -1.0],
+            [0.0, -1.0, 0.0],
+            [0.0, -1.0, 0.0],
+            [0.0, -1.0, 0.0],
+            [0.0, -1.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [-1.0, 0.0, 0.0],
+            [-1.0, 0.0, 0.0],
+            [-1.0, 0.0, 0.0],
+            [-1.0, 0.0, 0.0],
+            [-1.0, 0.0, 0.0],
+            [-1.0, 0.0, 0],
+        ]
 
-        self._texcoords = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0],
-                           [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0],
-                           [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0],
-                           [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0],
-                           [0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 0.0],
-                           [1.0, 1.0], [0.0, 1.0], [1.0, 1.0], [0.0, 0.0],
-                           [0.0, 0.0], [1.0, 1.0], [1.0, 0.0]]
+        self._texcoords = [
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [1.0, 1.0],
+            [0.0, 0.0],
+            [0.0, 0.0],
+            [1.0, 1.0],
+            [1.0, 0.0],
+        ]
 
-        self._indices = [[0, 1, 2], [2, 1, 3], [4, 5, 6], [6, 5, 7],
-                         [8, 9, 10], [10, 9, 11], [12, 13, 14],
-                         [14, 13, 15], [16, 17, 18], [19, 17, 20],
-                         [21, 22, 23], [24, 25, 26]]
+        self._indices = [
+            [0, 1, 2],
+            [2, 1, 3],
+            [4, 5, 6],
+            [6, 5, 7],
+            [8, 9, 10],
+            [10, 9, 11],
+            [12, 13, 14],
+            [14, 13, 15],
+            [16, 17, 18],
+            [19, 17, 20],
+            [21, 22, 23],
+            [24, 25, 26],
+        ]
 
         return None
 
@@ -708,11 +828,12 @@ class Sphere(Mesh):
         my_scene.run()
 
     """
+
     def __init__(self, **args):
         super(Sphere, self).__init__(**args)
-        self.radius = args.get('radius', 0.5)
-        self.parallels = args.get('parallels', 12)
-        self.meridians = args.get('meridians', 12)
+        self.radius = args.get("radius", 0.5)
+        self.parallels = args.get("parallels", 12)
+        self.meridians = args.get("meridians", 12)
         self.build_sphere()
 
     def build_sphere(self):
@@ -736,33 +857,29 @@ class Sphere(Mesh):
                 u1 = u_step * j
                 v1 = 1.0 - (v_step * i)
 
-                x2 = (r * math.sin(step_height * (i + 1))
-                      * math.cos(step_angle * j))
-                y2 = (r * math.sin(step_height * (i + 1))
-                      * math.sin(step_angle * j))
+                x2 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * j)
+                y2 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * j)
                 z2 = r * math.cos(step_height * (i + 1))
                 u2 = u_step * j
                 v2 = 1.0 - (v_step * (i + 1))
 
-                x3 = (r * math.sin(step_height * (i + 1))
-                      * math.cos(step_angle * (j + 1)))
-                y3 = (r * math.sin(step_height * (i + 1))
-                      * math.sin(step_angle * (j + 1)))
+                x3 = (
+                    r * math.sin(step_height * (i + 1)) * math.cos(step_angle * (j + 1))
+                )
+                y3 = (
+                    r * math.sin(step_height * (i + 1)) * math.sin(step_angle * (j + 1))
+                )
                 z3 = r * math.cos(step_height * (i + 1))
                 u3 = u_step * (j + 1)
                 v3 = 1.0 - (v_step * (i + 1))
 
-                x4 = (r * math.sin(step_height * i)
-                      * math.cos(step_angle * (j + 1)))
-                y4 = (r * math.sin(step_height * i)
-                      * math.sin(step_angle * (j + 1)))
+                x4 = r * math.sin(step_height * i) * math.cos(step_angle * (j + 1))
+                y4 = r * math.sin(step_height * i) * math.sin(step_angle * (j + 1))
                 z4 = r * math.cos(step_height * i)
                 u4 = u_step * (j + 1)
                 v4 = 1.0 - (v_step * i)
 
-                normal = plane_normal([x1, y1, z1],
-                                      [x2, y2, z2],
-                                      [x3, y3, z3])
+                normal = plane_normal([x1, y1, z1], [x2, y2, z2], [x3, y3, z3])
                 self._vertices.append([x1, y1, z1])
                 self._vertices.append([x2, y2, z2])
                 self._vertices.append([x3, y3, z3])
@@ -775,8 +892,8 @@ class Sphere(Mesh):
                 self._normals.append([normal[0], normal[1], normal[2]])
                 self._normals.append([normal[0], normal[1], normal[2]])
                 self._normals.append([normal[0], normal[1], normal[2]])
-                self._indices.append([indices, indices+1, indices+2])
-                self._indices.append([indices, indices+2, indices+3])
+                self._indices.append([indices, indices + 1, indices + 2])
+                self._indices.append([indices, indices + 2, indices + 3])
                 indices += 4
         return True
 
@@ -784,6 +901,7 @@ class Sphere(Mesh):
 class Line(Object):
     """Line object
     """
+
     def __init__(self, **args):
         """Iniitalize line
 
@@ -792,8 +910,8 @@ class Line(Object):
           color: Color of the line
         """
         super(Line, self).__init__(**args)
-        self._vertices = args.get('vertices', [])
-        self.material.color = args.get('color', [1.0, 1.0, 1.0])
+        self._vertices = args.get("vertices", [])
+        self.material.color = args.get("color", [1.0, 1.0, 1.0])
 
         self.visible = True
         self.static = False  # Do not clear the vertices each time.
@@ -818,7 +936,7 @@ class Line(Object):
         self._texcoords += [[0, 0]] * diff
         self._normals += [[0, 0, 0]] * diff
         self._vertex_count = len(self._vertices)
-        indices = map(lambda x: x+last_index, range(diff))
+        indices = map(lambda x: x + last_index, range(diff))
         self._indices += indices
 
         if self._vao is not None:
@@ -835,7 +953,7 @@ class Line(Object):
             self.material.color = color
         self._vertex_count = len(self._vertices)
         for i in range(self._vertex_count - 1):
-            self._indices.append([i, i+1])
+            self._indices.append([i, i + 1])
 
         for i in range(self._vertex_count):
             self._normals.append([0, 0, 0])
@@ -853,12 +971,13 @@ class PointCloud(Object):
     Note: If you change the vertices, do not forget to do a `refresh` to take
     effect.
     """
+
     def __init__(self, **args):
         super(PointCloud, self).__init__(**args)
-        self._vertices = args.get('vertices', [])
+        self._vertices = args.get("vertices", [])
         # Expose vertices by reference for modification
         self.vertices = self._vertices
-        self._vertex_colors = args.get('colors', [])
+        self._vertex_colors = args.get("colors", [])
         self._vertex_history = []
         self.material.display = POINTS
         self.static = False
@@ -887,7 +1006,7 @@ class PointCloud(Object):
 
         if colors is not None:
             if len(colors) != len(vertices):
-                logging.error('len(colors) != len(vertices)')
+                logging.error("len(colors) != len(vertices)")
                 return
             for color in colors:
                 self._vertex_colors.append(color)
@@ -901,6 +1020,7 @@ class Plane(Mesh):
     This is a 2D Plane in 3D World. Has a width in X and height in Y.
     If you need to place it in another axis, try modifying its matrix.
     """
+
     def __init__(self, **args):
         """Initialize plane
 
@@ -909,10 +1029,14 @@ class Plane(Mesh):
           height: Height of the plane
         """
         super(Plane, self).__init__(**args)
-        width = args.get('width', 1.0) * 0.5
-        height = args.get('height', 1.0) * 0.5
-        self._vertices = [[-width, -height, 0], [width, -height, 0],
-                          [width, height, 0], [-width, height, 0]]
+        width = args.get("width", 1.0) * 0.5
+        height = args.get("height", 1.0) * 0.5
+        self._vertices = [
+            [-width, -height, 0],
+            [width, -height, 0],
+            [width, height, 0],
+            [-width, height, 0],
+        ]
         self._normals = [[0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]]
         self._texcoords = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
         self._indices = [[0, 1, 2], [0, 2, 3]]

@@ -10,13 +10,29 @@ and positions of objects in space.
 import numpy as np
 import ctypes
 
-from OpenGL.GL import (glDeleteVertexArrays, glIsVertexArray, glPolygonMode,
-                       GL_FRONT_AND_BACK, GL_LINE, glDrawElements,
-                       glBindVertexArray, GL_FILL, glBindBuffer, glBufferData,
-                       glGenVertexArrays, glGenBuffers, GL_ARRAY_BUFFER,
-                       glEnableVertexAttribArray, glVertexAttribPointer,
-                       GL_FLOAT, GL_STATIC_DRAW, GL_ELEMENT_ARRAY_BUFFER,
-                       GL_LINES, GL_UNSIGNED_INT, glDeleteBuffers)
+from OpenGL.GL import (
+    glDeleteVertexArrays,
+    glIsVertexArray,
+    glPolygonMode,
+    GL_FRONT_AND_BACK,
+    GL_LINE,
+    glDrawElements,
+    glBindVertexArray,
+    GL_FILL,
+    glBindBuffer,
+    glBufferData,
+    glGenVertexArrays,
+    glGenBuffers,
+    GL_ARRAY_BUFFER,
+    glEnableVertexAttribArray,
+    glVertexAttribPointer,
+    GL_FLOAT,
+    GL_STATIC_DRAW,
+    GL_ELEMENT_ARRAY_BUFFER,
+    GL_LINES,
+    GL_UNSIGNED_INT,
+    glDeleteBuffers,
+)
 from payton.scene.material import Material
 
 
@@ -37,6 +53,7 @@ class Grid(object):
         my_scene.grid.grid_size = 20 #  we need more space
         my_scene.run()
     """
+
     def __init__(self, **args):
         """Initialize Grid
 
@@ -44,15 +61,29 @@ class Grid(object):
           xres: Number of lines in X
           yres: Number of lines in Y
         """
-        xres = args.get('xres', 20)
-        yres = args.get('yres', 20)
-        self.color = args.get('color', [0.4, 0.4, 0.4])
+        xres = args.get("xres", 20)
+        yres = args.get("yres", 20)
+        self.color = args.get("color", [0.4, 0.4, 0.4])
 
         self.static = True
-        self.matrix = [1.0, 0.0, 0.0, 0.0,
-                       0.0, 1.0, 0.0, 0.0,
-                       0.0, 0.0, 1.0, 0.0,
-                       0.0, 0.0, 0.0, 1.0]
+        self.matrix = [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        ]
         self._vertices = []
         self._indices = []
         self._vertex_count = 0
@@ -95,8 +126,9 @@ class Grid(object):
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-            glDrawElements(GL_LINES, self._vertex_count,
-                           GL_UNSIGNED_INT, ctypes.c_void_p(0))
+            glDrawElements(
+                GL_LINES, self._vertex_count, GL_UNSIGNED_INT, ctypes.c_void_p(0)
+            )
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
         self._material.end()
@@ -105,8 +137,8 @@ class Grid(object):
         self._vertices = []
         self._indices = []
         self._vertex_count = 0
-        ystart = -(yres*spacing / 2.0)
-        xstart = -(xres*spacing / 2.0)
+        ystart = -(yres * spacing / 2.0)
+        xstart = -(xres * spacing / 2.0)
         for j in range(0, yres):
             y = ystart + (j * spacing)
             for i in range(0, xres):
@@ -117,10 +149,16 @@ class Grid(object):
             offset = j * xres
             for i in range(0, xres - 1):
                 k = offset + i
-                self._indices += [k, k + 1,
-                                  k + 1, k + xres + 1,
-                                  k + xres + 1, k + xres,
-                                  k + xres, k]
+                self._indices += [
+                    k,
+                    k + 1,
+                    k + 1,
+                    k + xres + 1,
+                    k + xres + 1,
+                    k + xres,
+                    k + xres,
+                    k,
+                ]
 
         self._vertex_count = len(self._indices)
         if self._vao:
@@ -143,12 +181,10 @@ class Grid(object):
         glBindBuffer(GL_ARRAY_BUFFER, vbos[0])
         glEnableVertexAttribArray(0)  # shader layout location
         glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes,
-                     vertices, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[1])
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes,
-                     indices, GL_STATIC_DRAW)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
         self._vertex_count = len(indices)
 
         glBindVertexArray(0)

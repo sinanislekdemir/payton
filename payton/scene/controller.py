@@ -12,6 +12,7 @@ from payton.scene.observer import BUTTON_LEFT, BUTTON_RIGHT
 
 class Controller(object):
     """SDL2 OpenGL controller."""
+
     def keyboard(self, event, scene):
         """
         Keyboard event handler.
@@ -21,11 +22,11 @@ class Controller(object):
           scene: Main scene reference
         """
         if event.type == sdl2.SDL_QUIT:
-            logging.debug('Quit SDL Scene')
+            logging.debug("Quit SDL Scene")
             scene.running = False
             for clock in scene.clocks:
                 c = scene.clocks[clock]
-                logging.debug('Kill clock [{}]'.format(clock))
+                logging.debug("Kill clock [{}]".format(clock))
                 c.kill()
                 c.join()
 
@@ -47,8 +48,11 @@ class Controller(object):
                 # below variable assignment is only for code style
                 p = scene.active_observer.perspective
                 scene.active_observer.perspective = not p
-                logging.debug('Observer Perspective = {}'.format(
-                    'True' if scene.active_observer.perspective else 'False'))
+                logging.debug(
+                    "Observer Perspective = {}".format(
+                        "True" if scene.active_observer.perspective else "False"
+                    )
+                )
 
             if key == sdl2.SDLK_g:
                 scene.grid.visible = not scene.grid.visible
@@ -56,7 +60,7 @@ class Controller(object):
             if key == sdl2.SDLK_SPACE:
                 for clock in scene.clocks:
                     c = scene.clocks[clock]
-                    logging.debug('Pause clock [{}]'.format(clock))
+                    logging.debug("Pause clock [{}]".format(clock))
                     c.pause()
 
             if key == sdl2.SDLK_w:
@@ -81,7 +85,7 @@ class Controller(object):
                     active = 0
                 scene._active_observer = active
                 for i in range(len(scene.observers)):
-                    scene.observers[i].active = (i == active)
+                    scene.observers[i].active = i == active
 
     def mouse(self, event, scene):
         observer = scene.active_observer
@@ -91,9 +95,9 @@ class Controller(object):
         if event.type == sdl2.SDL_MOUSEBUTTONDOWN:
             mx, my = event.button.x, event.button.y
 
-            eye, ray_dir = observer.screen_to_world(mx, my,
-                                                    scene.window_width,
-                                                    scene.window_height)
+            eye, ray_dir = observer.screen_to_world(
+                mx, my, scene.window_width, scene.window_height
+            )
             list = []
             for obj in scene.objects:
                 hit = scene.objects[obj].select(eye, ray_dir)
@@ -109,10 +113,14 @@ class Controller(object):
                 button = BUTTON_LEFT
             if event.motion.state == sdl2.SDL_BUTTON_RMASK:
                 button = BUTTON_RIGHT
-            observer.mouse(button, scene._shift_down, scene._ctrl_down,
-                           event.motion.x,
-                           event.motion.y,
-                           event.motion.xrel,
-                           event.motion.yrel,
-                           scene.window_width,
-                           scene.window_height)
+            observer.mouse(
+                button,
+                scene._shift_down,
+                scene._ctrl_down,
+                event.motion.x,
+                event.motion.y,
+                event.motion.xrel,
+                event.motion.yrel,
+                scene.window_width,
+                scene.window_height,
+            )

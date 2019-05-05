@@ -13,6 +13,7 @@ class Observer(object):
     """
     Observers are basically cameras in the scene.
     """
+
     def __init__(self, **args):
         """
         Initialize the defaults of an Observer.
@@ -33,21 +34,21 @@ class Observer(object):
           far: Far plane. Further objects will be invisible. [100.]
           active: Is this the active camera in the scene? [False]
         """
-        self.position = args.get('position', [10.0, 10.0, 5.0])
-        self.target = args.get('target', [0.0, 0.0, 0.0])
-        self.up = args.get('up', [0.0, 0.0, 1.0])
+        self.position = args.get("position", [10.0, 10.0, 5.0])
+        self.target = args.get("target", [0.0, 0.0, 0.0])
+        self.up = args.get("up", [0.0, 0.0, 1.0])
 
-        self.target_object = args.get('target_object', None)
-        self.fov = args.get('fov', 45.0)
-        self.aspect_ratio = args.get('aspect_ratio', 800.0 / 600.0)
-        self.near = args.get('near', 0.1)
-        self.far = args.get('far', 100.0)
+        self.target_object = args.get("target_object", None)
+        self.fov = args.get("fov", 45.0)
+        self.aspect_ratio = args.get("aspect_ratio", 800.0 / 600.0)
+        self.near = args.get("near", 0.1)
+        self.far = args.get("far", 100.0)
 
         # self.perspective = args.get('perspective', True)
         # zoom factor for Orthographic projection
-        self.zoom = args.get('zoom', 10)
-        self.active = args.get('active', False)
-        self.perspective = args.get('perspective', True)
+        self.zoom = args.get("zoom", 10)
+        self.active = args.get("active", False)
+        self.perspective = args.get("perspective", True)
 
         # Store matrices for future reference.
         self._projection = None
@@ -90,8 +91,7 @@ class Observer(object):
     def mouse(self, button, shift, ctrl, x, y, xrel, yrel, w, h):
         if shift and ctrl and button == BUTTON_LEFT:  # Panning
             eye, vector = self.screen_to_world(x, y, w, h)
-            hit = raycast_plane_intersect(eye, vector, [0, 0, 0, 1],
-                                          [0, 0, 1, 0])
+            hit = raycast_plane_intersect(eye, vector, [0, 0, 0, 1], [0, 0, 1, 0])
 
             if hit is None:
                 return
@@ -127,10 +127,8 @@ class Observer(object):
         _theta = math.acos(diff[2] / self.distance())
         _phi = math.atan2(diff[1], diff[0])
 
-        self.position[0] = (self.target[0] + distance * math.sin(_theta) *
-                            math.cos(_phi))
-        self.position[1] = (self.target[1] + distance * math.sin(_theta) *
-                            math.sin(_phi))
+        self.position[0] = self.target[0] + distance * math.sin(_theta) * math.cos(_phi)
+        self.position[1] = self.target[1] + distance * math.sin(_theta) * math.sin(_phi)
         self.position[2] = self.target[2] + distance * math.cos(_theta)
 
     def render(self):
@@ -141,8 +139,8 @@ class Observer(object):
         """
         if self.perspective:
             proj_matrix = pyrr.matrix44.create_perspective_projection(
-                self.fov, self.aspect_ratio, self.near, self.far,
-                dtype=np.float32)
+                self.fov, self.aspect_ratio, self.near, self.far, dtype=np.float32
+            )
         else:
             x = 100 * (self.aspect_ratio)
             y = 100
@@ -153,7 +151,10 @@ class Observer(object):
                 right=(x / self.zoom),
                 top=(y / self.zoom),
                 bottom=(-y / self.zoom),
-                near=self.near, far=self.far, dtype=np.float32)
+                near=self.near,
+                far=self.far,
+                dtype=np.float32,
+            )
 
         self._projection = proj_matrix
         eye = np.array(self.position, dtype=np.float32)
@@ -189,8 +190,9 @@ class Observer(object):
         inv_proj = pyrr.matrix44.inverse(proj)
         eye_coords = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
 
-        eye_coords = np.array([eye_coords[0], eye_coords[1],
-                               -1.0, 0.0], dtype=np.float32)
+        eye_coords = np.array(
+            [eye_coords[0], eye_coords[1], -1.0, 0.0], dtype=np.float32
+        )
 
         view = self._view
         inv_view = pyrr.matrix44.inverse(view)
@@ -198,6 +200,8 @@ class Observer(object):
         ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
         ray_dir = pyrr.vector.normalize(ray_end[0:4])
 
-        eye = np.array([self.position[0], self.position[1],
-                        self.position[2], 1.0], dtype=np.float32)
+        eye = np.array(
+            [self.position[0], self.position[1], self.position[2], 1.0],
+            dtype=np.float32,
+        )
         return (eye, ray_dir)
