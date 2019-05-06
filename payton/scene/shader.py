@@ -73,7 +73,7 @@ void main()
         // light material
         FragColor = vec4(0, 0, 0, 0);
         // ambient
-        float ambientStrength = 0.3;
+        float ambientStrength = 0.2;
 
         for (int i = 0; i < LIGHT_COUNT; i++) {
             vec3 ambient = ambientStrength * light_color[i];

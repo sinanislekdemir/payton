@@ -176,11 +176,11 @@ class Object(object):
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
 
-    def rotate(self, angle):
+    def rotate_around_z(self, angle):
         """Rotate around Z axis, alias for yaw function"""
         return self.yaw(angle)
 
-    def pitch(self, angle):
+    def rotate_around_x(self, angle):
         """Pitch - Rotate around X axis
 
         Args:
@@ -191,7 +191,7 @@ class Object(object):
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
 
-    def roll(self, angle):
+    def rotate_around_y(self, angle):
         """Roll - Rotate around Y Axis (Direction)
 
         Args:

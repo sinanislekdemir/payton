@@ -373,7 +373,7 @@ class Background(object):
           bottom_color: Color at the bottom of the screen
         """
         super(Background, self).__init__(**args)
-        self.top_color = args.get("top_color", [0.0, 0.2, 0.4, 1.0])
+        self.top_color = args.get("top_color", [0.0, 0.1, 0.2, 1.0])
         self.bottom_color = args.get("bottom_color", [0.1, 0.1, 0.1, 1.0])
         variables = ["top_color", "bot_color"]
         self._shader = Shader(
