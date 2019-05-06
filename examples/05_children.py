@@ -1,6 +1,7 @@
 import math
 from payton.scene import Scene
 from payton.scene.geometry import Sphere
+from payton.scene.light import Light
 
 
 def motion(name, scene, period, total):
@@ -18,9 +19,11 @@ def motion(name, scene, period, total):
         .set_position([sx, sy, 0])
     )
     scene.lights[0].set_position([px, py, 0])
+    scene.lights[1].set_position([-px, -py, 0])
 
 
 space = Scene()
+space.lights.append(Light())
 space.observers[0].position = [20, 20, 20]
 space.grid.resize(40, 40, 1)
 

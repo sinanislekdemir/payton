@@ -43,15 +43,21 @@ out vec4 FragColor;
 
 in vec3 l_normal;
 in vec3 l_fragpos;
+
 in vec2 tex_coords;
 in vec3 frag_color;
 
-uniform vec3 light_pos;
-uniform vec3 light_color;
+uniform vec3 light_pos[100]; // assume 100 lights max.
+uniform vec3 light_color[100];
+uniform int LIGHT_COUNT;
+
+// uniform vec3 light_pos;
+// uniform vec3 light_color;
 uniform vec3 object_color;
 uniform int material_mode;
 
 uniform sampler2D tex_unit;
+
 
 void main()
 {
@@ -65,23 +71,27 @@ void main()
     }
     if (material_mode == 2 || material_mode == 3) {
         // light material
+        FragColor = vec4(0, 0, 0, 0);
         // ambient
         float ambientStrength = 0.3;
-        vec3 ambient = ambientStrength * light_color;
 
-        // diffuse
-        vec3 norm = normalize(l_normal);
+        for (int i = 0; i < LIGHT_COUNT; i++) {
+            vec3 ambient = ambientStrength * light_color[i];
 
-        vec3 lightDir = normalize(light_pos - l_fragpos);
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * light_color;
-        if (material_mode == 2) {
-            // color material
-            FragColor = vec4((ambient + diffuse) * object_color, 1.0);
-        }else{
-            // texture material
-            FragColor = (vec4(ambient + diffuse, 1.0) *
-                         texture(tex_unit, tex_coords));
+            // diffuse
+            vec3 norm = normalize(l_normal);
+
+            vec3 lightDir = normalize(light_pos[i] - l_fragpos);
+            float diff = max(dot(norm, lightDir), 0.0);
+            vec3 diffuse = diff * light_color[i];
+            if (material_mode == 2) {
+                // color material
+                FragColor += vec4((ambient + diffuse) * object_color, 1.0);
+            }else{
+                // texture material
+                FragColor += (vec4(ambient + diffuse, 1.0) *
+                              texture(tex_unit, tex_coords));
+            }
         }
     }
     if (material_mode == 4) {
@@ -275,6 +285,15 @@ class Shader(object):
           transpose: Transpose matrix.
         """
         self.set_matrix4x4_np(variable, np.array(value, np.float32), transpose)
+
+    def set_vector3_array_np(self, variable, value, count):
+        """Set array of vec3 as numpy array value"""
+        value = value.flatten()
+        location = self.get_location(variable)
+        if location < 0:
+            logging.error("Variable not found in program [{}]".format(variable))
+            return False
+        glUniform3fv(location, count, value)
 
     def set_vector3_np(self, variable, value):
         """Set Vector 3 as numpy array value
