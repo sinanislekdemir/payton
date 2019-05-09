@@ -102,3 +102,58 @@ class Wavefront(Mesh):
                 ind.append(i)
                 i += 1
             self._indices.append(ind)
+
+
+def export(mesh, **args):
+    """Export mesh as wavefront object string
+
+    @TODO Add material export support.
+
+    Basic usage:
+
+        from payton.scene.geometry import Cube
+        from payton.scene.wavefront import export
+
+        cube = Cube()
+        f = open('cube.obj', 'w')
+        f.write(export(cube, name='Cube'))
+        f.close()
+
+
+    Args:
+      mesh: An instance of `payton.scene.geometry.Mesh`
+      name (optional): Name of the object, otherwise `object` will be used
+    """
+    if not isinstance(mesh, Mesh):
+        logging.exception("Object is not an instance of Mesh".format(filename))
+        return None
+
+    name = args.get("name", "object")
+    output = ["# Payton Wavefront OBJ Exporter", "o {}".format(name)]
+    for v in mesh._vertices:
+        output.append("v {}".format(" ".join([str(x) for x in v])))
+
+    for t in mesh._texcoords:
+        output.append("vt {}".format(" ".join([str(x) for x in t])))
+
+    for n in mesh._normals:
+        output.append("vn {}".format(" ".join([str(x) for x in n])))
+
+    len_texcoords = len(mesh._texcoords) + 1
+    len_normals = len(mesh._normals) + 1
+    for f in mesh._indices:
+        f = [x + 1 for x in f]
+        t0 = str(f[0]) if len_texcoords > f[0] else ""
+        n0 = str(f[0]) if len_normals > f[0] else ""
+
+        t1 = str(f[1]) if len_texcoords > f[1] else ""
+        n1 = str(f[1]) if len_normals > f[1] else ""
+
+        t2 = str(f[2]) if len_texcoords > f[2] else ""
+        n2 = str(f[2]) if len_normals > f[2] else ""
+        output.append(
+            "f {}/{}/{} {}/{}/{} {}/{}/{}".format(
+                f[0], t0, n0, f[1], t1, n1, f[2], t2, n2
+            )
+        )
+    return "\n".join(output)
