@@ -7,6 +7,10 @@ object materials. This also effects if your object will respond to light
 sources or not.
 
 There are also pre-defined colors in this module
+
+* Material
+  * Shader (`payton.scene.shader`)
+
 """
 import os
 import copy

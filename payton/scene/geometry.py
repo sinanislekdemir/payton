@@ -2,10 +2,14 @@
 Payton main geometry module
 
 Geometry module holds the basic geometry shapes. They are all inherited
-from `payton.scene.geometr.yObject` class. They are as simple as possible.
+from `payton.scene.geometry.Object` class. They are as simple as possible.
 
 Their face informations are generated at the initialization but vertex array
 object is not generated until it arrives in render pipeline.
+
+* Object
+  * Material (`payton.scene.material`)
+    * Shader (`payton.scene.shader`)
 """
 
 import pyrr
@@ -97,10 +101,14 @@ class Object(object):
         to be changed in the future. If object is not static, then its'
         vertex buffer object references and vertex informations will not be
         deleted to be used for future reference.
+          name: Name of the object (optional, default '') Note that, when
+        object gets added to a Scene with a name, Scene will assign that
+        name to the object, overwriting any existing name of the object.
         """
         self.children = {}
         self.material = Material()
         self.static = args.get("static", True)
+        self.name = args.get("name", "")
         self.matrix = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],

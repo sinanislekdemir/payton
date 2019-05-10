@@ -1,8 +1,47 @@
 """
 Collision detection module
+
+Example:
+
+    from payton.scene import Scene
+    from payton.scene.geometry import Sphere
+    from payton.scene.collision import CollisionTest
+
+    def hit(collision, pairs):
+        for pair in pairs:
+            pair[0].material.color = [1, 0, 0]
+            pair[1].material.color = [1, 0, 0]
+            # mark collision as resolved if you want the pair
+            # to be checked at the next cycle.
+            # collision.resolve(pair[0], pair[1])
+
+    scene = Scene()
+    test = CollisionTest(callback=hit)
+    s1 = Sphere()
+    s1.set_position([0, 0, 0])
+    s2 = Sphere()
+    s2.set_position([0.7, 0, 0])
+    s3 = Sphere()
+    s3.set_position([0, 0, 4])
+    s4 = Sphere()
+    s4.set_position([2, 0, 4])
+
+    scene.add_object('s1', s1)
+    scene.add_object('s2', s2)
+    scene.add_object('s3', s3)
+    scene.add_object('s4', s4)
+
+    test.add_object(s1)
+    test.add_object(s2)
+    test.add_object(s3)
+    test.add_object(s4)
+
+    scene.add_collision_test(test)
+    scene.run()
+
 """
 import logging
-from payton.scene.geometry import Sphere, Line, Mesh
+from payton.scene.geometry import Mesh, Sphere
 from payton.math.geometry import distance
 
 
@@ -32,19 +71,16 @@ class CollisionTest(object):
       - Bounding sphere collision test for elimination
       - Sphere in sphere collision test for objects in objects
       - AABB collision test for object elimination and aproximate calculations
-      - Mesh collision test for triangular objects.
 
     Therefore, collision detection class uses some approximations. There are
-    three different approximations:
+    two different approximations:
 
       - SPHERICAL: Does a bounding sphere check only
       - AABB: Does an Axis Alinged Bounding Box check only (DEFAULT)
-      - TRIANGULAR: Checks for each triangle if it penetrates the target object
     """
 
     SPHERICAL = 0
     AABB = 1
-    TRIANGULAR = 2
 
     def __init__(self, **args):
         """Initialize collision detector
@@ -62,9 +98,18 @@ class CollisionTest(object):
         self._pairs = []
 
     def add_object(self, obj):
+        """Add object to test group
+
+        Args:
+          obj: Instance of `payton.scene.geometry.Mesh`
+        """
+        if not isinstance(obj, Mesh):
+            logging.error("object must be an instance of Mesh")
+            return
         self.objects.append(obj)
 
     def _dist(self, obj1, obj2):
+        """Distance between two given objects"""
         obj1.update_matrix()
         obj2.update_matrix()
         p1 = obj1._model_matrix[3]
@@ -72,6 +117,10 @@ class CollisionTest(object):
         return distance(p1, p2)
 
     def _bounding_sphere_collision(self, obj1, obj2):
+        """Bounding sphere collision test.
+
+        Distance between the centers of two spheres should be longer than
+        sum of their radiuses. Otherwise, they are colliding"""
         dist = self._dist(obj1, obj2)
         total_radius = obj1.bounding_radius + obj2.bounding_radius
         return dist <= total_radius
@@ -94,6 +143,10 @@ class CollisionTest(object):
         return False
 
     def _aabb_collision_test(self, obj1, obj2):
+        """Axis Aligned Bounding Box collision test
+
+        See: https://en.wikipedia.org/wiki/Minimum_bounding_box
+        """
         bb1_min = obj1.to_absolute(obj1._bounding_box[0])
         bb1_max = obj1.to_absolute(obj1._bounding_box[1])
         bb2_min = obj2.to_absolute(obj2._bounding_box[0])
@@ -118,15 +171,8 @@ class CollisionTest(object):
         # No faces are colliding but an object wraps other one
         if self._sphere_in_sphere_collision(obj1, obj2):
             return True
-        if isinstance(obj1, Line) and isinstance(obj2, Sphere):
-            # Line - Sphere test
-            pass
-        if isinstance(obj1, Sphere) and isinstance(obj2, Line):
-            # Sphere - Line test (obj2, obj1)
-            pass
+
         if isinstance(obj1, Mesh) and isinstance(obj2, Mesh):
-            # This is a costly detection algorithm which does detection
-            # triangle by triangle.
             if self.level == self.SPHERICAL:
                 return True
             return self._aabb_collision_test(obj1, obj2)
@@ -152,16 +198,16 @@ class CollisionTest(object):
             self._pairs.remove(pair2)
 
     def check(self):
+        """Check if any objects within the test group are colliding"""
         for i in range(len(self.objects) - 1):
             for j in range(len(self.objects) - i - 1):
                 obj1 = self.objects[i]
                 obj2 = self.objects[i + j + 1]
                 pair = {}
                 pair = [obj1, obj2]
-                pair2 = [obj2, obj1]
-                if pair not in self._pairs and pair2 not in self._pairs:
+                if pair not in self._pairs:
                     res = self._test(obj1, obj2)
                     if res:
-                        self._pairs.append([obj1, obj2])
+                        self._pairs.append(pair)
 
         self.callback(self, self._pairs)

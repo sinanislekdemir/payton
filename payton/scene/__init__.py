@@ -3,17 +3,15 @@
 ##Main Scene Module:
 
 * SDL2 Window
-  * Scene
-    * Objects
-    * Geometry
-    * Grid
-    * Background
-    * Clock
-    * Light
-    * Shader
-    * Material
-    * Observer
-    * Wavefront
+  * Scene (`payton.scene`)
+    * Geometry (`payton.scene.geometry`)
+    * Grid (`payton.scene.grid`)
+    * Background (`payton.scene.Background`)
+    * Clock (`payton.scene.clock`)
+    * Light (`payton.scene.light.Light`)
+    * Collision Test (`payton.scene.collision.CollisionTest`)
+    * Observer (`payton.scene.observer.Observer`)
+    * Wavefront (`payton.scene.wavefront.Wavefront`)
 
 """
 import ctypes
@@ -68,12 +66,6 @@ class Scene(object):
             a = Scene()
             a.run()
 
-        Args:
-          width: Window width
-          height: Window height
-          on_select: On object select callback function. Controller passes
-        selected objects in a list as the first parameter of the function.
-
         on_select sample:
 
             from payton.scene import Scene
@@ -91,6 +83,11 @@ class Scene(object):
 
             scene.run()
 
+        Args:
+          width: Window width
+          height: Window height
+          on_select: On object select callback function. Controller passes
+        selected objects in a list as the first parameter of the function.
         """
         # All objects list
         self.objects = {}
@@ -156,11 +153,15 @@ class Scene(object):
     def add_collision_test(self, tester):
         """Add collision test to the scene
 
+        See `payton.scene.collision` module for details on collision
+
         Args:
-          tester: Tester class
+          tester: Instance of `payton.scene.collision.CollisionTest`
         """
         if not isinstance(tester, CollisionTest):
             logging.error("tester must be an instance of CollisionTest")
+            return
+
         self._collision_detectors.append(tester)
 
     def add_object(self, name, obj):
@@ -193,6 +194,7 @@ class Scene(object):
             return False
 
         self.objects[name] = obj
+        obj.name = name
         return True
 
     def add_observer(self, obj):
@@ -255,6 +257,7 @@ class Scene(object):
 
             my_scene = Scene()
             my_scene.create_clock('time_counter', 1.0, time_counter_callback)
+            print("Hit space to start clock")
             my_scene.run()
 
         Result output to console:

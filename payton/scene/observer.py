@@ -1,3 +1,6 @@
+"""Observer module
+"""
+
 import math
 import pyrr
 import numpy as np
@@ -120,6 +123,11 @@ class Observer(object):
                     self.distance_to_target(self.zoom + yrel)
 
     def distance_to_target(self, distance):
+        """Change distance to target
+
+        This function does not change the spherical angles but just
+        adjusts the distance to target coordinates
+        """
         if not self.perspective:
             self.zoom = distance
             return
