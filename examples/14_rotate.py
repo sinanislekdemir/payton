@@ -4,8 +4,11 @@ from payton.scene.geometry import Cube
 
 
 def rotate(name, scene, period, total):
+    y = math.radians(period * 100)
+    y = -y if int(total) % 2 == 0 else y
+
     scene.objects["cube"].rotate_around_x(math.radians(period * 50))
-    scene.objects["cube"].rotate_around_y(-math.radians(period * 100))
+    scene.objects["cube"].rotate_around_y(y)
     scene.objects["cube"].rotate_around_z(math.radians(period * 150))
 
 
