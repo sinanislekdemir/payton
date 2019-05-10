@@ -46,7 +46,9 @@ def hit_aabb(collision, pairs):
 
 
 scene = Scene(width=600, height=600)
-spherical_collision = CollisionTest(callback=hit_sphere, level=CollisionTest.SPHERICAL)
+spherical_collision = CollisionTest(
+    callback=hit_sphere, level=CollisionTest.SPHERICAL
+)
 aabb_collision = CollisionTest(callback=hit_aabb, level=CollisionTest.AABB)
 
 spherical_car_1 = Wavefront(filename="lib/Low-Poly-Racing-Car.obj")

@@ -329,7 +329,9 @@ class Scene(object):
 
         # Fix aspect ratios of observers
         for observer in self.observers:
-            observer.aspect_ratio = self.window_width / self.window_height * 1.0
+            observer.aspect_ratio = (
+                self.window_width / self.window_height * 1.0
+            )
 
         for clock in self.clocks:
             self.clocks[clock].start()

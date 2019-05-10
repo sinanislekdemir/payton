@@ -1,7 +1,8 @@
 """
 Collision detection module
 
-Example:
+Example collision test:
+
 
     from payton.scene import Scene
     from payton.scene.geometry import Sphere

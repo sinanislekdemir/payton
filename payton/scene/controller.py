@@ -50,7 +50,9 @@ class Controller(object):
                 scene.active_observer.perspective = not p
                 logging.debug(
                     "Observer Perspective = {}".format(
-                        "True" if scene.active_observer.perspective else "False"
+                        "True"
+                        if scene.active_observer.perspective
+                        else "False"
                     )
                 )
 

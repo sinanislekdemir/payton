@@ -94,7 +94,9 @@ class Observer(object):
     def mouse(self, button, shift, ctrl, x, y, xrel, yrel, w, h):
         if shift and ctrl and button == BUTTON_LEFT:  # Panning
             eye, vector = self.screen_to_world(x, y, w, h)
-            hit = raycast_plane_intersect(eye, vector, [0, 0, 0, 1], [0, 0, 1, 0])
+            hit = raycast_plane_intersect(
+                eye, vector, [0, 0, 0, 1], [0, 0, 1, 0]
+            )
 
             if hit is None:
                 return
@@ -135,8 +137,12 @@ class Observer(object):
         _theta = math.acos(diff[2] / self.distance())
         _phi = math.atan2(diff[1], diff[0])
 
-        self.position[0] = self.target[0] + distance * math.sin(_theta) * math.cos(_phi)
-        self.position[1] = self.target[1] + distance * math.sin(_theta) * math.sin(_phi)
+        self.position[0] = self.target[0] + distance * math.sin(
+            _theta
+        ) * math.cos(_phi)
+        self.position[1] = self.target[1] + distance * math.sin(
+            _theta
+        ) * math.sin(_phi)
         self.position[2] = self.target[2] + distance * math.cos(_theta)
 
     def render(self):
@@ -147,7 +153,11 @@ class Observer(object):
         """
         if self.perspective:
             proj_matrix = pyrr.matrix44.create_perspective_projection(
-                self.fov, self.aspect_ratio, self.near, self.far, dtype=np.float32
+                self.fov,
+                self.aspect_ratio,
+                self.near,
+                self.far,
+                dtype=np.float32,
             )
         else:
             x = 100 * (self.aspect_ratio)

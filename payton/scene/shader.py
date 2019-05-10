@@ -25,12 +25,13 @@ from OpenGL.GL import (
     glEnable,
     glDisable,
     GL_PROGRAM_POINT_SIZE,
-    glUniform1i,
     glGetUniformLocation,
     glUseProgram,
     GL_TRUE,
     GL_FALSE,
     glUniformMatrix4fv,
+    glUniform1i,
+    glUniform1f,
     glUniform3fv,
     glUniform4fv,
 )
@@ -51,10 +52,9 @@ uniform vec3 light_pos[100]; // assume 100 lights max.
 uniform vec3 light_color[100];
 uniform int LIGHT_COUNT;
 
-// uniform vec3 light_pos;
-// uniform vec3 light_color;
 uniform vec3 object_color;
 uniform int material_mode;
+uniform float opacity;
 
 uniform sampler2D tex_unit;
 
@@ -63,7 +63,7 @@ void main()
 {
     if (material_mode == 0) {
         // lightless material with color
-        FragColor = vec4(object_color, 1.0);
+        FragColor = vec4(object_color, opacity);
     }
     if (material_mode == 1) {
         // lightless material with texture
@@ -86,7 +86,7 @@ void main()
             vec3 diffuse = diff * light_color[i];
             if (material_mode == 2) {
                 // color material
-                FragColor += vec4((ambient + diffuse) * object_color, 1.0);
+                FragColor += vec4((ambient + diffuse) * object_color, opacity);
             }else{
                 // texture material
                 FragColor += (vec4(ambient + diffuse, 1.0) *
@@ -96,7 +96,7 @@ void main()
     }
     if (material_mode == 4) {
         // Lightless per vertex color
-        FragColor = vec4(frag_color, 1.0);
+        FragColor = vec4(frag_color, opacity);
     }
 }"""
 
@@ -165,6 +165,10 @@ class Shader(object):
     `glGetUniformlocation` function calls. For this purpose, `__init__` and
     `build` functions accept a list of variable names as `variables` argument.
 
+    If variable not found in `self.variables` then system will try to
+    locate the variable location and store it in `self.variables` for
+    future reference.
+
     By this way, Shader goes through this list of variables after compiling the
     shader program and stores their locations in memory for future use.
 
@@ -187,7 +191,9 @@ class Shader(object):
           variables: List of in/out/uniform variable names.
         """
         global default_fragment_shader, default_vertex_shader
-        self.fragment_shader_source = args.get("fragment", default_fragment_shader)
+        self.fragment_shader_source = args.get(
+            "fragment", default_fragment_shader
+        )
         self.vertex_shader_source = args.get("vertex", default_vertex_shader)
         self.variables = args.get("variables", [])
         self._stack = {}  # Variable stack.
@@ -244,10 +250,6 @@ class Shader(object):
         as numpy array to reduce number of object conversions. This is the
         ideal way if possible.
 
-        If variable not found in `self.variables` then system will try to
-        locate the variable location and store it in `self.variables` for
-        future reference.
-
         Args:
           variable: Variable name to set
           value: Matrix to set. (Numpy matrix)
@@ -256,7 +258,9 @@ class Shader(object):
         transpose = GL_TRUE if transpose else GL_FALSE
         location = self.get_location(variable)
         if not location:
-            logging.error("Variable not found in program [{}]".format(variable))
+            logging.error(
+                "Variable not found in program [{}]".format(variable)
+            )
             return False
 
         glUniformMatrix4fv(
@@ -265,6 +269,7 @@ class Shader(object):
         return True
 
     def get_location(self, variable):
+        """Get location of a given variable within the shader"""
         if variable in self._stack:
             return self._stack[variable]
         location = glGetUniformLocation(self.program, variable)
@@ -291,16 +296,14 @@ class Shader(object):
         value = value.flatten()
         location = self.get_location(variable)
         if location < 0:
-            logging.error("Variable not found in program [{}]".format(variable))
+            logging.error(
+                "Variable not found in program [{}]".format(variable)
+            )
             return False
         glUniform3fv(location, count, value)
 
     def set_vector3_np(self, variable, value):
         """Set Vector 3 as numpy array value
-
-        If variable not found in `self.variables` then system will try to
-        locate the variable location and store it in `self.variables` for
-        future reference.
 
         Some elements like Light or pre-set materials can pass their
         vertices directly as numpy array to reduce number of object
@@ -312,16 +315,14 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error("Variable not found in program [{}]".format(variable))
+            logging.error(
+                "Variable not found in program [{}]".format(variable)
+            )
             return False
         glUniform3fv(location, 1, value)
 
     def set_vector4_np(self, variable, value):
         """Set Vector 4 as numpy array value
-
-        If variable not found in `self.variables` then system will try to
-        locate the variable location and store it in `self.variables` for
-        future reference.
 
         Some elements like Light or pre-set materials can pass their vertices
         directly as numpy array to reduce number of object conversions.
@@ -332,15 +333,14 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error("Variable not found in program [{}]".format(variable))
+            logging.error(
+                "Variable not found in program [{}]".format(variable)
+            )
             return False
         glUniform4fv(location, 1, value)
 
     def set_vector3(self, variable, value):
         """Set Vector 3 as array value
-        If variable not found in `self.variables` then system will try to
-        locate the variable location and store it in `self.variables` for
-        future reference.
 
         This method will simply convert `value` into numpy array and call
         `payton.scene.shader.Shader.set_vector3_np` method.
@@ -354,17 +354,31 @@ class Shader(object):
     def set_int(self, variable, value):
         """Set Integer value
 
-        If variable not found in `self.variables` then system will try to
-        locate the variable location and store it in `self.variables` for
-        future reference.
-
         Args:
           variable: Variable name to set
           value: Integer value to set
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error("Variable not found in program [{}]".format(variable))
+            logging.error(
+                "Variable not found in program [{}]".format(variable)
+            )
             return False
 
         glUniform1i(location, ctypes.c_int(value))
+
+    def set_float(self, variable, value):
+        """Set Float value
+
+        Args:
+          variable: Variable name to set
+          value: Floaf value to set
+        """
+        location = self.get_location(variable)
+        if location < 0:
+            logging.error(
+                "Variable not found in program [{}]".format(variable)
+            )
+            return False
+
+        glUniform1f(location, ctypes.c_float(value))

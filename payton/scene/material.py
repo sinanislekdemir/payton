@@ -33,6 +33,12 @@ from OpenGL.GL import (
     GL_TEXTURE_WRAP_T,
     glTexImage2D,
     glActiveTexture,
+    glEnable,
+    glDisable,
+    GL_BLEND,
+    glBlendFunc,
+    GL_SRC_ALPHA,
+    GL_ONE_MINUS_SRC_ALPHA,
     GL_TEXTURE0,
     GL_RGBA,
     GL_UNSIGNED_BYTE,
@@ -99,12 +105,14 @@ class Material(object):
           display: Display type of material, SOLID / WIREFRAME (Default SOLID)
           lights: Effected by lights? (Default true)
           texture: Texture file name
+          opacity: Opacity of the material (0 fully transparent, 1 opaque)
         """
 
         self.color = args.get("color", [1.0, 1.0, 1.0])
         self.display = args.get("display", SOLID)
         self.lights = args.get("lights", True)
         self.texture = args.get("texture", "")
+        self.opacity = args.get("opacity", 1.0)
 
         variables = [
             "model",
@@ -115,6 +123,7 @@ class Material(object):
             "light_color",
             "LIGHT_COUNT",
             "object_color",
+            "opacity",
         ]
 
         self.shader = Shader(variables=variables)
@@ -147,7 +156,9 @@ class Material(object):
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         glBindTexture(GL_TEXTURE_2D, self._texture)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+        glTexParameterf(
+            GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR
+        )
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
         glTexImage2D(
@@ -195,11 +206,15 @@ class Material(object):
         if mode is not None:
             self.shader._mode = mode
 
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
         self.shader.use()
         self.shader.set_int("material_mode", self.shader._mode)
         self.shader.set_matrix4x4_np("model", model)
         self.shader.set_matrix4x4_np("view", view)
         self.shader.set_matrix4x4_np("projection", proj)
+        self.shader.set_float("opacity", self.opacity)
 
         if self._texture is not None:
             glActiveTexture(GL_TEXTURE0)
@@ -211,7 +226,9 @@ class Material(object):
         light_array = np.array(light_array, dtype=np.float32)
         lcolor_array = np.array(lcolor_array, dtype=np.float32)
         self.shader.set_vector3_array_np("light_pos", light_array, len(lights))
-        self.shader.set_vector3_array_np("light_color", lcolor_array, len(lights))
+        self.shader.set_vector3_array_np(
+            "light_color", lcolor_array, len(lights)
+        )
         self.shader.set_int("LIGHT_COUNT", len(lights))
 
         self.shader.set_vector3_np(
@@ -220,3 +237,4 @@ class Material(object):
 
     def end(self):
         self.shader.end()
+        glDisable(GL_BLEND)

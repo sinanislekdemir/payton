@@ -327,7 +327,10 @@ class Object(object):
             glPolygonMode(GL_FRONT_AND_BACK, pmode)
 
             glDrawElements(
-                primitive, self._vertex_count, GL_UNSIGNED_INT, ctypes.c_void_p(0)
+                primitive,
+                self._vertex_count,
+                GL_UNSIGNED_INT,
+                ctypes.c_void_p(0),
             )
             if pmode != GL_FILL:
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -550,9 +553,13 @@ class Object(object):
             glEnableVertexAttribArray(2)  # shader layout location
             glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
             if self._t_buffer_size_changed:
-                glBufferData(GL_ARRAY_BUFFER, self._t_buffer_size, texcoords, draw)
+                glBufferData(
+                    GL_ARRAY_BUFFER, self._t_buffer_size, texcoords, draw
+                )
             else:
-                glBufferSubData(GL_ARRAY_BUFFER, 0, texcoords.nbytes, texcoords)
+                glBufferSubData(
+                    GL_ARRAY_BUFFER, 0, texcoords.nbytes, texcoords
+                )
 
         # Bind Vertex Colors
         if len(self._vertex_colors) == len(self._vertices):
@@ -596,7 +603,9 @@ class Mesh(Object):
     by code.
     """
 
-    def add_triangle(self, vertices, normals=None, texcoords=None, colors=None):
+    def add_triangle(
+        self, vertices, normals=None, texcoords=None, colors=None
+    ):
         """Add triangle to Mesh
 
         Args:
@@ -865,24 +874,44 @@ class Sphere(Mesh):
                 u1 = u_step * j
                 v1 = 1.0 - (v_step * i)
 
-                x2 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * j)
-                y2 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * j)
+                x2 = (
+                    r
+                    * math.sin(step_height * (i + 1))
+                    * math.cos(step_angle * j)
+                )
+                y2 = (
+                    r
+                    * math.sin(step_height * (i + 1))
+                    * math.sin(step_angle * j)
+                )
                 z2 = r * math.cos(step_height * (i + 1))
                 u2 = u_step * j
                 v2 = 1.0 - (v_step * (i + 1))
 
                 x3 = (
-                    r * math.sin(step_height * (i + 1)) * math.cos(step_angle * (j + 1))
+                    r
+                    * math.sin(step_height * (i + 1))
+                    * math.cos(step_angle * (j + 1))
                 )
                 y3 = (
-                    r * math.sin(step_height * (i + 1)) * math.sin(step_angle * (j + 1))
+                    r
+                    * math.sin(step_height * (i + 1))
+                    * math.sin(step_angle * (j + 1))
                 )
                 z3 = r * math.cos(step_height * (i + 1))
                 u3 = u_step * (j + 1)
                 v3 = 1.0 - (v_step * (i + 1))
 
-                x4 = r * math.sin(step_height * i) * math.cos(step_angle * (j + 1))
-                y4 = r * math.sin(step_height * i) * math.sin(step_angle * (j + 1))
+                x4 = (
+                    r
+                    * math.sin(step_height * i)
+                    * math.cos(step_angle * (j + 1))
+                )
+                y4 = (
+                    r
+                    * math.sin(step_height * i)
+                    * math.sin(step_angle * (j + 1))
+                )
                 z4 = r * math.cos(step_height * i)
                 u4 = u_step * (j + 1)
                 v4 = 1.0 - (v_step * i)

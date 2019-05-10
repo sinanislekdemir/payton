@@ -125,7 +125,7 @@ def export(mesh, **args):
       name (optional): Name of the object, otherwise `object` will be used
     """
     if not isinstance(mesh, Mesh):
-        logging.exception("Object is not an instance of Mesh".format(filename))
+        logging.exception("Object is not an instance of Mesh")
         return None
 
     name = args.get("name", "object")
