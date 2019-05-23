@@ -102,16 +102,6 @@ class Controller(object):
                 mx, my, scene.window_width, scene.window_height
             )
 
-            line = Line()
-            rd = [
-                (ray_dir[0] * 40) + eye[0],
-                (ray_dir[1] * 40) + eye[1],
-                (ray_dir[2] * 40) + eye[2],
-            ]
-            line.append([[eye[0], eye[1], eye[2]], rd])
-
-            scene.add_object("line_{}".format(len(scene.objects)), line)
-
             list = []
             for obj in scene.objects:
                 hit = scene.objects[obj].select(eye, ray_dir)
