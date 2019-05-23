@@ -5,7 +5,7 @@ import math
 import pyrr
 import numpy as np
 
-from payton.math.vector import sub_vector
+from payton.math.vector import sub_vector, cross_product
 from payton.math.geometry import raycast_plane_intersect
 
 BUTTON_LEFT = 1
@@ -65,7 +65,10 @@ class Observer(object):
         xdiff = self.position[0] - self.target[0]
         ydiff = self.position[1] - self.target[1]
         zdiff = self.position[2] - self.target[2]
-        return math.sqrt(xdiff * xdiff + ydiff * ydiff + zdiff * zdiff)
+        res = math.sqrt(xdiff * xdiff + ydiff * ydiff + zdiff * zdiff)
+        if res == 0:
+            res = 0.001
+        return res
 
     def rotate_around_target(self, phi, theta):
         """
@@ -160,10 +163,12 @@ class Observer(object):
                 dtype=np.float32,
             )
         else:
-            x = 100 * (self.aspect_ratio)
-            y = 100
+            x = 70 * (self.aspect_ratio)
+            y = 70
             if self.zoom == 0:
                 self.zoom = 0.01
+            if self.near < 1:
+                self.near = 1
             proj_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
                 left=(-x / self.zoom),
                 right=(x / self.zoom),
@@ -176,6 +181,7 @@ class Observer(object):
 
         self._projection = proj_matrix
         eye = np.array(self.position, dtype=np.float32)
+
         if self.target_object:
             self.target = self.target_object.get_position()
 
@@ -203,23 +209,38 @@ class Observer(object):
         x = (2.0 * x) / width - 1.0
         y = 1.0 - (2.0 * y) / height
 
-        ray_start = np.array([x, y, -1.0, 1.0], dtype=np.float32)
-        proj = self._projection
-        inv_proj = pyrr.matrix44.inverse(proj)
-        eye_coords = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
-
-        eye_coords = np.array(
-            [eye_coords[0], eye_coords[1], -1.0, 0.0], dtype=np.float32
-        )
-
-        view = self._view
-        inv_view = pyrr.matrix44.inverse(view)
-
-        ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
-        ray_dir = pyrr.vector.normalize(ray_end[0:4])
-
         eye = np.array(
             [self.position[0], self.position[1], self.position[2], 1.0],
             dtype=np.float32,
         )
+
+        ray_start = np.array([x, y, 1.0, 1.0], dtype=np.float32)
+        proj = self._projection
+        inv_proj = pyrr.matrix44.inverse(proj)
+        eye_coords_ray = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
+        eye_coords = np.array(
+            [eye_coords_ray[0], eye_coords_ray[1], -1.0, 0.0], dtype=np.float32
+        )
+        view = self._view
+        inv_view = pyrr.matrix44.inverse(view)
+        ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
+
+        if not self.perspective:
+            ray_start = np.array([x, y, 1.0, 1.0], dtype=np.float32)
+            eye_coords_ray = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
+            eye_coords = np.array(
+                [eye_coords_ray[0], eye_coords_ray[1], 0.0, 0.0],
+                dtype=np.float32,
+            )
+            eye = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
+            ray = ray_end - eye
+            ray_dir = pyrr.vector.normalize(ray[0:4])
+            eye[0] -= ray_dir[0] * 500
+            eye[1] -= ray_dir[1] * 500
+            eye[2] -= ray_dir[2] * 500
+            eye[3] = 1
+
+            return eye, ray_dir
+
+        ray_dir = pyrr.vector.normalize(ray_end[0:4])
         return (eye, ray_dir)

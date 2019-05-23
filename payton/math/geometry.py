@@ -33,6 +33,16 @@ def combine(v1, v2, f1, f2):
     return np.array([x, y, z], dtype=np.float32)
 
 
+def combine3(v1, v2, v3, f1, f2, f3):
+    res = [
+        (f1 * v1[0]) + (f2 * v2[0]) + (f3 * v3[0]),
+        (f1 * v1[1]) + (f2 * v2[1]) + (f3 * v3[1]),
+        (f1 * v1[2]) + (f2 * v2[2]) + (f3 * v3[2]),
+        0,
+    ]
+    return np.array(res, dtype=np.float32)
+
+
 def raycast_sphere_intersect(start, vector, sphere_center, sphere_radius):
     """Raycast Sphere Intersect Test
 
