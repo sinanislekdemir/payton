@@ -5,7 +5,7 @@ import math
 import pyrr
 import numpy as np
 
-from payton.math.vector import sub_vector, cross_product
+from payton.math.vector import sub_vector
 from payton.math.geometry import raycast_plane_intersect
 
 BUTTON_LEFT = 1

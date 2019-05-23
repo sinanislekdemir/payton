@@ -8,7 +8,6 @@ you can extend this controller for your own needs.
 import sdl2
 import logging
 from payton.scene.observer import BUTTON_LEFT, BUTTON_RIGHT
-from payton.scene.geometry import Line
 
 
 class Controller(object):
