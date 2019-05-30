@@ -1,2 +1,2 @@
-* Picking does not work with orthographic projection
+* Picking does not work with orthographic projection [FIXED]
 
