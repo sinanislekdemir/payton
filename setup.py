@@ -19,7 +19,6 @@ setup(
     # Dependent packages (distributions)
     install_requires=[
         "numpy",
-        "pdoc3",
         "Pillow",
         "PyOpenGL",
         "pyrr",

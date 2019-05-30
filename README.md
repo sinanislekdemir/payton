@@ -26,8 +26,16 @@ More information can be found in documents.
 
 ## Development
 
+Payton is designed in a way to support both Python 2.7 and Python 3+ but later
+the support for Python 3+ will be dropped in favor of LRU Cache, Type Hinting,
+Implicit Packages and so forth.
+
 Currently Payton is in pre-alpha, or it is just some dust cloud in the space.
 If you want to contribue, here is what you can do:
+
+You can generate the API documentation using PDOC
+(https://github.com/mitmproxy/pdoc). PDOC is not defined in setup.py or in
+requirements so you need to install pdoc yourself. (PDoc requires Python3)
 
 `pdoc --html payton` will create API docs for you. (Api docs are generated
 from comments and code itself, so keep comments in the code as descriptive

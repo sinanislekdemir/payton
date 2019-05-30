@@ -99,7 +99,7 @@ class Scene(object):
         self.observers = []
         self.observers.append(Observer(active=True))
         self.hudcam = Observer(
-            active=True, position=[0, 0, 1], up=[0, 1, 0], perspective=False
+            active=True, position=[0, 0, 1.0], up=[0, 1.0, 0], perspective=False
         )
         # Instead of looping through observers to find the active
         # observer, we are keeping the known index to avoid redundant
@@ -118,8 +118,8 @@ class Scene(object):
 
         # SDL Related Stuff
         self.window = None
-        self.window_width = args.get("width", 800)
-        self.window_height = args.get("height", 600)
+        self.window_width = args.get("width", 800.0)
+        self.window_height = args.get("height", 600.0)
         self._context = None
         self._mouse = [0, 0]
         self._shift_down = False
@@ -335,8 +335,8 @@ class Scene(object):
             b"Payton Scene",
             sdl2.SDL_WINDOWPOS_UNDEFINED,
             sdl2.SDL_WINDOWPOS_UNDEFINED,
-            self.window_width,
-            self.window_height,
+            int(self.window_width),
+            int(self.window_height),
             sdl2.SDL_WINDOW_OPENGL,
         )
 
