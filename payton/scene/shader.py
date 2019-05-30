@@ -114,6 +114,7 @@ out vec3 frag_color;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform int view_mode;
 
 out vec3 l_fragpos;
 out vec3 l_normal;
@@ -123,13 +124,19 @@ void main()
     l_fragpos = vec3(model * vec4(position, 1.0));
     l_normal = mat3(transpose(inverse(model))) * normal;
 
-    gl_Position = projection * view * model * vec4(position, 1.0f);
+    if (view_mode == 0) {
+        gl_Position = projection * view * model * vec4(position, 1.0f);
+    }
+    if (view_mode == 1) {
+gl_Position = projection * (vec4(position, 1.0f) + vec4(model[3].xyz, 0.0f));
+    }
     gl_PointSize = 2.0;
 
     tex_coords = texCoords;
     frag_color = colors;
 }
 """
+
 
 background_vertex_shader = """
 #version 330 core
@@ -181,6 +188,7 @@ class Shader(object):
     LIGHT_COLOR = 2
     LIGHT_TEXTURE = 3
     PER_VERTEX_COLOR = 4
+    HUD = 5
 
     def __init__(self, **args):
         """Initialize Shader.

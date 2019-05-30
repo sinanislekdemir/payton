@@ -108,7 +108,6 @@ class Observer(object):
                 self._prev_intersection = hit
             else:
                 diff = np.subtract(self._prev_intersection, hit)
-                # print(diff)
                 self.position[0] += diff[0]
                 self.position[1] += diff[1]
 

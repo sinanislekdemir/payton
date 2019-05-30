@@ -38,3 +38,26 @@ def create_rotation_matrix(axis, angle, as_numpy=False):
     if as_numpy:
         return np.array(result, dtype=np.float32)
     return result
+
+
+def ortho(left, right, bottom, top, as_numpy=False):
+    """Create orthographic projection matrix
+
+    Args:
+      left: Window (Viewport) left (default: 0)
+      right: Window (Viewport) right (default: Window Width)
+      bottom: Window (Viewport) bottom (default: Window Height)
+      top: Window (Viewport) top (default: 0)
+
+    Returns:
+      matrix
+    """
+    result = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+    result[0][0] = 2 / (right - left)
+    result[1][1] = 2 / (top - bottom)
+    result[2][2] = -1
+    result[3][0] = -(right + left) / (right - left)
+    result[3][1] = -(top + bottom) / (top - bottom)
+    if as_numpy:
+        return np.array(result, dtype=np.float32)
+    return result

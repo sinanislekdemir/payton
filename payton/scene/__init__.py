@@ -41,6 +41,7 @@ from payton.scene.light import Light
 from payton.scene.observer import Observer
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
+from payton.scene.gui import Hud, Shape2D
 
 from payton.scene.shader import (
     Shader,
@@ -91,10 +92,15 @@ class Scene(object):
         """
         # All objects list
         self.objects = {}
+        # All Huds (Heads Up Display)
+        self.huds = {}
         # List of observers (cameras) in the scene. There can be only
         # one active observer at a time
         self.observers = []
         self.observers.append(Observer(active=True))
+        self.hudcam = Observer(
+            active=True, position=[0, 0, 1], up=[0, 1, 0], perspective=False
+        )
         # Instead of looping through observers to find the active
         # observer, we are keeping the known index to avoid redundant
         # loops.
@@ -122,7 +128,6 @@ class Scene(object):
         self._collision_detectors = []
 
         self.on_select = args.get("on_select", None)
-
         # Main running state
         self.running = False
 
@@ -144,6 +149,9 @@ class Scene(object):
 
         for object in self.objects:
             self.objects[object].render(proj, view, self.lights)
+
+        for object in self.huds:
+            self.huds[object].render(proj, view, self.lights)
 
         for test in self._collision_detectors:
             test.check()
@@ -192,6 +200,18 @@ class Scene(object):
         if name in self.objects:
             logging.error("Given object name [{}] already exists".format(name))
             return False
+
+        if isinstance(obj, Shape2D):
+            logging.error("2D Shapes can't be added directly to the scene")
+            return False
+
+        if isinstance(obj, Hud):
+            """Huds must be rendered in a different loop after rendering
+            all objects"""
+            self.huds[name] = obj
+            obj.name = name
+            obj.set_size(self.window_width, self.window_height)
+            return True
 
         self.objects[name] = obj
         obj.name = name
@@ -377,7 +397,6 @@ class Background(object):
           top_color: Color at the top of the scene screen
           bottom_color: Color at the bottom of the screen
         """
-        super(Background, self).__init__(**args)
         self.top_color = args.get("top_color", [0.0, 0.1, 0.2, 1.0])
         self.bottom_color = args.get("bottom_color", [0.1, 0.1, 0.1, 1.0])
         variables = ["top_color", "bot_color"]

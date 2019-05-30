@@ -113,6 +113,7 @@ class Material(object):
         self.lights = args.get("lights", True)
         self.texture = args.get("texture", "")
         self.opacity = args.get("opacity", 1.0)
+        self._image = None
 
         variables = [
             "model",
@@ -124,6 +125,7 @@ class Material(object):
             "LIGHT_COUNT",
             "object_color",
             "opacity",
+            "view_mode",
         ]
 
         self.shader = Shader(variables=variables)
@@ -145,11 +147,13 @@ class Material(object):
             self.shader = GLOBAL_SHADER
         self._initialized = True
         if os.path.isfile(self.texture):
-            self.load_texture()
+            img = Image.open(self.texture)
+            self.load_texture(img)
+        if self._image is not None:
+            self.load_texture(self._image)
         return True
 
-    def load_texture(self):
-        img = Image.open(self.texture).transpose(Image.FLIP_TOP_BOTTOM)
+    def load_texture(self, img):
         img_data = np.fromstring(img.tobytes(), np.uint8)
         width, height = img.size
         self._texture = glGenTextures(1)
@@ -174,6 +178,9 @@ class Material(object):
         )
         glGenerateMipmap(GL_TEXTURE_2D)
 
+    def refresh(self):
+        self._initialized = False
+
     def render(self, proj, view, model, lights, mode=None):
         """Render material
 
@@ -190,7 +197,7 @@ class Material(object):
             self.build_shader()
 
         if self.display == SOLID:
-            if self.lights:
+            if self.lights and len(lights) > 0:
                 if self._texture is not None:
                     self.shader._mode = Shader.LIGHT_TEXTURE
                 else:
@@ -212,7 +219,11 @@ class Material(object):
         self.shader.use()
         self.shader.set_int("material_mode", self.shader._mode)
         self.shader.set_matrix4x4_np("model", model)
-        self.shader.set_matrix4x4_np("view", view)
+        if view is None:
+            self.shader.set_int("view_mode", 1)
+        else:
+            self.shader.set_matrix4x4_np("view", view)
+            self.shader.set_int("view_mode", 0)
         self.shader.set_matrix4x4_np("projection", proj)
         self.shader.set_float("opacity", self.opacity)
 

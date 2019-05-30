@@ -338,6 +338,7 @@ class Object(object):
 
         # End using the shader program.
         self.material.end()
+
         # Render motion path
         if self.track_motion:
             self._motion_path_line.render(proj, view, lights, parent_matrix)
@@ -356,6 +357,8 @@ class Object(object):
         Args:
           pos: Position list ([x, y, z])
         """
+        if len(pos) == 2:
+            pos = (pos[0], pos[1], 0)
         self.matrix[3][0] = pos[0]
         self.matrix[3][1] = pos[1]
         self.matrix[3][2] = pos[2]
@@ -603,6 +606,18 @@ class Mesh(Object):
     by code.
     """
 
+    def __init__(self, **args):
+        super(Mesh, self).__init__(**args)
+        self.static = False
+
+    def clear_triangles(self):
+        self._vertices = []
+        self._indices = []
+        self._normals = []
+        self._texcoords = []
+        self._vertex_colors = []
+        self.refresh()
+
     def add_triangle(
         self, vertices, normals=None, texcoords=None, colors=None
     ):
@@ -657,12 +672,13 @@ class Mesh(Object):
         for v in vertices:
             self._vertices.append(v)
 
-        i = len(self._indices)
+        i = len(self._indices) * 3
         self._indices.append([i, i + 1, i + 2])
         for normal in normals:
             self._normals.append(normal)
         for t in texcoords:
             self._texcoords.append(t)
+        self.refresh()
 
 
 class Cube(Mesh):
