@@ -26,9 +26,11 @@ More information can be found in documents.
 
 ## Development
 
-Payton is designed in a way to support both Python 2.7 and Python 3+ but later
-the support for Python 3+ will be dropped in favor of LRU Cache, Type Hinting,
-Implicit Packages and so forth.
+Some notes on Python3:
+- Type hinting will not be used. Type hinting is not static type and it is just
+  for the eyes. Python was supposed to be a simple syntax for everyone to
+  understand easily. Type hints do not create a significant benefit aside from
+  IDE's point of view and it is not simple.
 
 Currently Payton is in pre-alpha, or it is just some dust cloud in the space.
 If you want to contribue, here is what you can do:

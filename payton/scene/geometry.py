@@ -386,7 +386,7 @@ class Object(object):
           bool: False in case of an error
         """
         if name in self.children:
-            logging.error("Name {} exists in object children".format(name))
+            logging.error(f"Name {name} exists in object children")
             return False
         if not isinstance(obj, Object):
             logging.error("Object type is not valid")
@@ -607,7 +607,7 @@ class Mesh(Object):
     """
 
     def __init__(self, **args):
-        super(Mesh, self).__init__(**args)
+        super().__init__(**args)
         self.static = False
 
     def clear_triangles(self):
@@ -714,7 +714,7 @@ class Cube(Mesh):
           depth: Depth of the cube (size Y)
           height: Height of the cube (size Z)
         """
-        super(Cube, self).__init__(**args)
+        super().__init__(**args)
         width = args.get("width", 1.0) * 0.5
         depth = args.get("depth", 1.0) * 0.5
         height = args.get("height", 1.0) * 0.5
@@ -863,7 +863,7 @@ class Sphere(Mesh):
     """
 
     def __init__(self, **args):
-        super(Sphere, self).__init__(**args)
+        super().__init__(**args)
         self.radius = args.get("radius", 0.5)
         self.parallels = args.get("parallels", 12)
         self.meridians = args.get("meridians", 12)
@@ -962,7 +962,7 @@ class Line(Object):
           vertices: Vertices array for list of points.
           color: Color of the line
         """
-        super(Line, self).__init__(**args)
+        super().__init__(**args)
         self._vertices = args.get("vertices", [])
         self.material.color = args.get("color", [1.0, 1.0, 1.0])
 
@@ -1026,7 +1026,7 @@ class PointCloud(Object):
     """
 
     def __init__(self, **args):
-        super(PointCloud, self).__init__(**args)
+        super().__init__(**args)
         self._vertices = args.get("vertices", [])
         # Expose vertices by reference for modification
         self.vertices = self._vertices
@@ -1081,7 +1081,7 @@ class Plane(Mesh):
           width: Width of the plane
           height: Height of the plane
         """
-        super(Plane, self).__init__(**args)
+        super().__init__(**args)
         width = args.get("width", 1.0) * 0.5
         height = args.get("height", 1.0) * 0.5
         self._vertices = [

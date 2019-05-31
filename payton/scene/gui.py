@@ -50,7 +50,7 @@ class Shape2D(Mesh):
           opacity: Opacity of the shape. (1: transparent)
           position: Position of the shape in screen. (0, 0 by default.)
         """
-        super(Shape2D, self).__init__(**args)
+        super().__init__(**args)
         self.material.opacity = args.get("opacity", 0.5)
         self._position = args.get("position", (0, 0, 0))
         self.set_position(self._position)
@@ -64,7 +64,7 @@ class Rectangle(Shape2D):
     """
 
     def __init__(self, **args):
-        super(Rectangle, self).__init__(**args)
+        super().__init__(**args)
         self.size = args.get("size", (100, 100))
         self._init = False
         self.draw()
@@ -107,7 +107,7 @@ class Text(Rectangle):
         Args:
           label: Label of the text. (Text to be written)
         """
-        super(Text, self).__init__(**args)
+        super().__init__(**args)
         self.label = args.get("label", "lorem")
         self._font = None
         self.draw_text()
@@ -176,7 +176,7 @@ class Hud(Object):
           font_size: Font size
         """
 
-        super(Hud, self).__init__(**args)
+        super().__init__(**args)
         self.width = args.get("width", 800)
         self.height = args.get("height", 600)
         self.font = args.get("font", "")

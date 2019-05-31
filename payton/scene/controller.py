@@ -26,7 +26,7 @@ class Controller(object):
             scene.running = False
             for clock in scene.clocks:
                 c = scene.clocks[clock]
-                logging.debug("Kill clock [{}]".format(clock))
+                logging.debug(f"Kill clock [{clock}]")
                 c.kill()
                 c.join()
 
@@ -49,11 +49,7 @@ class Controller(object):
                 p = scene.active_observer.perspective
                 scene.active_observer.perspective = not p
                 logging.debug(
-                    "Observer Perspective = {}".format(
-                        "True"
-                        if scene.active_observer.perspective
-                        else "False"
-                    )
+                    f"Observer Perspective={scene.active_observer.perspective}"
                 )
 
             if key == sdl2.SDLK_g:
@@ -62,7 +58,7 @@ class Controller(object):
             if key == sdl2.SDLK_SPACE:
                 for clock in scene.clocks:
                     c = scene.clocks[clock]
-                    logging.debug("Pause clock [{}]".format(clock))
+                    logging.debug(f"Pause clock [{clock}]")
                     c.pause()
 
             if key == sdl2.SDLK_w:

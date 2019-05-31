@@ -29,7 +29,7 @@ class Wavefront(Mesh):
         Load obj file.
         """
         if not os.path.isfile(filename):
-            logging.exception("File not found {}".format(filename))
+            logging.exception(f"File not found {filename}")
             return False
 
         self.filename = filename
@@ -129,7 +129,7 @@ def export(mesh, **args):
         return None
 
     name = args.get("name", "object")
-    output = ["# Payton Wavefront OBJ Exporter", "o {}".format(name)]
+    output = ["# Payton Wavefront OBJ Exporter", f"o {name}"]
     for v in mesh._vertices:
         output.append("v {}".format(" ".join([str(x) for x in v])))
 
@@ -152,8 +152,6 @@ def export(mesh, **args):
         t2 = str(f[2]) if len_texcoords > f[2] else ""
         n2 = str(f[2]) if len_normals > f[2] else ""
         output.append(
-            "f {}/{}/{} {}/{}/{} {}/{}/{}".format(
-                f[0], t0, n0, f[1], t1, n1, f[2], t2, n2
-            )
+            f"f {f[0]}/{t[0]}/{n[0]} {f[1]}/{t[1]}/{n[1]} {f[2]}/{t[2]}/{n[2]}"
         )
     return "\n".join(output)

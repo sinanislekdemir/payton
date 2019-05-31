@@ -268,7 +268,7 @@ class Shader(object):
         location = self.get_location(variable)
         if not location:
             logging.error(
-                "Variable not found in program [{}]".format(variable)
+                f"Variable not found in program [{variable}]"
             )
             return False
 
@@ -306,7 +306,7 @@ class Shader(object):
         location = self.get_location(variable)
         if location < 0:
             logging.error(
-                "Variable not found in program [{}]".format(variable)
+                f"Variable not found in program [{variable}]"
             )
             return False
         glUniform3fv(location, count, value)
@@ -325,7 +325,7 @@ class Shader(object):
         location = self.get_location(variable)
         if location < 0:
             logging.error(
-                "Variable not found in program [{}]".format(variable)
+                f"Variable not found in program [{variable}]"
             )
             return False
         glUniform3fv(location, 1, value)
@@ -343,7 +343,7 @@ class Shader(object):
         location = self.get_location(variable)
         if location < 0:
             logging.error(
-                "Variable not found in program [{}]".format(variable)
+                f"Variable not found in program [{variable}]"
             )
             return False
         glUniform4fv(location, 1, value)
@@ -370,7 +370,7 @@ class Shader(object):
         location = self.get_location(variable)
         if location < 0:
             logging.error(
-                "Variable not found in program [{}]".format(variable)
+                f"Variable not found in program [{variable}]"
             )
             return False
 
@@ -386,7 +386,7 @@ class Shader(object):
         location = self.get_location(variable)
         if location < 0:
             logging.error(
-                "Variable not found in program [{}]".format(variable)
+                f"Variable not found in program [{variable}]"
             )
             return False
 

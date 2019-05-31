@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from functools import lru_cache
 from payton.math.vector import normalize_vector
 
 
@@ -40,6 +41,7 @@ def create_rotation_matrix(axis, angle, as_numpy=False):
     return result
 
 
+@lru_cache(maxsize=512)
 def ortho(left, right, bottom, top, as_numpy=False):
     """Create orthographic projection matrix
 

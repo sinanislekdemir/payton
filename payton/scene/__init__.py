@@ -201,7 +201,7 @@ class Scene(object):
             return False
 
         if name in self.objects:
-            logging.error("Given object name [{}] already exists".format(name))
+            logging.error(f"Given object name [{name}] already exists")
             return False
 
         if isinstance(obj, Shape2D):
@@ -299,7 +299,7 @@ class Scene(object):
             ...
         """
         if name in self.clocks:
-            logging.error("A clock named {} already exists".format(name))
+            logging.error(f"A clock named {name} already exists")
             return False
 
         c = Clock(name, period, self, callback)
