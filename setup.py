@@ -17,12 +17,5 @@ setup(
     description="Payton.",
     # long_description=open("README.txt").read(),
     # Dependent packages (distributions)
-    install_requires=[
-        "numpy",
-        "Pillow",
-        "PyOpenGL",
-        "pyrr",
-        "PySDL2",
-        "read",
-    ],
+    install_requires=["numpy", "Pillow", "PyOpenGL", "pyrr", "PySDL2", "read"],
 )

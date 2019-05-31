@@ -1,3 +1,4 @@
+import os
 from payton.scene import Scene
 from payton.scene.wavefront import Wavefront
 from payton.scene.collision import CollisionTest
@@ -51,11 +52,15 @@ spherical_collision = CollisionTest(
 )
 aabb_collision = CollisionTest(callback=hit_aabb, level=CollisionTest.AABB)
 
-spherical_car_1 = Wavefront(filename="lib/Low-Poly-Racing-Car.obj")
-spherical_car_2 = Wavefront(filename="lib/Low-Poly-Racing-Car.obj")
+car_object_file = os.path.join(
+    os.path.dirname(__file__), "lib", "Low-Poly-Racing-Car.obj"
+)
 
-aabb_car_1 = Wavefront(filename="lib/Low-Poly-Racing-Car.obj")
-aabb_car_2 = Wavefront(filename="lib/Low-Poly-Racing-Car.obj")
+spherical_car_1 = Wavefront(filename=car_object_file)
+spherical_car_2 = Wavefront(filename=car_object_file)
+
+aabb_car_1 = Wavefront(filename=car_object_file)
+aabb_car_2 = Wavefront(filename=car_object_file)
 
 spherical_car_1.set_position([-2, 0, 0])
 spherical_car_2.set_position([-2, 0, 4])

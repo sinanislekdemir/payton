@@ -1,3 +1,4 @@
+import os
 import math
 from payton.scene import Scene
 from payton.scene.geometry import Cube
@@ -18,9 +19,12 @@ cube = Cube()
 
 scene.observers[0].distance_to_target(3)
 
+texture_file = os.path.join(os.path.dirname(__file__), "cube.png")
+
 hud = Hud()
 rectangle = Rectangle(position=(10, 20, 0), size=(300, 300))
-rectangle.material.texture = "cube.png"
+
+rectangle.material.texture = texture_file
 hud.add_child("rect", rectangle)
 
 text = Text(label="Hello World!")
@@ -31,7 +35,7 @@ hud.set_font("/Library/Fonts/Arial.ttf")
 scene.add_object("hud", hud)
 
 
-cube.material.texture = "cube.png"
+cube.material.texture = texture_file
 scene.add_object("cube", cube)
 
 scene.create_clock("rotate", 0.01, rotate)

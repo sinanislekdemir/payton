@@ -99,7 +99,10 @@ class Scene(object):
         self.observers = []
         self.observers.append(Observer(active=True))
         self.hudcam = Observer(
-            active=True, position=[0, 0, 1.0], up=[0, 1.0, 0], perspective=False
+            active=True,
+            position=[0, 0, 1.0],
+            up=[0, 1.0, 0],
+            perspective=False,
         )
         # Instead of looping through observers to find the active
         # observer, we are keeping the known index to avoid redundant

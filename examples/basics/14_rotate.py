@@ -1,3 +1,4 @@
+import os
 import math
 from payton.scene import Scene
 from payton.scene.geometry import Cube
@@ -14,8 +15,10 @@ def rotate(name, scene, period, total):
 
 scene = Scene()
 cube = Cube()
+texture_file = os.path.join(os.path.dirname(__file__), "cube.png")
+
 scene.observers[0].distance_to_target(3)
-cube.material.texture = "cube.png"
+cube.material.texture = texture_file
 scene.add_object("cube", cube)
 
 scene.create_clock("rotate", 0.01, rotate)

@@ -1,3 +1,4 @@
+import os
 import math
 from payton.scene import Scene
 from payton.scene.geometry import Sphere
@@ -27,8 +28,10 @@ space.lights.append(Light())
 space.observers[0].position = [20, 20, 20]
 space.grid.resize(40, 40, 1)
 
+texture_file = os.path.join(os.path.dirname(__file__), "map.png")
+
 nucleus = Sphere(radius=5, parallels=36, meridians=36)
-nucleus.material.texture = "map.png"
+nucleus.material.texture = texture_file
 particle = Sphere()
 particle.set_position([8, 0, 0])
 

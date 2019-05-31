@@ -25,11 +25,7 @@ Example code:
 
 from PIL import Image, ImageDraw, ImageFont
 
-from OpenGL.GL import (
-    glEnable,
-    GL_DEPTH_TEST,
-    glDisable,
-)
+from OpenGL.GL import glEnable, GL_DEPTH_TEST, glDisable
 
 from payton.scene.geometry import Mesh, Object
 from payton.math.matrix import ortho
