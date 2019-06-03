@@ -14,7 +14,7 @@ for i in range(100):
     cube = Cube()
     cube.material.color = [r, g, b]
     cube.material.opacity = random.randint(0, 255) / 255.0
-    cube.set_position([x, y, z])
+    cube.position = [x, y, z]
     scene.add_object("cube_{}".format(i), cube)
 
 scene.run()

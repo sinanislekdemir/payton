@@ -54,7 +54,7 @@ text = Text(
     color=(1, 1, 1),
     on_click=click_func,
 )
-text.set_position((0, 0))
+text.position = (0, 0)
 
 rectangle.add_child("label", text)
 

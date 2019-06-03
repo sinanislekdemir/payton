@@ -347,7 +347,16 @@ class Object(object):
         for child in self.children:
             self.children[child].render(proj, view, lights, self._model_matrix)
 
-    def set_position(self, pos):
+    @property
+    def position(self):
+        """Get position of the Object.
+
+        Return matrix position list
+        """
+        return self.matrix[3][:3]
+
+    @position.setter
+    def position(self, pos):
         """
         Shortcut function for explicitly modifying matrix indices.
 
@@ -374,7 +383,7 @@ class Object(object):
             scene = Scene()
             earth = Sphere(radius=3)
             moon = Sphere()
-            moon.set_position([2, 0, 0])  # Relative to earth
+            moon.position = [2, 0, 0]  # Relative to earth
             earth.add_child('moon', moon)
             scene.run()
 
@@ -392,13 +401,6 @@ class Object(object):
             logging.error("Object type is not valid")
             return False
         self.children[name] = obj
-
-    def get_position(self):
-        """Get position of the Object.
-
-        Return matrix position list
-        """
-        return self.matrix[3][:3]
 
     def to_absolute(self, coordinates):
         """

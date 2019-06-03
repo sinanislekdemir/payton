@@ -8,8 +8,8 @@ direction = 0
 
 def motion(name, scene, period, total):
     global direction
-    pos = scene.objects["scar2"].get_position()
-    apos = scene.objects["acar2"].get_position()
+    pos = scene.objects["scar2"].position
+    apos = scene.objects["acar2"].position
     if direction == 0:
         pos[2] -= 0.01
         apos[2] -= 0.01
@@ -20,8 +20,8 @@ def motion(name, scene, period, total):
         direction = 1
     if pos[2] > 4:
         direction = 0
-    scene.objects["scar2"].set_position(pos)
-    scene.objects["acar2"].set_position(apos)
+    scene.objects["scar2"].position = pos
+    scene.objects["acar2"].position = apos
 
 
 def hit_sphere(collision, pairs):
@@ -62,11 +62,11 @@ spherical_car_2 = Wavefront(filename=car_object_file)
 aabb_car_1 = Wavefront(filename=car_object_file)
 aabb_car_2 = Wavefront(filename=car_object_file)
 
-spherical_car_1.set_position([-2, 0, 0])
-spherical_car_2.set_position([-2, 0, 4])
+spherical_car_1.position = [-2, 0, 0]
+spherical_car_2.position = [-2, 0, 4]
 
-aabb_car_1.set_position([2, 0, 0])
-aabb_car_2.set_position([2, 0, 4])
+aabb_car_1.position = [2, 0, 0]
+aabb_car_2.position = [2, 0, 4]
 
 scene.add_object("scar1", spherical_car_1)
 scene.add_object("scar2", spherical_car_2)

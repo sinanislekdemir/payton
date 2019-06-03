@@ -52,9 +52,9 @@ class Shape2D(Mesh):
         """
         super().__init__(**args)
         self.material.opacity = args.get("opacity", 0.5)
-        self._position = args.get("position", (0, 0, 0))
+        self.__position = args.get("position", (0, 0, 0))
         self.size = args.get("size", (100, 100))
-        self.set_position(self._position)
+        self.position = self.__position
         self.on_click = args.get("on_click", None)
         self._font = None
         self.parent = None

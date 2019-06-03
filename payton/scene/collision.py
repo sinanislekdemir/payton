@@ -19,13 +19,13 @@ Example collision test:
     scene = Scene()
     test = CollisionTest(callback=hit)
     s1 = Sphere()
-    s1.set_position([0, 0, 0])
+    s1.position = [0, 0, 0]
     s2 = Sphere()
-    s2.set_position([0.7, 0, 0])
+    s2.position = [0.7, 0, 0]
     s3 = Sphere()
-    s3.set_position([0, 0, 4])
+    s3.position = [0, 0, 4]
     s4 = Sphere()
-    s4.set_position([2, 0, 4])
+    s4.position = [2, 0, 4]
 
     scene.add_object('s1', s1)
     scene.add_object('s2', s2)

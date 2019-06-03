@@ -9,18 +9,15 @@ def motion(name, scene, period, total):
     angle = (total * 10) % 360
     px = math.cos(math.radians(angle)) * 8
     py = math.sin(math.radians(angle)) * 8
-    scene.objects["nucleus"].children["particle"].set_position([px, py, 0])
+    scene.objects["nucleus"].children["particle"].position = [px, py, 0]
 
     sx = math.cos(math.radians(angle * 10)) * 2  # 10 times faster
     sy = math.sin(math.radians(angle * 10)) * 2
-    (
-        scene.objects["nucleus"]
-        .children["particle"]
-        .children["sub_particle"]
-        .set_position([sx, sy, 0])
-    )
-    scene.lights[0].set_position([px, py, 0])
-    scene.lights[1].set_position([-px, -py, 0])
+    scene.objects["nucleus"].children["particle"].children[
+        "sub_particle"
+    ].position = [sx, sy, 0]
+    scene.lights[0].position = [px, py, 0]
+    scene.lights[1].position = [-px, -py, 0]
 
 
 space = Scene()
@@ -33,10 +30,10 @@ texture_file = os.path.join(os.path.dirname(__file__), "map.png")
 nucleus = Sphere(radius=5, parallels=36, meridians=36)
 nucleus.material.texture = texture_file
 particle = Sphere()
-particle.set_position([8, 0, 0])
+particle.position = [8, 0, 0]
 
 sub_particle = Sphere(radius=0.5)
-sub_particle.set_position([0, 2, 0])
+sub_particle.position = [0, 2, 0]
 
 nucleus.add_child("particle", particle)
 particle.add_child("sub_particle", sub_particle)

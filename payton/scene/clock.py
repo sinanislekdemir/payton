@@ -48,7 +48,7 @@ Example usage:
         global LAUNCH_ANGLE
         global GRAVITY
         global INITIAL_VELOCITY
-        position = scene.objects['ball'].get_position()
+        position = scene.objects['ball'].position
         if position[2] < 0:
             # Do not continue simulation if we hit the ground.
             scene.clocks[name].kill()  # We do not need this clock anymore
@@ -60,7 +60,7 @@ Example usage:
         position[2] = (INITIAL_VELOCITY * total *
                        math.sin(LAUNCH_ANGLE) -
                        0.5 * GRAVITY * (total ** 2))
-        scene.objects['ball'].set_position(position)
+        scene.objects['ball'].position = position
         return None
 
 

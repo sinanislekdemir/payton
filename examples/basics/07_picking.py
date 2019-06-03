@@ -18,7 +18,7 @@ for i in range(10):
     b = random.randint(0, 255) / 255.0
     cube = Cube()
     cube.material.color = [r, g, b]
-    cube.set_position([x, y, z])
+    cube.position = [x, y, z]
     scene.add_object("cube_{}".format(i), cube)
 
 print("Try clicking on objects")

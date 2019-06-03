@@ -232,8 +232,8 @@ class Material(object):
             glBindTexture(GL_TEXTURE_2D, self._texture)
             self.shader.set_int("tex_unit", 0)
 
-        light_array = [light._position for light in lights]
-        lcolor_array = [light._color for light in lights]
+        light_array = [light.position for light in lights]
+        lcolor_array = [light.color for light in lights]
         light_array = np.array(light_array, dtype=np.float32)
         lcolor_array = np.array(lcolor_array, dtype=np.float32)
         self.shader.set_vector3_array_np("light_pos", light_array, len(lights))

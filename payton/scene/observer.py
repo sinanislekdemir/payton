@@ -182,7 +182,7 @@ class Observer(object):
         eye = np.array(self.position, dtype=np.float32)
 
         if self.target_object:
-            self.target = self.target_object.get_position()
+            self.target = self.target_object.position
 
         target = np.array(self.target, dtype=np.float32)
         up = np.array(self.up, dtype=np.float32)

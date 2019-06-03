@@ -1,5 +1,6 @@
 import random
 from payton.scene import Scene
+from payton.scene.gui import Hud, Text
 from payton.scene.geometry import PointCloud
 
 
@@ -14,6 +15,18 @@ def generate(name, scene, period, total):
 
 
 scene = Scene()
+
+hud = Hud()
+text = Text(
+    label="Hit Space to create points",
+    position=(5, 5),
+    size=(200, 35),
+    color=(1, 1, 1),
+)
+
+hud.add_child("text", text)
+scene.add_object("hud", hud)
+
 pc = PointCloud()
 
 scene.add_object("pc", pc)
