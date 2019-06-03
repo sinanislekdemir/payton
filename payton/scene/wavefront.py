@@ -151,7 +151,5 @@ def export(mesh, **args):
 
         t2 = str(f[2]) if len_texcoords > f[2] else ""
         n2 = str(f[2]) if len_normals > f[2] else ""
-        output.append(
-            f"f {f[0]}/{t[0]}/{n[0]} {f[1]}/{t[1]}/{n[1]} {f[2]}/{t[2]}/{n[2]}"
-        )
+        output.append(f"f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}")
     return "\n".join(output)

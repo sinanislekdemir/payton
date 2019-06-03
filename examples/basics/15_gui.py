@@ -14,30 +14,70 @@ def rotate(name, scene, period, total):
     scene.objects["cube"].rotate_around_z(math.radians(period * 150))
 
 
-scene = Scene()
-cube = Cube()
+def print_fps(name, scene, period, total):
+    scene.huds["hud"].children["fps"].label = f"FPS: {scene.fps}"
 
-scene.observers[0].distance_to_target(3)
 
 texture_file = os.path.join(os.path.dirname(__file__), "cube.png")
 
-hud = Hud()
-rectangle = Rectangle(position=(10, 20, 0), size=(300, 300))
+scene = Scene()
+scene.observers[0].distance_to_target(3)
 
-rectangle.material.texture = texture_file
-hud.add_child("rect", rectangle)
-
-text = Text(label="Hello World!")
-text.set_position((0, 0))
-rectangle.add_child("label", text)
-hud.set_font("/Library/Fonts/Arial.ttf")
-
-scene.add_object("hud", hud)
-
-
+cube = Cube()
 cube.material.texture = texture_file
 scene.add_object("cube", cube)
 
+hud = Hud()
+hud.set_font("/Library/Fonts/Arial.ttf", 13)
+
+scene.add_object("hud", hud)
+
+texture_rect = Rectangle(position=(700, 500), size=(90, 90))
+rectangle = Rectangle(position=(10, 20, 0), size=(200, 100))
+
+texture_rect.material.texture = texture_file
+
+hud.add_child("rect", rectangle)
+hud.add_child("text_rect", texture_rect)
+
+
+def click_func():
+    t = Text(label="Yay!", position=(10, 40))
+    rectangle.add_child(f"l_a", t)
+
+
+text = Text(
+    label="Click Me!",
+    bgcolor=(0, 0, 0, 0.5),
+    position=(10, 10),
+    size=(100, 30),
+    color=(1, 1, 1),
+    on_click=click_func,
+)
+text.set_position((0, 0))
+
+rectangle.add_child("label", text)
+
+info_text = """Hit Space to start cube animation
+Shift + Mouse Drag = Rotate
+Ctrl + Mouse Drag = Zoom
+Ctrl + Shift + Mouse Drag = Pan
+W = Change Mode
+C = Change Camera Mode
+"""
+
+info = Text(
+    label=info_text, position=(550, 0), color=(1, 1, 1), size=(300, 200)
+)
+
+hud.add_child("info", info)
+
+
+fps = Text(label="Hit Space:", position=(0, 0), color=(1, 1, 1))
+
+hud.add_child("fps", fps)
+
 scene.create_clock("rotate", 0.01, rotate)
+scene.create_clock("fps", 0.01, print_fps)
 
 scene.run()

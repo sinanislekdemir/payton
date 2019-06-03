@@ -92,6 +92,12 @@ class Controller(object):
 
         if event.type == sdl2.SDL_MOUSEBUTTONDOWN:
             mx, my = event.button.x, event.button.y
+            for hud in scene.huds:
+                h = scene.huds[hud]
+                for shape in h.children:
+                    check = h.children[shape].click(mx, my)
+                    if check:
+                        return
 
             eye, ray_dir = observer.screen_to_world(
                 mx, my, scene.window_width, scene.window_height

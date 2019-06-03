@@ -17,6 +17,7 @@
 import ctypes
 import sdl2
 import logging
+import time
 import numpy as np
 
 from OpenGL.GL import (
@@ -94,6 +95,10 @@ class Scene(object):
         self.objects = {}
         # All Huds (Heads Up Display)
         self.huds = {}
+        self.__fps_counter = 0
+        self.fps = 0
+
+        self.__timer = None
         # List of observers (cameras) in the scene. There can be only
         # one active observer at a time
         self.observers = []
@@ -158,6 +163,15 @@ class Scene(object):
 
         for test in self._collision_detectors:
             test.check()
+
+        self.__fps_counter += 1
+        if self.__timer is None:
+            self.__timer = time.time()
+        diff = time.time() - self.__timer
+        if diff > 1:
+            self.__timer = time.time()
+            self.fps = self.__fps_counter
+            self.__fps_counter = 0
 
         return 0
 
@@ -367,7 +381,7 @@ class Scene(object):
             self._render()
 
             sdl2.SDL_GL_SwapWindow(self.window)
-            sdl2.SDL_Delay(10)
+            sdl2.SDL_Delay(1)
 
         for obj in self.objects:
             self.objects[obj].destroy()

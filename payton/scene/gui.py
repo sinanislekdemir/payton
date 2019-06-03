@@ -53,7 +53,54 @@ class Shape2D(Mesh):
         super().__init__(**args)
         self.material.opacity = args.get("opacity", 0.5)
         self._position = args.get("position", (0, 0, 0))
+        self.size = args.get("size", (100, 100))
         self.set_position(self._position)
+        self.on_click = args.get("on_click", None)
+        self._font = None
+        self.parent = None
+
+    def add_child(self, name, obj):
+        super().add_child(name, obj)
+        obj.parent = self
+
+    @property
+    def font(self):
+        if self._font is not None:
+            return self._font
+        if self.parent is not None:
+            return self.parent.font
+        return None
+
+    @font.setter
+    def font(self, font):
+        """Set font of the text
+
+        Args:
+          font: An instance of `PIL.ImageFont`
+        """
+        self._font = font
+        self.draw_text()
+
+    def click(self, x, y):
+        if not callable(self.on_click):
+            for child in self.children:
+                c = self.children[child].click(x, y)
+                if c:
+                    return True
+            return False
+
+        if self._model_matrix is None:
+            return False
+        mm = self._model_matrix[3]
+        if (
+            x > mm[0]
+            and x < mm[0] + self.size[0]
+            and y > mm[1]
+            and y < mm[1] + self.size[1]
+        ):
+            self.on_click()
+            return True
+        return False
 
 
 class Rectangle(Shape2D):
@@ -65,7 +112,6 @@ class Rectangle(Shape2D):
 
     def __init__(self, **args):
         super().__init__(**args)
-        self.size = args.get("size", (100, 100))
         self._init = False
         self.draw()
 
@@ -78,16 +124,15 @@ class Rectangle(Shape2D):
         Also, if you change the size of rectangle, you have to call this
         method again.
         """
-        x, y = 0, 0
         w, h = self.size
         self.clear_triangles()
         if not self._init:
             self.add_triangle(
-                [[x, y, 1], [x + w, y, 1], [x + w, y + h, 1]],
+                [[0, 0, 1], [w, 0, 1], [w, h, 1]],
                 texcoords=[[0, 0], [1, 0], [1, 1]],
             )
             self.add_triangle(
-                [[x, y, 1], [x + w, y + h, 1], [x, y + h, 1]],
+                [[0, 0, 1], [w, h, 1], [0, h, 1]],
                 texcoords=[[0, 0], [1, 1], [0, 1]],
             )
             self._init = True
@@ -106,20 +151,32 @@ class Text(Rectangle):
 
         Args:
           label: Label of the text. (Text to be written)
+          bgcolor: Background color of the text (Default, r:0, g:0, b:0, a:0)
+          color: Color of the text (Default, r:0, g:0, b:0)
         """
         super().__init__(**args)
-        self.label = args.get("label", "lorem")
-        self._font = None
+        self.__label = args.get("label", "lorem")
+        self.bgcolor = args.get("bgcolor", (0, 0, 0, 0))
+        self.color = args.get("color", (0, 0, 0))
+        self.bgcolor = tuple(map(lambda x: int(x * 255), self.bgcolor))
+        self.color = tuple(map(lambda x: int(x * 255), self.color))
+        self.draw_text()
+        self._init_text = False
+
+    @property
+    def label(self):
+        return self.__label
+
+    @label.setter
+    def label(self, label):
+        self.__label = label
         self.draw_text()
 
-    def set_font(self, font):
-        """Set font of the text
-
-        Args:
-          font: An instance of `PIL.ImageFont`
-        """
-        self._font = font
-        self.draw_text()
+    def render(self, proj, view, lights, parent_matrix=None):
+        super().render(proj, view, lights, parent_matrix)
+        if not self._init_text:
+            self.draw_text()
+            self._init_text = True
 
     def draw_text(self):
         """Draw text
@@ -127,28 +184,15 @@ class Text(Rectangle):
         Create an empty transparent image with the rectangle size
         and draw the text on it. Then, assign the image to the material
         """
-        img = Image.new("RGBA", self.size, color=(0, 0, 0, 0))
+        img = Image.new("RGBA", self.size, color=self.bgcolor)
         d = ImageDraw.Draw(img)
-        if self._font is not None:
-            d.text((5, 5), self.label, fill=(0, 0, 0), font=self._font)
+        if self.font is not None:
+            d.text((5, 5), self.label, fill=self.color, font=self.font)
         else:
-            d.text((5, 5), self.label, fill=(0, 0, 0))
+            d.text((5, 5), self.label, fill=self.color)
 
         self.material._image = img
         self.material.refresh()
-
-
-def assign_font(obj, font):
-    """Assign font to given object and children recursively.
-
-    Args:
-      obj: Object to assing the font
-      font: Font to be assigned. (Instance of `PIL.ImageFont`)
-    """
-    if isinstance(obj, Text):
-        obj.set_font(font)
-    for name in obj.children:
-        assign_font(obj.children[name], font)
 
 
 class Hud(Object):
@@ -179,10 +223,20 @@ class Hud(Object):
         super().__init__(**args)
         self.width = args.get("width", 800)
         self.height = args.get("height", 600)
-        self.font = args.get("font", "")
-        self.font_size = args.get("font_size", "")
+        self._fontname = args.get("font", "")
+        self._font_size = args.get("font_size", "")
+        if self._fontname != "":
+            self.set_font(self._fontname, self._font_size)
         self._font = None
         self._projection_matrix = None
+
+    @property
+    def font(self):
+        return self._font
+
+    def add_child(self, name, obj):
+        super().add_child(name, obj)
+        obj.parent = self
 
     def render(self, *_args):
         """Render HUD
@@ -218,5 +272,3 @@ class Hud(Object):
           font_size: Font size.
         """
         self._font = ImageFont.truetype(font_name, font_size)
-        for name in self.children:
-            assign_font(self.children[name], self._font)

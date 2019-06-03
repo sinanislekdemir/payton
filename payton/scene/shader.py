@@ -267,9 +267,7 @@ class Shader(object):
         transpose = GL_TRUE if transpose else GL_FALSE
         location = self.get_location(variable)
         if not location:
-            logging.error(
-                f"Variable not found in program [{variable}]"
-            )
+            logging.error(f"Variable not found in program [{variable}]")
             return False
 
         glUniformMatrix4fv(
@@ -305,9 +303,7 @@ class Shader(object):
         value = value.flatten()
         location = self.get_location(variable)
         if location < 0:
-            logging.error(
-                f"Variable not found in program [{variable}]"
-            )
+            logging.error(f"Variable not found in program [{variable}]")
             return False
         glUniform3fv(location, count, value)
 
@@ -324,9 +320,7 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error(
-                f"Variable not found in program [{variable}]"
-            )
+            logging.error(f"Variable not found in program [{variable}]")
             return False
         glUniform3fv(location, 1, value)
 
@@ -342,9 +336,7 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error(
-                f"Variable not found in program [{variable}]"
-            )
+            logging.error(f"Variable not found in program [{variable}]")
             return False
         glUniform4fv(location, 1, value)
 
@@ -369,9 +361,7 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error(
-                f"Variable not found in program [{variable}]"
-            )
+            logging.error(f"Variable not found in program [{variable}]")
             return False
 
         glUniform1i(location, ctypes.c_int(value))
@@ -385,9 +375,7 @@ class Shader(object):
         """
         location = self.get_location(variable)
         if location < 0:
-            logging.error(
-                f"Variable not found in program [{variable}]"
-            )
+            logging.error(f"Variable not found in program [{variable}]")
             return False
 
         glUniform1f(location, ctypes.c_float(value))
