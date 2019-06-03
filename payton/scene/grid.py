@@ -63,7 +63,7 @@ class Grid(object):
         """
         xres = args.get("xres", 20)
         yres = args.get("yres", 20)
-        self.color = args.get("color", [0.4, 0.4, 0.4])
+        self._color = args.get("color", [0.4, 0.4, 0.4])
 
         self.static = True
         self.matrix = [
@@ -89,7 +89,7 @@ class Grid(object):
         self._vertex_count = 0
         self._model_matrix = None
         self._material = Material(display=1, lights=False)
-        self._material.color = self.color
+        self._material.color = self._color
 
         # Vertex Array Object pointer
         self._vao = None
@@ -168,8 +168,13 @@ class Grid(object):
             glDeleteVertexArrays(1, [self._vao])
         self._vao = None
 
-    def set_color(self, color):
-        self.color = color
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, color):
+        self._color = color
         self._material.color = color
 
     def build(self):
