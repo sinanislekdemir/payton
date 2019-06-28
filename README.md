@@ -5,6 +5,17 @@
 Payton is a general purpose 3D programming toolkit. It is designed with the
 theory that us, humans, we understand better by seeing things.
 
+
+* Payton is a prototyping tool. Kickstart any idea fast and easy, grow it.
+* Create tools for the next step. Create maps editors, small animations, small algorithms or artificial intelligence for your game. Whenever you need
+to try a new idea, don't bother to create a new application with all the details. Payton comes with all the necessary defaults and that is what makes it unique. Almost everything has a pre-set.
+* Game engines and other libraries are way too complex and it takes a long time to start the initial playground.
+* Payton never intends to take place as a game engine or a full-featured 3D environment. There are already plenty of stuff for that purpose.
+* Tools programming is easy.
+* Easy to visualise what you want to achive or do what you want to do.
+* You can move forward from Payton to any other place if you like.
+
+
 We draw 2D graphs and charts in reports and we generally understand much more
 easily when we visualise the data. But in some cases, visualising exceeds 2
 dimensions. We require to have third and even forth dimensions. (And on top of
