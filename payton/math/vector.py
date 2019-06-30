@@ -14,9 +14,10 @@ Example definition:
 """
 
 import math
+from typing import List
 
 
-def sub_vector(v1, v2):
+def sub_vector(v1: List, v2: List) -> List:
     """
     Substract two vectors. Each component of vectors are substracted separately
 
@@ -34,7 +35,7 @@ def sub_vector(v1, v2):
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]]
 
 
-def cross_product(v1, v2):
+def cross_product(v1: List, v2: List) -> List:
     """
     Vector cross product.
 
@@ -60,7 +61,7 @@ def cross_product(v1, v2):
     ]
 
 
-def vector_norm(v):
+def vector_norm(v: List) -> float:
     """
     Norm of a vector. *aka* length of a vector. *(Scalar value)*
 
@@ -76,7 +77,7 @@ def vector_norm(v):
     return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))
 
 
-def normalize_vector(v):
+def normalize_vector(v: List) -> List:
     """
     Normalize the given vector. Turn the given vector into a unit vector, where
     the vector length is equal to 1.0
@@ -91,14 +92,14 @@ def normalize_vector(v):
     """
     vn = vector_norm(v)
     if vn == 0.0:
-        return vn
+        return v
     invlen = 1.0 / vn
     res = [n * invlen for n in v]
 
     return res
 
 
-def plane_normal(v1, v2, v3):
+def plane_normal(v1: List, v2: List, v3: List) -> List:
     """
     Calculate plane normal. Mathematically, three vectors in space define a
     plane and Normal of the plane is the direction that plane faces.
@@ -134,7 +135,7 @@ def plane_normal(v1, v2, v3):
     return normalize_vector(r)
 
 
-def vector_transform(v, matrix):
+def vector_transform(v: List[float], matrix: List[List[float]]) -> List:
     """Transform Vector by a matrix.
 
     Assuming that the base matrix for the scene is a uniform matrix,
@@ -170,7 +171,7 @@ def vector_transform(v, matrix):
     return [rx, ry, rz, rw]
 
 
-def invert_vector(v):
+def invert_vector(v: List) -> List:
     """
     Invert the given vector by multiplying its components by -1.0 for each.
 

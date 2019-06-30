@@ -3,8 +3,11 @@
 
 import math
 import pyrr
-import numpy as np
+import numpy as np  # type: ignore
 
+from typing import Any, List, Optional, Type, Tuple
+
+from payton.scene.geometry import Object
 from payton.math.vector import sub_vector
 from payton.math.geometry import raycast_plane_intersect
 
@@ -17,7 +20,7 @@ class Observer(object):
     Observers are basically cameras in the scene.
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         """
         Initialize the defaults of an Observer.
         Default observer is a perspective mode camera
@@ -37,28 +40,30 @@ class Observer(object):
           far: Far plane. Further objects will be invisible. [100.]
           active: Is this the active camera in the scene? [False]
         """
-        self.position = args.get("position", [10.0, 10.0, 5.0])
-        self.target = args.get("target", [0.0, 0.0, 0.0])
-        self.up = args.get("up", [0.0, 0.0, 1.0])
+        self.position: List[float] = args.get("position", [10.0, 10.0, 5.0])
+        self.target: List[float] = args.get("target", [0.0, 0.0, 0.0])
+        self.up: List[float] = args.get("up", [0.0, 0.0, 1.0])
 
-        self.target_object = args.get("target_object", None)
-        self.fov = args.get("fov", 45.0)
-        self.aspect_ratio = args.get("aspect_ratio", 800.0 / 600.0)
-        self.near = args.get("near", 0.1)
-        self.far = args.get("far", 100.0)
+        self.target_object: Optional[Type[Object]] = args.get(
+            "target_object", None
+        )
+        self.fov: float = args.get("fov", 45.0)
+        self.aspect_ratio: float = args.get("aspect_ratio", 800.0 / 600.0)
+        self.near: float = args.get("near", 0.1)
+        self.far: float = args.get("far", 100.0)
 
         # self.perspective = args.get('perspective', True)
         # zoom factor for Orthographic projection
-        self.zoom = args.get("zoom", 10)
-        self.active = args.get("active", False)
-        self.perspective = args.get("perspective", True)
+        self.zoom: float = args.get("zoom", 10.0)
+        self.active: bool = args.get("active", False)
+        self.perspective: bool = args.get("perspective", True)
 
         # Store matrices for future reference.
-        self._projection = None
-        self._view = None
-        self._prev_intersection = None
+        self._projection: Optional[np.ndarray] = None
+        self._view: Optional[np.ndarray] = None
+        self._prev_intersection: Optional[np.ndarray] = None
 
-    def distance(self):
+    def distance(self) -> float:
         """
         Calculate distance to target
         """
@@ -70,7 +75,7 @@ class Observer(object):
             res = 0.001
         return res
 
-    def rotate_around_target(self, phi, theta):
+    def rotate_around_target(self, phi: float, theta: float) -> None:
         """
         Theta: horizontal
         Phi: vertical
@@ -94,7 +99,18 @@ class Observer(object):
         self.position[1] = y + self.target[1]
         self.position[2] = z + self.target[2]
 
-    def mouse(self, button, shift, ctrl, x, y, xrel, yrel, w, h):
+    def mouse(
+        self,
+        button: int,
+        shift: bool,
+        ctrl: bool,
+        x: int,
+        y: int,
+        xrel: int,
+        yrel: int,
+        w: int,
+        h: int,
+    ) -> None:
         if shift and ctrl and button == BUTTON_LEFT:  # Panning
             eye, vector = self.screen_to_world(x, y, w, h)
             hit = raycast_plane_intersect(
@@ -126,7 +142,7 @@ class Observer(object):
                 else:
                     self.distance_to_target(self.zoom + yrel)
 
-    def distance_to_target(self, distance):
+    def distance_to_target(self, distance: float) -> None:
         """Change distance to target
 
         This function does not change the spherical angles but just
@@ -147,7 +163,7 @@ class Observer(object):
         ) * math.sin(_phi)
         self.position[2] = self.target[2] + distance * math.cos(_theta)
 
-    def render(self):
+    def render(self) -> Tuple[np.ndarray, np.ndarray]:
         """Render camera into two matrices.
 
         Return:
@@ -182,7 +198,8 @@ class Observer(object):
         eye = np.array(self.position, dtype=np.float32)
 
         if self.target_object:
-            self.target = self.target_object.position
+            # I believe there is a bug at mypy about @property methods
+            self.target = self.target_object.position  # type: ignore
 
         target = np.array(self.target, dtype=np.float32)
         up = np.array(self.up, dtype=np.float32)
@@ -190,7 +207,9 @@ class Observer(object):
         self._view = view_matrix
         return proj_matrix, view_matrix
 
-    def screen_to_world(self, x, y, width, height):
+    def screen_to_world(
+        self, x: int, y: int, width: int, height: int
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Convert screen coordinates to world coordinates
 
         Unlike gluUnproject, this method returns a tuple of ray start
@@ -205,15 +224,15 @@ class Observer(object):
         Returns:
           (ray_start, ray_vector): Numpy arrays
         """
-        x = (2.0 * x) / width - 1.0
-        y = 1.0 - (2.0 * y) / height
+        x_f = (2.0 * x) / width - 1.0
+        y_f = 1.0 - (2.0 * y) / height
 
         eye = np.array(
             [self.position[0], self.position[1], self.position[2], 1.0],
             dtype=np.float32,
         )
 
-        ray_start = np.array([x, y, 1.0, 1.0], dtype=np.float32)
+        ray_start = np.array([x_f, y_f, 1.0, 1.0], dtype=np.float32)
         proj = self._projection
         inv_proj = pyrr.matrix44.inverse(proj)
         eye_coords_ray = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
@@ -225,7 +244,7 @@ class Observer(object):
         ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
 
         if not self.perspective:
-            ray_start = np.array([x, y, 1.0, 1.0], dtype=np.float32)
+            ray_start = np.array([x_f, y_f, 1.0, 1.0], dtype=np.float32)
             eye_coords_ray = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
             eye_coords = np.array(
                 [eye_coords_ray[0], eye_coords_ray[1], 0.0, 0.0],

@@ -42,14 +42,16 @@ Example collision test:
 
 """
 import logging
-from payton.scene.geometry import Mesh, Sphere
+from typing import Any, List, Type, Callable, Optional
+
+from payton.scene.geometry import Mesh, Sphere, Object
 from payton.math.geometry import distance
 
 
 class Collision(object):
     """Collision pair result class"""
 
-    def __init__(self, obj1, obj2):
+    def __init__(self, obj1: Object, obj2: Object) -> None:
         self.object_1 = obj1
         self.object_2 = obj2
         self.segment = 1
@@ -83,7 +85,7 @@ class CollisionTest(object):
     SPHERICAL = 0
     AABB = 1
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         """Initialize collision detector
 
         Args:
@@ -91,14 +93,14 @@ class CollisionTest(object):
           callback: Callback function to call incase of collision
           level: Level of collision detection accuracy
         """
-        self.objects = args.get("objects", [])
-        self.callback = args.get("callback", None)
-        self.level = args.get("level", self.AABB)
+        self.objects: List[Type[Mesh]] = args.get("objects", [])
+        self.callback: Optional[Callable] = args.get("callback", None)
+        self.level: int = args.get("level", self.AABB)
         if not callable(self.callback):
             logging.error("callback should be a callable")
-        self._pairs = []
+        self._pairs: List[List[Mesh]] = []
 
-    def add_object(self, obj):
+    def add_object(self, obj: Type[Mesh]) -> None:
         """Add object to test group
 
         Args:
@@ -109,24 +111,24 @@ class CollisionTest(object):
             return
         self.objects.append(obj)
 
-    def _dist(self, obj1, obj2):
+    def _dist(self, obj1: Object, obj2: Object) -> float:
         """Distance between two given objects"""
-        obj1.update_matrix()
-        obj2.update_matrix()
         p1 = obj1._model_matrix[3]
         p2 = obj2._model_matrix[3]
         return distance(p1, p2)
 
-    def _bounding_sphere_collision(self, obj1, obj2):
+    def _bounding_sphere_collision(self, obj1: Object, obj2: Object) -> bool:
         """Bounding sphere collision test.
 
         Distance between the centers of two spheres should be longer than
         sum of their radiuses. Otherwise, they are colliding"""
         dist = self._dist(obj1, obj2)
         total_radius = obj1.bounding_radius + obj2.bounding_radius
+        # Ignored above type as there is a false-positive bug in mypy for
+        # @property
         return dist <= total_radius
 
-    def _sphere_in_sphere_collision(self, obj1, obj2):
+    def _sphere_in_sphere_collision(self, obj1: Mesh, obj2: Mesh) -> bool:
         """Test if one object is completely in another object.
 
         In some cases, object 1 can be wrapping object 2 or vice versa.
@@ -137,13 +139,13 @@ class CollisionTest(object):
           obj2: Second object to test
         """
         dist = self._dist(obj1, obj2)
-        if obj1.bounding_radius > dist + obj2.bounding_radius:
+        if obj1.bounding_radius > dist + obj2.bounding_radius:  # type: ignore
             return True
-        if obj2.bounding_radius > dist + obj1.bounding_radius:
+        if obj2.bounding_radius > dist + obj1.bounding_radius:  # type: ignore
             return True
         return False
 
-    def _aabb_collision_test(self, obj1, obj2):
+    def _aabb_collision_test(self, obj1: Mesh, obj2: Mesh) -> bool:
         """Axis Aligned Bounding Box collision test
 
         See: https://en.wikipedia.org/wiki/Minimum_bounding_box
@@ -161,7 +163,7 @@ class CollisionTest(object):
             return False
         return True
 
-    def _test(self, obj1, obj2):
+    def _test(self, obj1: Mesh, obj2: Mesh) -> bool:
         """Test if obj1 and obj2 are colliding"""
         bs_test = self._bounding_sphere_collision(obj1, obj2)
         if not bs_test:
@@ -179,7 +181,7 @@ class CollisionTest(object):
             return self._aabb_collision_test(obj1, obj2)
         return False
 
-    def resolve(self, obj1, obj2):
+    def resolve(self, obj1: Mesh, obj2: Mesh) -> None:
         """Report that you have solved the collision between objects
 
         For a better performance, once two objects collide, system will

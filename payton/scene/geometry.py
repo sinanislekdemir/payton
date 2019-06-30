@@ -14,9 +14,10 @@ object is not generated until it arrives in render pipeline.
 
 import pyrr
 import math
-import numpy as np
+import numpy as np  # type: ignore
 import ctypes
 import logging
+from typing import Union, List, Dict, Type, Any, Iterator, Optional
 
 from OpenGL.GL import (
     glDeleteVertexArrays,
@@ -52,6 +53,8 @@ from payton.math.vector import plane_normal, vector_transform
 from payton.math.matrix import create_rotation_matrix
 from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
 from payton.scene.shader import Shader
+from payton.scene.light import Light
+from payton.scene.types import VList, IList
 
 
 class Object(object):
@@ -78,7 +81,7 @@ class Object(object):
 
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         """
         Initialize the basic object properties.
 
@@ -105,11 +108,11 @@ class Object(object):
         object gets added to a Scene with a name, Scene will assign that
         name to the object, overwriting any existing name of the object.
         """
-        self.children = {}
-        self.material = Material()
+        self.children: Dict[str, Object] = {}
+        self.material: Material = Material()
         self.static = args.get("static", True)
         self.name = args.get("name", "")
-        self.matrix = [
+        self.matrix: VList = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
             [0.0, 0.0, 1.0, 0.0],
@@ -119,98 +122,105 @@ class Object(object):
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
         #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
 
-        self._vertices = []  # Object vertex list
-        self._normals = []  # Vertex normals, 1 normal coordinate for 1 Vertex
-        self._texcoords = []  # Texture coordinates, 1 coordinate per Vertex
-        self._vertex_colors = []  # per-vertex colors, optional.
-        self._has_vertex_colors = False  # flag for using vertex colors
+        self._vertices: VList = []  # Object vertex list
+        self._normals: List[
+            List[float]
+        ] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
+        self._texcoords: List[
+            List[float]
+        ] = []  # Texture coordinates, 1 coordinate per Vertex
+        self._vertex_colors: List[
+            List[float]
+        ] = []  # per-vertex colors, optional.
+        self._has_vertex_colors: bool = False  # flag for using vertex colors
 
         # Vertices do not mean anything unless we define how to use them.
         # For instance, 3 vertices make a triangle or 2 vertices define a line
         # order of vertices are defined in self._indices.
-        self._indices = []
-        self._vertex_count = 0  # Number of vertices to report to OpenGL.
+        self._indices: IList = []
+        self._vertex_count: int = 0  # Number of vertices to report to OpenGL.
 
         # This is an optimization technique for dynamic objects where there are
         # increasing number of vertices. We allocate some buffer before-hand
         # and if we fill all of it, we resize it.
-        self._buffer_size = 500 * 12
-        self._t_buffer_size = 500 * 8
-        self._model_matrix = None  # Model matrix.
+        self._buffer_size: float = 500 * 12
+        self._t_buffer_size: float = 500 * 8
+        self._model_matrix: np.ndarray = []  # Model matrix.
         # Check if buffer size allocated for the object has changed.
-        self._buffer_size_changed = True
-        self._t_buffer_size_changed = True
+        self._buffer_size_changed: bool = True
+        self._t_buffer_size_changed: bool = True
 
         # Track object motion
         self.track_motion = args.get("track_motion", False)
         # Motion path, stores every matrix change.
-        self._motion_path = []
+        self._motion_path: List[VList] = []
         if not isinstance(self, Line):
             # _motion_path_line is used to display the motion path in scene
             self._motion_path_line = Line()
-        self._previous_matrix = None
+        self._previous_matrix: Union[np.ndarray, None] = None
 
         # For raycast tests - bounding radius is the radius of the bounding
         # sphere.
-        self._bounding_radius = 0
-        self._bounding_box = []
-        self._selected = False
+        self._bounding_radius: float = 0
+        self._bounding_box: VList = []
+        self._selected: bool = False
 
         # Vertex Array Object pointer
-        self._vao = None
-        self._needs_update = False  # Object geometry has changed.
-        self._hit = False
-        # I personally prefer not to delete vbos as in some cases I need to
+        self._vao: int = -1
+        self._needs_update: bool = False  # Object geometry has changed.
+        self._hit: bool = False
+        """ I personally prefer not to delete vbos as in some cases I need to
         # refer to VBOs to update them partially. I don't want to loose
         # their reference and make things harder. I am not naming them
         # anyways.
-        self._vbos = None
+        """
+        self._vbos: List[int] = []
 
-    def refresh(self):
+    def refresh(self) -> None:
         """Refresh object
 
         Forces object to get built again
         """
         self._needs_update = True
 
-    def yaw(self, angle):
+    def yaw(self, angle: float) -> None:
         """Yaw - Rotate around Z Axis
 
         Args:
           angle: Angle in radians
         """
-        rot_matrix = create_rotation_matrix([0, 0, 1], angle, True)
+        rot_matrix = create_rotation_matrix([0, 0, 1], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
 
-    def rotate_around_z(self, angle):
+    def rotate_around_z(self, angle: float) -> None:
         """Rotate around Z axis, alias for yaw function"""
         return self.yaw(angle)
 
-    def rotate_around_x(self, angle):
+    def rotate_around_x(self, angle: float) -> None:
         """Pitch - Rotate around X axis
 
         Args:
           angle: Angle in radians
         """
-        rot_matrix = create_rotation_matrix([1, 0, 0], angle, True)
+        rot_matrix = create_rotation_matrix([1, 0, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
 
-    def rotate_around_y(self, angle):
+    def rotate_around_y(self, angle: float) -> None:
         """Roll - Rotate around Y Axis (Direction)
 
         Args:
           angle: Angle in radians
         """
-        rot_matrix = create_rotation_matrix([0, 1, 0], angle, True)
+        rot_matrix = create_rotation_matrix([0, 1, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
 
-    def select(self, start, vector):
+    def select(self, start: np.ndarray, vector: np.ndarray) -> bool:
         """Select test for object using bounding Sphere.
 
         Note: this method is not 100% accurate as it is based on a rough
@@ -238,16 +248,18 @@ class Object(object):
 
         return self._selected
 
-    def destroy(self):
+    def destroy(self) -> bool:
         """
         Destroy objects self
         """
-        if self._vao:
+        if self.has_vao:
             glDeleteVertexArrays(1, [self._vao])
-            self._vao = None
+            self._vao = -1
         return True
 
-    def update_matrix(self, parent_matrix=None):
+    def update_matrix(
+        self, parent_matrix: Optional[np.ndarray] = None
+    ) -> None:
         """Update matrix
 
         Turn object matrix into numpy array.
@@ -260,10 +272,10 @@ class Object(object):
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
 
         # When there is a parent object, child object follows parents matrix
-        if parent_matrix is not None:
+        if parent_matrix is not None and len(parent_matrix) > 0:
             self._model_matrix = parent_matrix.dot(self._model_matrix)
 
-    def track(self):
+    def track(self) -> bool:
         """
         Track object motion
         """
@@ -282,8 +294,19 @@ class Object(object):
 
         # Python trick here! need to .copy or it will pass reference.
         self._previous_matrix = self.matrix[3].copy()
+        return True
 
-    def render(self, proj, view, lights, parent_matrix=None):
+    @property
+    def has_vao(self) -> bool:
+        return self._vao > -1
+
+    def render(
+        self,
+        proj: np.ndarray,
+        view: np.ndarray,
+        lights: List[Light],
+        parent_matrix: Optional[np.ndarray] = None,
+    ) -> None:
         """
         Virtual function for rendering the object. Some objects can overwrite
         this function.
@@ -297,7 +320,7 @@ class Object(object):
         object will position itself relative to its parent object.
         """
 
-        if not self._vao or self._needs_update:
+        if not self.has_vao or self._needs_update:
             self.build()
 
         if self._vertex_count == 0:
@@ -348,7 +371,7 @@ class Object(object):
             self.children[child].render(proj, view, lights, self._model_matrix)
 
     @property
-    def position(self):
+    def position(self) -> List[float]:
         """Get position of the Object.
 
         Return matrix position list
@@ -356,7 +379,7 @@ class Object(object):
         return self.matrix[3][:3]
 
     @position.setter
-    def position(self, pos):
+    def position(self, pos: List[float]) -> None:
         """
         Shortcut function for explicitly modifying matrix indices.
 
@@ -367,12 +390,12 @@ class Object(object):
           pos: Position list ([x, y, z])
         """
         if len(pos) == 2:
-            pos = (pos[0], pos[1], 0)
+            pos = [pos[0], pos[1], 0.0]
         self.matrix[3][0] = pos[0]
         self.matrix[3][1] = pos[1]
         self.matrix[3][2] = pos[2]
 
-    def add_child(self, name, obj):
+    def add_child(self, name: str, obj: Type["Object"]) -> bool:
         """Add child to this object.
 
         In a basic example:
@@ -401,24 +424,25 @@ class Object(object):
             logging.error("Object type is not valid")
             return False
         self.children[name] = obj
+        return True
 
-    def to_absolute(self, coordinates):
+    def to_absolute(self, coordinates: List[float]) -> List[float]:
         """
         Return local coordinates (tuple, list) into absolute coordinates in
         space.
         """
         return vector_transform(coordinates, self.matrix)
 
-    def absolute_vertices(self):
+    def absolute_vertices(self) -> Iterator[List[float]]:
         return map(lambda v: self.to_absolute(v), self._vertices)
 
-    def to_local(self, coordinates):
+    def to_local(self, coordinates: List[float]) -> None:
         """
-        Return absolute coordinates (tuple, list) into local coordinates
+        TODO Return absolute coordinates (tuple, list) into local coordinates
         """
         pass
 
-    def toggle_wireframe(self):
+    def toggle_wireframe(self) -> None:
         d = self.material.display
         d += 1
         d = d % 3
@@ -427,11 +451,12 @@ class Object(object):
         for n in self.children:
             self.children[n].toggle_wireframe()
 
-    def _calc_bounds(self):
+    def _calc_bounds(self) -> float:
         # Calculate the bounding sphere radius
         vertices = np.array(self._vertices, dtype=np.float32)
-        bmin = None
-        bmax = None
+
+        bmin: Optional[List[float]] = None
+        bmax: Optional[List[float]] = None
         for v in vertices:
             if bmin is None:
                 bmin = [0, 0, 0]
@@ -455,11 +480,15 @@ class Object(object):
             d = pyrr.vector3.length(v)
             if d > self._bounding_radius:
                 self._bounding_radius = d
+        if bmin is None:
+            bmin = [0.0, 0.0, 0.0]
+        if bmax is None:
+            bmax = [0.0, 0.0, 0.0]
         self._bounding_box = [bmin, bmax]
         return self._bounding_radius
 
     @property
-    def bounding_radius(self):
+    def bounding_radius(self) -> float:
         """Return bounding radius
 
         Note: This property function *WILL NOT* update the previously
@@ -472,7 +501,7 @@ class Object(object):
             return self._bounding_radius
         return self._calc_bounds()
 
-    def build(self):
+    def build(self) -> bool:
         """
         Build OpenGL Vertex Array for the object
         This function gets automatically called if `self._vao` does not
@@ -488,10 +517,10 @@ class Object(object):
         an invisible object (will not be drawn)
         """
         if len(self._indices) == 0:
-            return
+            return False
 
         # If we don't have a VAO yet, we need to create one
-        if self._vao is None:
+        if not self.has_vao:
             # Generate Vertex Array
             self._vao = glGenVertexArrays(1)
             # We need 5 buffers (vertex, normal, texcoord, color, indices)
@@ -591,7 +620,7 @@ class Object(object):
         if self.static:
             # we can clear this data to free some more memory
             glDeleteBuffers(4, self._vbos)
-            self._vbos = None
+            self._vbos = []
 
         return True
 
@@ -608,11 +637,11 @@ class Mesh(Object):
     by code.
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         super().__init__(**args)
         self.static = False
 
-    def clear_triangles(self):
+    def clear_triangles(self) -> None:
         self._vertices = []
         self._indices = []
         self._normals = []
@@ -621,8 +650,12 @@ class Mesh(Object):
         self.refresh()
 
     def add_triangle(
-        self, vertices, normals=None, texcoords=None, colors=None
-    ):
+        self,
+        vertices: VList,
+        normals: Optional[VList] = None,
+        texcoords: Optional[VList] = None,
+        colors: Optional[VList] = None,
+    ) -> None:
         """Add triangle to Mesh
 
         Args:
@@ -654,13 +687,16 @@ class Mesh(Object):
         """
         if len(vertices) != 3:
             logging.error("A triangle must have 3 vertices")
-            return False
+            return
+
         if normals is not None and len(normals) != 3:
             logging.error("There must be one normal per vertex")
-            return False
+            return
+
         if texcoords is not None and len(texcoords) != 3:
             logging.error("There must be one texcoord per vertex")
-            return False
+            return
+
         if normals is None:
             v1, v2, v3 = vertices[0], vertices[1], vertices[2]
             normal = plane_normal(v1, v2, v3)
@@ -708,7 +744,7 @@ class Cube(Mesh):
 
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         """Initialize Cube
 
         Args:
@@ -864,14 +900,14 @@ class Sphere(Mesh):
 
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         super().__init__(**args)
-        self.radius = args.get("radius", 0.5)
-        self.parallels = args.get("parallels", 12)
-        self.meridians = args.get("meridians", 12)
+        self.radius: float = args.get("radius", 0.5)
+        self.parallels: int = args.get("parallels", 12)
+        self.meridians: int = args.get("meridians", 12)
         self.build_sphere()
 
-    def build_sphere(self):
+    def build_sphere(self) -> bool:
         """
         Generate the sphere
         """
@@ -957,7 +993,7 @@ class Line(Object):
     """Line object
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         """Iniitalize line
 
         Args:
@@ -965,19 +1001,19 @@ class Line(Object):
           color: Color of the line
         """
         super().__init__(**args)
-        self._vertices = args.get("vertices", [])
+        self._vertices: VList = args.get("vertices", [])
         self.material.color = args.get("color", [1.0, 1.0, 1.0])
 
-        self.visible = True
-        self.static = False  # Do not clear the vertices each time.
+        self.visible: bool = True
+        self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
         self.build_lines()
 
-    def toggle_wireframe(self):
+    def toggle_wireframe(self) -> None:
         """Toggle Wireframe overwrite to disable mode change"""
         pass
 
-    def append(self, vertices):
+    def append(self, vertices: VList) -> None:
         """Append vertex or vertices to line.
 
         Args:
@@ -991,13 +1027,17 @@ class Line(Object):
         self._texcoords += [[0, 0]] * diff
         self._normals += [[0, 0, 0]] * diff
         self._vertex_count = len(self._vertices)
-        indices = map(lambda x: x + last_index, range(diff))
-        self._indices += indices
+        indices = list(map(lambda x: x + last_index, range(diff)))
+        self._indices.extend([indices])
 
-        if self._vao is not None:
+        if self.has_vao:
             self._needs_update = True
 
-    def build_lines(self, vertices=None, color=None):
+    def build_lines(
+        self,
+        vertices: Optional[VList] = None,
+        color: Optional[List[float]] = None,
+    ) -> None:
         """Build lines
 
         Build line vertex array object.
@@ -1014,7 +1054,7 @@ class Line(Object):
             self._normals.append([0, 0, 0])
             self._texcoords.append([0, 0])
 
-        if self._vao is not None:
+        if self.has_vao:
             # This is a dynamic object, destroying the object is not a good
             # idea so we just update the buffer here.
             self.build()
@@ -1027,26 +1067,26 @@ class PointCloud(Object):
     effect.
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         super().__init__(**args)
-        self._vertices = args.get("vertices", [])
+        self._vertices: VList = args.get("vertices", [])
         # Expose vertices by reference for modification
-        self.vertices = self._vertices
-        self._vertex_colors = args.get("colors", [])
-        self._vertex_history = []
+        self.vertices: VList = self._vertices
+        self._vertex_colors: VList = args.get("colors", [])
+        self._vertex_history: VList = []
         self.material.display = POINTS
-        self.static = False
+        self.static: bool = False
 
-    def toggle_wireframe(self):
+    def toggle_wireframe(self) -> None:
         """Toggle wireframe overwrite to disable mode change"""
         pass
 
-    def track(self):
+    def track(self) -> bool:
         """Tracking point cloud is not possible at the moment
         """
-        pass
+        return False
 
-    def add(self, vertices, colors=None):
+    def add(self, vertices: VList, colors: Optional[VList] = None) -> None:
         """Add a point to the cloud
 
         Args:
@@ -1056,7 +1096,7 @@ class PointCloud(Object):
         i = len(self._indices)
         for vertex in vertices:
             self._vertices.append(vertex)
-            self._indices.append(i)
+            self._indices.append([i])
             i += 1
 
         if colors is not None:
@@ -1076,7 +1116,7 @@ class Plane(Mesh):
     If you need to place it in another axis, try modifying its matrix.
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         """Initialize plane
 
         Args:

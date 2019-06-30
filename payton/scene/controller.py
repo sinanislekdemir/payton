@@ -7,13 +7,14 @@ you can extend this controller for your own needs.
 """
 import sdl2
 import logging
+from typing import Any
 from payton.scene.observer import BUTTON_LEFT, BUTTON_RIGHT
 
 
 class Controller(object):
     """SDL2 OpenGL controller."""
 
-    def keyboard(self, event, scene):
+    def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> None:
         """
         Keyboard event handler.
 
@@ -85,7 +86,7 @@ class Controller(object):
                 for i in range(len(scene.observers)):
                     scene.observers[i].active = i == active
 
-    def mouse(self, event, scene):
+    def mouse(self, event: sdl2.SDL_Event, scene: Any) -> None:
         observer = scene.active_observer
         if event.type == sdl2.SDL_MOUSEBUTTONUP:
             observer._prev_intersection = None

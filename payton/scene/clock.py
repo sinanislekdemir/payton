@@ -29,7 +29,7 @@ Example usage:
     import logging
     import math
 
-    from payton.scene import Scene
+    from payton.scene.scene import Scene
     from payton.scene.clock import Clock
     from payton.scene.geometry import Sphere
 
@@ -92,7 +92,8 @@ Example usage:
 """
 import threading
 import time
-
+from typing import Callable, Any, Type
+from payton.scene.receiver import Receiver
 
 SAFE_ASSUMPTION = 0.01
 
@@ -104,7 +105,13 @@ class Clock(threading.Thread):
     Timer function carries a callback function to be called.
     """
 
-    def __init__(self, name, period, scene, callback):
+    def __init__(
+        self,
+        name: str,
+        period: float,
+        scene: Type[Receiver],
+        callback: Callable[[str, Type[Receiver], float, float], None],
+    ):
         """
         name of the thread is a freetext for logging purposes
         period is the waiting period between each callback
@@ -115,25 +122,25 @@ class Clock(threading.Thread):
         self.name = name
         self.scene = scene
         self.period = period
-        self._total_time = 0
+        self._total_time = 0.0
         self.callback = callback
         self._kill = False
         self._pause = True
 
-    def kill(self):
+    def kill(self) -> None:
         """
         Send a kill signal to existing clock.
         """
         self._kill = True
 
-    def pause(self):
+    def pause(self) -> None:
         """
         Send a pause signal to existing clock. Re-sending the same signal
         will let it continue.
         """
         self._pause = not self._pause
 
-    def run(self):
+    def run(self) -> Any:
         """
         Callback function must have four arguments
         name of the clock for logging purposes

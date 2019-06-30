@@ -7,8 +7,10 @@ the origin of the scene (0, 0, 0) and can not be moved.
 Grid size can be adjusted. Grid is a perfect way to visually see the movement
 and positions of objects in space.
 """
-import numpy as np
+import numpy as np  # type: ignore
 import ctypes
+
+from typing import Any, List, Optional
 
 from OpenGL.GL import (
     glDeleteVertexArrays,
@@ -33,7 +35,9 @@ from OpenGL.GL import (
     GL_UNSIGNED_INT,
     glDeleteBuffers,
 )
+
 from payton.scene.material import Material
+from payton.scene.light import Light
 
 
 class Grid(object):
@@ -54,19 +58,19 @@ class Grid(object):
         my_scene.run()
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any) -> None:
         """Initialize Grid
 
         Args:
           xres: Number of lines in X
           yres: Number of lines in Y
         """
-        xres = args.get("xres", 20)
-        yres = args.get("yres", 20)
-        self._color = args.get("color", [0.4, 0.4, 0.4])
+        xres: int = args.get("xres", 20)
+        yres: int = args.get("yres", 20)
+        self._color: List[float] = args.get("color", [0.4, 0.4, 0.4])
 
-        self.static = True
-        self.matrix = [
+        self.static: bool = True
+        self.matrix: List[float] = [
             1.0,
             0.0,
             0.0,
@@ -84,28 +88,30 @@ class Grid(object):
             0.0,
             1.0,
         ]
-        self._vertices = []
-        self._indices = []
-        self._vertex_count = 0
-        self._model_matrix = None
-        self._material = Material(display=1, lights=False)
+        self._vertices: List[float] = []
+        self._indices: List[int] = []
+        self._vertex_count: int = 0
+        self._model_matrix: Optional[np.ndarray] = None
+        self._material: Material = Material(display=1, lights=False)
         self._material.color = self._color
 
         # Vertex Array Object pointer
-        self._vao = None
-        self.visible = True
+        self._vao: int = -1
+        self.visible: bool = True
 
         self.resize(xres, yres)
 
-    def destroy(self):
+    def destroy(self) -> bool:
         """
         Destroy objects self
         """
-        if self._vao:
+        if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
         return True
 
-    def render(self, proj, view, _lights):
+    def render(
+        self, proj: np.ndarray, view: np.ndarray, _lights: List[Light]
+    ) -> bool:
         """
         Virtual function for rendering the object.
 
@@ -117,7 +123,7 @@ class Grid(object):
         if not self.visible:
             return True
 
-        if not self._vao:
+        if self._vao == -1:
             self.build()
 
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
@@ -135,8 +141,9 @@ class Grid(object):
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
         self._material.end()
+        return True
 
-    def resize(self, xres, yres, spacing=1):
+    def resize(self, xres: int, yres: int, spacing: float = 1.0) -> None:
         self._vertices = []
         self._indices = []
         self._vertex_count = 0
@@ -164,20 +171,20 @@ class Grid(object):
                 ]
 
         self._vertex_count = len(self._indices)
-        if self._vao:
+        if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
-        self._vao = None
+        self._vao = -1
 
     @property
-    def color(self):
+    def color(self) -> List[float]:
         return self._color
 
     @color.setter
-    def color(self, color):
+    def color(self, color: List[float]) -> None:
         self._color = color
         self._material.color = color
 
-    def build(self):
+    def build(self) -> None:
         self._vao = glGenVertexArrays(1)
         vbos = glGenBuffers(2)
         glBindVertexArray(self._vao)
@@ -208,5 +215,3 @@ class Grid(object):
             # we can clear this data to free some more memory
             self._vertices = []
             self._indices = []
-
-        return True

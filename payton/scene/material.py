@@ -14,9 +14,9 @@ There are also pre-defined colors in this module
 """
 import os
 import copy
-from PIL import Image
-import numpy as np
-from payton.scene.shader import Shader
+import numpy as np  # type: ignore
+from PIL import Image  # type: ignore
+
 from OpenGL.GL import (
     glGenTextures,
     glPixelStorei,
@@ -45,34 +45,38 @@ from OpenGL.GL import (
     glGenerateMipmap,
 )
 
+from typing import Any, List, Optional
 
-SOLID = 0
-WIREFRAME = 1
-POINTS = 2
+from payton.scene.shader import Shader
+from payton.scene.light import Light
 
-RED = [1.0, 0.0, 0.0]
-GREEN = [0.0, 1.0, 0.0]
-BLUE = [0.0, 0.0, 1.0]
-CRIMSON = [220 / 255.0, 20 / 255.0, 60 / 255.0]
-PINK = [1.0, 192 / 255.0, 203 / 255.0]
-VIOLET_RED = [1.0, 62 / 255.0, 150 / 255.0]
-DEEP_PINK = [1.0, 20 / 255.0, 147 / 255.0]
-ORCHID = [218 / 255.0, 112 / 255.0, 214 / 255.0]
-PURPLE = [128 / 255.0, 0.0, 128 / 255.0]
-NAVY = [0.0, 0.0, 0.5]
-ROYAL_BLUE = [65 / 255.0, 105 / 255.0, 225 / 255.0]
-LIGHT_STEEL_BLUE = [176 / 255.0, 196 / 255.0, 222 / 255.0]
-STEEL_BLUE = [70 / 255.0, 130 / 255.0, 180 / 255.0]
-TURQUOISE = [0.0, 245 / 255.0, 1.0]
-YELLOW = [1.0, 1.0, 0.0]
-GOLD = [1.0, 225 / 255.0, 0.0]
-ORANGE = [1.0, 165 / 255.0, 0.0]
-WHITE = [1.0, 1.0, 1.0]
-BLACK = [0.0, 0.0, 0.0]
-DARK_GRAY = [0.2, 0.2, 0.2]
-LIGHT_GRAY = [0.8, 0.8, 0.8]
+SOLID = 0  # type: int
+WIREFRAME = 1  # type: int
+POINTS = 2  # type: int
 
-GLOBAL_SHADER = None
+RED = [1.0, 0.0, 0.0]  # type: List[float]
+GREEN = [0.0, 1.0, 0.0]  # type: List[float]
+BLUE = [0.0, 0.0, 1.0]  # type: List[float]
+CRIMSON = [220 / 255.0, 20 / 255.0, 60 / 255.0]  # type: List[float]
+PINK = [1.0, 192 / 255.0, 203 / 255.0]  # type: List[float]
+VIOLET_RED = [1.0, 62 / 255.0, 150 / 255.0]  # type: List[float]
+DEEP_PINK = [1.0, 20 / 255.0, 147 / 255.0]  # type: List[float]
+ORCHID = [218 / 255.0, 112 / 255.0, 214 / 255.0]  # type: List[float]
+PURPLE = [128 / 255.0, 0.0, 128 / 255.0]  # type: List[float]
+NAVY = [0.0, 0.0, 0.5]  # type: List[float]
+ROYAL_BLUE = [65 / 255.0, 105 / 255.0, 225 / 255.0]  # type: List[float]
+LIGHT_STEEL_BLUE = [176 / 255.0, 196 / 255.0, 222 / 255.0]  # type: List[float]
+STEEL_BLUE = [70 / 255.0, 130 / 255.0, 180 / 255.0]  # type: List[float]
+TURQUOISE = [0.0, 245 / 255.0, 1.0]  # type: List[float]
+YELLOW = [1.0, 1.0, 0.0]  # type: List[float]
+GOLD = [1.0, 225 / 255.0, 0.0]  # type: List[float]
+ORANGE = [1.0, 165 / 255.0, 0.0]  # type: List[float]
+WHITE = [1.0, 1.0, 1.0]  # type: List[float]
+BLACK = [0.0, 0.0, 0.0]  # type: List[float]
+DARK_GRAY = [0.2, 0.2, 0.2]  # type: List[float]
+LIGHT_GRAY = [0.8, 0.8, 0.8]  # type: List[float]
+
+GLOBAL_SHADER: Optional[Shader] = None
 
 
 class Material(object):
@@ -80,7 +84,7 @@ class Material(object):
     Material information holder.
     """
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any):
         """
         Initialize Material
 
@@ -108,12 +112,12 @@ class Material(object):
           opacity: Opacity of the material (0 fully transparent, 1 opaque)
         """
 
-        self.color = args.get("color", [1.0, 1.0, 1.0])
-        self.display = args.get("display", SOLID)
-        self.lights = args.get("lights", True)
-        self.texture = args.get("texture", "")
-        self.opacity = args.get("opacity", 1.0)
-        self._image = None
+        self.color: List[float] = args.get("color", [1.0, 1.0, 1.0])
+        self.display: int = args.get("display", SOLID)
+        self.lights: bool = args.get("lights", True)
+        self.texture: str = args.get("texture", "")
+        self.opacity: float = args.get("opacity", 1.0)
+        self._image: Optional[Image] = None
 
         variables = [
             "model",
@@ -126,14 +130,14 @@ class Material(object):
             "object_color",
             "opacity",
             "view_mode",
-        ]
+        ]  # type: List[str]
 
-        self.shader = Shader(variables=variables)
+        self.shader: Shader = Shader(variables=variables)
 
-        self._initialized = False
-        self._texture = None
+        self._initialized: bool = False
+        self._texture: Optional[int] = None
 
-    def build_shader(self):
+    def build_shader(self) -> bool:
         """Build material shaders
 
         Must be called at object build stage after generating vba.
@@ -153,7 +157,7 @@ class Material(object):
             self.load_texture(self._image)
         return True
 
-    def load_texture(self, img):
+    def load_texture(self, img: Image) -> None:
         img_data = np.fromstring(img.tobytes(), np.uint8)
         width, height = img.size
         self._texture = glGenTextures(1)
@@ -178,10 +182,17 @@ class Material(object):
         )
         glGenerateMipmap(GL_TEXTURE_2D)
 
-    def refresh(self):
+    def refresh(self) -> None:
         self._initialized = False
 
-    def render(self, proj, view, model, lights, mode=None):
+    def render(
+        self,
+        proj: np.ndarray,
+        view: np.ndarray,
+        model: np.ndarray,
+        lights: List[Light],
+        mode: Optional[int] = None,
+    ) -> None:
         """Render material
 
         This function must be called before rendering the actual object
@@ -246,6 +257,6 @@ class Material(object):
             "object_color", np.array(self.color, dtype=np.float32)
         )
 
-    def end(self):
+    def end(self) -> None:
         self.shader.end()
         glDisable(GL_BLEND)

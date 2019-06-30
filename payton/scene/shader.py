@@ -16,8 +16,10 @@ essential to Payton Library. That is all.
 """
 
 import ctypes
-import numpy as np
+import numpy as np  # type: ignore
 import logging
+
+from typing import Any, List, Dict, Optional
 
 from OpenGL.GL import (
     GL_VERTEX_SHADER,
@@ -98,7 +100,7 @@ void main()
         // Lightless per vertex color
         FragColor = vec4(frag_color, opacity);
     }
-}"""
+}"""  # type: str
 
 
 default_vertex_shader = """
@@ -136,7 +138,7 @@ void main()
     tex_coords = texCoords;
     frag_color = colors;
 }
-"""
+"""  # type: str
 
 
 background_vertex_shader = """
@@ -150,7 +152,7 @@ void main()
                  * 4.0 - 1.0);
   v_uv = vec2( gl_Position.xy * 0.5 + 0.5 );
 }
-"""
+"""  # type: str
 
 background_fragment_shader = """
 #version 330 core
@@ -163,7 +165,7 @@ void main()
 {
   frag_color = bot_color * (1 - v_uv.y) + top_color * v_uv.y;
 }
-"""
+"""  # type: str
 
 
 class Shader(object):
@@ -184,14 +186,14 @@ class Shader(object):
     it will overwrite existing list.
     """
 
-    NO_LIGHT_COLOR = 0
-    NO_LIGHT_TEXTURE = 1
-    LIGHT_COLOR = 2
-    LIGHT_TEXTURE = 3
-    PER_VERTEX_COLOR = 4
-    HUD = 5
+    NO_LIGHT_COLOR = 0  # type: int
+    NO_LIGHT_TEXTURE = 1  # type: int
+    LIGHT_COLOR = 2  # type: int
+    LIGHT_TEXTURE = 3  # type: int
+    PER_VERTEX_COLOR = 4  # type:int
+    HUD = 5  # type: int
 
-    def __init__(self, **args):
+    def __init__(self, **args: Any):
         """Initialize Shader.
 
         Args:
@@ -200,17 +202,19 @@ class Shader(object):
           variables: List of in/out/uniform variable names.
         """
         global default_fragment_shader, default_vertex_shader
-        self.fragment_shader_source = args.get(
+        self.fragment_shader_source: str = args.get(
             "fragment", default_fragment_shader
         )
-        self.vertex_shader_source = args.get("vertex", default_vertex_shader)
-        self.variables = args.get("variables", [])
-        self._stack = {}  # Variable stack.
-        self._mode = self.NO_LIGHT_COLOR  # Lightless color material
+        self.vertex_shader_source: str = args.get(
+            "vertex", default_vertex_shader
+        )
+        self.variables: List[str] = args.get("variables", [])
+        self._stack: Dict[str, int] = {}  # Variable stack.
+        self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
 
-        self.program = None
+        self.program: int = -1
 
-    def build(self, variables=None):
+    def build(self, variables: Optional[List[str]] = None) -> int:
         """Build GLSL Shader
         Compile shaders and compile glsl program
         Args:
@@ -234,25 +238,27 @@ class Shader(object):
 
         return self.program
 
-    def use(self):
+    def use(self) -> bool:
         """Use GLSL Program.
         This method should be called before setting any variables or rendering
         any entities
         """
-        if not self.program:
+        if self.program == -1:
             logging.error("Shader not compiled")
             return False
         glUseProgram(self.program)
         glEnable(GL_PROGRAM_POINT_SIZE)
         return True
 
-    def end(self):
+    def end(self) -> None:
         """Set the active GLSL program to 0
         """
         glUseProgram(0)
         glDisable(GL_PROGRAM_POINT_SIZE)
 
-    def set_matrix4x4_np(self, variable, value, transpose=False):
+    def set_matrix4x4_np(
+        self, variable: str, value: np.ndarray, transpose: bool = False
+    ) -> bool:
         """Set 4x4 Numpy matrix value
 
         Some elements like Observer and Light can pass their matrices directly
@@ -264,18 +270,21 @@ class Shader(object):
           value: Matrix to set. (Numpy matrix)
           transpose: Transpose matrix.
         """
-        transpose = GL_TRUE if transpose else GL_FALSE
+        g_transpose = GL_TRUE if transpose else GL_FALSE
         location = self.get_location(variable)
         if not location:
             logging.error(f"Variable not found in program [{variable}]")
             return False
 
         glUniformMatrix4fv(
-            location, 1, transpose, np.asfortranarray(value, dtype=np.float32)
+            location,
+            1,
+            g_transpose,
+            np.asfortranarray(value, dtype=np.float32),
         )
         return True
 
-    def get_location(self, variable):
+    def get_location(self, variable: str) -> int:
         """Get location of a given variable within the shader"""
         if variable in self._stack:
             return self._stack[variable]
@@ -285,7 +294,9 @@ class Shader(object):
         self._stack[variable] = location
         return location
 
-    def set_matrix4x4(self, variable, value, transpose=False):
+    def set_matrix4x4(
+        self, variable: str, value: List[List[float]], transpose: bool = False
+    ) -> None:
         """Set 4x4 Matrix value
 
         This method will simply convert `value` into numpy array and call
@@ -298,7 +309,9 @@ class Shader(object):
         """
         self.set_matrix4x4_np(variable, np.array(value, np.float32), transpose)
 
-    def set_vector3_array_np(self, variable, value, count):
+    def set_vector3_array_np(
+        self, variable: str, value: np.ndarray, count: int
+    ) -> bool:
         """Set array of vec3 as numpy array value"""
         value = value.flatten()
         location = self.get_location(variable)
@@ -306,8 +319,9 @@ class Shader(object):
             logging.error(f"Variable not found in program [{variable}]")
             return False
         glUniform3fv(location, count, value)
+        return True
 
-    def set_vector3_np(self, variable, value):
+    def set_vector3_np(self, variable: str, value: np.ndarray) -> bool:
         """Set Vector 3 as numpy array value
 
         Some elements like Light or pre-set materials can pass their
@@ -323,8 +337,9 @@ class Shader(object):
             logging.error(f"Variable not found in program [{variable}]")
             return False
         glUniform3fv(location, 1, value)
+        return True
 
-    def set_vector4_np(self, variable, value):
+    def set_vector4_np(self, variable: str, value: np.ndarray) -> bool:
         """Set Vector 4 as numpy array value
 
         Some elements like Light or pre-set materials can pass their vertices
@@ -339,8 +354,9 @@ class Shader(object):
             logging.error(f"Variable not found in program [{variable}]")
             return False
         glUniform4fv(location, 1, value)
+        return True
 
-    def set_vector3(self, variable, value):
+    def set_vector3(self, variable: str, value: List[float]) -> None:
         """Set Vector 3 as array value
 
         This method will simply convert `value` into numpy array and call
@@ -352,7 +368,7 @@ class Shader(object):
         """
         self.set_vector3_np(variable, np.array(value, dtype=np.float32))
 
-    def set_int(self, variable, value):
+    def set_int(self, variable: str, value: int) -> bool:
         """Set Integer value
 
         Args:
@@ -365,8 +381,9 @@ class Shader(object):
             return False
 
         glUniform1i(location, ctypes.c_int(value))
+        return True
 
-    def set_float(self, variable, value):
+    def set_float(self, variable: str, value: float) -> bool:
         """Set Float value
 
         Args:
@@ -379,3 +396,4 @@ class Shader(object):
             return False
 
         glUniform1f(location, ctypes.c_float(value))
+        return True

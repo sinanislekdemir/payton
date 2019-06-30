@@ -4,6 +4,9 @@
 
 import logging
 import os
+
+from typing import Any, List, Optional
+from payton.scene.types import VList, IList
 from payton.scene.geometry import Mesh
 
 
@@ -15,16 +18,16 @@ class Wavefront(Mesh):
     Only designed to accept your triangular geometries.
     """
 
-    def __init__(self, filename=""):
+    def __init__(self, **args: Any) -> None:
         """
         Initialize Wavefront Object.
         """
         super().__init__()
-        self.filename = filename
-        if filename != "":
-            self.load_file(filename)
+        self.filename: str = args.get("filename", "")
+        if self.filename != "":
+            self.load_file(self.filename)
 
-    def load_file(self, filename):
+    def load_file(self, filename: str) -> bool:
         """
         Load obj file.
         """
@@ -37,8 +40,9 @@ class Wavefront(Mesh):
         data = f.read()
         f.close()
         self.load(data)
+        return True
 
-    def load(self, obj_string):
+    def load(self, obj_string: str) -> None:
         """
         A bit of information on file format,
         v -> x, y, z, (w)
@@ -50,11 +54,11 @@ class Wavefront(Mesh):
         but for now, the assumption is there will always be triangulated
         wavefront object files and always a single object at a time.
         """
-        _vertices = []
-        _indices = []
-        _normals = []
-        _texcoords = []
-        lines = obj_string.splitlines()
+        _vertices: VList = []
+        _indices: List[IList] = []
+        _normals: VList = []
+        _texcoords: VList = []
+        lines: List[str] = obj_string.splitlines()
         for line in lines:
             command = line[0:2].lower()
             parts = line.split(" ")
@@ -75,7 +79,7 @@ class Wavefront(Mesh):
             if command == "f ":
                 # I guess this part of the code should be compatable
                 # with POLYGON as well but IDK.
-                face = []
+                face = []  # type: List[List[int]]
                 for i in range(len(parts)):
                     if i == 0:
                         continue
@@ -83,7 +87,7 @@ class Wavefront(Mesh):
                     vertex = int(subs[0]) - 1
                     textcoord = int(subs[1]) - 1 if len(subs) > 1 else -1
                     normal = int(subs[2]) - 1 if len(subs) > 2 else -1
-                    face.append((vertex, textcoord, normal))
+                    face.append([vertex, textcoord, normal])
                 _indices.append(face)
 
         # Now unpack indices to actual object data
@@ -91,20 +95,20 @@ class Wavefront(Mesh):
         for index in _indices:
             ind = []
             for f in index:
-                vertex = _vertices[f[0]]
-                normal = _normals[f[2]]
-                tex = [0, 0]
+                l_vertex = _vertices[f[0]]
+                l_normal = _normals[f[2]]
+                l_tex = [0.0, 0.0]
                 if f[1] > -1:
-                    tex = _texcoords[f[1]]
-                self._vertices.append(vertex)
-                self._normals.append(normal)
-                self._texcoords.append(tex)
+                    l_tex = _texcoords[f[1]]
+                self._vertices.append(l_vertex)
+                self._normals.append(l_normal)
+                self._texcoords.append(l_tex)
                 ind.append(i)
                 i += 1
             self._indices.append(ind)
 
 
-def export(mesh, **args):
+def export(mesh: Mesh, **args: Any) -> Optional[str]:
     """Export mesh as wavefront object string
 
     @TODO Add material export support.
