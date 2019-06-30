@@ -6,20 +6,7 @@ differ in pipeline.
 
 Example code:
 
-    from payton.scene import Scene
-    from payton.scene.gui import Hud, Rectangle, Text
-
-    scene = Scene()
-    hud = Hud()
-    rectangle = Rectangle(position=(10, 20), size=(300, 300))
-    hud.add_child("rect", rectangle)
-
-    text = Text(label="Hello World!")
-    rectangle.add_child("label", text)
-    hud.set_font("/Library/Fonts/Arial.ttf") # Path for Mac OS
-    scene.add_object("hud", hud)
-
-    scene.run()
+    .. include:: ../../examples/basics/15_gui.py
 
 """
 import numpy as np  # type: ignore
@@ -61,6 +48,8 @@ class Shape2D(Mesh):
         self.parent: Any = None
 
     def add_child(self, name: str, obj: "Shape2D") -> bool:  # type: ignore
+        """Add child to the shape, childs position will be relative to its
+        parent shape and will be rendered on top of it."""
         res = super().add_child(name, obj)  # type: ignore
         if not res:
             return res
@@ -77,6 +66,7 @@ class Shape2D(Mesh):
 
     @property
     def font(self) -> None:
+        """Font of the shape"""
         if self._font is not None:
             return self._font
         if self.parent is not None:
@@ -94,6 +84,22 @@ class Shape2D(Mesh):
         self.draw_text()
 
     def click(self, x: int, y: int) -> bool:
+        """Click trigger function
+
+        **IMPORTANT!!**
+
+        Basically, this is getting called from
+        `payton.scene.controller.Controller` so if you overwrite the
+        controller, remember that your GUI callbacks will not work unless
+        you handle them yourself or you call the `super()` for mouse action
+
+        Args:
+          x: Mouse X coordinate
+          y: Mouse Y coordinate
+
+        Returns:
+          bool: Hit
+        """
         if not callable(self.on_click):
             for child in self.children:
                 c = self.children[child].click(x, y)  # type: bool
@@ -123,6 +129,7 @@ class Rectangle(Shape2D):
     """
 
     def __init__(self, **args: Any):
+        """Initialize the rectangle"""
         super().__init__(**args)
         self._init: bool = False
         self.draw()
@@ -191,6 +198,11 @@ class Text(Rectangle):
         lights: List[Light],
         parent_matrix: Optional[np.ndarray] = None,
     ) -> None:
+        """Render the Text
+
+        This calls the super render of `payton.scene.geometry.Object.render`
+        then renders the text on top of the rectangle.
+        """
         super().render(proj, view, lights, parent_matrix)
         if not self._init_text:
             self.draw_text()
@@ -254,6 +266,16 @@ class Hud(Object):
         return self._font
 
     def add_child(self, name: str, obj: Shape2D) -> bool:  # type: ignore
+        """Add child to HUD
+
+        Basically, anything that you want to draw on the screen should be a
+        child of HUD. Scene gathers HUDs in a different loop and renders them
+        in a separate cycle.
+
+        Args:
+          name: Name of the child shape
+          obj: Shape object to add
+        """
         res = super().add_child(name, obj)  # type: ignore
         if not res:
             return res

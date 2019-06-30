@@ -4,6 +4,29 @@ This module is mainly for private use.
 
 But if you want to create your own keyboard shortcuts or extended controls,
 you can extend this controller for your own needs.
+
+If you want to create your own keyboard keys or mouse behaviour:
+
+    .. include:: ../../examples/basics/16_keyboard.py
+
+
+### Default key mapping:
+
+- **Zoom In-Out**: Left Ctrl + Mouse Drag (up and down)
+- **Rotate**: Left Shift + Mouse Drag (left and right)
+- **ESC**: Quit Simulation
+- **C**: Change camera mode (Perspective / Orthographic)
+- **Space**: Pause scene (stop all Clocks)
+- **G**: Show/Hide Grid.
+- **W**: Display mode: Wireframe / Solid
+- **F2**: Previous observer
+- **F3**: Next observer
+
+### Mouse controls
+- L_CTRL + Mouse(Left) Drag: Zoom In-Out
+- L_SHIFT + Mouse(Left) Drag: Rotate around target
+- L_SHIFT + L_CTRL + Mouse(Left) Drag: Panning
+
 """
 import sdl2
 import logging
@@ -87,6 +110,12 @@ class Controller(object):
                     scene.observers[i].active = i == active
 
     def mouse(self, event: sdl2.SDL_Event, scene: Any) -> None:
+        """Mouse handling function
+
+        Args:
+          event: SDL2 Event (by PullEvent)
+          scene: Main scene reference
+        """
         observer = scene.active_observer
         if event.type == sdl2.SDL_MOUSEBUTTONUP:
             observer._prev_intersection = None

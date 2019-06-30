@@ -19,89 +19,29 @@ Each clock is technically a safe thread.
 For accurate data calculations, time stops until the execution of the
 callback function ends.
 
-*Note:* All clocks are initially paused. You should hit *P* to unpause them.
-The main reason is, clock threads are created and started before SDL2 and
-whole OpenGL scene is ready, so there is a chance that you can not see
-the beginning of your time based simulations.
+*Note:* All clocks are initially paused. You should hit *Space* to unpause
+them. The main reason is, clock threads are created and started before
+SDL2 and whole OpenGL scene is ready, so there is a chance that you can not
+see the beginning of your time based simulations.
 
 Example usage:
 
-    import logging
-    import math
-
-    from payton.scene.scene import Scene
-    from payton.scene.clock import Clock
-    from payton.scene.geometry import Sphere
-
-    logging.basicConfig(level=logging.DEBUG)
-
-
-    LAUNCH_ANGLE = math.radians(30)  # 30 Degrees
-    GRAVITY = 9.8
-    INITIAL_VELOCITY = 20  # meters/seconds
-
-
-    def projectile_motion(name, scene, period, total):
-        # projectile motion.
-        # y = v0 * t * cos(a)
-        # z = v0 * t * sin(a) - 1/2 * g * t^2
-        global LAUNCH_ANGLE
-        global GRAVITY
-        global INITIAL_VELOCITY
-        position = scene.objects['ball'].position
-        if position[2] < 0:
-            # Do not continue simulation if we hit the ground.
-            scene.clocks[name].kill()  # We do not need this clock anymore
-            return None
-
-        # Go towards -Y direction.
-        position[1] = -(INITIAL_VELOCITY * total *
-                        math.cos(LAUNCH_ANGLE))
-        position[2] = (INITIAL_VELOCITY * total *
-                       math.sin(LAUNCH_ANGLE) -
-                       0.5 * GRAVITY * (total ** 2))
-        scene.objects['ball'].position = position
-        return None
-
-
-    def logger(name, scene, period, total):
-        if scene.objects['ball'].matrix[3][2] < 0:
-            # Do not continue simulation if we hit the ground.
-            scene.clocks[name].kill()  # We do not need this clock anymore
-            return None
-
-        # Log ball location
-        logging.debug('Ball position: x:{} y:{} z:{} t={}'.format(
-            scene.objects['ball'].matrix[3][0],
-            scene.objects['ball'].matrix[3][1],
-            scene.objects['ball'].matrix[3][2], total))
-
-
-    #  Definitions
-    pm_scene = Scene()
-    ball = Sphere(radius=1, track_motion=True)
-
-    # Add ball to the scene
-    pm_scene.add_object('ball', ball)
-    pm_scene.observers[0].target_object = ball #  Track the ball
-    pm_scene.grid.resize(30, 30, 2)
-    pm_scene.create_clock("motion", 0.01, projectile_motion)
-    pm_scene.create_clock("logger", 0.01, logger)
-    pm_scene.run()
-
+    .. include:: ../../examples/basics/04_clock.py
 """
+
 import threading
 import time
 from typing import Callable, Any, Type
 from payton.scene.receiver import Receiver
 
+# SAFE_ASSUMPTION constant is a wait time between each clock cycle.
 SAFE_ASSUMPTION = 0.01
 
 
 class Clock(threading.Thread):
     """
     Each clock in Scene is actually a thread which has a
-    reference of the scene.
+    reference of the scene. We carry this back reference as a Receiver
     Timer function carries a callback function to be called.
     """
 
@@ -117,6 +57,12 @@ class Clock(threading.Thread):
         period is the waiting period between each callback
         so execution time is omitted.
         scene is the reference to the actual scene object.
+
+        Args:
+          name: Name of the clock
+          period: Clock cycle period, (seconds between each tick)
+          scene: Scene to be called back
+          callback: Callback function to call when clock ticks.
         """
         threading.Thread.__init__(self)
         self.name = name
@@ -147,6 +93,9 @@ class Clock(threading.Thread):
         scene reference to the actual scene object
         period of the clock
         total time difference from the initial run of the clock
+
+        Return:
+          bool
         """
         while True:
             if self._kill:

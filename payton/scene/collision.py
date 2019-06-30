@@ -3,42 +3,7 @@ Collision detection module
 
 Example collision test:
 
-
-    from payton.scene import Scene
-    from payton.scene.geometry import Sphere
-    from payton.scene.collision import CollisionTest
-
-    def hit(collision, pairs):
-        for pair in pairs:
-            pair[0].material.color = [1, 0, 0]
-            pair[1].material.color = [1, 0, 0]
-            # mark collision as resolved if you want the pair
-            # to be checked at the next cycle.
-            # collision.resolve(pair[0], pair[1])
-
-    scene = Scene()
-    test = CollisionTest(callback=hit)
-    s1 = Sphere()
-    s1.position = [0, 0, 0]
-    s2 = Sphere()
-    s2.position = [0.7, 0, 0]
-    s3 = Sphere()
-    s3.position = [0, 0, 4]
-    s4 = Sphere()
-    s4.position = [2, 0, 4]
-
-    scene.add_object('s1', s1)
-    scene.add_object('s2', s2)
-    scene.add_object('s3', s3)
-    scene.add_object('s4', s4)
-
-    test.add_object(s1)
-    test.add_object(s2)
-    test.add_object(s3)
-    test.add_object(s4)
-
-    scene.add_collision_test(test)
-    scene.run()
+    .. include:: ../../examples/basics/12_1_collision_detailed.py
 
 """
 import logging
@@ -80,6 +45,8 @@ class CollisionTest(object):
 
       - SPHERICAL: Does a bounding sphere check only
       - AABB: Does an Axis Alinged Bounding Box check only (DEFAULT)
+
+    TODO: Improve collision detection algorithms.
     """
 
     SPHERICAL = 0
@@ -201,7 +168,11 @@ class CollisionTest(object):
             self._pairs.remove(pair2)
 
     def check(self):
-        """Check if any objects within the test group are colliding"""
+        """Check if any objects within the test group are colliding
+
+        If there is a collision within the object list, callback function will
+        be called and collision pairs can be reached via `self._pairs`
+        """
         for i in range(len(self.objects) - 1):
             for j in range(len(self.objects) - i - 1):
                 obj1 = self.objects[i]

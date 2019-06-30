@@ -15,8 +15,8 @@ clean:
 	@find . | grep -E "(__pycache__|\.pyc|\.pyo$\)" | xargs rm -rf
 
 docs:
-	@pip install pdoc
-	@PYTHONPATH=. pdoc --html-dir ./doc --html --overwrite --all-submodules payton
+	@pip install pdoc3
+	@PYTHONPATH=. pdoc3 --html-dir ./doc --html --overwrite payton
 ifeq ($(UNAME), Linux)
 		@xdg-open ./doc/payton/index.html
 endif

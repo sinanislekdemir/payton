@@ -61,9 +61,9 @@ class Object(object):
     """Main Payton Object.
 
     This is an abstract class to define common properties and methods between
-    Mesh / Particle / Virtual objects.
+    Mesh / Cube / Sphere/ Shape2D / PointCloud and etc.
 
-    Objects are not actually built as 3D vertex arrays until render.
+    Objects are not actually built as 3D vertex arrays until they are rendered.
     Render function calls `build` function if needed. Build function creates
     the OpenGL Vertex Array Object. VAO is a static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
@@ -87,26 +87,28 @@ class Object(object):
 
         Properties:
           children: Children hash for object. Each child object follows parent
-        object. They take their parent object as origin and their coordinate
-        system is relative to their parent. This behaviour resembles stars,
-        planets and their moons.
+                    object. They take their parent object as origin and their
+                    coordinate system is relative to their parent. This
+                    behaviour resembles stars, planets and their moons.
           material: Material definitions of the object.
           matrix: Matrix definition of the object. This is a 4x4 Uniform Matrix
-        But data is set as an array for easier transformations. First 4
-        decimals are "Left" vector, Second 4 are "Direction", Third 4 are "Up"
-        and last four decimals are "Position" vectors.
+                  But data is set as an array for easier transformations. First
+                  4 decimals are "Left" vector, Second 4 are "Direction", Third
+                  4 are "Up" and last four decimals are "Position" vectors.
 
         Args:
           track_motion: Track object motion (default: false). Object tracking
-        is time independent. It just saves the object matrix for every change.
-        Uses matrix position for drawing the motion path.
+                        is time independent. It just saves the object matrix
+                        for every change. Uses matrix position for drawing the
+                        motion path.
           static: (Default `True`) Indicates if object geometry is expected
-        to be changed in the future. If object is not static, then its'
-        vertex buffer object references and vertex informations will not be
-        deleted to be used for future reference.
+                  to be changed in the future. If object is not static, then
+                  its' vertex buffer object references and vertex informations
+                  will not be deleted to be used for future reference.
           name: Name of the object (optional, default '') Note that, when
-        object gets added to a Scene with a name, Scene will assign that
-        name to the object, overwriting any existing name of the object.
+                object gets added to a Scene with a name, Scene will assign
+                that name to the object, overwriting any existing name of the
+                object.
         """
         self.children: Dict[str, Object] = {}
         self.material: Material = Material()
@@ -251,6 +253,8 @@ class Object(object):
     def destroy(self) -> bool:
         """
         Destroy objects self
+
+        Returns: bool
         """
         if self.has_vao:
             glDeleteVertexArrays(1, [self._vao])
@@ -278,6 +282,9 @@ class Object(object):
     def track(self) -> bool:
         """
         Track object motion
+
+        Returns:
+          bool
         """
         if not self.track_motion:
             return False
@@ -298,6 +305,11 @@ class Object(object):
 
     @property
     def has_vao(self) -> bool:
+        """Check if this object has an active Vertex Array Object
+
+        Returns:
+            bool
+        """
         return self._vao > -1
 
     def render(
@@ -316,8 +328,9 @@ class Object(object):
           view: Camera location/view matrix.
           lights: Light objects in the scene
           parent_matrix: Parent matrix is the matrix of the parent. Parent can
-        be the scene itself or another object. In case of another object,
-        object will position itself relative to its parent object.
+                         be the scene itself or another object. In case of
+                         another object, object will position itself relative
+                         to its parent object.
         """
 
         if not self.has_vao or self._needs_update:
@@ -375,6 +388,9 @@ class Object(object):
         """Get position of the Object.
 
         Return matrix position list
+
+        Returns:
+          List[float]
         """
         return self.matrix[3][:3]
 
@@ -400,21 +416,13 @@ class Object(object):
 
         In a basic example:
 
-            from payton.scene import Scene
-            from payton.scene.geometry import Sphere
-
-            scene = Scene()
-            earth = Sphere(radius=3)
-            moon = Sphere()
-            moon.position = [2, 0, 0]  # Relative to earth
-            earth.add_child('moon', moon)
-            scene.run()
+            .. include:: ../../examples/basics/05_children.py
 
         Args:
           name: Name of the object, must be unique within its siblings
           obj: Object. Must be an instance of `payton.scene.geometry.Object`
 
-        Return:
+        Returns:
           bool: False in case of an error
         """
         if name in self.children:
@@ -430,19 +438,31 @@ class Object(object):
         """
         Return local coordinates (tuple, list) into absolute coordinates in
         space.
+
+        Args:
+          coordinates: List[float] (x, y, z)
+
+        Returns:
+          List[float] (x', y', z')
         """
         return vector_transform(coordinates, self.matrix)
 
     def absolute_vertices(self) -> Iterator[List[float]]:
+        """Return a map of all local vertices as absolute coordinates.
+
+        Imagine that object B is a child of object A. In this case, B will
+        always stand (follow) relative to A. If you want to know the exact
+        world coordinates of all vertices in B, this method will return them.
+
+        **Important!** This is a costly operation so use with caution!
+
+        Returns:
+          map(List[List[float]])
+        """
         return map(lambda v: self.to_absolute(v), self._vertices)
 
-    def to_local(self, coordinates: List[float]) -> None:
-        """
-        TODO Return absolute coordinates (tuple, list) into local coordinates
-        """
-        pass
-
     def toggle_wireframe(self) -> None:
+        """Toggle wireframe view of the Object"""
         d = self.material.display
         d += 1
         d = d % 3
@@ -452,7 +472,11 @@ class Object(object):
             self.children[n].toggle_wireframe()
 
     def _calc_bounds(self) -> float:
-        # Calculate the bounding sphere radius
+        """Calculate the bounding sphere radius
+
+        Returns:
+          float
+        """
         vertices = np.array(self._vertices, dtype=np.float32)
 
         bmin: Optional[List[float]] = None
@@ -495,6 +519,9 @@ class Object(object):
         calculated value. If you add vertices to the object, you must call
         `payton.scene.geometry.Object.refresh` function to get radius
         and the whole object updated.
+
+        Returns:
+          float
         """
 
         if self._bounding_radius > 0:
@@ -504,6 +531,7 @@ class Object(object):
     def build(self) -> bool:
         """
         Build OpenGL Vertex Array for the object
+
         This function gets automatically called if `self._vao` does not
         exists in the first render cycle. Once the vba is built,
         geometry changes or material display mode changes will not be
@@ -515,6 +543,9 @@ class Object(object):
         `_vertices` and `_indices` lists to free memory.
         So in this case, calling `build` function twice will result with
         an invisible object (will not be drawn)
+
+        Returns:
+          bool
         """
         if len(self._indices) == 0:
             return False
@@ -635,6 +666,11 @@ class Mesh(Object):
     and easier constructing capabilities such as adding triangles on the fly
     or sub-division or cutting and so forth. It is a way of designing objects
     by code.
+
+
+    Example use case:
+    
+        .. include:: ../../examples/basics/09_mesh.py
     """
 
     def __init__(self, **args: Any) -> None:
@@ -642,6 +678,7 @@ class Mesh(Object):
         self.static = False
 
     def clear_triangles(self) -> None:
+        """Clear all triangles inside the Mesh"""
         self._vertices = []
         self._indices = []
         self._normals = []
@@ -660,30 +697,12 @@ class Mesh(Object):
 
         Args:
           vertices: Vertices of the triangle. This is required. Ex:
-        `[[0, 0, 0], [2, 0, 0], [1, 1, 0]]`
+                    `[[0, 0, 0], [2, 0, 0], [1, 1, 0]]`
           normals: Normals of the triangle. _(When left as None, Payton will
-        calculate the surface normal based on vertices and assign it per
-        given vertex.)_
+                   calculate the surface normal based on vertices and assign
+                   it per given vertex.)_
           texcoords: Texture UV coordinates.
           colors: Per vertex colors (optional)
-
-        Example:
-
-            from payton.scene import Scene
-            from payton.scene.geometry import Mesh
-
-
-            scene = Scene()
-            mesh = Mesh()
-            mesh.add_triangle([[-2, 0, 0],
-                               [2, 0, 0],
-                               [0, 2, 0]], texcoords=[[0, 0],
-                                                      [1, 0],
-                                                      [1, 1]],
-                              colors=[[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-
-            scene.add_object('mesh', mesh)
-            scene.run()
         """
         if len(vertices) != 3:
             logging.error("A triangle must have 3 vertices")
@@ -727,20 +746,7 @@ class Cube(Mesh):
 
     Cube object use case:
 
-        from payton.scene import Scene
-        from payton.scene.geometry import Cube
-
-        my_scene = Scene()
-        cube1 = Cube() # generates 1 x 1 x 1 Cube.
-        cube2 = Cube(width=2.0, height=3.0, depth=5.0) # generates 2x3x5 Cube.
-
-        cube1.matrix[12] = -3.0
-        cube1.matrix[13] = -2.0
-
-        my_scene.add_object(cube1)
-        my_scene.add_object(cube2)
-        my_scene.run()
-
+        .. include:: ../../examples/basics/03_cubes.py
 
     """
 
@@ -881,22 +887,7 @@ class Sphere(Mesh):
 
     Sphere object use case
 
-        from payton.scene import Scene
-        from payton.scene.geometry import Sphere
-
-        my_scene = Scene()
-        sun = Sphere(radius=10.0)
-
-        earth = Sphere(radius=0.3)
-        sun.children.append(earth)
-
-        sun.material.color = [1.0, 0.3, 0.3, 1.0]
-        earth.matrix[12] = 30.0 # 12th item in matrix is X coordinates in space
-        earth.matrix[13] = 5.0 # 13th item in matrix is Y coordinates in space
-        earth.material.color = [0.2, 0.2, 1.0, 1.0]
-
-        my_scene.add_object(sun)
-        my_scene.run()
+        .. include:: ../../examples/basics/05_children.py
 
     """
 
@@ -910,6 +901,9 @@ class Sphere(Mesh):
     def build_sphere(self) -> bool:
         """
         Generate the sphere
+
+        Returns:
+          bool
         """
         r = self.radius
         # step angle is the rotational angle to build the sphere
@@ -999,6 +993,10 @@ class Line(Object):
         Args:
           vertices: Vertices array for list of points.
           color: Color of the line
+
+        Example use case:
+
+            .. include:: ../../examples/basics/17_line.py
         """
         super().__init__(**args)
         self._vertices: VList = args.get("vertices", [])
@@ -1065,9 +1063,19 @@ class PointCloud(Object):
 
     Note: If you change the vertices, do not forget to do a `refresh` to take
     effect.
+
+    Example use case:
+
+        .. include:: ../../examples/basics/11_point_cloud.py
     """
 
     def __init__(self, **args: Any) -> None:
+        """Initialize Point Cloud
+
+        Args:
+          vertices: List of point vertices
+          colors: List of colors per vertex, follows the same index as vertices
+        """
         super().__init__(**args)
         self._vertices: VList = args.get("vertices", [])
         # Expose vertices by reference for modification
@@ -1114,6 +1122,10 @@ class Plane(Mesh):
 
     This is a 2D Plane in 3D World. Has a width in X and height in Y.
     If you need to place it in another axis, try modifying its matrix.
+
+    Example use case:
+
+        .. include:: ../../examples/basics/13_plane.py
     """
 
     def __init__(self, **args: Any) -> None:
