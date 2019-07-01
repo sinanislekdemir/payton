@@ -7,10 +7,15 @@ theory that us, humans, we understand better by seeing things.
 
 
 * Payton is a prototyping tool. Kickstart any idea fast and easy, grow it.
-* Create tools for the next step. Create maps editors, small animations, small algorithms or artificial intelligence for your game. Whenever you need
-to try a new idea, don't bother to create a new application with all the details. Payton comes with all the necessary defaults and that is what makes it unique. Almost everything has a pre-set.
-* Game engines and other libraries are way too complex and it takes a long time to start the initial playground.
-* Payton never intends to take place as a game engine or a full-featured 3D environment. There are already plenty of stuff for that purpose.
+* Create tools for the next step. Create maps editors, small animations, small
+  algorithms or artificial intelligence for your game. Whenever you need to
+  try a new idea, don't bother to create a new application with all the
+  details. Payton comes with all the necessary defaults and that is what makes
+  it unique. Almost everything has a pre-set.
+* Game engines and other libraries are way too complex and it takes a long time
+  to start the initial playground.
+* Payton never intends to take place as a game engine or a full-featured 3D
+  environment. There are already plenty of stuff for that purpose.
 * Tools programming is easy.
 * Easy to visualise what you want to achive or do what you want to do.
 * You can move forward from Payton to any other place if you like.
@@ -35,6 +40,19 @@ a newbie can kick-start it just by following the tutorials.
 
 More information can be found in documents.
 
+## Install and kick-start
+
+    $ pip install Payton
+
+Then go ahead and create a `test.py`
+
+    from payton.scene import Scene
+    
+    a = Scene()
+    a.run()
+    
+And thats all!
+
 ## Development
 
 Some notes on Python3:
@@ -42,13 +60,13 @@ Some notes on Python3:
 Currently Payton is in pre-alpha, or it is just some dust cloud in the space.
 If you want to contribue, here is what you can do:
 
-You can generate the API documentation using PDOC
-(https://github.com/mitmproxy/pdoc). PDOC is not defined in setup.py or in
-requirements so you need to install pdoc yourself. (PDoc requires Python3)
+You can generate the API documentation using:
 
-`pdoc --html payton` will create API docs for you. (Api docs are generated
-from comments and code itself, so keep comments in the code as descriptive
-as possible.)
+    $ make docs
+
+It should generate the documentations and open it automatically in browser.
+If it fails to open up the browser, you'll find the docs in `docs/payton`
+directory
 
 I encourage you to create a virtualenv for Payton (with Python 3.5+)
 
