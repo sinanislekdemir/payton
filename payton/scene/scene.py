@@ -142,6 +142,7 @@ class Scene(Receiver):
         self.on_select = args.get("on_select", None)
         # Main running state
         self.running = False
+        self._render_lock = False
 
     def _render(self) -> None:
         """
@@ -159,11 +160,13 @@ class Scene(Receiver):
 
         self.grid.render(proj, view, self.lights)
 
+        self._render_lock = True
         for object in self.objects:
             self.objects[object].render(proj, view, self.lights)
 
         for object in self.huds:
             self.huds[object].render(proj, view, self.lights)
+        self._render_lock = False
 
         for test in self._collision_detectors:
             test.check()
@@ -232,6 +235,10 @@ class Scene(Receiver):
             obj.set_size(self.window_width, self.window_height)
             return True
 
+        if self._render_lock:
+            while self._render_lock:
+                # Wait for render loop to release the lock
+                time.sleep(0.0001)
         self.objects[name] = obj
         obj.name = name
         return True

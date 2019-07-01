@@ -109,11 +109,15 @@ class Object(object):
                 object gets added to a Scene with a name, Scene will assign
                 that name to the object, overwriting any existing name of the
                 object.
+          visible: Is this object visible at the scene, default: True. To hid
+                   an object, you can call `object.hide()` and to show it again
+                   use: `object.show()`
         """
         self.children: Dict[str, Object] = {}
         self.material: Material = Material()
         self.static = args.get("static", True)
         self.name = args.get("name", "")
+        self._visible = args.get("visible", True)
         self.matrix: VList = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -312,6 +316,17 @@ class Object(object):
         """
         return self._vao > -1
 
+    @property
+    def visible(self) -> bool:
+        """Check if object is visible"""
+        return self._visible
+
+    def show(self) -> None:
+        self._visible = True
+
+    def hide(self) -> None:
+        self._visible = False
+
     def render(
         self,
         proj: np.ndarray,
@@ -332,6 +347,8 @@ class Object(object):
                          another object, object will position itself relative
                          to its parent object.
         """
+        if not self._visible:
+            return
 
         if not self.has_vao or self._needs_update:
             self.build()
@@ -669,7 +686,7 @@ class Mesh(Object):
 
 
     Example use case:
-    
+
         .. include:: ../../examples/basics/09_mesh.py
     """
 
@@ -1002,7 +1019,6 @@ class Line(Object):
         self._vertices: VList = args.get("vertices", [])
         self.material.color = args.get("color", [1.0, 1.0, 1.0])
 
-        self.visible: bool = True
         self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
         self.build_lines()
