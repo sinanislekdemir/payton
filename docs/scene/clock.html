@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>payton.scene.clock API documentation</title>
+<meta name="description" content="Clock is a special timer which runs in parallel to your scene and can do
+many things …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>payton.scene.clock</code></h1>
+</header>
+<section id="section-intro">
+<p>Clock is a special timer which runs in parallel to your scene and can do
+many things.</p>
+<p>Each clock has a period, scene and a callback function. Basically, for each
+clock tick, the callback function gets called with <code>name</code>, <code>scene</code>, <code>period</code>
+and <code>total</code> variables.</p>
+<ul>
+<li><code>name</code>: name of the clock which calls the function.</li>
+<li><code>scene</code>: an object reference of the scene to modify if needed</li>
+<li><code>period</code>: period of clock. (time difference between each click in seconds)</li>
+<li><code>total</code>: total time past since the beginning of the simulation.</li>
+</ul>
+<p>A clock can be used for several occasions like moving objects in time,
+logging data and etc.</p>
+<p>Each clock is technically a safe thread.</p>
+<p>For accurate data calculations, time stops until the execution of the
+callback function ends.</p>
+<p><em>Note:</em> All clocks are initially paused. You should hit <em>Space</em> to unpause
+them. The main reason is, clock threads are created and started before
+SDL2 and whole OpenGL scene is ready, so there is a chance that you can not
+see the beginning of your time based simulations.</p>
+<p>Example usage:</p>
+<pre><code>import logging
+import math
+
+from payton.scene import Scene
+from payton.scene.geometry import Sphere
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+LAUNCH_ANGLE = math.radians(30)  # 30 Degrees
+GRAVITY = 9.8
+INITIAL_VELOCITY = 20  # meters/seconds
+
+
+def projectile_motion(name, scene, period, total):
+    # projectile motion.
+    # y = v0 * t * cos(a)
+    # z = v0 * t * sin(a) - 1/2 * g * t^2
+    global LAUNCH_ANGLE
+    global GRAVITY
+    global INITIAL_VELOCITY
+    position = scene.objects["ball"].position
+    if position[2] &lt; 0:
+        # Do not continue simulation if we hit the ground.
+        scene.clocks[name].kill()  # We do not need this clock anymore
+        return None
+
+    # Go towards -Y direction.
+    position[1] = -(INITIAL_VELOCITY * total * math.cos(LAUNCH_ANGLE))
+    position[2] = INITIAL_VELOCITY * total * math.sin(
+        LAUNCH_ANGLE
+    ) - 0.5 * GRAVITY * (total ** 2)
+    scene.objects["ball"].position = position
+    return None
+
+
+def logger(name, scene, period, total):
+    if scene.objects["ball"].matrix[3][2] &lt; 0:
+        # Do not continue simulation if we hit the ground.
+        scene.clocks[name].kill()  # We do not need this clock anymore
+        return None
+
+    # Log ball location
+    logging.debug(
+        "Ball position: x:{} y:{} z:{} t={}".format(
+            scene.objects["ball"].matrix[3][0],
+            scene.objects["ball"].matrix[3][1],
+            scene.objects["ball"].matrix[3][2],
+            total,
+        )
+    )
+
+
+#  Definitions
+pm_scene = Scene()
+
+ball = Sphere(radius=1, track_motion=True)
+
+# Add ball to the scene
+pm_scene.add_object("ball", ball)
+pm_scene.observers[0].target_object = ball  # Track the ball
+
+pm_scene.grid.resize(30, 30, 2)
+
+pm_scene.create_clock("motion", 0.01, projectile_motion)
+pm_scene.create_clock("logger", 0.05, logger)
+
+pm_scene.run()
+</code></pre>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Clock is a special timer which runs in parallel to your scene and can do
+many things.
+
+Each clock has a period, scene and a callback function. Basically, for each
+clock tick, the callback function gets called with `name`, `scene`, `period`
+and `total` variables.
+
+- `name`: name of the clock which calls the function.
+- `scene`: an object reference of the scene to modify if needed
+- `period`: period of clock. (time difference between each click in seconds)
+- `total`: total time past since the beginning of the simulation.
+
+A clock can be used for several occasions like moving objects in time,
+logging data and etc.
+
+Each clock is technically a safe thread.
+
+For accurate data calculations, time stops until the execution of the
+callback function ends.
+
+*Note:* All clocks are initially paused. You should hit *Space* to unpause
+them. The main reason is, clock threads are created and started before
+SDL2 and whole OpenGL scene is ready, so there is a chance that you can not
+see the beginning of your time based simulations.
+
+Example usage:
+
+    .. include:: ../../examples/basics/04_clock.py
+&#34;&#34;&#34;
+
+import threading
+import time
+from typing import Callable, Any, Type
+from payton.scene.receiver import Receiver
+
+# SAFE_ASSUMPTION constant is a wait time between each clock cycle.
+SAFE_ASSUMPTION = 0.01
+
+
+class Clock(threading.Thread):
+    &#34;&#34;&#34;
+    Each clock in Scene is actually a thread which has a
+    reference of the scene. We carry this back reference as a Receiver
+    Timer function carries a callback function to be called.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        name: str,
+        period: float,
+        scene: Type[Receiver],
+        callback: Callable[[str, Type[Receiver], float, float], None],
+    ):
+        &#34;&#34;&#34;
+        name of the thread is a freetext for logging purposes
+        period is the waiting period between each callback
+        so execution time is omitted.
+        scene is the reference to the actual scene object.
+
+        Args:
+          name: Name of the clock
+          period: Clock cycle period, (seconds between each tick)
+          scene: Scene to be called back
+          callback: Callback function to call when clock ticks.
+        &#34;&#34;&#34;
+        threading.Thread.__init__(self)
+        self.name = name
+        self.scene = scene
+        self.period = period
+        self._total_time = 0.0
+        self.callback = callback
+        self._kill = False
+        self._pause = True
+
+    def kill(self) -&gt; None:
+        &#34;&#34;&#34;
+        Send a kill signal to existing clock.
+        &#34;&#34;&#34;
+        self._kill = True
+
+    def pause(self) -&gt; None:
+        &#34;&#34;&#34;
+        Send a pause signal to existing clock. Re-sending the same signal
+        will let it continue.
+        &#34;&#34;&#34;
+        self._pause = not self._pause
+
+    def run(self) -&gt; Any:
+        &#34;&#34;&#34;
+        Callback function must have four arguments
+        name of the clock for logging purposes
+        scene reference to the actual scene object
+        period of the clock
+        total time difference from the initial run of the clock
+
+        Return:
+          bool
+        &#34;&#34;&#34;
+        while True:
+            if self._kill:
+                return False
+
+            if self._pause:
+                # sleep a safe time to avoid excessive cpu usage
+                time.sleep(SAFE_ASSUMPTION)
+                continue
+            self.callback(self.name, self.scene, self.period, self._total_time)
+
+            time.sleep(self.period)
+            self._total_time += self.period
+        return True</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="payton.scene.clock.Clock"><code class="flex name class">
+<span>class <span class="ident">Clock</span></span>
+<span>(</span><span>name, period, scene, callback)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Each clock in Scene is actually a thread which has a
+reference of the scene. We carry this back reference as a Receiver
+Timer function carries a callback function to be called.</p>
+<p>name of the thread is a freetext for logging purposes
+period is the waiting period between each callback
+so execution time is omitted.
+scene is the reference to the actual scene object.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>Name of the clock</dd>
+<dt><strong><code>period</code></strong></dt>
+<dd>Clock cycle period, (seconds between each tick)</dd>
+<dt><strong><code>scene</code></strong></dt>
+<dd>Scene to be called back</dd>
+<dt><strong><code>callback</code></strong></dt>
+<dd>Callback function to call when clock ticks.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Clock(threading.Thread):
+    &#34;&#34;&#34;
+    Each clock in Scene is actually a thread which has a
+    reference of the scene. We carry this back reference as a Receiver
+    Timer function carries a callback function to be called.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        name: str,
+        period: float,
+        scene: Type[Receiver],
+        callback: Callable[[str, Type[Receiver], float, float], None],
+    ):
+        &#34;&#34;&#34;
+        name of the thread is a freetext for logging purposes
+        period is the waiting period between each callback
+        so execution time is omitted.
+        scene is the reference to the actual scene object.
+
+        Args:
+          name: Name of the clock
+          period: Clock cycle period, (seconds between each tick)
+          scene: Scene to be called back
+          callback: Callback function to call when clock ticks.
+        &#34;&#34;&#34;
+        threading.Thread.__init__(self)
+        self.name = name
+        self.scene = scene
+        self.period = period
+        self._total_time = 0.0
+        self.callback = callback
+        self._kill = False
+        self._pause = True
+
+    def kill(self) -&gt; None:
+        &#34;&#34;&#34;
+        Send a kill signal to existing clock.
+        &#34;&#34;&#34;
+        self._kill = True
+
+    def pause(self) -&gt; None:
+        &#34;&#34;&#34;
+        Send a pause signal to existing clock. Re-sending the same signal
+        will let it continue.
+        &#34;&#34;&#34;
+        self._pause = not self._pause
+
+    def run(self) -&gt; Any:
+        &#34;&#34;&#34;
+        Callback function must have four arguments
+        name of the clock for logging purposes
+        scene reference to the actual scene object
+        period of the clock
+        total time difference from the initial run of the clock
+
+        Return:
+          bool
+        &#34;&#34;&#34;
+        while True:
+            if self._kill:
+                return False
+
+            if self._pause:
+                # sleep a safe time to avoid excessive cpu usage
+                time.sleep(SAFE_ASSUMPTION)
+                continue
+            self.callback(self.name, self.scene, self.period, self._total_time)
+
+            time.sleep(self.period)
+            self._total_time += self.period
+        return True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>threading.Thread</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.clock.Clock.kill"><code class="name flex">
+<span>def <span class="ident">kill</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Send a kill signal to existing clock.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def kill(self) -&gt; None:
+    &#34;&#34;&#34;
+    Send a kill signal to existing clock.
+    &#34;&#34;&#34;
+    self._kill = True</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.clock.Clock.pause"><code class="name flex">
+<span>def <span class="ident">pause</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Send a pause signal to existing clock. Re-sending the same signal
+will let it continue.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def pause(self) -&gt; None:
+    &#34;&#34;&#34;
+    Send a pause signal to existing clock. Re-sending the same signal
+    will let it continue.
+    &#34;&#34;&#34;
+    self._pause = not self._pause</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.clock.Clock.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Callback function must have four arguments
+name of the clock for logging purposes
+scene reference to the actual scene object
+period of the clock
+total time difference from the initial run of the clock</p>
+<h2 id="return">Return</h2>
+<dl>
+<dt><strong><code>bool</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def run(self) -&gt; Any:
+    &#34;&#34;&#34;
+    Callback function must have four arguments
+    name of the clock for logging purposes
+    scene reference to the actual scene object
+    period of the clock
+    total time difference from the initial run of the clock
+
+    Return:
+      bool
+    &#34;&#34;&#34;
+    while True:
+        if self._kill:
+            return False
+
+        if self._pause:
+            # sleep a safe time to avoid excessive cpu usage
+            time.sleep(SAFE_ASSUMPTION)
+            continue
+        self.callback(self.name, self.scene, self.period, self._total_time)
+
+        time.sleep(self.period)
+        self._total_time += self.period
+    return True</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="payton.scene" href="index.html">payton.scene</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="payton.scene.clock.Clock" href="#payton.scene.clock.Clock">Clock</a></code></h4>
+<ul class="">
+<li><code><a title="payton.scene.clock.Clock.kill" href="#payton.scene.clock.Clock.kill">kill</a></code></li>
+<li><code><a title="payton.scene.clock.Clock.pause" href="#payton.scene.clock.Clock.pause">pause</a></code></li>
+<li><code><a title="payton.scene.clock.Clock.run" href="#payton.scene.clock.Clock.run">run</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

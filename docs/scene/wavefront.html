@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>payton.scene.wavefront API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>payton.scene.wavefront</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python"># Wavefront Object File Support
+# Only support ascii obj files and without material support.
+# So pretty limited.
+
+import logging
+import os
+
+from typing import Any, List, Optional
+from payton.scene.types import VList, IList
+from payton.scene.geometry import Mesh
+
+
+class Wavefront(Mesh):
+    &#34;&#34;&#34;
+    Wavefront object file class.
+    Only supports ascii obj files in a limited way.
+    So do not depend so much on this class.
+    Only designed to accept your triangular geometries.
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;
+        Initialize Wavefront Object.
+        &#34;&#34;&#34;
+        super().__init__()
+        self.filename: str = args.get(&#34;filename&#34;, &#34;&#34;)
+        if self.filename != &#34;&#34;:
+            self.load_file(self.filename)
+
+    def load_file(self, filename: str) -&gt; bool:
+        &#34;&#34;&#34;
+        Load obj file.
+        &#34;&#34;&#34;
+        if not os.path.isfile(filename):
+            logging.exception(f&#34;File not found {filename}&#34;)
+            return False
+
+        self.filename = filename
+        f = open(filename)
+        data = f.read()
+        f.close()
+        self.load(data)
+        return True
+
+    def load(self, obj_string: str) -&gt; None:
+        &#34;&#34;&#34;
+        A bit of information on file format,
+        v -&gt; x, y, z, (w)
+        vt -&gt; u, [v, (w)]
+        vn -&gt; x, y, z
+        f -&gt; vertex_index/texcoord_index/normal_index ...
+
+        Also there are definitions of material and line and object name
+        but for now, the assumption is there will always be triangulated
+        wavefront object files and always a single object at a time.
+        &#34;&#34;&#34;
+        _vertices: VList = []
+        _indices: List[IList] = []
+        _normals: VList = []
+        _texcoords: VList = []
+        lines: List[str] = obj_string.splitlines()
+        for line in lines:
+            command = line[0:2].lower()
+            parts = line.split(&#34; &#34;)
+            if command == &#34;v &#34;:
+                x = float(parts[1])
+                y = float(parts[2])
+                z = float(parts[3])
+                _vertices.append([x, y, z])
+            if command == &#34;vt&#34;:
+                u = float(parts[1])
+                w = float(parts[2]) if len(parts) &gt; 2 else 0
+                _texcoords.append([u, w])
+            if command == &#34;vn&#34;:
+                x = float(parts[1])
+                y = float(parts[2])
+                z = float(parts[3])
+                _normals.append([x, y, z])
+            if command == &#34;f &#34;:
+                # I guess this part of the code should be compatable
+                # with POLYGON as well but IDK.
+                face = []  # type: List[List[int]]
+                for i in range(len(parts)):
+                    if i == 0:
+                        continue
+                    subs = parts[i].split(&#34;/&#34;)
+                    vertex = int(subs[0]) - 1
+                    textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
+                    normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
+                    face.append([vertex, textcoord, normal])
+                _indices.append(face)
+
+        # Now unpack indices to actual object data
+        i = 0
+        for index in _indices:
+            ind = []
+            for f in index:
+                l_vertex = _vertices[f[0]]
+                l_normal = _normals[f[2]]
+                l_tex = [0.0, 0.0]
+                if f[1] &gt; -1:
+                    l_tex = _texcoords[f[1]]
+                self._vertices.append(l_vertex)
+                self._normals.append(l_normal)
+                self._texcoords.append(l_tex)
+                ind.append(i)
+                i += 1
+            self._indices.append(ind)
+
+
+def export(mesh: Mesh, **args: Any) -&gt; Optional[str]:
+    &#34;&#34;&#34;Export mesh as wavefront object string
+
+    @TODO Add material export support.
+
+    Basic usage:
+
+        from payton.scene.geometry import Cube
+        from payton.scene.wavefront import export
+
+        cube = Cube()
+        f = open(&#39;cube.obj&#39;, &#39;w&#39;)
+        f.write(export(cube, name=&#39;Cube&#39;))
+        f.close()
+
+
+    Args:
+      mesh: An instance of `payton.scene.geometry.Mesh`
+      name (optional): Name of the object, otherwise `object` will be used
+    &#34;&#34;&#34;
+    if not isinstance(mesh, Mesh):
+        logging.exception(&#34;Object is not an instance of Mesh&#34;)
+        return None
+
+    name = args.get(&#34;name&#34;, &#34;object&#34;)
+    output = [&#34;# Payton Wavefront OBJ Exporter&#34;, f&#34;o {name}&#34;]
+    for v in mesh._vertices:
+        output.append(&#34;v {}&#34;.format(&#34; &#34;.join([str(x) for x in v])))
+
+    for t in mesh._texcoords:
+        output.append(&#34;vt {}&#34;.format(&#34; &#34;.join([str(x) for x in t])))
+
+    for n in mesh._normals:
+        output.append(&#34;vn {}&#34;.format(&#34; &#34;.join([str(x) for x in n])))
+
+    len_texcoords = len(mesh._texcoords) + 1
+    len_normals = len(mesh._normals) + 1
+    for f in mesh._indices:
+        f = [x + 1 for x in f]
+        t0 = str(f[0]) if len_texcoords &gt; f[0] else &#34;&#34;
+        n0 = str(f[0]) if len_normals &gt; f[0] else &#34;&#34;
+
+        t1 = str(f[1]) if len_texcoords &gt; f[1] else &#34;&#34;
+        n1 = str(f[1]) if len_normals &gt; f[1] else &#34;&#34;
+
+        t2 = str(f[2]) if len_texcoords &gt; f[2] else &#34;&#34;
+        n2 = str(f[2]) if len_normals &gt; f[2] else &#34;&#34;
+        output.append(f&#34;f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}&#34;)
+    return &#34;\n&#34;.join(output)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="payton.scene.wavefront.export"><code class="name flex">
+<span>def <span class="ident">export</span></span>(<span>mesh, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Export mesh as wavefront object string</p>
+<p>@TODO Add material export support.</p>
+<p>Basic usage:</p>
+<pre><code>from payton.scene.geometry import Cube
+from payton.scene.wavefront import export
+
+cube = Cube()
+f = open('cube.obj', 'w')
+f.write(export(cube, name='Cube'))
+f.close()
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>mesh</code></strong></dt>
+<dd>An instance of <a title="payton.scene.geometry.Mesh" href="geometry.html#payton.scene.geometry.Mesh"><code>Mesh</code></a></dd>
+<dt><strong><code>name</code></strong> :&ensp;optional</dt>
+<dd>Name of the object, otherwise <code>object</code> will be used</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def export(mesh: Mesh, **args: Any) -&gt; Optional[str]:
+    &#34;&#34;&#34;Export mesh as wavefront object string
+
+    @TODO Add material export support.
+
+    Basic usage:
+
+        from payton.scene.geometry import Cube
+        from payton.scene.wavefront import export
+
+        cube = Cube()
+        f = open(&#39;cube.obj&#39;, &#39;w&#39;)
+        f.write(export(cube, name=&#39;Cube&#39;))
+        f.close()
+
+
+    Args:
+      mesh: An instance of `payton.scene.geometry.Mesh`
+      name (optional): Name of the object, otherwise `object` will be used
+    &#34;&#34;&#34;
+    if not isinstance(mesh, Mesh):
+        logging.exception(&#34;Object is not an instance of Mesh&#34;)
+        return None
+
+    name = args.get(&#34;name&#34;, &#34;object&#34;)
+    output = [&#34;# Payton Wavefront OBJ Exporter&#34;, f&#34;o {name}&#34;]
+    for v in mesh._vertices:
+        output.append(&#34;v {}&#34;.format(&#34; &#34;.join([str(x) for x in v])))
+
+    for t in mesh._texcoords:
+        output.append(&#34;vt {}&#34;.format(&#34; &#34;.join([str(x) for x in t])))
+
+    for n in mesh._normals:
+        output.append(&#34;vn {}&#34;.format(&#34; &#34;.join([str(x) for x in n])))
+
+    len_texcoords = len(mesh._texcoords) + 1
+    len_normals = len(mesh._normals) + 1
+    for f in mesh._indices:
+        f = [x + 1 for x in f]
+        t0 = str(f[0]) if len_texcoords &gt; f[0] else &#34;&#34;
+        n0 = str(f[0]) if len_normals &gt; f[0] else &#34;&#34;
+
+        t1 = str(f[1]) if len_texcoords &gt; f[1] else &#34;&#34;
+        n1 = str(f[1]) if len_normals &gt; f[1] else &#34;&#34;
+
+        t2 = str(f[2]) if len_texcoords &gt; f[2] else &#34;&#34;
+        n2 = str(f[2]) if len_normals &gt; f[2] else &#34;&#34;
+        output.append(f&#34;f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}&#34;)
+    return &#34;\n&#34;.join(output)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="payton.scene.wavefront.Wavefront"><code class="flex name class">
+<span>class <span class="ident">Wavefront</span></span>
+<span>(</span><span>**args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Wavefront object file class.
+Only supports ascii obj files in a limited way.
+So do not depend so much on this class.
+Only designed to accept your triangular geometries.</p>
+<p>Initialize Wavefront Object.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Wavefront(Mesh):
+    &#34;&#34;&#34;
+    Wavefront object file class.
+    Only supports ascii obj files in a limited way.
+    So do not depend so much on this class.
+    Only designed to accept your triangular geometries.
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;
+        Initialize Wavefront Object.
+        &#34;&#34;&#34;
+        super().__init__()
+        self.filename: str = args.get(&#34;filename&#34;, &#34;&#34;)
+        if self.filename != &#34;&#34;:
+            self.load_file(self.filename)
+
+    def load_file(self, filename: str) -&gt; bool:
+        &#34;&#34;&#34;
+        Load obj file.
+        &#34;&#34;&#34;
+        if not os.path.isfile(filename):
+            logging.exception(f&#34;File not found {filename}&#34;)
+            return False
+
+        self.filename = filename
+        f = open(filename)
+        data = f.read()
+        f.close()
+        self.load(data)
+        return True
+
+    def load(self, obj_string: str) -&gt; None:
+        &#34;&#34;&#34;
+        A bit of information on file format,
+        v -&gt; x, y, z, (w)
+        vt -&gt; u, [v, (w)]
+        vn -&gt; x, y, z
+        f -&gt; vertex_index/texcoord_index/normal_index ...
+
+        Also there are definitions of material and line and object name
+        but for now, the assumption is there will always be triangulated
+        wavefront object files and always a single object at a time.
+        &#34;&#34;&#34;
+        _vertices: VList = []
+        _indices: List[IList] = []
+        _normals: VList = []
+        _texcoords: VList = []
+        lines: List[str] = obj_string.splitlines()
+        for line in lines:
+            command = line[0:2].lower()
+            parts = line.split(&#34; &#34;)
+            if command == &#34;v &#34;:
+                x = float(parts[1])
+                y = float(parts[2])
+                z = float(parts[3])
+                _vertices.append([x, y, z])
+            if command == &#34;vt&#34;:
+                u = float(parts[1])
+                w = float(parts[2]) if len(parts) &gt; 2 else 0
+                _texcoords.append([u, w])
+            if command == &#34;vn&#34;:
+                x = float(parts[1])
+                y = float(parts[2])
+                z = float(parts[3])
+                _normals.append([x, y, z])
+            if command == &#34;f &#34;:
+                # I guess this part of the code should be compatable
+                # with POLYGON as well but IDK.
+                face = []  # type: List[List[int]]
+                for i in range(len(parts)):
+                    if i == 0:
+                        continue
+                    subs = parts[i].split(&#34;/&#34;)
+                    vertex = int(subs[0]) - 1
+                    textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
+                    normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
+                    face.append([vertex, textcoord, normal])
+                _indices.append(face)
+
+        # Now unpack indices to actual object data
+        i = 0
+        for index in _indices:
+            ind = []
+            for f in index:
+                l_vertex = _vertices[f[0]]
+                l_normal = _normals[f[2]]
+                l_tex = [0.0, 0.0]
+                if f[1] &gt; -1:
+                    l_tex = _texcoords[f[1]]
+                self._vertices.append(l_vertex)
+                self._normals.append(l_normal)
+                self._texcoords.append(l_tex)
+                ind.append(i)
+                i += 1
+            self._indices.append(ind)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="payton.scene.geometry.Mesh" href="geometry.html#payton.scene.geometry.Mesh">Mesh</a></li>
+<li><a title="payton.scene.geometry.Object" href="geometry.html#payton.scene.geometry.Object">Object</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.wavefront.Wavefront.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, obj_string)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A bit of information on file format,
+v -&gt; x, y, z, (w)
+vt -&gt; u, [v, (w)]
+vn -&gt; x, y, z
+f -&gt; vertex_index/texcoord_index/normal_index &hellip;</p>
+<p>Also there are definitions of material and line and object name
+but for now, the assumption is there will always be triangulated
+wavefront object files and always a single object at a time.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load(self, obj_string: str) -&gt; None:
+    &#34;&#34;&#34;
+    A bit of information on file format,
+    v -&gt; x, y, z, (w)
+    vt -&gt; u, [v, (w)]
+    vn -&gt; x, y, z
+    f -&gt; vertex_index/texcoord_index/normal_index ...
+
+    Also there are definitions of material and line and object name
+    but for now, the assumption is there will always be triangulated
+    wavefront object files and always a single object at a time.
+    &#34;&#34;&#34;
+    _vertices: VList = []
+    _indices: List[IList] = []
+    _normals: VList = []
+    _texcoords: VList = []
+    lines: List[str] = obj_string.splitlines()
+    for line in lines:
+        command = line[0:2].lower()
+        parts = line.split(&#34; &#34;)
+        if command == &#34;v &#34;:
+            x = float(parts[1])
+            y = float(parts[2])
+            z = float(parts[3])
+            _vertices.append([x, y, z])
+        if command == &#34;vt&#34;:
+            u = float(parts[1])
+            w = float(parts[2]) if len(parts) &gt; 2 else 0
+            _texcoords.append([u, w])
+        if command == &#34;vn&#34;:
+            x = float(parts[1])
+            y = float(parts[2])
+            z = float(parts[3])
+            _normals.append([x, y, z])
+        if command == &#34;f &#34;:
+            # I guess this part of the code should be compatable
+            # with POLYGON as well but IDK.
+            face = []  # type: List[List[int]]
+            for i in range(len(parts)):
+                if i == 0:
+                    continue
+                subs = parts[i].split(&#34;/&#34;)
+                vertex = int(subs[0]) - 1
+                textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
+                normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
+                face.append([vertex, textcoord, normal])
+            _indices.append(face)
+
+    # Now unpack indices to actual object data
+    i = 0
+    for index in _indices:
+        ind = []
+        for f in index:
+            l_vertex = _vertices[f[0]]
+            l_normal = _normals[f[2]]
+            l_tex = [0.0, 0.0]
+            if f[1] &gt; -1:
+                l_tex = _texcoords[f[1]]
+            self._vertices.append(l_vertex)
+            self._normals.append(l_normal)
+            self._texcoords.append(l_tex)
+            ind.append(i)
+            i += 1
+        self._indices.append(ind)</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.wavefront.Wavefront.load_file"><code class="name flex">
+<span>def <span class="ident">load_file</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Load obj file.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_file(self, filename: str) -&gt; bool:
+    &#34;&#34;&#34;
+    Load obj file.
+    &#34;&#34;&#34;
+    if not os.path.isfile(filename):
+        logging.exception(f&#34;File not found {filename}&#34;)
+        return False
+
+    self.filename = filename
+    f = open(filename)
+    data = f.read()
+    f.close()
+    self.load(data)
+    return True</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="payton.scene.geometry.Mesh" href="geometry.html#payton.scene.geometry.Mesh">Mesh</a></b></code>:
+<ul class="hlist">
+<li><code><a title="payton.scene.geometry.Mesh.absolute_vertices" href="geometry.html#payton.scene.geometry.Object.absolute_vertices">absolute_vertices</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.add_child" href="geometry.html#payton.scene.geometry.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.add_triangle" href="geometry.html#payton.scene.geometry.Mesh.add_triangle">add_triangle</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.bounding_radius" href="geometry.html#payton.scene.geometry.Object.bounding_radius">bounding_radius</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.build" href="geometry.html#payton.scene.geometry.Object.build">build</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.clear_triangles" href="geometry.html#payton.scene.geometry.Mesh.clear_triangles">clear_triangles</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.destroy" href="geometry.html#payton.scene.geometry.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.has_vao" href="geometry.html#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.position" href="geometry.html#payton.scene.geometry.Object.position">position</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.refresh" href="geometry.html#payton.scene.geometry.Object.refresh">refresh</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.render" href="geometry.html#payton.scene.geometry.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.rotate_around_x" href="geometry.html#payton.scene.geometry.Object.rotate_around_x">rotate_around_x</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.rotate_around_y" href="geometry.html#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.rotate_around_z" href="geometry.html#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.select" href="geometry.html#payton.scene.geometry.Object.select">select</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.to_absolute" href="geometry.html#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.toggle_wireframe" href="geometry.html#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.track" href="geometry.html#payton.scene.geometry.Object.track">track</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.update_matrix" href="geometry.html#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.yaw" href="geometry.html#payton.scene.geometry.Object.yaw">yaw</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="payton.scene" href="index.html">payton.scene</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="payton.scene.wavefront.export" href="#payton.scene.wavefront.export">export</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="payton.scene.wavefront.Wavefront" href="#payton.scene.wavefront.Wavefront">Wavefront</a></code></h4>
+<ul class="">
+<li><code><a title="payton.scene.wavefront.Wavefront.load" href="#payton.scene.wavefront.Wavefront.load">load</a></code></li>
+<li><code><a title="payton.scene.wavefront.Wavefront.load_file" href="#payton.scene.wavefront.Wavefront.load_file">load_file</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

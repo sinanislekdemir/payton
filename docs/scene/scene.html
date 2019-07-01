@@ -1,0 +1,1458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>payton.scene.scene API documentation</title>
+<meta name="description" content="Payton Scene Module …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>payton.scene.scene</code></h1>
+</header>
+<section id="section-intro">
+<h1 id="payton-scene-module">Payton Scene Module</h1>
+<h2 id="main-scene-module">Main Scene Module:</h2>
+<ul>
+<li>SDL2 Window</li>
+<li>Scene (<a title="payton.scene" href="index.html"><code>payton.scene</code></a>)<ul>
+<li>Geometry (<a title="payton.scene.geometry" href="geometry.html"><code>payton.scene.geometry</code></a>)</li>
+<li>Grid (<a title="payton.scene.grid" href="grid.html"><code>payton.scene.grid</code></a>)</li>
+<li>Background (<code>payton.scene.Background</code>)</li>
+<li>Clock (<a title="payton.scene.clock" href="clock.html"><code>payton.scene.clock</code></a>)</li>
+<li>Light (<a title="payton.scene.light.Light" href="light.html#payton.scene.light.Light"><code>Light</code></a>)</li>
+<li>Collision Test (<a title="payton.scene.collision.CollisionTest" href="collision.html#payton.scene.collision.CollisionTest"><code>CollisionTest</code></a>)</li>
+<li>Observer (<a title="payton.scene.observer.Observer" href="observer.html#payton.scene.observer.Observer"><code>Observer</code></a>)</li>
+<li>Wavefront (<a title="payton.scene.wavefront.Wavefront" href="wavefront.html#payton.scene.wavefront.Wavefront"><code>Wavefront</code></a>)</li>
+</ul>
+</li>
+</ul>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;#Payton Scene Module
+
+##Main Scene Module:
+
+* SDL2 Window
+  * Scene (`payton.scene`)
+    * Geometry (`payton.scene.geometry`)
+    * Grid (`payton.scene.grid`)
+    * Background (`payton.scene.Background`)
+    * Clock (`payton.scene.clock`)
+    * Light (`payton.scene.light.Light`)
+    * Collision Test (`payton.scene.collision.CollisionTest`)
+    * Observer (`payton.scene.observer.Observer`)
+    * Wavefront (`payton.scene.wavefront.Wavefront`)
+
+&#34;&#34;&#34;
+import ctypes
+import sdl2
+import logging
+import time
+import numpy as np  # type: ignore
+from typing import Dict, Any, List, Type, Callable, TypeVar
+
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    glEnable,
+    GL_DEPTH_TEST,
+    GL_LESS,
+    glGenVertexArrays,
+    glBindVertexArray,
+    glDisable,
+    glDrawArrays,
+    glClear,
+    glDepthFunc,
+    GL_TRIANGLES,
+)
+
+from payton.scene.controller import Controller
+from payton.scene.grid import Grid
+from payton.scene.geometry import Object
+from payton.scene.light import Light
+from payton.scene.observer import Observer
+from payton.scene.clock import Clock
+from payton.scene.collision import CollisionTest
+from payton.scene.gui import Hud, Shape2D
+from payton.scene.receiver import Receiver
+
+from payton.scene.shader import (
+    Shader,
+    background_fragment_shader,
+    background_vertex_shader,
+)
+
+S = TypeVar(&#34;S&#34;, bound=&#34;Scene&#34;)
+
+
+class Scene(Receiver):
+    &#34;&#34;&#34;
+    Main Payton scene.
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;
+        Initialize the Payton Scene
+        There is no parameters here. Every class property must be explicitly
+        defined.
+
+        Simplest form of usage:
+
+            from payton.scene import Scene
+            a = Scene()
+            a.run()
+
+        on_select sample:
+
+            from payton.scene import Scene
+            from payton.scene.geometry import Cube
+
+            def select(objects):
+                print(objects)
+                for obj in objects:
+                    obj.material.color = [1.0, 0.0, 0.0]
+
+            scene = Scene(on_select=select)
+            cube1 = Cube()
+
+            scene.add_object(&#39;cube1&#39;, cube1)
+
+            scene.run()
+
+        Args:
+          width: Window width
+          height: Window height
+          on_select: On object select callback function. Controller passes
+        selected objects in a list as the first parameter of the function.
+        &#34;&#34;&#34;
+        # All objects list
+        self.objects: Dict[str, Object] = {}
+        # All Huds (Heads Up Display)
+        self.huds: Dict[str, Hud] = {}
+        self.__fps_counter = 0
+        self.fps = 0
+
+        self.__timer = -1.0
+        # List of observers (cameras) in the scene. There can be only
+        # one active observer at a time
+        self.observers: List[Observer] = []
+        self.observers.append(Observer(active=True))
+        self.hudcam = Observer(
+            active=True,
+            position=[0, 0, 1.0],
+            up=[0, 1.0, 0],
+            perspective=False,
+        )
+        # Instead of looping through observers to find the active
+        # observer, we are keeping the known index to avoid redundant
+        # loops.
+        self._active_observer = 0
+
+        self.lights: List[Light] = []
+        self.lights.append(Light())
+
+        # List of all clocks. Clocks are time based function holders which
+        # animate objects in the scene or do other stuff.
+        self.clocks: Dict[str, Clock] = {}
+        self.grid = Grid()
+        self.controller = Controller()
+        self._background = Background()
+
+        # SDL Related Stuff
+        self.window = None
+        self.window_width = args.get(&#34;width&#34;, 800.0)
+        self.window_height = args.get(&#34;height&#34;, 600.0)
+        self._context = None
+        self._mouse = [0, 0]
+        self._shift_down = False
+        self._ctrl_down = False
+        self._rotate = False
+        self._collision_detectors: List[CollisionTest] = []
+
+        self.on_select = args.get(&#34;on_select&#34;, None)
+        # Main running state
+        self.running = False
+
+    def _render(self) -&gt; None:
+        &#34;&#34;&#34;
+        Render the whole scene here. Note that, this is a private function and
+        should not be overriden unless you really know what you are dealing
+        with.
+        &#34;&#34;&#34;
+        # Disable Depth Test to draw background at the very back of the scene
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
+        self._background.render()
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LESS)
+
+        proj, view = self.active_observer.render()
+
+        self.grid.render(proj, view, self.lights)
+
+        for object in self.objects:
+            self.objects[object].render(proj, view, self.lights)
+
+        for object in self.huds:
+            self.huds[object].render(proj, view, self.lights)
+
+        for test in self._collision_detectors:
+            test.check()
+
+        self.__fps_counter += 1
+        if self.__timer == -1:
+            self.__timer = time.time()
+        diff = time.time() - self.__timer
+        if diff &gt; 1:
+            self.__timer = time.time()
+            self.fps = self.__fps_counter
+            self.__fps_counter = 0
+
+    def add_collision_test(self, tester: CollisionTest) -&gt; None:
+        &#34;&#34;&#34;Add collision test to the scene
+
+        See `payton.scene.collision` module for details on collision
+
+        Args:
+          tester: Instance of `payton.scene.collision.CollisionTest`
+        &#34;&#34;&#34;
+        if not isinstance(tester, CollisionTest):
+            logging.error(&#34;tester must be an instance of CollisionTest&#34;)
+            return
+
+        self._collision_detectors.append(tester)
+
+    def add_object(self, name: str, obj: Object) -&gt; bool:
+        &#34;&#34;&#34;
+        Add object to the scene root.
+
+        Args:
+          name: Name of the object, must be unique within its&#39; scope.
+          obj: Object (must be an instance of `payton.scene.geometry.Object`
+
+        Return:
+          bool: False in case of an error.
+
+        Example usage:
+
+            from payton.scene import Scene
+            from payton.scene.geometry import Cube
+
+            my_scene = Scene()
+            cube = Cube()
+            my_scene.add_object(&#39;cube&#39;, cube)
+            my_scene.run()
+        &#34;&#34;&#34;
+        if not isinstance(obj, Object):
+            logging.error(&#34;Given object is not an instance of `scene.Object`&#34;)
+            return False
+
+        if name in self.objects:
+            logging.error(f&#34;Given object name [{name}] already exists&#34;)
+            return False
+
+        if isinstance(obj, Shape2D):
+            logging.error(&#34;2D Shapes can&#39;t be added directly to the scene&#34;)
+            return False
+
+        if isinstance(obj, Hud):
+            &#34;&#34;&#34;Huds must be rendered in a different loop after rendering
+            all objects&#34;&#34;&#34;
+            self.huds[name] = obj
+            obj.name = name
+            obj.set_size(self.window_width, self.window_height)
+            return True
+
+        self.objects[name] = obj
+        obj.name = name
+        return True
+
+    def add_observer(self, obj: Observer) -&gt; bool:
+        &#34;&#34;&#34;
+        Add observer to the scene. Observer must be an instance of
+        `payton.scene.observer.Observer`
+        Generally this is not needed as scene has already a default observer.
+
+        Args:
+          obj: Observer object, instance of `payton.scene.observer.Observer`
+
+        Return:
+          bool: False in case of an error.
+        &#34;&#34;&#34;
+        if not isinstance(obj, Observer):
+            logging.error(&#34;Observer is not an instance of `scene.Observer`&#34;)
+            return False
+
+        self.observers.append(obj)
+        return True
+
+    @property
+    def active_observer(self) -&gt; Observer:
+        &#34;&#34;&#34;Return active observer
+
+        Returns:
+          observer
+        &#34;&#34;&#34;
+        return self.observers[self._active_observer]
+
+    def create_observer(self) -&gt; None:
+        &#34;&#34;&#34;
+        Create a new observer in the scene and add to scene observers.
+        &#34;&#34;&#34;
+        self.observers.append(Observer())
+
+    def create_clock(
+        self,
+        name: str,
+        period: float,
+        callback: Callable[[str, Type[Receiver], float, float], None],
+    ) -&gt; None:
+        &#34;&#34;&#34;
+        Creates a clock in the scene. This is the preffered way to create a
+        clock in the scene as it binds the clock to the scene by itself.
+
+        Args:
+          name: Name of the clock. Must be unique within the scene.
+          period: Period of the clock (in seconds), time between each iteration
+          callback: Callback function to call in each iteration. Callback
+        function must have these arguments:
+            name: Name of the clock that triggers callback function.
+            scene: Scene reference to the callback function.
+            period: Period of the clock (time difference between iterations)
+            total: Total time elapsed from the beginning.
+
+        Example usage:
+
+            from payton.scene import Scene
+            from payton.scene.clock import Clock
+
+
+            def time_counter_callback(name, scene, period, total):
+                print(&#34;Total time passed since beginning {}secs&#34;.format(total))
+
+            my_scene = Scene()
+            my_scene.create_clock(&#39;time_counter&#39;, 1.0, time_counter_callback)
+            print(&#34;Hit space to start clock&#34;)
+            my_scene.run()
+
+        Result output to console:
+
+            Total time passed since beginning 0secs
+            Total time passed since beginning 1.0secs
+            Total time passed since beginning 2.0secs
+            Total time passed since beginning 3.0secs
+            Total time passed since beginning 4.0secs
+            Total time passed since beginning 5.0secs
+            Total time passed since beginning 6.0secs
+            Total time passed since beginning 7.0secs
+            Total time passed since beginning 8.0secs
+            Total time passed since beginning 9.0secs
+            Total time passed since beginning 10.0secs
+            ...
+        &#34;&#34;&#34;
+        if name in self.clocks:
+            logging.error(f&#34;A clock named {name} already exists&#34;)
+            return
+
+        c = Clock(name, period, self, callback)  # type: ignore
+        self.clocks[name] = c
+
+    def run(self) -&gt; int:
+        &#34;&#34;&#34;
+        Run scene.
+
+        This is a complex function and needs some refactoring.
+        Here is the logic and flow behind this function:
+
+        1. Initialize SDL
+        2. Create SDL window with given parameters enabling OpenGL Pipeline
+        3. Create and set active context as OpenGL Context
+        4. Set running flag.
+        5. Fix aspect ratios of observers *aka cameras* in the scene.
+        6. Start scene loop.
+            1. Poll for SDL events
+            2. React to SDL events *(quit, key press, key up, mouse motion
+               etc)*
+            3. Render scene, turn to step 6.1 if not quit
+        7. Destroy objects and clear memory.
+        8. Destroy window and such.
+        &#34;&#34;&#34;
+        if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
+            return -1
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MINOR_VERSION, 3)
+        sdl2.SDL_GL_SetAttribute(
+            sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE
+        )
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
+        self.window = sdl2.SDL_CreateWindow(
+            b&#34;Payton Scene&#34;,
+            sdl2.SDL_WINDOWPOS_UNDEFINED,
+            sdl2.SDL_WINDOWPOS_UNDEFINED,
+            int(self.window_width),
+            int(self.window_height),
+            sdl2.SDL_WINDOW_OPENGL,
+        )  # type: ignore
+
+        if not self.window:
+            return -1
+
+        self._context = sdl2.SDL_GL_CreateContext(self.window)
+        self.event = sdl2.SDL_Event()
+        self.running = True
+
+        # Fix aspect ratios of observers
+        for observer in self.observers:
+            observer.aspect_ratio = (
+                self.window_width / self.window_height * 1.0
+            )
+
+        for clock in self.clocks:
+            self.clocks[clock].start()
+
+        while self.running:
+            while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
+                self.controller.keyboard(self.event, self)
+                self.controller.mouse(self.event, self)
+
+            self._render()
+
+            sdl2.SDL_GL_SwapWindow(self.window)
+            sdl2.SDL_Delay(1)
+
+        for obj in self.objects:
+            self.objects[obj].destroy()
+        for clock in self.clocks:
+            self.clocks[clock].kill()
+
+        sdl2.SDL_GL_DeleteContext(self._context)
+        sdl2.SDL_DestroyWindow(self.window)
+        self.window = None
+        sdl2.SDL_Quit()
+        return 0
+
+
+class Background(object):
+    &#34;&#34;&#34;Background is a special object
+
+    Only used by Scene and used for once. It has a special place in the render
+    pipeline. This is the first object to be rendered in each cycle and before
+    rendering this object, Scene disables depth test. So, every other element
+    in the scene can be drawn on top of this background.
+
+    (Shader code and idea derived from the original work of:
+    https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Dict[str, Any]):
+        &#34;&#34;&#34;Initialize background
+
+        Args:
+          top_color: Color at the top of the scene screen
+          bottom_color: Color at the bottom of the screen
+        &#34;&#34;&#34;
+        self.top_color = args.get(&#34;top_color&#34;, [0.0, 0.1, 0.2, 1.0])
+        self.bottom_color = args.get(&#34;bottom_color&#34;, [0.1, 0.1, 0.1, 1.0])
+        variables = [&#34;top_color&#34;, &#34;bot_color&#34;]
+        self._shader = Shader(
+            fragment=background_fragment_shader,
+            vertex=background_vertex_shader,
+            variables=variables,
+        )
+        self._vao = None
+        self.visible = True
+
+    def render(self) -&gt; None:
+        &#34;&#34;&#34;Render background of the scene&#34;&#34;&#34;
+        if not self.visible:
+            return
+
+        if not self._vao:
+            self._vao = glGenVertexArrays(1)
+            glBindVertexArray(self._vao)
+            self._shader.build()
+            glBindVertexArray(0)
+
+        glDisable(GL_DEPTH_TEST)
+
+        self._shader.use()
+        self._shader.set_vector4_np(
+            &#34;top_color&#34;, np.array(self.top_color, dtype=np.float32)
+        )
+        self._shader.set_vector4_np(
+            &#34;bot_color&#34;, np.array(self.bottom_color, dtype=np.float32)
+        )
+        glBindVertexArray(self._vao)
+        glDrawArrays(GL_TRIANGLES, 0, 3)
+        glBindVertexArray(0)
+        self._shader.end()
+        glEnable(GL_DEPTH_TEST)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="payton.scene.scene.Background"><code class="flex name class">
+<span>class <span class="ident">Background</span></span>
+<span>(</span><span>**args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Background is a special object</p>
+<p>Only used by Scene and used for once. It has a special place in the render
+pipeline. This is the first object to be rendered in each cycle and before
+rendering this object, Scene disables depth test. So, every other element
+in the scene can be drawn on top of this background.</p>
+<p>(Shader code and idea derived from the original work of:
+<a href="https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/">https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/</a>)</p>
+<p>Initialize background</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>top_color</code></strong></dt>
+<dd>Color at the top of the scene screen</dd>
+<dt><strong><code>bottom_color</code></strong></dt>
+<dd>Color at the bottom of the screen</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Background(object):
+    &#34;&#34;&#34;Background is a special object
+
+    Only used by Scene and used for once. It has a special place in the render
+    pipeline. This is the first object to be rendered in each cycle and before
+    rendering this object, Scene disables depth test. So, every other element
+    in the scene can be drawn on top of this background.
+
+    (Shader code and idea derived from the original work of:
+    https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Dict[str, Any]):
+        &#34;&#34;&#34;Initialize background
+
+        Args:
+          top_color: Color at the top of the scene screen
+          bottom_color: Color at the bottom of the screen
+        &#34;&#34;&#34;
+        self.top_color = args.get(&#34;top_color&#34;, [0.0, 0.1, 0.2, 1.0])
+        self.bottom_color = args.get(&#34;bottom_color&#34;, [0.1, 0.1, 0.1, 1.0])
+        variables = [&#34;top_color&#34;, &#34;bot_color&#34;]
+        self._shader = Shader(
+            fragment=background_fragment_shader,
+            vertex=background_vertex_shader,
+            variables=variables,
+        )
+        self._vao = None
+        self.visible = True
+
+    def render(self) -&gt; None:
+        &#34;&#34;&#34;Render background of the scene&#34;&#34;&#34;
+        if not self.visible:
+            return
+
+        if not self._vao:
+            self._vao = glGenVertexArrays(1)
+            glBindVertexArray(self._vao)
+            self._shader.build()
+            glBindVertexArray(0)
+
+        glDisable(GL_DEPTH_TEST)
+
+        self._shader.use()
+        self._shader.set_vector4_np(
+            &#34;top_color&#34;, np.array(self.top_color, dtype=np.float32)
+        )
+        self._shader.set_vector4_np(
+            &#34;bot_color&#34;, np.array(self.bottom_color, dtype=np.float32)
+        )
+        glBindVertexArray(self._vao)
+        glDrawArrays(GL_TRIANGLES, 0, 3)
+        glBindVertexArray(0)
+        self._shader.end()
+        glEnable(GL_DEPTH_TEST)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.scene.Background.render"><code class="name flex">
+<span>def <span class="ident">render</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Render background of the scene</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def render(self) -&gt; None:
+    &#34;&#34;&#34;Render background of the scene&#34;&#34;&#34;
+    if not self.visible:
+        return
+
+    if not self._vao:
+        self._vao = glGenVertexArrays(1)
+        glBindVertexArray(self._vao)
+        self._shader.build()
+        glBindVertexArray(0)
+
+    glDisable(GL_DEPTH_TEST)
+
+    self._shader.use()
+    self._shader.set_vector4_np(
+        &#34;top_color&#34;, np.array(self.top_color, dtype=np.float32)
+    )
+    self._shader.set_vector4_np(
+        &#34;bot_color&#34;, np.array(self.bottom_color, dtype=np.float32)
+    )
+    glBindVertexArray(self._vao)
+    glDrawArrays(GL_TRIANGLES, 0, 3)
+    glBindVertexArray(0)
+    self._shader.end()
+    glEnable(GL_DEPTH_TEST)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="payton.scene.scene.Scene"><code class="flex name class">
+<span>class <span class="ident">Scene</span></span>
+<span>(</span><span>**args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Main Payton scene.</p>
+<p>Initialize the Payton Scene
+There is no parameters here. Every class property must be explicitly
+defined.</p>
+<p>Simplest form of usage:</p>
+<pre><code>from payton.scene import Scene
+a = Scene()
+a.run()
+</code></pre>
+<p>on_select sample:</p>
+<pre><code>from payton.scene import Scene
+from payton.scene.geometry import Cube
+
+def select(objects):
+    print(objects)
+    for obj in objects:
+        obj.material.color = [1.0, 0.0, 0.0]
+
+scene = Scene(on_select=select)
+cube1 = Cube()
+
+scene.add_object('cube1', cube1)
+
+scene.run()
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>width</code></strong></dt>
+<dd>Window width</dd>
+<dt><strong><code>height</code></strong></dt>
+<dd>Window height</dd>
+<dt><strong><code>on_select</code></strong></dt>
+<dd>On object select callback function. Controller passes</dd>
+</dl>
+<p>selected objects in a list as the first parameter of the function.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Scene(Receiver):
+    &#34;&#34;&#34;
+    Main Payton scene.
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;
+        Initialize the Payton Scene
+        There is no parameters here. Every class property must be explicitly
+        defined.
+
+        Simplest form of usage:
+
+            from payton.scene import Scene
+            a = Scene()
+            a.run()
+
+        on_select sample:
+
+            from payton.scene import Scene
+            from payton.scene.geometry import Cube
+
+            def select(objects):
+                print(objects)
+                for obj in objects:
+                    obj.material.color = [1.0, 0.0, 0.0]
+
+            scene = Scene(on_select=select)
+            cube1 = Cube()
+
+            scene.add_object(&#39;cube1&#39;, cube1)
+
+            scene.run()
+
+        Args:
+          width: Window width
+          height: Window height
+          on_select: On object select callback function. Controller passes
+        selected objects in a list as the first parameter of the function.
+        &#34;&#34;&#34;
+        # All objects list
+        self.objects: Dict[str, Object] = {}
+        # All Huds (Heads Up Display)
+        self.huds: Dict[str, Hud] = {}
+        self.__fps_counter = 0
+        self.fps = 0
+
+        self.__timer = -1.0
+        # List of observers (cameras) in the scene. There can be only
+        # one active observer at a time
+        self.observers: List[Observer] = []
+        self.observers.append(Observer(active=True))
+        self.hudcam = Observer(
+            active=True,
+            position=[0, 0, 1.0],
+            up=[0, 1.0, 0],
+            perspective=False,
+        )
+        # Instead of looping through observers to find the active
+        # observer, we are keeping the known index to avoid redundant
+        # loops.
+        self._active_observer = 0
+
+        self.lights: List[Light] = []
+        self.lights.append(Light())
+
+        # List of all clocks. Clocks are time based function holders which
+        # animate objects in the scene or do other stuff.
+        self.clocks: Dict[str, Clock] = {}
+        self.grid = Grid()
+        self.controller = Controller()
+        self._background = Background()
+
+        # SDL Related Stuff
+        self.window = None
+        self.window_width = args.get(&#34;width&#34;, 800.0)
+        self.window_height = args.get(&#34;height&#34;, 600.0)
+        self._context = None
+        self._mouse = [0, 0]
+        self._shift_down = False
+        self._ctrl_down = False
+        self._rotate = False
+        self._collision_detectors: List[CollisionTest] = []
+
+        self.on_select = args.get(&#34;on_select&#34;, None)
+        # Main running state
+        self.running = False
+
+    def _render(self) -&gt; None:
+        &#34;&#34;&#34;
+        Render the whole scene here. Note that, this is a private function and
+        should not be overriden unless you really know what you are dealing
+        with.
+        &#34;&#34;&#34;
+        # Disable Depth Test to draw background at the very back of the scene
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
+        self._background.render()
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LESS)
+
+        proj, view = self.active_observer.render()
+
+        self.grid.render(proj, view, self.lights)
+
+        for object in self.objects:
+            self.objects[object].render(proj, view, self.lights)
+
+        for object in self.huds:
+            self.huds[object].render(proj, view, self.lights)
+
+        for test in self._collision_detectors:
+            test.check()
+
+        self.__fps_counter += 1
+        if self.__timer == -1:
+            self.__timer = time.time()
+        diff = time.time() - self.__timer
+        if diff &gt; 1:
+            self.__timer = time.time()
+            self.fps = self.__fps_counter
+            self.__fps_counter = 0
+
+    def add_collision_test(self, tester: CollisionTest) -&gt; None:
+        &#34;&#34;&#34;Add collision test to the scene
+
+        See `payton.scene.collision` module for details on collision
+
+        Args:
+          tester: Instance of `payton.scene.collision.CollisionTest`
+        &#34;&#34;&#34;
+        if not isinstance(tester, CollisionTest):
+            logging.error(&#34;tester must be an instance of CollisionTest&#34;)
+            return
+
+        self._collision_detectors.append(tester)
+
+    def add_object(self, name: str, obj: Object) -&gt; bool:
+        &#34;&#34;&#34;
+        Add object to the scene root.
+
+        Args:
+          name: Name of the object, must be unique within its&#39; scope.
+          obj: Object (must be an instance of `payton.scene.geometry.Object`
+
+        Return:
+          bool: False in case of an error.
+
+        Example usage:
+
+            from payton.scene import Scene
+            from payton.scene.geometry import Cube
+
+            my_scene = Scene()
+            cube = Cube()
+            my_scene.add_object(&#39;cube&#39;, cube)
+            my_scene.run()
+        &#34;&#34;&#34;
+        if not isinstance(obj, Object):
+            logging.error(&#34;Given object is not an instance of `scene.Object`&#34;)
+            return False
+
+        if name in self.objects:
+            logging.error(f&#34;Given object name [{name}] already exists&#34;)
+            return False
+
+        if isinstance(obj, Shape2D):
+            logging.error(&#34;2D Shapes can&#39;t be added directly to the scene&#34;)
+            return False
+
+        if isinstance(obj, Hud):
+            &#34;&#34;&#34;Huds must be rendered in a different loop after rendering
+            all objects&#34;&#34;&#34;
+            self.huds[name] = obj
+            obj.name = name
+            obj.set_size(self.window_width, self.window_height)
+            return True
+
+        self.objects[name] = obj
+        obj.name = name
+        return True
+
+    def add_observer(self, obj: Observer) -&gt; bool:
+        &#34;&#34;&#34;
+        Add observer to the scene. Observer must be an instance of
+        `payton.scene.observer.Observer`
+        Generally this is not needed as scene has already a default observer.
+
+        Args:
+          obj: Observer object, instance of `payton.scene.observer.Observer`
+
+        Return:
+          bool: False in case of an error.
+        &#34;&#34;&#34;
+        if not isinstance(obj, Observer):
+            logging.error(&#34;Observer is not an instance of `scene.Observer`&#34;)
+            return False
+
+        self.observers.append(obj)
+        return True
+
+    @property
+    def active_observer(self) -&gt; Observer:
+        &#34;&#34;&#34;Return active observer
+
+        Returns:
+          observer
+        &#34;&#34;&#34;
+        return self.observers[self._active_observer]
+
+    def create_observer(self) -&gt; None:
+        &#34;&#34;&#34;
+        Create a new observer in the scene and add to scene observers.
+        &#34;&#34;&#34;
+        self.observers.append(Observer())
+
+    def create_clock(
+        self,
+        name: str,
+        period: float,
+        callback: Callable[[str, Type[Receiver], float, float], None],
+    ) -&gt; None:
+        &#34;&#34;&#34;
+        Creates a clock in the scene. This is the preffered way to create a
+        clock in the scene as it binds the clock to the scene by itself.
+
+        Args:
+          name: Name of the clock. Must be unique within the scene.
+          period: Period of the clock (in seconds), time between each iteration
+          callback: Callback function to call in each iteration. Callback
+        function must have these arguments:
+            name: Name of the clock that triggers callback function.
+            scene: Scene reference to the callback function.
+            period: Period of the clock (time difference between iterations)
+            total: Total time elapsed from the beginning.
+
+        Example usage:
+
+            from payton.scene import Scene
+            from payton.scene.clock import Clock
+
+
+            def time_counter_callback(name, scene, period, total):
+                print(&#34;Total time passed since beginning {}secs&#34;.format(total))
+
+            my_scene = Scene()
+            my_scene.create_clock(&#39;time_counter&#39;, 1.0, time_counter_callback)
+            print(&#34;Hit space to start clock&#34;)
+            my_scene.run()
+
+        Result output to console:
+
+            Total time passed since beginning 0secs
+            Total time passed since beginning 1.0secs
+            Total time passed since beginning 2.0secs
+            Total time passed since beginning 3.0secs
+            Total time passed since beginning 4.0secs
+            Total time passed since beginning 5.0secs
+            Total time passed since beginning 6.0secs
+            Total time passed since beginning 7.0secs
+            Total time passed since beginning 8.0secs
+            Total time passed since beginning 9.0secs
+            Total time passed since beginning 10.0secs
+            ...
+        &#34;&#34;&#34;
+        if name in self.clocks:
+            logging.error(f&#34;A clock named {name} already exists&#34;)
+            return
+
+        c = Clock(name, period, self, callback)  # type: ignore
+        self.clocks[name] = c
+
+    def run(self) -&gt; int:
+        &#34;&#34;&#34;
+        Run scene.
+
+        This is a complex function and needs some refactoring.
+        Here is the logic and flow behind this function:
+
+        1. Initialize SDL
+        2. Create SDL window with given parameters enabling OpenGL Pipeline
+        3. Create and set active context as OpenGL Context
+        4. Set running flag.
+        5. Fix aspect ratios of observers *aka cameras* in the scene.
+        6. Start scene loop.
+            1. Poll for SDL events
+            2. React to SDL events *(quit, key press, key up, mouse motion
+               etc)*
+            3. Render scene, turn to step 6.1 if not quit
+        7. Destroy objects and clear memory.
+        8. Destroy window and such.
+        &#34;&#34;&#34;
+        if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
+            return -1
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MINOR_VERSION, 3)
+        sdl2.SDL_GL_SetAttribute(
+            sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE
+        )
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
+        self.window = sdl2.SDL_CreateWindow(
+            b&#34;Payton Scene&#34;,
+            sdl2.SDL_WINDOWPOS_UNDEFINED,
+            sdl2.SDL_WINDOWPOS_UNDEFINED,
+            int(self.window_width),
+            int(self.window_height),
+            sdl2.SDL_WINDOW_OPENGL,
+        )  # type: ignore
+
+        if not self.window:
+            return -1
+
+        self._context = sdl2.SDL_GL_CreateContext(self.window)
+        self.event = sdl2.SDL_Event()
+        self.running = True
+
+        # Fix aspect ratios of observers
+        for observer in self.observers:
+            observer.aspect_ratio = (
+                self.window_width / self.window_height * 1.0
+            )
+
+        for clock in self.clocks:
+            self.clocks[clock].start()
+
+        while self.running:
+            while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
+                self.controller.keyboard(self.event, self)
+                self.controller.mouse(self.event, self)
+
+            self._render()
+
+            sdl2.SDL_GL_SwapWindow(self.window)
+            sdl2.SDL_Delay(1)
+
+        for obj in self.objects:
+            self.objects[obj].destroy()
+        for clock in self.clocks:
+            self.clocks[clock].kill()
+
+        sdl2.SDL_GL_DeleteContext(self._context)
+        sdl2.SDL_DestroyWindow(self.window)
+        self.window = None
+        sdl2.SDL_Quit()
+        return 0</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="payton.scene.receiver.Receiver" href="receiver.html#payton.scene.receiver.Receiver">Receiver</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="payton.scene.scene.Scene.active_observer"><code class="name">var <span class="ident">active_observer</span></code></dt>
+<dd>
+<section class="desc"><p>Return active observer</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>observer</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def active_observer(self) -&gt; Observer:
+    &#34;&#34;&#34;Return active observer
+
+    Returns:
+      observer
+    &#34;&#34;&#34;
+    return self.observers[self._active_observer]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.scene.Scene.add_collision_test"><code class="name flex">
+<span>def <span class="ident">add_collision_test</span></span>(<span>self, tester)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Add collision test to the scene</p>
+<p>See <a title="payton.scene.collision" href="collision.html"><code>payton.scene.collision</code></a> module for details on collision</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>tester</code></strong></dt>
+<dd>Instance of <a title="payton.scene.collision.CollisionTest" href="collision.html#payton.scene.collision.CollisionTest"><code>CollisionTest</code></a></dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add_collision_test(self, tester: CollisionTest) -&gt; None:
+    &#34;&#34;&#34;Add collision test to the scene
+
+    See `payton.scene.collision` module for details on collision
+
+    Args:
+      tester: Instance of `payton.scene.collision.CollisionTest`
+    &#34;&#34;&#34;
+    if not isinstance(tester, CollisionTest):
+        logging.error(&#34;tester must be an instance of CollisionTest&#34;)
+        return
+
+    self._collision_detectors.append(tester)</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.scene.Scene.add_object"><code class="name flex">
+<span>def <span class="ident">add_object</span></span>(<span>self, name, obj)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Add object to the scene root.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>Name of the object, must be unique within its' scope.</dd>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Object (must be an instance of <a title="payton.scene.geometry.Object" href="geometry.html#payton.scene.geometry.Object"><code>Object</code></a></dd>
+</dl>
+<h2 id="return">Return</h2>
+<dl>
+<dt><strong><code>bool</code></strong></dt>
+<dd>False in case of an error.</dd>
+</dl>
+<p>Example usage:</p>
+<pre><code>from payton.scene import Scene
+from payton.scene.geometry import Cube
+
+my_scene = Scene()
+cube = Cube()
+my_scene.add_object('cube', cube)
+my_scene.run()
+</code></pre></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add_object(self, name: str, obj: Object) -&gt; bool:
+    &#34;&#34;&#34;
+    Add object to the scene root.
+
+    Args:
+      name: Name of the object, must be unique within its&#39; scope.
+      obj: Object (must be an instance of `payton.scene.geometry.Object`
+
+    Return:
+      bool: False in case of an error.
+
+    Example usage:
+
+        from payton.scene import Scene
+        from payton.scene.geometry import Cube
+
+        my_scene = Scene()
+        cube = Cube()
+        my_scene.add_object(&#39;cube&#39;, cube)
+        my_scene.run()
+    &#34;&#34;&#34;
+    if not isinstance(obj, Object):
+        logging.error(&#34;Given object is not an instance of `scene.Object`&#34;)
+        return False
+
+    if name in self.objects:
+        logging.error(f&#34;Given object name [{name}] already exists&#34;)
+        return False
+
+    if isinstance(obj, Shape2D):
+        logging.error(&#34;2D Shapes can&#39;t be added directly to the scene&#34;)
+        return False
+
+    if isinstance(obj, Hud):
+        &#34;&#34;&#34;Huds must be rendered in a different loop after rendering
+        all objects&#34;&#34;&#34;
+        self.huds[name] = obj
+        obj.name = name
+        obj.set_size(self.window_width, self.window_height)
+        return True
+
+    self.objects[name] = obj
+    obj.name = name
+    return True</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.scene.Scene.add_observer"><code class="name flex">
+<span>def <span class="ident">add_observer</span></span>(<span>self, obj)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Add observer to the scene. Observer must be an instance of
+<a title="payton.scene.observer.Observer" href="observer.html#payton.scene.observer.Observer"><code>Observer</code></a>
+Generally this is not needed as scene has already a default observer.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Observer object, instance of <a title="payton.scene.observer.Observer" href="observer.html#payton.scene.observer.Observer"><code>Observer</code></a></dd>
+</dl>
+<h2 id="return">Return</h2>
+<dl>
+<dt><strong><code>bool</code></strong></dt>
+<dd>False in case of an error.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add_observer(self, obj: Observer) -&gt; bool:
+    &#34;&#34;&#34;
+    Add observer to the scene. Observer must be an instance of
+    `payton.scene.observer.Observer`
+    Generally this is not needed as scene has already a default observer.
+
+    Args:
+      obj: Observer object, instance of `payton.scene.observer.Observer`
+
+    Return:
+      bool: False in case of an error.
+    &#34;&#34;&#34;
+    if not isinstance(obj, Observer):
+        logging.error(&#34;Observer is not an instance of `scene.Observer`&#34;)
+        return False
+
+    self.observers.append(obj)
+    return True</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.scene.Scene.create_clock"><code class="name flex">
+<span>def <span class="ident">create_clock</span></span>(<span>self, name, period, callback)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates a clock in the scene. This is the preffered way to create a
+clock in the scene as it binds the clock to the scene by itself.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>Name of the clock. Must be unique within the scene.</dd>
+<dt><strong><code>period</code></strong></dt>
+<dd>Period of the clock (in seconds), time between each iteration</dd>
+<dt><strong><code>callback</code></strong></dt>
+<dd>Callback function to call in each iteration. Callback</dd>
+</dl>
+<p>function must have these arguments:
+name: Name of the clock that triggers callback function.
+scene: Scene reference to the callback function.
+period: Period of the clock (time difference between iterations)
+total: Total time elapsed from the beginning.</p>
+<p>Example usage:</p>
+<pre><code>from payton.scene import Scene
+from payton.scene.clock import Clock
+
+
+def time_counter_callback(name, scene, period, total):
+    print("Total time passed since beginning {}secs".format(total))
+
+my_scene = Scene()
+my_scene.create_clock('time_counter', 1.0, time_counter_callback)
+print("Hit space to start clock")
+my_scene.run()
+</code></pre>
+<p>Result output to console:</p>
+<pre><code>Total time passed since beginning 0secs
+Total time passed since beginning 1.0secs
+Total time passed since beginning 2.0secs
+Total time passed since beginning 3.0secs
+Total time passed since beginning 4.0secs
+Total time passed since beginning 5.0secs
+Total time passed since beginning 6.0secs
+Total time passed since beginning 7.0secs
+Total time passed since beginning 8.0secs
+Total time passed since beginning 9.0secs
+Total time passed since beginning 10.0secs
+...
+</code></pre></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def create_clock(
+    self,
+    name: str,
+    period: float,
+    callback: Callable[[str, Type[Receiver], float, float], None],
+) -&gt; None:
+    &#34;&#34;&#34;
+    Creates a clock in the scene. This is the preffered way to create a
+    clock in the scene as it binds the clock to the scene by itself.
+
+    Args:
+      name: Name of the clock. Must be unique within the scene.
+      period: Period of the clock (in seconds), time between each iteration
+      callback: Callback function to call in each iteration. Callback
+    function must have these arguments:
+        name: Name of the clock that triggers callback function.
+        scene: Scene reference to the callback function.
+        period: Period of the clock (time difference between iterations)
+        total: Total time elapsed from the beginning.
+
+    Example usage:
+
+        from payton.scene import Scene
+        from payton.scene.clock import Clock
+
+
+        def time_counter_callback(name, scene, period, total):
+            print(&#34;Total time passed since beginning {}secs&#34;.format(total))
+
+        my_scene = Scene()
+        my_scene.create_clock(&#39;time_counter&#39;, 1.0, time_counter_callback)
+        print(&#34;Hit space to start clock&#34;)
+        my_scene.run()
+
+    Result output to console:
+
+        Total time passed since beginning 0secs
+        Total time passed since beginning 1.0secs
+        Total time passed since beginning 2.0secs
+        Total time passed since beginning 3.0secs
+        Total time passed since beginning 4.0secs
+        Total time passed since beginning 5.0secs
+        Total time passed since beginning 6.0secs
+        Total time passed since beginning 7.0secs
+        Total time passed since beginning 8.0secs
+        Total time passed since beginning 9.0secs
+        Total time passed since beginning 10.0secs
+        ...
+    &#34;&#34;&#34;
+    if name in self.clocks:
+        logging.error(f&#34;A clock named {name} already exists&#34;)
+        return
+
+    c = Clock(name, period, self, callback)  # type: ignore
+    self.clocks[name] = c</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.scene.Scene.create_observer"><code class="name flex">
+<span>def <span class="ident">create_observer</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create a new observer in the scene and add to scene observers.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def create_observer(self) -&gt; None:
+    &#34;&#34;&#34;
+    Create a new observer in the scene and add to scene observers.
+    &#34;&#34;&#34;
+    self.observers.append(Observer())</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.scene.Scene.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Run scene.</p>
+<p>This is a complex function and needs some refactoring.
+Here is the logic and flow behind this function:</p>
+<ol>
+<li>Initialize SDL</li>
+<li>Create SDL window with given parameters enabling OpenGL Pipeline</li>
+<li>Create and set active context as OpenGL Context</li>
+<li>Set running flag.</li>
+<li>Fix aspect ratios of observers <em>aka cameras</em> in the scene.</li>
+<li>Start scene loop.<ol>
+<li>Poll for SDL events</li>
+<li>React to SDL events <em>(quit, key press, key up, mouse motion
+etc)</em></li>
+<li>Render scene, turn to step 6.1 if not quit</li>
+</ol>
+</li>
+<li>Destroy objects and clear memory.</li>
+<li>Destroy window and such.</li>
+</ol></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def run(self) -&gt; int:
+    &#34;&#34;&#34;
+    Run scene.
+
+    This is a complex function and needs some refactoring.
+    Here is the logic and flow behind this function:
+
+    1. Initialize SDL
+    2. Create SDL window with given parameters enabling OpenGL Pipeline
+    3. Create and set active context as OpenGL Context
+    4. Set running flag.
+    5. Fix aspect ratios of observers *aka cameras* in the scene.
+    6. Start scene loop.
+        1. Poll for SDL events
+        2. React to SDL events *(quit, key press, key up, mouse motion
+           etc)*
+        3. Render scene, turn to step 6.1 if not quit
+    7. Destroy objects and clear memory.
+    8. Destroy window and such.
+    &#34;&#34;&#34;
+    if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
+        return -1
+    sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+    sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MINOR_VERSION, 3)
+    sdl2.SDL_GL_SetAttribute(
+        sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE
+    )
+    sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
+    sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
+    self.window = sdl2.SDL_CreateWindow(
+        b&#34;Payton Scene&#34;,
+        sdl2.SDL_WINDOWPOS_UNDEFINED,
+        sdl2.SDL_WINDOWPOS_UNDEFINED,
+        int(self.window_width),
+        int(self.window_height),
+        sdl2.SDL_WINDOW_OPENGL,
+    )  # type: ignore
+
+    if not self.window:
+        return -1
+
+    self._context = sdl2.SDL_GL_CreateContext(self.window)
+    self.event = sdl2.SDL_Event()
+    self.running = True
+
+    # Fix aspect ratios of observers
+    for observer in self.observers:
+        observer.aspect_ratio = (
+            self.window_width / self.window_height * 1.0
+        )
+
+    for clock in self.clocks:
+        self.clocks[clock].start()
+
+    while self.running:
+        while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
+            self.controller.keyboard(self.event, self)
+            self.controller.mouse(self.event, self)
+
+        self._render()
+
+        sdl2.SDL_GL_SwapWindow(self.window)
+        sdl2.SDL_Delay(1)
+
+    for obj in self.objects:
+        self.objects[obj].destroy()
+    for clock in self.clocks:
+        self.clocks[clock].kill()
+
+    sdl2.SDL_GL_DeleteContext(self._context)
+    sdl2.SDL_DestroyWindow(self.window)
+    self.window = None
+    sdl2.SDL_Quit()
+    return 0</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#payton-scene-module">Payton Scene Module</a><ul>
+<li><a href="#main-scene-module">Main Scene Module:</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="payton.scene" href="index.html">payton.scene</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="payton.scene.scene.Background" href="#payton.scene.scene.Background">Background</a></code></h4>
+<ul class="">
+<li><code><a title="payton.scene.scene.Background.render" href="#payton.scene.scene.Background.render">render</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="payton.scene.scene.Scene" href="#payton.scene.scene.Scene">Scene</a></code></h4>
+<ul class="two-column">
+<li><code><a title="payton.scene.scene.Scene.active_observer" href="#payton.scene.scene.Scene.active_observer">active_observer</a></code></li>
+<li><code><a title="payton.scene.scene.Scene.add_collision_test" href="#payton.scene.scene.Scene.add_collision_test">add_collision_test</a></code></li>
+<li><code><a title="payton.scene.scene.Scene.add_object" href="#payton.scene.scene.Scene.add_object">add_object</a></code></li>
+<li><code><a title="payton.scene.scene.Scene.add_observer" href="#payton.scene.scene.Scene.add_observer">add_observer</a></code></li>
+<li><code><a title="payton.scene.scene.Scene.create_clock" href="#payton.scene.scene.Scene.create_clock">create_clock</a></code></li>
+<li><code><a title="payton.scene.scene.Scene.create_observer" href="#payton.scene.scene.Scene.create_observer">create_observer</a></code></li>
+<li><code><a title="payton.scene.scene.Scene.run" href="#payton.scene.scene.Scene.run">run</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
