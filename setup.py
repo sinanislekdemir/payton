@@ -3,19 +3,20 @@ from setuptools import setup, find_packages
 
 setup(
     name="Payton",
-    version="0.0.0",
-    author="sinan islekdemir",
+    version="0.0.1",
+    author="Sinan ISLEKDEMIR",
     author_email="sinan@islekdemir.com",
     # Packages
     packages=find_packages(),
     # Include additional files into the package
     include_package_data=True,
     # Details
-    url="https://27x2.com",
+    url="https://github.com/sinanislekdemir/payton",
     #
-    # license="LICENSE.txt",
-    description="Payton.",
-    # long_description=open("README.txt").read(),
+    license="LICENSE",
+    description="Payton 3D Kickstart Toolkit",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     # Dependent packages (distributions)
     install_requires=["numpy", "Pillow", "PyOpenGL", "pyrr", "PySDL2", "read"],
 )
