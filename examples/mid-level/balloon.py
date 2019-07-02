@@ -50,6 +50,8 @@ def select(list):
     global game
     global score_board
     for obj in list:
+        if not obj.visible:
+            continue
         obj.hide()
         score_board += 1
         game.huds["hud"].children[
@@ -58,7 +60,7 @@ def select(list):
 
 
 game.create_clock("balloon-creator", 1, create_balloon)
-game.create_clock("move-balloons", 0.01, move_balloons)
+game.create_clock("move-balloons", 0.005, move_balloons)
 game.on_select = select
 hud = Hud()
 

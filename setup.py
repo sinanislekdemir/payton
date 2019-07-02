@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="Payton",
-    version="0.0.2.2",
+    version="0.0.2.3",
     author="Sinan ISLEKDEMIR",
     author_email="sinan@islekdemir.com",
     # Packages
@@ -13,7 +13,7 @@ setup(
     # Details
     url="https://github.com/sinanislekdemir/payton",
     #
-    license="LICENSE",
+    license="GNU GPLv3",
     description="Payton 3D Kickstart Toolkit",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

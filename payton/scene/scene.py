@@ -230,6 +230,11 @@ class Scene(Receiver):
         if isinstance(obj, Hud):
             """Huds must be rendered in a different loop after rendering
             all objects"""
+            if self._render_lock:
+                while self._render_lock:
+                    # Wait for render loop to release the lock
+                    # TODO: This can cause a possible deadlock.
+                    continue
             self.huds[name] = obj
             obj.name = name
             obj.set_size(self.window_width, self.window_height)
@@ -238,7 +243,8 @@ class Scene(Receiver):
         if self._render_lock:
             while self._render_lock:
                 # Wait for render loop to release the lock
-                time.sleep(0.0001)
+                # TODO: This can cause a possible deadlock.
+                continue
         self.objects[name] = obj
         obj.name = name
         return True
