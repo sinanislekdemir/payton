@@ -703,6 +703,7 @@ also supported.</dd>
 <li><code><a title="payton.scene.geometry.Object.toggle_wireframe" href="geometry.html#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.track" href="geometry.html#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.update_matrix" href="geometry.html#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.visible" href="geometry.html#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.yaw" href="geometry.html#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -817,6 +818,7 @@ method again.</p></section>
 <li><code><a title="payton.scene.gui.Shape2D.click" href="#payton.scene.gui.Shape2D.click">click</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.destroy" href="geometry.html#payton.scene.geometry.Object.destroy">destroy</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.draw_text" href="#payton.scene.gui.Shape2D.draw_text">draw_text</a></code></li>
+<li><code><a title="payton.scene.gui.Shape2D.fix_normals" href="geometry.html#payton.scene.geometry.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.font" href="#payton.scene.gui.Shape2D.font">font</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.has_vao" href="geometry.html#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.position" href="geometry.html#payton.scene.geometry.Object.position">position</a></code></li>
@@ -825,11 +827,13 @@ method again.</p></section>
 <li><code><a title="payton.scene.gui.Shape2D.rotate_around_x" href="geometry.html#payton.scene.geometry.Object.rotate_around_x">rotate_around_x</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.rotate_around_y" href="geometry.html#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.rotate_around_z" href="geometry.html#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.gui.Shape2D.scale" href="geometry.html#payton.scene.geometry.Mesh.scale">scale</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.select" href="geometry.html#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.to_absolute" href="geometry.html#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.toggle_wireframe" href="geometry.html#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.track" href="geometry.html#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.update_matrix" href="geometry.html#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.gui.Shape2D.visible" href="geometry.html#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.yaw" href="geometry.html#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -1095,6 +1099,7 @@ you handle them yourself or you call the <code>super()</code> for mouse action</
 <li><code><a title="payton.scene.geometry.Mesh.build" href="geometry.html#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.clear_triangles" href="geometry.html#payton.scene.geometry.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.destroy" href="geometry.html#payton.scene.geometry.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.fix_normals" href="geometry.html#payton.scene.geometry.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.has_vao" href="geometry.html#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.position" href="geometry.html#payton.scene.geometry.Object.position">position</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.refresh" href="geometry.html#payton.scene.geometry.Object.refresh">refresh</a></code></li>
@@ -1102,11 +1107,13 @@ you handle them yourself or you call the <code>super()</code> for mouse action</
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_x" href="geometry.html#payton.scene.geometry.Object.rotate_around_x">rotate_around_x</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_y" href="geometry.html#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_z" href="geometry.html#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.scale" href="geometry.html#payton.scene.geometry.Mesh.scale">scale</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.select" href="geometry.html#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.to_absolute" href="geometry.html#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.toggle_wireframe" href="geometry.html#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.track" href="geometry.html#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.update_matrix" href="geometry.html#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.visible" href="geometry.html#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.yaw" href="geometry.html#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -1289,6 +1296,7 @@ then renders the text on top of the rectangle.</p></section>
 <li><code><a title="payton.scene.gui.Rectangle.click" href="#payton.scene.gui.Shape2D.click">click</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.destroy" href="geometry.html#payton.scene.geometry.Object.destroy">destroy</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.draw" href="#payton.scene.gui.Rectangle.draw">draw</a></code></li>
+<li><code><a title="payton.scene.gui.Rectangle.fix_normals" href="geometry.html#payton.scene.geometry.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.font" href="#payton.scene.gui.Shape2D.font">font</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.has_vao" href="geometry.html#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.position" href="geometry.html#payton.scene.geometry.Object.position">position</a></code></li>
@@ -1296,11 +1304,13 @@ then renders the text on top of the rectangle.</p></section>
 <li><code><a title="payton.scene.gui.Rectangle.rotate_around_x" href="geometry.html#payton.scene.geometry.Object.rotate_around_x">rotate_around_x</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.rotate_around_y" href="geometry.html#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.rotate_around_z" href="geometry.html#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.gui.Rectangle.scale" href="geometry.html#payton.scene.geometry.Mesh.scale">scale</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.select" href="geometry.html#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.to_absolute" href="geometry.html#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.toggle_wireframe" href="geometry.html#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.track" href="geometry.html#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.update_matrix" href="geometry.html#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.gui.Rectangle.visible" href="geometry.html#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.yaw" href="geometry.html#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>

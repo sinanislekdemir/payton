@@ -182,6 +182,7 @@ class Scene(Receiver):
         self.on_select = args.get(&#34;on_select&#34;, None)
         # Main running state
         self.running = False
+        self._render_lock = False
 
     def _render(self) -&gt; None:
         &#34;&#34;&#34;
@@ -199,11 +200,13 @@ class Scene(Receiver):
 
         self.grid.render(proj, view, self.lights)
 
+        self._render_lock = True
         for object in self.objects:
             self.objects[object].render(proj, view, self.lights)
 
         for object in self.huds:
             self.huds[object].render(proj, view, self.lights)
+        self._render_lock = False
 
         for test in self._collision_detectors:
             test.check()
@@ -267,11 +270,21 @@ class Scene(Receiver):
         if isinstance(obj, Hud):
             &#34;&#34;&#34;Huds must be rendered in a different loop after rendering
             all objects&#34;&#34;&#34;
+            if self._render_lock:
+                while self._render_lock:
+                    # Wait for render loop to release the lock
+                    # TODO: This can cause a possible deadlock.
+                    continue
             self.huds[name] = obj
             obj.name = name
             obj.set_size(self.window_width, self.window_height)
             return True
 
+        if self._render_lock:
+            while self._render_lock:
+                # Wait for render loop to release the lock
+                # TODO: This can cause a possible deadlock.
+                continue
         self.objects[name] = obj
         obj.name = name
         return True
@@ -753,6 +766,7 @@ scene.run()
         self.on_select = args.get(&#34;on_select&#34;, None)
         # Main running state
         self.running = False
+        self._render_lock = False
 
     def _render(self) -&gt; None:
         &#34;&#34;&#34;
@@ -770,11 +784,13 @@ scene.run()
 
         self.grid.render(proj, view, self.lights)
 
+        self._render_lock = True
         for object in self.objects:
             self.objects[object].render(proj, view, self.lights)
 
         for object in self.huds:
             self.huds[object].render(proj, view, self.lights)
+        self._render_lock = False
 
         for test in self._collision_detectors:
             test.check()
@@ -838,11 +854,21 @@ scene.run()
         if isinstance(obj, Hud):
             &#34;&#34;&#34;Huds must be rendered in a different loop after rendering
             all objects&#34;&#34;&#34;
+            if self._render_lock:
+                while self._render_lock:
+                    # Wait for render loop to release the lock
+                    # TODO: This can cause a possible deadlock.
+                    continue
             self.huds[name] = obj
             obj.name = name
             obj.set_size(self.window_width, self.window_height)
             return True
 
+        if self._render_lock:
+            while self._render_lock:
+                # Wait for render loop to release the lock
+                # TODO: This can cause a possible deadlock.
+                continue
         self.objects[name] = obj
         obj.name = name
         return True
@@ -1133,11 +1159,21 @@ my_scene.run()
     if isinstance(obj, Hud):
         &#34;&#34;&#34;Huds must be rendered in a different loop after rendering
         all objects&#34;&#34;&#34;
+        if self._render_lock:
+            while self._render_lock:
+                # Wait for render loop to release the lock
+                # TODO: This can cause a possible deadlock.
+                continue
         self.huds[name] = obj
         obj.name = name
         obj.set_size(self.window_width, self.window_height)
         return True
 
+    if self._render_lock:
+        while self._render_lock:
+            # Wait for render loop to release the lock
+            # TODO: This can cause a possible deadlock.
+            continue
     self.objects[name] = obj
     obj.name = name
     return True</code></pre>

@@ -703,6 +703,31 @@ class Mesh(Object):
         self._vertex_colors = []
         self.refresh()
 
+    def fix_normals(self) -> None:
+        """Try to re-calculate Mesh normals, if your object has already perfect
+        normals, do not call this method"""
+        self._normals = []
+        for face in self._indices:
+            v1, v2, v3 = (
+                self._vertices[face[0]],
+                self._vertices[face[1]],
+                self._vertices[face[2]],
+            )
+            normal = plane_normal(v1, v2, v3)
+            self._normals.extend([normal, normal, normal])
+
+    def scale(self, x: float, y: float, z: float) -> None:
+        """Scale Mesh by given factors
+
+        Note: This does not create a scale matrix and multiply existing matrix with it.
+              Instead, it will scale the vertices by given factors.
+        """
+        self._vertices = list(
+            map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
+        )
+        self.fix_normals()
+        self.refresh()
+
     def add_triangle(
         self,
         vertices: VList,

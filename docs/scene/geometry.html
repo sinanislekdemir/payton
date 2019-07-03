@@ -145,11 +145,15 @@ class Object(object):
                 object gets added to a Scene with a name, Scene will assign
                 that name to the object, overwriting any existing name of the
                 object.
+          visible: Is this object visible at the scene, default: True. To hid
+                   an object, you can call `object.hide()` and to show it again
+                   use: `object.show()`
         &#34;&#34;&#34;
         self.children: Dict[str, Object] = {}
         self.material: Material = Material()
         self.static = args.get(&#34;static&#34;, True)
         self.name = args.get(&#34;name&#34;, &#34;&#34;)
+        self._visible = args.get(&#34;visible&#34;, True)
         self.matrix: VList = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -348,6 +352,17 @@ class Object(object):
         &#34;&#34;&#34;
         return self._vao &gt; -1
 
+    @property
+    def visible(self) -&gt; bool:
+        &#34;&#34;&#34;Check if object is visible&#34;&#34;&#34;
+        return self._visible
+
+    def show(self) -&gt; None:
+        self._visible = True
+
+    def hide(self) -&gt; None:
+        self._visible = False
+
     def render(
         self,
         proj: np.ndarray,
@@ -368,6 +383,8 @@ class Object(object):
                          another object, object will position itself relative
                          to its parent object.
         &#34;&#34;&#34;
+        if not self._visible:
+            return
 
         if not self.has_vao or self._needs_update:
             self.build()
@@ -705,7 +722,7 @@ class Mesh(Object):
 
 
     Example use case:
-    
+
         .. include:: ../../examples/basics/09_mesh.py
     &#34;&#34;&#34;
 
@@ -720,6 +737,31 @@ class Mesh(Object):
         self._normals = []
         self._texcoords = []
         self._vertex_colors = []
+        self.refresh()
+
+    def fix_normals(self) -&gt; None:
+        &#34;&#34;&#34;Try to re-calculate Mesh normals, if your object has already perfect
+        normals, do not call this method&#34;&#34;&#34;
+        self._normals = []
+        for face in self._indices:
+            v1, v2, v3 = (
+                self._vertices[face[0]],
+                self._vertices[face[1]],
+                self._vertices[face[2]],
+            )
+            normal = plane_normal(v1, v2, v3)
+            self._normals.append([normal, normal, normal])
+
+    def scale(self, x: float, y: float, z: float) -&gt; None:
+        &#34;&#34;&#34;Scale Mesh by given factors
+
+        Note: This does not create a scale matrix and multiply existing matrix with it.
+              Instead, it will scale the vertices by given factors.
+        &#34;&#34;&#34;
+        self._vertices = list(
+            map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
+        )
+        self.fix_normals()
         self.refresh()
 
     def add_triangle(
@@ -1038,7 +1080,6 @@ class Line(Object):
         self._vertices: VList = args.get(&#34;vertices&#34;, [])
         self.material.color = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
 
-        self.visible: bool = True
         self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
         self.build_lines()
@@ -1383,6 +1424,7 @@ scene.run()
 <li><code><a title="payton.scene.geometry.Mesh.build" href="#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.clear_triangles" href="#payton.scene.geometry.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.destroy" href="#payton.scene.geometry.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.fix_normals" href="#payton.scene.geometry.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.has_vao" href="#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.position" href="#payton.scene.geometry.Object.position">position</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.refresh" href="#payton.scene.geometry.Object.refresh">refresh</a></code></li>
@@ -1390,11 +1432,13 @@ scene.run()
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_x" href="#payton.scene.geometry.Object.rotate_around_x">rotate_around_x</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_y" href="#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_z" href="#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.scale" href="#payton.scene.geometry.Mesh.scale">scale</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.toggle_wireframe" href="#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.track" href="#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.update_matrix" href="#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.visible" href="#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.yaw" href="#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -1421,19 +1465,21 @@ from payton.scene.geometry import Line
 
 scene = Scene()
 
-line = Line(vertices=[
-    [0, 0, 0],
-    [0, 0, 1],
-    [0.5, 0, 1.5],
-    [1, 0, 1],
-    [0, 0, 1],
-    [1, 0, 0],
-    [0, 0, 0],
-    [1, 0, 1],
-    [1, 0, 0],
-])
+line = Line(
+    vertices=[
+        [0, 0, 0],
+        [0, 0, 1],
+        [0.5, 0, 1.5],
+        [1, 0, 1],
+        [0, 0, 1],
+        [1, 0, 0],
+        [0, 0, 0],
+        [1, 0, 1],
+        [1, 0, 0],
+    ]
+)
 
-scene.add_object('line', line)
+scene.add_object("line", line)
 scene.run()
 </code></pre></section>
 <details class="source">
@@ -1457,7 +1503,6 @@ scene.run()
         self._vertices: VList = args.get(&#34;vertices&#34;, [])
         self.material.color = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
 
-        self.visible: bool = True
         self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
         self.build_lines()
@@ -1619,6 +1664,7 @@ scene.run()
 <li><code><a title="payton.scene.geometry.Object.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.track" href="#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.update_matrix" href="#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.visible" href="#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.yaw" href="#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -1689,6 +1735,10 @@ will not be deleted to be used for future reference.</dd>
 object gets added to a Scene with a name, Scene will assign
 that name to the object, overwriting any existing name of the
 object.</dd>
+<dt><strong><code>visible</code></strong></dt>
+<dd>Is this object visible at the scene, default: True. To hid
+an object, you can call <code>object.hide()</code> and to show it again
+use: <code>object.show()</code></dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1705,7 +1755,7 @@ object.</dd>
 
 
     Example use case:
-    
+
         .. include:: ../../examples/basics/09_mesh.py
     &#34;&#34;&#34;
 
@@ -1720,6 +1770,31 @@ object.</dd>
         self._normals = []
         self._texcoords = []
         self._vertex_colors = []
+        self.refresh()
+
+    def fix_normals(self) -&gt; None:
+        &#34;&#34;&#34;Try to re-calculate Mesh normals, if your object has already perfect
+        normals, do not call this method&#34;&#34;&#34;
+        self._normals = []
+        for face in self._indices:
+            v1, v2, v3 = (
+                self._vertices[face[0]],
+                self._vertices[face[1]],
+                self._vertices[face[2]],
+            )
+            normal = plane_normal(v1, v2, v3)
+            self._normals.append([normal, normal, normal])
+
+    def scale(self, x: float, y: float, z: float) -&gt; None:
+        &#34;&#34;&#34;Scale Mesh by given factors
+
+        Note: This does not create a scale matrix and multiply existing matrix with it.
+              Instead, it will scale the vertices by given factors.
+        &#34;&#34;&#34;
+        self._vertices = list(
+            map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
+        )
+        self.fix_normals()
         self.refresh()
 
     def add_triangle(
@@ -1877,6 +1952,50 @@ it per given vertex.)</em></dd>
     self.refresh()</code></pre>
 </details>
 </dd>
+<dt id="payton.scene.geometry.Mesh.fix_normals"><code class="name flex">
+<span>def <span class="ident">fix_normals</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Try to re-calculate Mesh normals, if your object has already perfect
+normals, do not call this method</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def fix_normals(self) -&gt; None:
+    &#34;&#34;&#34;Try to re-calculate Mesh normals, if your object has already perfect
+    normals, do not call this method&#34;&#34;&#34;
+    self._normals = []
+    for face in self._indices:
+        v1, v2, v3 = (
+            self._vertices[face[0]],
+            self._vertices[face[1]],
+            self._vertices[face[2]],
+        )
+        normal = plane_normal(v1, v2, v3)
+        self._normals.append([normal, normal, normal])</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.Mesh.scale"><code class="name flex">
+<span>def <span class="ident">scale</span></span>(<span>self, x, y, z)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Scale Mesh by given factors</p>
+<p>Note: This does not create a scale matrix and multiply existing matrix with it.
+Instead, it will scale the vertices by given factors.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def scale(self, x: float, y: float, z: float) -&gt; None:
+    &#34;&#34;&#34;Scale Mesh by given factors
+
+    Note: This does not create a scale matrix and multiply existing matrix with it.
+          Instead, it will scale the vertices by given factors.
+    &#34;&#34;&#34;
+    self._vertices = list(
+        map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
+    )
+    self.fix_normals()
+    self.refresh()</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -1899,6 +2018,7 @@ it per given vertex.)</em></dd>
 <li><code><a title="payton.scene.geometry.Object.toggle_wireframe" href="#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.track" href="#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.update_matrix" href="#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.visible" href="#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.yaw" href="#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -1958,6 +2078,10 @@ will not be deleted to be used for future reference.</dd>
 object gets added to a Scene with a name, Scene will assign
 that name to the object, overwriting any existing name of the
 object.</dd>
+<dt><strong><code>visible</code></strong></dt>
+<dd>Is this object visible at the scene, default: True. To hid
+an object, you can call <code>object.hide()</code> and to show it again
+use: <code>object.show()</code></dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
@@ -2013,11 +2137,15 @@ object.</dd>
                 object gets added to a Scene with a name, Scene will assign
                 that name to the object, overwriting any existing name of the
                 object.
+          visible: Is this object visible at the scene, default: True. To hid
+                   an object, you can call `object.hide()` and to show it again
+                   use: `object.show()`
         &#34;&#34;&#34;
         self.children: Dict[str, Object] = {}
         self.material: Material = Material()
         self.static = args.get(&#34;static&#34;, True)
         self.name = args.get(&#34;name&#34;, &#34;&#34;)
+        self._visible = args.get(&#34;visible&#34;, True)
         self.matrix: VList = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -2216,6 +2344,17 @@ object.</dd>
         &#34;&#34;&#34;
         return self._vao &gt; -1
 
+    @property
+    def visible(self) -&gt; bool:
+        &#34;&#34;&#34;Check if object is visible&#34;&#34;&#34;
+        return self._visible
+
+    def show(self) -&gt; None:
+        self._visible = True
+
+    def hide(self) -&gt; None:
+        self._visible = False
+
     def render(
         self,
         proj: np.ndarray,
@@ -2236,6 +2375,8 @@ object.</dd>
                          another object, object will position itself relative
                          to its parent object.
         &#34;&#34;&#34;
+        if not self._visible:
+            return
 
         if not self.has_vao or self._needs_update:
             self.build()
@@ -2643,6 +2784,17 @@ def position(self) -&gt; List[float]:
     return self.matrix[3][:3]</code></pre>
 </details>
 </dd>
+<dt id="payton.scene.geometry.Object.visible"><code class="name">var <span class="ident">visible</span></code></dt>
+<dd>
+<section class="desc"><p>Check if object is visible</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def visible(self) -&gt; bool:
+    &#34;&#34;&#34;Check if object is visible&#34;&#34;&#34;
+    return self._visible</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
@@ -2936,6 +3088,17 @@ an invisible object (will not be drawn)</p>
     return True</code></pre>
 </details>
 </dd>
+<dt id="payton.scene.geometry.Object.hide"><code class="name flex">
+<span>def <span class="ident">hide</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def hide(self) -&gt; None:
+    self._visible = False</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.geometry.Object.refresh"><code class="name flex">
 <span>def <span class="ident">refresh</span></span>(<span>self)</span>
 </code></dt>
@@ -2994,6 +3157,8 @@ to its parent object.</dd>
                      another object, object will position itself relative
                      to its parent object.
     &#34;&#34;&#34;
+    if not self._visible:
+        return
 
     if not self.has_vao or self._needs_update:
         self.build()
@@ -3152,6 +3317,17 @@ using raycast triangle intersect</p>
             self._selected = True
 
     return self._selected</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.Object.show"><code class="name flex">
+<span>def <span class="ident">show</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def show(self) -&gt; None:
+    self._visible = True</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.geometry.Object.to_absolute"><code class="name flex">
@@ -3374,6 +3550,7 @@ scene.run()
 <li><code><a title="payton.scene.geometry.Mesh.build" href="#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.clear_triangles" href="#payton.scene.geometry.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.destroy" href="#payton.scene.geometry.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.fix_normals" href="#payton.scene.geometry.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.has_vao" href="#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.position" href="#payton.scene.geometry.Object.position">position</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.refresh" href="#payton.scene.geometry.Object.refresh">refresh</a></code></li>
@@ -3381,11 +3558,13 @@ scene.run()
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_x" href="#payton.scene.geometry.Object.rotate_around_x">rotate_around_x</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_y" href="#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_z" href="#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.scale" href="#payton.scene.geometry.Mesh.scale">scale</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.toggle_wireframe" href="#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.track" href="#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.update_matrix" href="#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.visible" href="#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.yaw" href="#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -3592,6 +3771,7 @@ scene.run()
 <li><code><a title="payton.scene.geometry.Object.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.update_matrix" href="#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.visible" href="#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.yaw" href="#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -3692,6 +3872,10 @@ will not be deleted to be used for future reference.</dd>
 object gets added to a Scene with a name, Scene will assign
 that name to the object, overwriting any existing name of the
 object.</dd>
+<dt><strong><code>visible</code></strong></dt>
+<dd>Is this object visible at the scene, default: True. To hid
+an object, you can call <code>object.hide()</code> and to show it again
+use: <code>object.show()</code></dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
@@ -3922,6 +4106,7 @@ object.</dd>
 <li><code><a title="payton.scene.geometry.Mesh.build" href="#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.clear_triangles" href="#payton.scene.geometry.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.destroy" href="#payton.scene.geometry.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.fix_normals" href="#payton.scene.geometry.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.has_vao" href="#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.position" href="#payton.scene.geometry.Object.position">position</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.refresh" href="#payton.scene.geometry.Object.refresh">refresh</a></code></li>
@@ -3929,11 +4114,13 @@ object.</dd>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_x" href="#payton.scene.geometry.Object.rotate_around_x">rotate_around_x</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_y" href="#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.rotate_around_z" href="#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.scale" href="#payton.scene.geometry.Mesh.scale">scale</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.toggle_wireframe" href="#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.track" href="#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.update_matrix" href="#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.visible" href="#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.yaw" href="#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>
@@ -3971,6 +4158,8 @@ object.</dd>
 <ul class="">
 <li><code><a title="payton.scene.geometry.Mesh.add_triangle" href="#payton.scene.geometry.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.Mesh.clear_triangles" href="#payton.scene.geometry.Mesh.clear_triangles">clear_triangles</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.fix_normals" href="#payton.scene.geometry.Mesh.fix_normals">fix_normals</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.scale" href="#payton.scene.geometry.Mesh.scale">scale</a></code></li>
 </ul>
 </li>
 <li>
@@ -3982,6 +4171,7 @@ object.</dd>
 <li><code><a title="payton.scene.geometry.Object.build" href="#payton.scene.geometry.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.destroy" href="#payton.scene.geometry.Object.destroy">destroy</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.has_vao" href="#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.hide" href="#payton.scene.geometry.Object.hide">hide</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.position" href="#payton.scene.geometry.Object.position">position</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.refresh" href="#payton.scene.geometry.Object.refresh">refresh</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.render" href="#payton.scene.geometry.Object.render">render</a></code></li>
@@ -3989,10 +4179,12 @@ object.</dd>
 <li><code><a title="payton.scene.geometry.Object.rotate_around_y" href="#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.rotate_around_z" href="#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.show" href="#payton.scene.geometry.Object.show">show</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.toggle_wireframe" href="#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.track" href="#payton.scene.geometry.Object.track">track</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.update_matrix" href="#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Object.visible" href="#payton.scene.geometry.Object.visible">visible</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.yaw" href="#payton.scene.geometry.Object.yaw">yaw</a></code></li>
 </ul>
 </li>

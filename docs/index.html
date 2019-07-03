@@ -27,10 +27,15 @@
 theory that us, humans, we understand better by seeing things.</p>
 <ul>
 <li>Payton is a prototyping tool. Kickstart any idea fast and easy, grow it.</li>
-<li>Create tools for the next step. Create maps editors, small animations, small algorithms or artificial intelligence for your game. Whenever you need
-to try a new idea, don't bother to create a new application with all the details. Payton comes with all the necessary defaults and that is what makes it unique. Almost everything has a pre-set.</li>
-<li>Game engines and other libraries are way too complex and it takes a long time to start the initial playground.</li>
-<li>Payton never intends to take place as a game engine or a full-featured 3D environment. There are already plenty of stuff for that purpose.</li>
+<li>Create tools for the next step. Create maps editors, small animations, small
+algorithms or artificial intelligence for your game. Whenever you need to
+try a new idea, don't bother to create a new application with all the
+details. Payton comes with all the necessary defaults and that is what makes
+it unique. Almost everything has a pre-set.</li>
+<li>Game engines and other libraries are way too complex and it takes a long time
+to start the initial playground.</li>
+<li>Payton never intends to take place as a game engine or a full-featured 3D
+environment. There are already plenty of stuff for that purpose.</li>
 <li>Tools programming is easy.</li>
 <li>Easy to visualise what you want to achive or do what you want to do.</li>
 <li>You can move forward from Payton to any other place if you like.</li>
@@ -51,16 +56,26 @@ a software with that complexity will probably be too hard to use and understand
 where Payton is designed to be as simple as it can be. So easy to program that
 a newbie can kick-start it just by following the tutorials.</p>
 <p>More information can be found in documents.</p>
+<h2 id="install-and-kick-start">Install and kick-start</h2>
+<pre><code>$ pip install Payton
+</code></pre>
+<p>Then go ahead and create a <code>test.py</code></p>
+<pre><code>from payton.scene import Scene
+
+a = Scene()
+a.run()
+</code></pre>
+<p>And thats all!</p>
 <h2 id="development">Development</h2>
 <p>Some notes on Python3:</p>
 <p>Currently Payton is in pre-alpha, or it is just some dust cloud in the space.
 If you want to contribue, here is what you can do:</p>
-<p>You can generate the API documentation using PDOC
-(<a href="https://github.com/mitmproxy/pdoc">https://github.com/mitmproxy/pdoc</a>). PDOC is not defined in setup.py or in
-requirements so you need to install pdoc yourself. (PDoc requires Python3)</p>
-<p><code>pdoc --html payton</code> will create API docs for you. (Api docs are generated
-from comments and code itself, so keep comments in the code as descriptive
-as possible.)</p>
+<p>You can generate the API documentation using:</p>
+<pre><code>$ make docs
+</code></pre>
+<p>It should generate the documentations and open it automatically in browser.
+If it fails to open up the browser, you'll find the docs in <code>docs/payton</code>
+directory</p>
 <p>I encourage you to create a virtualenv for Payton (with Python 3.5+)</p>
 <p><code>virtualenv -p &lt;path-to-python3&gt; payton</code> should do the trick. If you don't have
 <code>virtualenv</code> in your path, google it!</p>
@@ -106,6 +121,7 @@ the animation mode and see the projectile motion demo.</p>
 <li><a href="#payton-library">Payton Library</a></li>
 <li><a href="#payton">Payton</a><ul>
 <li><a href="#what-is-payton">What is Payton?</a></li>
+<li><a href="#install-and-kick-start">Install and kick-start</a></li>
 <li><a href="#development">Development</a></li>
 </ul>
 </li>

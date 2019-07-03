@@ -17,7 +17,7 @@ import math
 from typing import List
 
 
-def sub_vector(v1: List, v2: List) -> List:
+def sub_vector(v1: List[float], v2: List[float]) -> List:
     """
     Substract two vectors. Each component of vectors are substracted separately
 
@@ -35,7 +35,7 @@ def sub_vector(v1: List, v2: List) -> List:
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]]
 
 
-def cross_product(v1: List, v2: List) -> List:
+def cross_product(v1: List[float], v2: List[float]) -> List[float]:
     """
     Vector cross product.
 
@@ -61,7 +61,7 @@ def cross_product(v1: List, v2: List) -> List:
     ]
 
 
-def vector_norm(v: List) -> float:
+def vector_norm(v: List[float]) -> float:
     """
     Norm of a vector. *aka* length of a vector. *(Scalar value)*
 
@@ -77,7 +77,7 @@ def vector_norm(v: List) -> float:
     return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))
 
 
-def normalize_vector(v: List) -> List:
+def normalize_vector(v: List[float]) -> List[float]:
     """
     Normalize the given vector. Turn the given vector into a unit vector, where
     the vector length is equal to 1.0
@@ -99,7 +99,9 @@ def normalize_vector(v: List) -> List:
     return res
 
 
-def plane_normal(v1: List, v2: List, v3: List) -> List:
+def plane_normal(
+    v1: List[float], v2: List[float], v3: List[float]
+) -> List[float]:
     """
     Calculate plane normal. Mathematically, three vectors in space define a
     plane and Normal of the plane is the direction that plane faces.
@@ -135,7 +137,7 @@ def plane_normal(v1: List, v2: List, v3: List) -> List:
     return normalize_vector(r)
 
 
-def vector_transform(v: List[float], matrix: List[List[float]]) -> List:
+def vector_transform(v: List[float], matrix: List[List[float]]) -> List[float]:
     """Transform Vector by a matrix.
 
     Assuming that the base matrix for the scene is a uniform matrix,
@@ -171,7 +173,7 @@ def vector_transform(v: List[float], matrix: List[List[float]]) -> List:
     return [rx, ry, rz, rw]
 
 
-def invert_vector(v: List) -> List:
+def invert_vector(v: List[float]) -> List[float]:
     """
     Invert the given vector by multiplying its components by -1.0 for each.
 
