@@ -11,7 +11,9 @@ y = 0
 z = 0
 
 scene = Scene()
-font_file = os.path.join(os.path.dirname(__file__), "../static/arial_narrow_7.ttf")
+font_file = os.path.join(
+    os.path.dirname(__file__), "../static/arial_narrow_7.ttf"
+)
 
 
 def fetch_instagram(name, scene, period, total):
