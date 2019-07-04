@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="Payton",
-    version="0.0.2.6",
+    version="0.0.2.7",
     author="Sinan ISLEKDEMIR",
     author_email="sinan@islekdemir.com",
     # Packages

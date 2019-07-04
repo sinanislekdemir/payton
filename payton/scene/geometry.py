@@ -670,6 +670,8 @@ class Object(object):
             glDeleteBuffers(4, self._vbos)
             self._vbos = []
 
+        self._needs_update = False
+
         return True
 
 

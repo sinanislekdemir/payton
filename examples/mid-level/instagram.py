@@ -1,5 +1,6 @@
 # NOTE! This example requires "requests" to be installed
-# You can install via `pip install requests`
+# You can it install via `pip install requests`
+import os
 import requests
 from payton.scene import Scene
 from payton.scene.geometry import Cube
@@ -10,6 +11,7 @@ y = 0
 z = 0
 
 scene = Scene()
+font_file = os.path.join(os.path.dirname(__file__), "../static/arial_narrow_7.ttf")
 
 
 def fetch_instagram(name, scene, period, total):
@@ -54,7 +56,7 @@ def select(list):
 scene.on_select = select
 scene.create_clock("fetch_instagram", 0.1, fetch_instagram)
 hud = Hud()
-hud.set_font("arial_narrow_7.ttf")
+hud.set_font(font_file)
 
 text = Text(
     label="Instagram Photos", color=(1, 1, 1), position=(0, 0), size=(800, 600)
