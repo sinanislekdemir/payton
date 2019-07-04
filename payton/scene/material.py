@@ -41,6 +41,7 @@ from OpenGL.GL import (
     GL_ONE_MINUS_SRC_ALPHA,
     GL_TEXTURE0,
     GL_RGBA,
+    GL_RGB,
     GL_UNSIGNED_BYTE,
     glGenerateMipmap,
 )
@@ -169,14 +170,17 @@ class Material(object):
         )
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        mode = GL_RGBA
+        if img.mode == "RGB":
+            mode = GL_RGB
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RGBA,
+            mode,
             width,
             height,
             0,
-            GL_RGBA,
+            mode,
             GL_UNSIGNED_BYTE,
             img_data,
         )

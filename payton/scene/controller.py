@@ -139,7 +139,7 @@ class Controller(object):
                 if hit:
                     list.append(scene.objects[obj])
 
-            if callable(scene.on_select):
+            if len(list) > 0 and callable(scene.on_select):
                 scene.on_select(list)
 
         if event.type == sdl2.SDL_MOUSEMOTION:

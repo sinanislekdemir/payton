@@ -719,8 +719,8 @@ class Mesh(Object):
     def scale(self, x: float, y: float, z: float) -> None:
         """Scale Mesh by given factors
 
-        Note: This does not create a scale matrix and multiply existing matrix with it.
-              Instead, it will scale the vertices by given factors.
+        Note: This does not create a scale matrix and multiply existing matrix
+              with it. Instead, it will scale the vertices by given factors.
         """
         self._vertices = list(
             map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
