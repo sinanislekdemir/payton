@@ -1,3 +1,4 @@
+# pylama:ignore=C901
 # Wavefront Object File Support
 # Only support ascii obj files and without material support.
 # So pretty limited.

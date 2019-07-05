@@ -1,3 +1,4 @@
+# pylama:ignore=C901
 """Scene controller module
 
 This module is mainly for private use.

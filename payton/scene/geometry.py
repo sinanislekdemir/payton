@@ -1,3 +1,4 @@
+# pylama:ignore=C901
 """
 Payton main geometry module
 

@@ -1,3 +1,4 @@
+# pylama:ignore=W
 """#Payton Scene Module
 
 ##Main Scene Module:
