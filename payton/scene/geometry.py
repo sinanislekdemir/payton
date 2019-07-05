@@ -600,12 +600,11 @@ class Object(object):
             draw = GL_DYNAMIC_DRAW
 
         # Buffer overflow, we need more space.
-        # For dynamic objects, we allocate +500 vertices at all times.
         if self._buffer_size < vertices.nbytes:
-            self._buffer_size = vertices.nbytes + (500 * 12)
+            self._buffer_size = vertices.nbytes
             self._buffer_size_changed = True
         if self._t_buffer_size < texcoords.nbytes:
-            self._t_buffer_size = texcoords.nbytes + (500 * 8)
+            self._t_buffer_size = texcoords.nbytes
             self._t_buffer_size_changed = True
 
         # Bind Vertices
