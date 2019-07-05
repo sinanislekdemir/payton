@@ -53,6 +53,23 @@ Then go ahead and create a `test.py`
     
 And thats all!
 
+### Default key mapping:
+
+- **Zoom In-Out**: Left Ctrl + Mouse Drag (up and down)
+- **Rotate**: Left Shift + Mouse Drag (left and right)
+- **ESC**: Quit Simulation
+- **C**: Change camera mode (Perspective / Orthographic)
+- **Space**: Pause scene (stop all Clocks)
+- **G**: Show/Hide Grid.
+- **W**: Display mode: Wireframe / Solid
+- **F2**: Previous observer
+- **F3**: Next observer
+
+### Mouse controls
+- L_CTRL + Mouse(Left) Drag: Zoom In-Out
+- L_SHIFT + Mouse(Left) Drag: Rotate around target
+- L_SHIFT + L_CTRL + Mouse(Left) Drag: Panning
+
 ## Development
 
 Some notes on Python3:
