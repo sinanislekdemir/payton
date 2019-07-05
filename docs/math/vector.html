@@ -49,7 +49,7 @@ import math
 from typing import List
 
 
-def sub_vector(v1: List, v2: List) -&gt; List:
+def sub_vector(v1: List[float], v2: List[float]) -&gt; List:
     &#34;&#34;&#34;
     Substract two vectors. Each component of vectors are substracted separately
 
@@ -67,7 +67,7 @@ def sub_vector(v1: List, v2: List) -&gt; List:
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]]
 
 
-def cross_product(v1: List, v2: List) -&gt; List:
+def cross_product(v1: List[float], v2: List[float]) -&gt; List[float]:
     &#34;&#34;&#34;
     Vector cross product.
 
@@ -93,7 +93,7 @@ def cross_product(v1: List, v2: List) -&gt; List:
     ]
 
 
-def vector_norm(v: List) -&gt; float:
+def vector_norm(v: List[float]) -&gt; float:
     &#34;&#34;&#34;
     Norm of a vector. *aka* length of a vector. *(Scalar value)*
 
@@ -109,7 +109,7 @@ def vector_norm(v: List) -&gt; float:
     return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))
 
 
-def normalize_vector(v: List) -&gt; List:
+def normalize_vector(v: List[float]) -&gt; List[float]:
     &#34;&#34;&#34;
     Normalize the given vector. Turn the given vector into a unit vector, where
     the vector length is equal to 1.0
@@ -131,7 +131,9 @@ def normalize_vector(v: List) -&gt; List:
     return res
 
 
-def plane_normal(v1: List, v2: List, v3: List) -&gt; List:
+def plane_normal(
+    v1: List[float], v2: List[float], v3: List[float]
+) -&gt; List[float]:
     &#34;&#34;&#34;
     Calculate plane normal. Mathematically, three vectors in space define a
     plane and Normal of the plane is the direction that plane faces.
@@ -167,7 +169,7 @@ def plane_normal(v1: List, v2: List, v3: List) -&gt; List:
     return normalize_vector(r)
 
 
-def vector_transform(v: List[float], matrix: List[List[float]]) -&gt; List:
+def vector_transform(v: List[float], matrix: List[List[float]]) -&gt; List[float]:
     &#34;&#34;&#34;Transform Vector by a matrix.
 
     Assuming that the base matrix for the scene is a uniform matrix,
@@ -203,7 +205,7 @@ def vector_transform(v: List[float], matrix: List[List[float]]) -&gt; List:
     return [rx, ry, rz, rw]
 
 
-def invert_vector(v: List) -&gt; List:
+def invert_vector(v: List[float]) -&gt; List[float]:
     &#34;&#34;&#34;
     Invert the given vector by multiplying its components by -1.0 for each.
 
@@ -245,7 +247,7 @@ result = cross_product(v1, v2)
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def cross_product(v1: List, v2: List) -&gt; List:
+<pre><code class="python">def cross_product(v1: List[float], v2: List[float]) -&gt; List[float]:
     &#34;&#34;&#34;
     Vector cross product.
 
@@ -285,7 +287,7 @@ result = invert_vector(v1)
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def invert_vector(v: List) -&gt; List:
+<pre><code class="python">def invert_vector(v: List[float]) -&gt; List[float]:
     &#34;&#34;&#34;
     Invert the given vector by multiplying its components by -1.0 for each.
 
@@ -315,7 +317,7 @@ result = normalize_vector(v1)
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def normalize_vector(v: List) -&gt; List:
+<pre><code class="python">def normalize_vector(v: List[float]) -&gt; List[float]:
     &#34;&#34;&#34;
     Normalize the given vector. Turn the given vector into a unit vector, where
     the vector length is equal to 1.0
@@ -373,7 +375,9 @@ result = plane_normal(v1, v2, v3)
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def plane_normal(v1: List, v2: List, v3: List) -&gt; List:
+<pre><code class="python">def plane_normal(
+    v1: List[float], v2: List[float], v3: List[float]
+) -&gt; List[float]:
     &#34;&#34;&#34;
     Calculate plane normal. Mathematically, three vectors in space define a
     plane and Normal of the plane is the direction that plane faces.
@@ -425,7 +429,7 @@ result = sub_vector(v1, v2)
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def sub_vector(v1: List, v2: List) -&gt; List:
+<pre><code class="python">def sub_vector(v1: List[float], v2: List[float]) -&gt; List:
     &#34;&#34;&#34;
     Substract two vectors. Each component of vectors are substracted separately
 
@@ -457,7 +461,7 @@ result = vector_norm(v1)
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def vector_norm(v: List) -&gt; float:
+<pre><code class="python">def vector_norm(v: List[float]) -&gt; float:
     &#34;&#34;&#34;
     Norm of a vector. *aka* length of a vector. *(Scalar value)*
 
@@ -495,7 +499,7 @@ be assumed as calculating the absolute vertex from a local matrix.</p>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def vector_transform(v: List[float], matrix: List[List[float]]) -&gt; List:
+<pre><code class="python">def vector_transform(v: List[float], matrix: List[List[float]]) -&gt; List[float]:
     &#34;&#34;&#34;Transform Vector by a matrix.
 
     Assuming that the base matrix for the scene is a uniform matrix,

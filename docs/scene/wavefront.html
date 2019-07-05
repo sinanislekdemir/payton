@@ -22,7 +22,8 @@
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python"># Wavefront Object File Support
+<pre><code class="python"># pylama:ignore=C901
+# Wavefront Object File Support
 # Only support ascii obj files and without material support.
 # So pretty limited.
 
@@ -84,6 +85,7 @@ class Wavefront(Mesh):
         _texcoords: VList = []
         lines: List[str] = obj_string.splitlines()
         for line in lines:
+            line = line.replace(&#34;  &#34;, &#34; &#34;)
             command = line[0:2].lower()
             parts = line.split(&#34; &#34;)
             if command == &#34;v &#34;:
@@ -105,22 +107,38 @@ class Wavefront(Mesh):
                 # with POLYGON as well but IDK.
                 face = []  # type: List[List[int]]
                 for i in range(len(parts)):
-                    if i == 0:
+                    if parts[i] == &#34;f&#34; or parts[i] == &#34;&#34;:
                         continue
                     subs = parts[i].split(&#34;/&#34;)
                     vertex = int(subs[0]) - 1
-                    textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
-                    normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
+                    textcoord = (
+                        int(subs[1]) - 1
+                        if len(subs) &gt; 1 and len(subs[1]) &gt; 0
+                        else -1
+                    )
+                    normal = (
+                        int(subs[2]) - 1
+                        if len(subs) &gt; 2 and len(subs[2]) &gt; 0
+                        else -1
+                    )
                     face.append([vertex, textcoord, normal])
+                if len(face) &gt; 3:
+                    logging.error(&#34;Only triangular wavefronts are accepted&#34;)
+                    return
                 _indices.append(face)
 
         # Now unpack indices to actual object data
         i = 0
+        fix_normals = False
         for index in _indices:
             ind = []
             for f in index:
                 l_vertex = _vertices[f[0]]
-                l_normal = _normals[f[2]]
+                if f[2] != -1:
+                    l_normal = _normals[f[2]]
+                else:
+                    fix_normals = True
+                    l_normal = [0.0, 0.0, 1.0]
                 l_tex = [0.0, 0.0]
                 if f[1] &gt; -1:
                     l_tex = _texcoords[f[1]]
@@ -130,6 +148,8 @@ class Wavefront(Mesh):
                 ind.append(i)
                 i += 1
             self._indices.append(ind)
+        if fix_normals:
+            self.fix_normals()
 
 
 def export(mesh: Mesh, **args: Any) -&gt; Optional[str]:
@@ -332,6 +352,7 @@ Only designed to accept your triangular geometries.</p>
         _texcoords: VList = []
         lines: List[str] = obj_string.splitlines()
         for line in lines:
+            line = line.replace(&#34;  &#34;, &#34; &#34;)
             command = line[0:2].lower()
             parts = line.split(&#34; &#34;)
             if command == &#34;v &#34;:
@@ -353,22 +374,38 @@ Only designed to accept your triangular geometries.</p>
                 # with POLYGON as well but IDK.
                 face = []  # type: List[List[int]]
                 for i in range(len(parts)):
-                    if i == 0:
+                    if parts[i] == &#34;f&#34; or parts[i] == &#34;&#34;:
                         continue
                     subs = parts[i].split(&#34;/&#34;)
                     vertex = int(subs[0]) - 1
-                    textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
-                    normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
+                    textcoord = (
+                        int(subs[1]) - 1
+                        if len(subs) &gt; 1 and len(subs[1]) &gt; 0
+                        else -1
+                    )
+                    normal = (
+                        int(subs[2]) - 1
+                        if len(subs) &gt; 2 and len(subs[2]) &gt; 0
+                        else -1
+                    )
                     face.append([vertex, textcoord, normal])
+                if len(face) &gt; 3:
+                    logging.error(&#34;Only triangular wavefronts are accepted&#34;)
+                    return
                 _indices.append(face)
 
         # Now unpack indices to actual object data
         i = 0
+        fix_normals = False
         for index in _indices:
             ind = []
             for f in index:
                 l_vertex = _vertices[f[0]]
-                l_normal = _normals[f[2]]
+                if f[2] != -1:
+                    l_normal = _normals[f[2]]
+                else:
+                    fix_normals = True
+                    l_normal = [0.0, 0.0, 1.0]
                 l_tex = [0.0, 0.0]
                 if f[1] &gt; -1:
                     l_tex = _texcoords[f[1]]
@@ -377,7 +414,9 @@ Only designed to accept your triangular geometries.</p>
                 self._texcoords.append(l_tex)
                 ind.append(i)
                 i += 1
-            self._indices.append(ind)</code></pre>
+            self._indices.append(ind)
+        if fix_normals:
+            self.fix_normals()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -418,6 +457,7 @@ wavefront object files and always a single object at a time.</p></section>
     _texcoords: VList = []
     lines: List[str] = obj_string.splitlines()
     for line in lines:
+        line = line.replace(&#34;  &#34;, &#34; &#34;)
         command = line[0:2].lower()
         parts = line.split(&#34; &#34;)
         if command == &#34;v &#34;:
@@ -439,22 +479,38 @@ wavefront object files and always a single object at a time.</p></section>
             # with POLYGON as well but IDK.
             face = []  # type: List[List[int]]
             for i in range(len(parts)):
-                if i == 0:
+                if parts[i] == &#34;f&#34; or parts[i] == &#34;&#34;:
                     continue
                 subs = parts[i].split(&#34;/&#34;)
                 vertex = int(subs[0]) - 1
-                textcoord = int(subs[1]) - 1 if len(subs) &gt; 1 else -1
-                normal = int(subs[2]) - 1 if len(subs) &gt; 2 else -1
+                textcoord = (
+                    int(subs[1]) - 1
+                    if len(subs) &gt; 1 and len(subs[1]) &gt; 0
+                    else -1
+                )
+                normal = (
+                    int(subs[2]) - 1
+                    if len(subs) &gt; 2 and len(subs[2]) &gt; 0
+                    else -1
+                )
                 face.append([vertex, textcoord, normal])
+            if len(face) &gt; 3:
+                logging.error(&#34;Only triangular wavefronts are accepted&#34;)
+                return
             _indices.append(face)
 
     # Now unpack indices to actual object data
     i = 0
+    fix_normals = False
     for index in _indices:
         ind = []
         for f in index:
             l_vertex = _vertices[f[0]]
-            l_normal = _normals[f[2]]
+            if f[2] != -1:
+                l_normal = _normals[f[2]]
+            else:
+                fix_normals = True
+                l_normal = [0.0, 0.0, 1.0]
             l_tex = [0.0, 0.0]
             if f[1] &gt; -1:
                 l_tex = _texcoords[f[1]]
@@ -463,7 +519,9 @@ wavefront object files and always a single object at a time.</p></section>
             self._texcoords.append(l_tex)
             ind.append(i)
             i += 1
-        self._indices.append(ind)</code></pre>
+        self._indices.append(ind)
+    if fix_normals:
+        self.fix_normals()</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.wavefront.Wavefront.load_file"><code class="name flex">

@@ -55,7 +55,10 @@ cube.material.texture = texture_file
 scene.add_object("cube", cube)
 
 hud = Hud()
-hud.set_font("/Library/Fonts/Arial.ttf", 13)
+font_file = os.path.join(
+    os.path.dirname(__file__), "../static/arial_narrow_7.ttf"
+)
+hud.set_font(font_file, 15)
 
 scene.add_object("hud", hud)
 

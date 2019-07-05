@@ -34,7 +34,8 @@ object is not generated until it arrives in render pipeline.</p>
 </ul>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">&#34;&#34;&#34;
+<pre><code class="python"># pylama:ignore=C901
+&#34;&#34;&#34;
 Payton main geometry module
 
 Geometry module holds the basic geometry shapes. They are all inherited
@@ -636,12 +637,11 @@ class Object(object):
             draw = GL_DYNAMIC_DRAW
 
         # Buffer overflow, we need more space.
-        # For dynamic objects, we allocate +500 vertices at all times.
         if self._buffer_size &lt; vertices.nbytes:
-            self._buffer_size = vertices.nbytes + (500 * 12)
+            self._buffer_size = vertices.nbytes
             self._buffer_size_changed = True
         if self._t_buffer_size &lt; texcoords.nbytes:
-            self._t_buffer_size = texcoords.nbytes + (500 * 8)
+            self._t_buffer_size = texcoords.nbytes
             self._t_buffer_size_changed = True
 
         # Bind Vertices
@@ -706,6 +706,8 @@ class Object(object):
             glDeleteBuffers(4, self._vbos)
             self._vbos = []
 
+        self._needs_update = False
+
         return True
 
 
@@ -750,13 +752,13 @@ class Mesh(Object):
                 self._vertices[face[2]],
             )
             normal = plane_normal(v1, v2, v3)
-            self._normals.append([normal, normal, normal])
+            self._normals.extend([normal, normal, normal])
 
     def scale(self, x: float, y: float, z: float) -&gt; None:
         &#34;&#34;&#34;Scale Mesh by given factors
 
-        Note: This does not create a scale matrix and multiply existing matrix with it.
-              Instead, it will scale the vertices by given factors.
+        Note: This does not create a scale matrix and multiply existing matrix
+              with it. Instead, it will scale the vertices by given factors.
         &#34;&#34;&#34;
         self._vertices = list(
             map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
@@ -970,6 +972,14 @@ class Sphere(Mesh):
     &#34;&#34;&#34;
 
     def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;Initialize the sphere
+
+        Args:
+          radius: Radius of the sphere (default: 0.5, making it a unit sphere)
+          parallels: Number of parallels (as in geography). (default: 12, 30
+                     degrees of arcs)
+          meridians: Number of meridians (as in geography). (default: 12)
+        &#34;&#34;&#34;
         super().__init__(**args)
         self.radius: float = args.get(&#34;radius&#34;, 0.5)
         self.parallels: int = args.get(&#34;parallels&#34;, 12)
@@ -998,7 +1008,7 @@ class Sphere(Mesh):
                 y1 = r * math.sin(step_height * i) * math.sin(step_angle * j)
                 z1 = r * math.cos(step_height * i)
                 u1 = u_step * j
-                v1 = 1.0 - (v_step * i)
+                v1 = v_step * i
 
                 x2 = (
                     r
@@ -1012,7 +1022,7 @@ class Sphere(Mesh):
                 )
                 z2 = r * math.cos(step_height * (i + 1))
                 u2 = u_step * j
-                v2 = 1.0 - (v_step * (i + 1))
+                v2 = v_step * (i + 1)
 
                 x3 = (
                     r
@@ -1026,7 +1036,7 @@ class Sphere(Mesh):
                 )
                 z3 = r * math.cos(step_height * (i + 1))
                 u3 = u_step * (j + 1)
-                v3 = 1.0 - (v_step * (i + 1))
+                v3 = v_step * (i + 1)
 
                 x4 = (
                     r
@@ -1040,7 +1050,7 @@ class Sphere(Mesh):
                 )
                 z4 = r * math.cos(step_height * i)
                 u4 = u_step * (j + 1)
-                v4 = 1.0 - (v_step * i)
+                v4 = v_step * i
 
                 normal = plane_normal([x1, y1, z1], [x2, y2, z2], [x3, y3, z3])
                 self._vertices.append([x1, y1, z1])
@@ -1058,6 +1068,81 @@ class Sphere(Mesh):
                 self._indices.append([indices, indices + 1, indices + 2])
                 self._indices.append([indices, indices + 2, indices + 3])
                 indices += 4
+        return True
+
+
+class Cylinder(Mesh):
+    &#34;&#34;&#34;Cylinder Object
+
+    Beware of using high values for number of meridians. You might end up with
+    excessive number of vertices to render.
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;Iniitalize the cylinder
+
+        Args:
+          bottom_radius: Radius at the bottom of the cylinder
+          top_radius: Radius at the top of the cylinder
+          meridians: Number of meridians/edges (as in geography)
+          height: Height of the cylinder
+        &#34;&#34;&#34;
+        super().__init__(**args)
+        self._bottom_radius: float = args.get(&#34;bottom_radius&#34;, 0.5)
+        self._top_radius: float = args.get(&#34;top_radius&#34;, 0.5)
+        self._meridians: int = args.get(&#34;meridians&#34;, 12)
+        self._height: float = args.get(&#34;height&#34;, 1.0)
+        self.build_cylinder()
+
+    def build_cylinder(self) -&gt; bool:
+        step_angle = math.radians(360 / self._meridians)
+
+        u_step = 1.0 / self._meridians
+        r_bot = self._bottom_radius
+        r_top = self._top_radius
+        h_2 = self._height / 2.0
+        for i in range(self._meridians):
+            x1 = r_bot * math.cos(step_angle * i)
+            y1 = r_bot * math.sin(step_angle * i)
+            x2 = r_top * math.cos(step_angle * i)
+            y2 = r_top * math.sin(step_angle * i)
+
+            u1 = u_step * i
+            v1 = 1.0
+            u2 = u1
+            v2 = 0.0
+
+            x3 = r_bot * math.cos(step_angle * (i + 1))
+            y3 = r_bot * math.sin(step_angle * (i + 1))
+            x4 = r_top * math.cos(step_angle * (i + 1))
+            y4 = r_top * math.sin(step_angle * (i + 1))
+
+            u3 = u_step * (i + 1)
+            v3 = 1.0
+            u4 = u3
+            v4 = 0.0
+
+            self.add_triangle(
+                [[x1, y1, -h_2], [x2, y2, h_2], [x3, y3, -h_2]],
+                texcoords=[[u1, v1], [u2, v2], [u3, v3]],
+            )
+
+            self.add_triangle(
+                [[x3, y3, -h_2], [x2, y2, h_2], [x4, y4, h_2]],
+                texcoords=[[u3, v3], [u2, v2], [u4, v4]],
+            )
+
+            self.add_triangle(
+                [[x1, y1, -h_2], [0.0, 0.0, -h_2], [x3, y3, -h_2]],
+                texcoords=[[u1, v1], [0.0, 0.0], [u3, v3]],
+            )
+
+            self.add_triangle(
+                [[x4, y4, h_2], [0.0, 0.0, h_2], [x2, y2, h_2]],
+                texcoords=[[u4, v4], [0.0, 0.0], [u2, v2]],
+            )
+
+        self.fix_normals()
         return True
 
 
@@ -1444,6 +1529,200 @@ scene.run()
 </li>
 </ul>
 </dd>
+<dt id="payton.scene.geometry.Cylinder"><code class="flex name class">
+<span>class <span class="ident">Cylinder</span></span>
+<span>(</span><span>**args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Cylinder Object</p>
+<p>Beware of using high values for number of meridians. You might end up with
+excessive number of vertices to render.</p>
+<p>Iniitalize the cylinder</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bottom_radius</code></strong></dt>
+<dd>Radius at the bottom of the cylinder</dd>
+<dt><strong><code>top_radius</code></strong></dt>
+<dd>Radius at the top of the cylinder</dd>
+<dt><strong><code>meridians</code></strong></dt>
+<dd>Number of meridians/edges (as in geography)</dd>
+<dt><strong><code>height</code></strong></dt>
+<dd>Height of the cylinder</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Cylinder(Mesh):
+    &#34;&#34;&#34;Cylinder Object
+
+    Beware of using high values for number of meridians. You might end up with
+    excessive number of vertices to render.
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;Iniitalize the cylinder
+
+        Args:
+          bottom_radius: Radius at the bottom of the cylinder
+          top_radius: Radius at the top of the cylinder
+          meridians: Number of meridians/edges (as in geography)
+          height: Height of the cylinder
+        &#34;&#34;&#34;
+        super().__init__(**args)
+        self._bottom_radius: float = args.get(&#34;bottom_radius&#34;, 0.5)
+        self._top_radius: float = args.get(&#34;top_radius&#34;, 0.5)
+        self._meridians: int = args.get(&#34;meridians&#34;, 12)
+        self._height: float = args.get(&#34;height&#34;, 1.0)
+        self.build_cylinder()
+
+    def build_cylinder(self) -&gt; bool:
+        step_angle = math.radians(360 / self._meridians)
+
+        u_step = 1.0 / self._meridians
+        r_bot = self._bottom_radius
+        r_top = self._top_radius
+        h_2 = self._height / 2.0
+        for i in range(self._meridians):
+            x1 = r_bot * math.cos(step_angle * i)
+            y1 = r_bot * math.sin(step_angle * i)
+            x2 = r_top * math.cos(step_angle * i)
+            y2 = r_top * math.sin(step_angle * i)
+
+            u1 = u_step * i
+            v1 = 1.0
+            u2 = u1
+            v2 = 0.0
+
+            x3 = r_bot * math.cos(step_angle * (i + 1))
+            y3 = r_bot * math.sin(step_angle * (i + 1))
+            x4 = r_top * math.cos(step_angle * (i + 1))
+            y4 = r_top * math.sin(step_angle * (i + 1))
+
+            u3 = u_step * (i + 1)
+            v3 = 1.0
+            u4 = u3
+            v4 = 0.0
+
+            self.add_triangle(
+                [[x1, y1, -h_2], [x2, y2, h_2], [x3, y3, -h_2]],
+                texcoords=[[u1, v1], [u2, v2], [u3, v3]],
+            )
+
+            self.add_triangle(
+                [[x3, y3, -h_2], [x2, y2, h_2], [x4, y4, h_2]],
+                texcoords=[[u3, v3], [u2, v2], [u4, v4]],
+            )
+
+            self.add_triangle(
+                [[x1, y1, -h_2], [0.0, 0.0, -h_2], [x3, y3, -h_2]],
+                texcoords=[[u1, v1], [0.0, 0.0], [u3, v3]],
+            )
+
+            self.add_triangle(
+                [[x4, y4, h_2], [0.0, 0.0, h_2], [x2, y2, h_2]],
+                texcoords=[[u4, v4], [0.0, 0.0], [u2, v2]],
+            )
+
+        self.fix_normals()
+        return True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a></li>
+<li><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.geometry.Cylinder.build_cylinder"><code class="name flex">
+<span>def <span class="ident">build_cylinder</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def build_cylinder(self) -&gt; bool:
+    step_angle = math.radians(360 / self._meridians)
+
+    u_step = 1.0 / self._meridians
+    r_bot = self._bottom_radius
+    r_top = self._top_radius
+    h_2 = self._height / 2.0
+    for i in range(self._meridians):
+        x1 = r_bot * math.cos(step_angle * i)
+        y1 = r_bot * math.sin(step_angle * i)
+        x2 = r_top * math.cos(step_angle * i)
+        y2 = r_top * math.sin(step_angle * i)
+
+        u1 = u_step * i
+        v1 = 1.0
+        u2 = u1
+        v2 = 0.0
+
+        x3 = r_bot * math.cos(step_angle * (i + 1))
+        y3 = r_bot * math.sin(step_angle * (i + 1))
+        x4 = r_top * math.cos(step_angle * (i + 1))
+        y4 = r_top * math.sin(step_angle * (i + 1))
+
+        u3 = u_step * (i + 1)
+        v3 = 1.0
+        u4 = u3
+        v4 = 0.0
+
+        self.add_triangle(
+            [[x1, y1, -h_2], [x2, y2, h_2], [x3, y3, -h_2]],
+            texcoords=[[u1, v1], [u2, v2], [u3, v3]],
+        )
+
+        self.add_triangle(
+            [[x3, y3, -h_2], [x2, y2, h_2], [x4, y4, h_2]],
+            texcoords=[[u3, v3], [u2, v2], [u4, v4]],
+        )
+
+        self.add_triangle(
+            [[x1, y1, -h_2], [0.0, 0.0, -h_2], [x3, y3, -h_2]],
+            texcoords=[[u1, v1], [0.0, 0.0], [u3, v3]],
+        )
+
+        self.add_triangle(
+            [[x4, y4, h_2], [0.0, 0.0, h_2], [x2, y2, h_2]],
+            texcoords=[[u4, v4], [0.0, 0.0], [u2, v2]],
+        )
+
+    self.fix_normals()
+    return True</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a></b></code>:
+<ul class="hlist">
+<li><code><a title="payton.scene.geometry.Mesh.absolute_vertices" href="#payton.scene.geometry.Object.absolute_vertices">absolute_vertices</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.add_child" href="#payton.scene.geometry.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.add_triangle" href="#payton.scene.geometry.Mesh.add_triangle">add_triangle</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.bounding_radius" href="#payton.scene.geometry.Object.bounding_radius">bounding_radius</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.build" href="#payton.scene.geometry.Object.build">build</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.clear_triangles" href="#payton.scene.geometry.Mesh.clear_triangles">clear_triangles</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.destroy" href="#payton.scene.geometry.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.fix_normals" href="#payton.scene.geometry.Mesh.fix_normals">fix_normals</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.has_vao" href="#payton.scene.geometry.Object.has_vao">has_vao</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.position" href="#payton.scene.geometry.Object.position">position</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.refresh" href="#payton.scene.geometry.Object.refresh">refresh</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.render" href="#payton.scene.geometry.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.rotate_around_x" href="#payton.scene.geometry.Object.rotate_around_x">rotate_around_x</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.rotate_around_y" href="#payton.scene.geometry.Object.rotate_around_y">rotate_around_y</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.rotate_around_z" href="#payton.scene.geometry.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.scale" href="#payton.scene.geometry.Mesh.scale">scale</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.select" href="#payton.scene.geometry.Object.select">select</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.to_absolute" href="#payton.scene.geometry.Object.to_absolute">to_absolute</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.toggle_wireframe" href="#payton.scene.geometry.Object.toggle_wireframe">toggle_wireframe</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.track" href="#payton.scene.geometry.Object.track">track</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.update_matrix" href="#payton.scene.geometry.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.visible" href="#payton.scene.geometry.Object.visible">visible</a></code></li>
+<li><code><a title="payton.scene.geometry.Mesh.yaw" href="#payton.scene.geometry.Object.yaw">yaw</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="payton.scene.geometry.Line"><code class="flex name class">
 <span>class <span class="ident">Line</span></span>
 <span>(</span><span>**args)</span>
@@ -1783,13 +2062,13 @@ use: <code>object.show()</code></dd>
                 self._vertices[face[2]],
             )
             normal = plane_normal(v1, v2, v3)
-            self._normals.append([normal, normal, normal])
+            self._normals.extend([normal, normal, normal])
 
     def scale(self, x: float, y: float, z: float) -&gt; None:
         &#34;&#34;&#34;Scale Mesh by given factors
 
-        Note: This does not create a scale matrix and multiply existing matrix with it.
-              Instead, it will scale the vertices by given factors.
+        Note: This does not create a scale matrix and multiply existing matrix
+              with it. Instead, it will scale the vertices by given factors.
         &#34;&#34;&#34;
         self._vertices = list(
             map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
@@ -1856,6 +2135,7 @@ use: <code>object.show()</code></dd>
 <ul class="hlist">
 <li><a title="payton.scene.geometry.Cube" href="#payton.scene.geometry.Cube">Cube</a></li>
 <li><a title="payton.scene.geometry.Sphere" href="#payton.scene.geometry.Sphere">Sphere</a></li>
+<li><a title="payton.scene.geometry.Cylinder" href="#payton.scene.geometry.Cylinder">Cylinder</a></li>
 <li><a title="payton.scene.geometry.Plane" href="#payton.scene.geometry.Plane">Plane</a></li>
 <li><a title="payton.scene.gui.Shape2D" href="gui.html#payton.scene.gui.Shape2D">Shape2D</a></li>
 <li><a title="payton.scene.wavefront.Wavefront" href="wavefront.html#payton.scene.wavefront.Wavefront">Wavefront</a></li>
@@ -1971,7 +2251,7 @@ normals, do not call this method</p></section>
             self._vertices[face[2]],
         )
         normal = plane_normal(v1, v2, v3)
-        self._normals.append([normal, normal, normal])</code></pre>
+        self._normals.extend([normal, normal, normal])</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.geometry.Mesh.scale"><code class="name flex">
@@ -1979,15 +2259,15 @@ normals, do not call this method</p></section>
 </code></dt>
 <dd>
 <section class="desc"><p>Scale Mesh by given factors</p>
-<p>Note: This does not create a scale matrix and multiply existing matrix with it.
-Instead, it will scale the vertices by given factors.</p></section>
+<p>Note: This does not create a scale matrix and multiply existing matrix
+with it. Instead, it will scale the vertices by given factors.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def scale(self, x: float, y: float, z: float) -&gt; None:
     &#34;&#34;&#34;Scale Mesh by given factors
 
-    Note: This does not create a scale matrix and multiply existing matrix with it.
-          Instead, it will scale the vertices by given factors.
+    Note: This does not create a scale matrix and multiply existing matrix
+          with it. Instead, it will scale the vertices by given factors.
     &#34;&#34;&#34;
     self._vertices = list(
         map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
@@ -2628,12 +2908,11 @@ use: <code>object.show()</code></dd>
             draw = GL_DYNAMIC_DRAW
 
         # Buffer overflow, we need more space.
-        # For dynamic objects, we allocate +500 vertices at all times.
         if self._buffer_size &lt; vertices.nbytes:
-            self._buffer_size = vertices.nbytes + (500 * 12)
+            self._buffer_size = vertices.nbytes
             self._buffer_size_changed = True
         if self._t_buffer_size &lt; texcoords.nbytes:
-            self._t_buffer_size = texcoords.nbytes + (500 * 8)
+            self._t_buffer_size = texcoords.nbytes
             self._t_buffer_size_changed = True
 
         # Bind Vertices
@@ -2697,6 +2976,8 @@ use: <code>object.show()</code></dd>
             # we can clear this data to free some more memory
             glDeleteBuffers(4, self._vbos)
             self._vbos = []
+
+        self._needs_update = False
 
         return True</code></pre>
 </details>
@@ -2995,12 +3276,11 @@ an invisible object (will not be drawn)</p>
         draw = GL_DYNAMIC_DRAW
 
     # Buffer overflow, we need more space.
-    # For dynamic objects, we allocate +500 vertices at all times.
     if self._buffer_size &lt; vertices.nbytes:
-        self._buffer_size = vertices.nbytes + (500 * 12)
+        self._buffer_size = vertices.nbytes
         self._buffer_size_changed = True
     if self._t_buffer_size &lt; texcoords.nbytes:
-        self._t_buffer_size = texcoords.nbytes + (500 * 8)
+        self._t_buffer_size = texcoords.nbytes
         self._t_buffer_size_changed = True
 
     # Bind Vertices
@@ -3064,6 +3344,8 @@ an invisible object (will not be drawn)</p>
         # we can clear this data to free some more memory
         glDeleteBuffers(4, self._vbos)
         self._vbos = []
+
+    self._needs_update = False
 
     return True</code></pre>
 </details>
@@ -3839,43 +4121,16 @@ space.create_clock("motion", 0.01, motion)
 print("Hit SPACE to continue animation")
 space.run()
 </code></pre>
-<p>Initialize the basic object properties.</p>
-<h2 id="properties">Properties</h2>
-<dl>
-<dt><strong><code>children</code></strong></dt>
-<dd>Children hash for object. Each child object follows parent
-object. They take their parent object as origin and their
-coordinate system is relative to their parent. This
-behaviour resembles stars, planets and their moons.</dd>
-<dt><strong><code>material</code></strong></dt>
-<dd>Material definitions of the object.</dd>
-<dt><strong><code>matrix</code></strong></dt>
-<dd>Matrix definition of the object. This is a 4x4 Uniform Matrix
-But data is set as an array for easier transformations. First
-4 decimals are "Left" vector, Second 4 are "Direction", Third
-4 are "Up" and last four decimals are "Position" vectors.</dd>
-</dl>
+<p>Initialize the sphere</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>track_motion</code></strong></dt>
-<dd>Track object motion (default: false). Object tracking
-is time independent. It just saves the object matrix
-for every change. Uses matrix position for drawing the
-motion path.</dd>
-<dt><strong><code>static</code></strong></dt>
-<dd>(Default <code>True</code>) Indicates if object geometry is expected
-to be changed in the future. If object is not static, then
-its' vertex buffer object references and vertex informations
-will not be deleted to be used for future reference.</dd>
-<dt><strong><code>name</code></strong></dt>
-<dd>Name of the object (optional, default '') Note that, when
-object gets added to a Scene with a name, Scene will assign
-that name to the object, overwriting any existing name of the
-object.</dd>
-<dt><strong><code>visible</code></strong></dt>
-<dd>Is this object visible at the scene, default: True. To hid
-an object, you can call <code>object.hide()</code> and to show it again
-use: <code>object.show()</code></dd>
+<dt><strong><code>radius</code></strong></dt>
+<dd>Radius of the sphere (default: 0.5, making it a unit sphere)</dd>
+<dt><strong><code>parallels</code></strong></dt>
+<dd>Number of parallels (as in geography). (default: 12, 30
+degrees of arcs)</dd>
+<dt><strong><code>meridians</code></strong></dt>
+<dd>Number of meridians (as in geography). (default: 12)</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
@@ -3900,6 +4155,14 @@ use: <code>object.show()</code></dd>
     &#34;&#34;&#34;
 
     def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;Initialize the sphere
+
+        Args:
+          radius: Radius of the sphere (default: 0.5, making it a unit sphere)
+          parallels: Number of parallels (as in geography). (default: 12, 30
+                     degrees of arcs)
+          meridians: Number of meridians (as in geography). (default: 12)
+        &#34;&#34;&#34;
         super().__init__(**args)
         self.radius: float = args.get(&#34;radius&#34;, 0.5)
         self.parallels: int = args.get(&#34;parallels&#34;, 12)
@@ -3928,7 +4191,7 @@ use: <code>object.show()</code></dd>
                 y1 = r * math.sin(step_height * i) * math.sin(step_angle * j)
                 z1 = r * math.cos(step_height * i)
                 u1 = u_step * j
-                v1 = 1.0 - (v_step * i)
+                v1 = v_step * i
 
                 x2 = (
                     r
@@ -3942,7 +4205,7 @@ use: <code>object.show()</code></dd>
                 )
                 z2 = r * math.cos(step_height * (i + 1))
                 u2 = u_step * j
-                v2 = 1.0 - (v_step * (i + 1))
+                v2 = v_step * (i + 1)
 
                 x3 = (
                     r
@@ -3956,7 +4219,7 @@ use: <code>object.show()</code></dd>
                 )
                 z3 = r * math.cos(step_height * (i + 1))
                 u3 = u_step * (j + 1)
-                v3 = 1.0 - (v_step * (i + 1))
+                v3 = v_step * (i + 1)
 
                 x4 = (
                     r
@@ -3970,7 +4233,7 @@ use: <code>object.show()</code></dd>
                 )
                 z4 = r * math.cos(step_height * i)
                 u4 = u_step * (j + 1)
-                v4 = 1.0 - (v_step * i)
+                v4 = v_step * i
 
                 normal = plane_normal([x1, y1, z1], [x2, y2, z2], [x3, y3, z3])
                 self._vertices.append([x1, y1, z1])
@@ -4031,7 +4294,7 @@ use: <code>object.show()</code></dd>
             y1 = r * math.sin(step_height * i) * math.sin(step_angle * j)
             z1 = r * math.cos(step_height * i)
             u1 = u_step * j
-            v1 = 1.0 - (v_step * i)
+            v1 = v_step * i
 
             x2 = (
                 r
@@ -4045,7 +4308,7 @@ use: <code>object.show()</code></dd>
             )
             z2 = r * math.cos(step_height * (i + 1))
             u2 = u_step * j
-            v2 = 1.0 - (v_step * (i + 1))
+            v2 = v_step * (i + 1)
 
             x3 = (
                 r
@@ -4059,7 +4322,7 @@ use: <code>object.show()</code></dd>
             )
             z3 = r * math.cos(step_height * (i + 1))
             u3 = u_step * (j + 1)
-            v3 = 1.0 - (v_step * (i + 1))
+            v3 = v_step * (i + 1)
 
             x4 = (
                 r
@@ -4073,7 +4336,7 @@ use: <code>object.show()</code></dd>
             )
             z4 = r * math.cos(step_height * i)
             u4 = u_step * (j + 1)
-            v4 = 1.0 - (v_step * i)
+            v4 = v_step * i
 
             normal = plane_normal([x1, y1, z1], [x2, y2, z2], [x3, y3, z3])
             self._vertices.append([x1, y1, z1])
@@ -4144,6 +4407,12 @@ use: <code>object.show()</code></dd>
 <ul>
 <li>
 <h4><code><a title="payton.scene.geometry.Cube" href="#payton.scene.geometry.Cube">Cube</a></code></h4>
+</li>
+<li>
+<h4><code><a title="payton.scene.geometry.Cylinder" href="#payton.scene.geometry.Cylinder">Cylinder</a></code></h4>
+<ul class="">
+<li><code><a title="payton.scene.geometry.Cylinder.build_cylinder" href="#payton.scene.geometry.Cylinder.build_cylinder">build_cylinder</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="payton.scene.geometry.Line" href="#payton.scene.geometry.Line">Line</a></code></h4>
