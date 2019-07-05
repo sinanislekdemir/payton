@@ -60,6 +60,7 @@ class Wavefront(Mesh):
         _texcoords: VList = []
         lines: List[str] = obj_string.splitlines()
         for line in lines:
+            line = line.replace("  ", " ")
             command = line[0:2].lower()
             parts = line.split(" ")
             if command == "v ":
@@ -81,22 +82,38 @@ class Wavefront(Mesh):
                 # with POLYGON as well but IDK.
                 face = []  # type: List[List[int]]
                 for i in range(len(parts)):
-                    if i == 0:
+                    if parts[i] == "f" or parts[i] == "":
                         continue
                     subs = parts[i].split("/")
                     vertex = int(subs[0]) - 1
-                    textcoord = int(subs[1]) - 1 if len(subs) > 1 else -1
-                    normal = int(subs[2]) - 1 if len(subs) > 2 else -1
+                    textcoord = (
+                        int(subs[1]) - 1
+                        if len(subs) > 1 and len(subs[1]) > 0
+                        else -1
+                    )
+                    normal = (
+                        int(subs[2]) - 1
+                        if len(subs) > 2 and len(subs[2]) > 0
+                        else -1
+                    )
                     face.append([vertex, textcoord, normal])
+                if len(face) > 3:
+                    logging.error("Only triangular wavefronts are accepted")
+                    return
                 _indices.append(face)
 
         # Now unpack indices to actual object data
         i = 0
+        fix_normals = False
         for index in _indices:
             ind = []
             for f in index:
                 l_vertex = _vertices[f[0]]
-                l_normal = _normals[f[2]]
+                if f[2] != -1:
+                    l_normal = _normals[f[2]]
+                else:
+                    fix_normals = True
+                    l_normal = [0.0, 0.0, 1.0]
                 l_tex = [0.0, 0.0]
                 if f[1] > -1:
                     l_tex = _texcoords[f[1]]
@@ -106,6 +123,8 @@ class Wavefront(Mesh):
                 ind.append(i)
                 i += 1
             self._indices.append(ind)
+        if fix_normals:
+            self.fix_normals()
 
 
 def export(mesh: Mesh, **args: Any) -> Optional[str]:
