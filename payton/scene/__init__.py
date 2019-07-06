@@ -7,7 +7,7 @@
   * Scene (`payton.scene.scene.Scene`)
     * Geometry (`payton.scene.geometry`)
     * Grid (`payton.scene.grid`)
-    * Background (`payton.scene.Background`)
+    * Background (`payton.scene.scene.Background`)
     * Clock (`payton.scene.clock`)
     * Lighting (`payton.scene.light`)
     * Collision Test (`payton.scene.collision`)
