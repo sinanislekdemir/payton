@@ -27,13 +27,13 @@ dimensions. We require to have third and even forth dimensions. (And on top of
 those, definition of forth dimension as time can get foggy in terms of
 relativity.)
 
-Payton gives you ability to extend your graphics into 4 dimensions. It is not
+Payton gives you the ability to extend your graphics into 4 dimensions. It is not
 a software but a software development toolkit/library built with Python.
 This will give users ability to read real time data from sensors, cameras or
 any other data sources in realtime and visualise them in real time. Data source
 can be a thermometer, a random number generator, a toy car connected to a speed
 sensor, a map, a vehicle port or anything that generates time based 3d data.
-Further more, it can be a time based formula. As this can get too complex,
+Furthermore, it can be a time based formula. As this can get too complex,
 a software with that complexity will probably be too hard to use and understand
 where Payton is designed to be as simple as it can be. So easy to program that
 a newbie can kick-start it just by following the tutorials.
@@ -42,7 +42,7 @@ More information can be found in documents.
 
 ## Install and kick-start
 
-    $ pip install Payton
+    $ pip install payton
 
 Then go ahead and create a `test.py`
 

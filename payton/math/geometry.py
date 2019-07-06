@@ -78,8 +78,8 @@ def raycast_plane_intersect(
     Args:
       start: Start of the ray
       vector: Vector (direction) of the ray
-      plane_point: Point on plane
-      plane_norma: Normal of the plane
+      plane_point: Point on the plane
+      plane_normal: Normal of the plane
 
     Returns:
       intersection: Intersection point or None
@@ -112,7 +112,7 @@ def raycast_triangle_intersect(
       p3: P3 point of the triangle
 
     Returns:
-      intersection, normal: Intersectino point and intersection normal
+      intersection, normal: Intersection point and intersection normal
       None, None: if there is no intersection
     """
     v1 = np.subtract(p2, p1)

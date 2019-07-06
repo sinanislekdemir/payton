@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 *.egg-info
 html/
+payton/.Python
+payton/bin/
+payton/include/
+payton/lib/
