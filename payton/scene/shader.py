@@ -171,19 +171,19 @@ void main()
 class Shader(object):
     """Payton shader class. Creates shaders / programs
 
-    For an improved performance, Shader aims to reduce the number of
+    For better performance, Shader aims to reduce the number of
     `glGetUniformlocation` function calls. For this purpose, `__init__` and
     `build` functions accept a list of variable names as `variables` argument.
 
-    If variable not found in `self.variables` then system will try to
+    If variable not found in `self.variables` then the system will try to
     locate the variable location and store it in `self.variables` for
     future reference.
 
-    By this way, Shader goes through this list of variables after compiling the
+    This way, Shader goes through this list of variables after compiling the
     shader program and stores their locations in memory for future use.
 
     If you provide the list of variable names in build function call then
-    it will overwrite existing list.
+    it will overwrite the existing list.
     """
 
     NO_LIGHT_COLOR = 0  # type: int

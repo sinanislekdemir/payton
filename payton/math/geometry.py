@@ -78,8 +78,8 @@ def raycast_plane_intersect(
     Args:
       start: Start of the ray
       vector: Vector (direction) of the ray
-      plane_point: Point on plane
-      plane_norma: Normal of the plane
+      plane_point: Point on the plane
+      plane_normal: Normal of the plane
 
     Returns:
       intersection: Intersection point or None
@@ -112,7 +112,7 @@ def raycast_triangle_intersect(
       p3: P3 point of the triangle
 
     Returns:
-      intersection, normal: Intersectino point and intersection normal
+      intersection, normal: Intersection point and intersection normal
       None, None: if there is no intersection
     """
     v1 = np.subtract(p2, p1)
@@ -150,9 +150,11 @@ def line_triangle_intersect(
     """Check if line intersects a triangle in space
 
     Args:
-      - start: Staring position of the line
-      - end: End position of the line
-      - p1, p2, p3: Triangle corner coordinates
+      start: Staring position of the line
+      end: End position of the line
+      p1: Triangle corner coordinate 1
+      p2: Triangle corner coordinate 2
+      p3: Triangle corner coordinate 3
     """
     global DIFF
 

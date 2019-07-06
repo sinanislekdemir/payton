@@ -6,7 +6,7 @@ or displaying them as solid objects or wireframes, all are defined inside
 object materials. This also effects if your object will respond to light
 sources or not.
 
-There are also pre-defined colors in this module
+There are also predefined colors in this module.
 
 * Material
   * Shader (`payton.scene.shader`)
@@ -94,7 +94,7 @@ class Material(object):
 
         Each element of color is a float between 0 and 1.
         (0 - 255 respectively)
-        Also, there are pre-defined colors.
+        Also, there are predefined colors.
 
         Display Mode has 2 modes. Solid and Wireframe. Wireframe is
         often rendered in a faster way. Also good for debugging your

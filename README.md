@@ -7,7 +7,7 @@ theory that us, humans, we understand better by seeing things.
 
 
 * Payton is a prototyping tool. Kickstart any idea fast and easy, grow it.
-* Create tools for the next step. Create maps editors, small animations, small
+* Create tools for the next step. Create map editors, small animations, small
   algorithms or artificial intelligence for your game. Whenever you need to
   try a new idea, don't bother to create a new application with all the
   details. Payton comes with all the necessary defaults and that is what makes
@@ -27,14 +27,14 @@ dimensions. We require to have third and even forth dimensions. (And on top of
 those, definition of forth dimension as time can get foggy in terms of
 relativity.)
 
-Payton gives you ability to extend your graphics into 4 dimensions. It is not
-a software but a software development toolkit/library built with Python.
+Payton gives you the ability to extend your graphics into 4 dimensions. It is not
+software but a software development toolkit/library built with Python.
 This will give users ability to read real time data from sensors, cameras or
 any other data sources in realtime and visualise them in real time. Data source
 can be a thermometer, a random number generator, a toy car connected to a speed
-sensor, a map, a vehicle port or anything that generates time based 3d data.
-Further more, it can be a time based formula. As this can get too complex,
-a software with that complexity will probably be too hard to use and understand
+sensor, a map, a vehicle port or anything that generates time based 3D data.
+Furthermore, it can be a time based formula. As this can get too complex,
+software with that complexity will probably be too hard to use and understand
 where Payton is designed to be as simple as it can be. So easy to program that
 a newbie can kick-start it just by following the tutorials.
 
@@ -42,7 +42,7 @@ More information can be found in documents.
 
 ## Install and kick-start
 
-    $ pip install Payton
+    $ pip install payton
 
 Then go ahead and create a `test.py`
 
@@ -90,9 +90,9 @@ I encourage you to create a virtualenv for Payton (with Python 3.5+)
 `virtualenv -p <path-to-python3> payton` should do the trick. If you don't have
 `virtualenv` in your path, google it!
 
-To start to fiddle with it, `python setup.py develop` will install all
+To start fiddling with it, `python setup.py develop` will install all
 requirements and will add `payton` to site-packages. But changes to code will
-immediately take effect. (Rather than `install` command).
+immediately take effect, as opposed to `install` command.
 
 To kick start, after `python setup.py develop` run `python examples/04_clock.py`
 

@@ -77,8 +77,11 @@ class Observer(object):
 
     def rotate_around_target(self, phi: float, theta: float) -> None:
         """
-        Theta: horizontal
-        Phi: vertical
+        Rotates camera around a subject.
+
+        Args:
+          theta: horizontal
+          phi: vertical
         """
         diff = sub_vector(self.position, self.target)
 

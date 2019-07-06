@@ -12,7 +12,7 @@ and `total` variables.
 - `total`: total time past since the beginning of the simulation.
 
 A clock can be used for several occasions like moving objects in time,
-logging data and etc.
+logging data, etc.
 
 Each clock is technically a safe thread.
 
@@ -53,14 +53,9 @@ class Clock(threading.Thread):
         callback: Callable[[str, Type[Receiver], float, float], None],
     ):
         """
-        name of the thread is a freetext for logging purposes
-        period is the waiting period between each callback
-        so execution time is omitted.
-        scene is the reference to the actual scene object.
-
         Args:
-          name: Name of the clock
-          period: Clock cycle period, (seconds between each tick)
+          name: Name of the clock (freetext for logging purposes)
+          period: Clock cycle period of time between callbacks (seconds between each tick)
           scene: Scene to be called back
           callback: Callback function to call when clock ticks.
         """

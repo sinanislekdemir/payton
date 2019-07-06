@@ -62,11 +62,11 @@ class Object(object):
     """Main Payton Object.
 
     This is an abstract class to define common properties and methods between
-    Mesh / Cube / Sphere/ Shape2D / PointCloud and etc.
+    Mesh / Cube / Sphere/ Shape2D / PointCloud, etc.
 
     Objects are not actually built as 3D vertex arrays until they are rendered.
     Render function calls `build` function if needed. Build function creates
-    the OpenGL Vertex Array Object. VAO is a static data so, once the object
+    the OpenGL Vertex Array Object. VAO is static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
 
     You need to call `payton.scene.geometry.Object.build` function to refresh
@@ -76,9 +76,9 @@ class Object(object):
     added to the object, OpenGL needs to re-create the buffer area. This is
     not an efficitient technique if number of vertices increase in time.
     As a result Payton allocates buffer for 500 vertices in the beginning and
-    uses a part of it. If object exceeds 500 vertices, a new buffer is created
-    with 500 more vertices, copies existing vertices to new and old buffer
-    is deleted.
+    uses part of it. If the object exceeds 500 vertices, a new buffer is created
+    with 500 vertices more, copies existing vertices to the new buffer and the
+    old buffer is deleted.
 
     """
 
@@ -93,8 +93,8 @@ class Object(object):
                     behaviour resembles stars, planets and their moons.
           material: Material definitions of the object.
           matrix: Matrix definition of the object. This is a 4x4 Uniform Matrix
-                  But data is set as an array for easier transformations. First
-                  4 decimals are "Left" vector, Second 4 are "Direction", Third
+                  but data is set as an array for easier transformations. First
+                  4 decimals are "Left" vector, second 4 are "Direction", third
                   4 are "Up" and last four decimals are "Position" vectors.
 
         Args:
@@ -110,7 +110,7 @@ class Object(object):
                 object gets added to a Scene with a name, Scene will assign
                 that name to the object, overwriting any existing name of the
                 object.
-          visible: Is this object visible at the scene, default: True. To hid
+          visible: Is this object visible at the scene, default: `True`. To hide
                    an object, you can call `object.hide()` and to show it again
                    use: `object.show()`
         """
@@ -230,7 +230,7 @@ class Object(object):
     def select(self, start: np.ndarray, vector: np.ndarray) -> bool:
         """Select test for object using bounding Sphere.
 
-        Note: this method is not 100% accurate as it is based on a rough
+        This method is not 100% accurate as it is based on a rough
         assumption. Sphere area will be larger than actual object.
 
         If you want to have a more accurate way to handle this, try
@@ -238,8 +238,8 @@ class Object(object):
 
         Args:
           start: Starting point of the ray (such as eye position)
-          vector: Ray direction. This is not the end point of a line! This is
-        a unit vector showing the ray direction.
+          vector: Ray direction. This is not the end point of a line!
+                  This is a unit vector showing the ray direction.
         """
         self._selected = raycast_sphere_intersect(
             start,
@@ -257,9 +257,10 @@ class Object(object):
 
     def destroy(self) -> bool:
         """
-        Destroy objects self
+        Destroy objects self.
 
-        Returns: bool
+        Returns:
+            bool: `True` on successful destroy of `self`.
         """
         if self.has_vao:
             glDeleteVertexArrays(1, [self._vao])
@@ -289,7 +290,7 @@ class Object(object):
         Track object motion
 
         Returns:
-          bool
+            bool: `True` on successful tracking of `self`.
         """
         if not self.track_motion:
             return False
@@ -313,13 +314,17 @@ class Object(object):
         """Check if this object has an active Vertex Array Object
 
         Returns:
-            bool
+            bool: `True` if `self` has an active Vertex Array Object.
         """
         return self._vao > -1
 
     @property
     def visible(self) -> bool:
-        """Check if object is visible"""
+        """Check if object is visible
+
+        Returns:
+          bool: `True` if visible.
+        """
         return self._visible
 
     def show(self) -> None:
@@ -533,7 +538,7 @@ class Object(object):
     def bounding_radius(self) -> float:
         """Return bounding radius
 
-        Note: This property function *WILL NOT* update the previously
+        This property function *WILL NOT* update the previously
         calculated value. If you add vertices to the object, you must call
         `payton.scene.geometry.Object.refresh` function to get radius
         and the whole object updated.
@@ -556,11 +561,11 @@ class Object(object):
         automatically effected. So, in every geometry or display mode
         change, a `build` call is necessary.
 
-        if `self.static` is `True`, then system assumes that another update
-        call is not expected, thus frees `_normals', `_textcoords`,
+        If `self.static` is `True`, then the system assumes that another update
+        call is not expected, thus frees `_normals`, `_textcoords`,
         `_vertices` and `_indices` lists to free memory.
-        So in this case, calling `build` function twice will result with
-        an invisible object (will not be drawn)
+        So in this case, calling `build` function twice will result in
+        an invisible object (will not be drawn).
 
         Returns:
           bool
@@ -721,8 +726,8 @@ class Mesh(Object):
     def scale(self, x: float, y: float, z: float) -> None:
         """Scale Mesh by given factors
 
-        Note: This does not create a scale matrix and multiply existing matrix
-              with it. Instead, it will scale the vertices by given factors.
+        This does not create a scale matrix and multiply existing matrix
+        with it. Instead, it will scale the vertices by given factors.
         """
         self._vertices = list(
             map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
@@ -955,7 +960,7 @@ class Sphere(Mesh):
         Generate the sphere
 
         Returns:
-          bool
+          bool: `True` on successful creation of a `Sphere` object.
         """
         r = self.radius
         # step angle is the rotational angle to build the sphere
@@ -1141,7 +1146,7 @@ class Line(Object):
         """Append vertex or vertices to line.
 
         Args:
-          vertice: Vertex array of points.
+          vertices: Vertex array of points.
         """
 
         diff = len(vertices)  # Number of vertices added
@@ -1187,7 +1192,7 @@ class Line(Object):
 class PointCloud(Object):
     """Point cloud
 
-    Note: If you change the vertices, do not forget to do a `refresh` to take
+    If you change the vertices, do not forget to do a `refresh` to take
     effect.
 
     Example use case:
@@ -1217,6 +1222,9 @@ class PointCloud(Object):
 
     def track(self) -> bool:
         """Tracking point cloud is not possible at the moment
+
+        Returns:
+            bool: `False`. Tracking of point clouds not implemented.
         """
         return False
 

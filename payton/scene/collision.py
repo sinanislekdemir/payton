@@ -35,6 +35,7 @@ class CollisionTest(object):
     But collision detection using mesh triangles is quite costly.
 
     Collision test uses several techniques:
+
       - Bounding sphere collision test for Sphere2Sphere test.
       - Bounding sphere collision test for elimination
       - Sphere in sphere collision test for objects in objects
@@ -151,7 +152,7 @@ class CollisionTest(object):
     def resolve(self, obj1: Mesh, obj2: Mesh) -> None:
         """Report that you have solved the collision between objects
 
-        For a better performance, once two objects collide, system will
+        For better performance, once two objects collide, the system will
         not check for a collision between two objects in the next iteration.
         If you want these two objects to be tested again, you have to
         resolve the conflict and report this to collision test class.

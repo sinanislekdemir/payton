@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.6.2" />
+<meta name="generator" content="pdoc 0.5.3" />
 <title>payton.scene.geometry API documentation</title>
 <meta name="description" content="Payton main geometry module …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.name small{font-weight:normal}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
@@ -17,7 +17,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>payton.scene.geometry</code></h1>
+<h1 class="title"><code>payton.scene.geometry</code> module</h1>
 </header>
 <section id="section-intro">
 <p>Payton main geometry module</p>
@@ -98,11 +98,11 @@ class Object(object):
     &#34;&#34;&#34;Main Payton Object.
 
     This is an abstract class to define common properties and methods between
-    Mesh / Cube / Sphere/ Shape2D / PointCloud and etc.
+    Mesh / Cube / Sphere/ Shape2D / PointCloud, etc.
 
     Objects are not actually built as 3D vertex arrays until they are rendered.
     Render function calls `build` function if needed. Build function creates
-    the OpenGL Vertex Array Object. VAO is a static data so, once the object
+    the OpenGL Vertex Array Object. VAO is static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
 
     You need to call `payton.scene.geometry.Object.build` function to refresh
@@ -112,9 +112,9 @@ class Object(object):
     added to the object, OpenGL needs to re-create the buffer area. This is
     not an efficitient technique if number of vertices increase in time.
     As a result Payton allocates buffer for 500 vertices in the beginning and
-    uses a part of it. If object exceeds 500 vertices, a new buffer is created
-    with 500 more vertices, copies existing vertices to new and old buffer
-    is deleted.
+    uses part of it. If the object exceeds 500 vertices, a new buffer is created
+    with 500 vertices more, copies existing vertices to the new buffer and the
+    old buffer is deleted.
 
     &#34;&#34;&#34;
 
@@ -129,8 +129,8 @@ class Object(object):
                     behaviour resembles stars, planets and their moons.
           material: Material definitions of the object.
           matrix: Matrix definition of the object. This is a 4x4 Uniform Matrix
-                  But data is set as an array for easier transformations. First
-                  4 decimals are &#34;Left&#34; vector, Second 4 are &#34;Direction&#34;, Third
+                  but data is set as an array for easier transformations. First
+                  4 decimals are &#34;Left&#34; vector, second 4 are &#34;Direction&#34;, third
                   4 are &#34;Up&#34; and last four decimals are &#34;Position&#34; vectors.
 
         Args:
@@ -146,7 +146,7 @@ class Object(object):
                 object gets added to a Scene with a name, Scene will assign
                 that name to the object, overwriting any existing name of the
                 object.
-          visible: Is this object visible at the scene, default: True. To hid
+          visible: Is this object visible at the scene, default: `True`. To hide
                    an object, you can call `object.hide()` and to show it again
                    use: `object.show()`
         &#34;&#34;&#34;
@@ -266,7 +266,7 @@ class Object(object):
     def select(self, start: np.ndarray, vector: np.ndarray) -&gt; bool:
         &#34;&#34;&#34;Select test for object using bounding Sphere.
 
-        Note: this method is not 100% accurate as it is based on a rough
+        This method is not 100% accurate as it is based on a rough
         assumption. Sphere area will be larger than actual object.
 
         If you want to have a more accurate way to handle this, try
@@ -274,8 +274,8 @@ class Object(object):
 
         Args:
           start: Starting point of the ray (such as eye position)
-          vector: Ray direction. This is not the end point of a line! This is
-        a unit vector showing the ray direction.
+          vector: Ray direction. This is not the end point of a line!
+                  This is a unit vector showing the ray direction.
         &#34;&#34;&#34;
         self._selected = raycast_sphere_intersect(
             start,
@@ -293,9 +293,10 @@ class Object(object):
 
     def destroy(self) -&gt; bool:
         &#34;&#34;&#34;
-        Destroy objects self
+        Destroy objects self.
 
-        Returns: bool
+        Returns:
+            bool: `True` on successful destroy of `self`.
         &#34;&#34;&#34;
         if self.has_vao:
             glDeleteVertexArrays(1, [self._vao])
@@ -325,7 +326,7 @@ class Object(object):
         Track object motion
 
         Returns:
-          bool
+            bool: `True` on successful tracking of `self`.
         &#34;&#34;&#34;
         if not self.track_motion:
             return False
@@ -349,13 +350,17 @@ class Object(object):
         &#34;&#34;&#34;Check if this object has an active Vertex Array Object
 
         Returns:
-            bool
+            bool: `True` if `self` has an active Vertex Array Object.
         &#34;&#34;&#34;
         return self._vao &gt; -1
 
     @property
     def visible(self) -&gt; bool:
-        &#34;&#34;&#34;Check if object is visible&#34;&#34;&#34;
+        &#34;&#34;&#34;Check if object is visible
+
+        Returns:
+          bool: `True` if visible.
+        &#34;&#34;&#34;
         return self._visible
 
     def show(self) -&gt; None:
@@ -569,7 +574,7 @@ class Object(object):
     def bounding_radius(self) -&gt; float:
         &#34;&#34;&#34;Return bounding radius
 
-        Note: This property function *WILL NOT* update the previously
+        This property function *WILL NOT* update the previously
         calculated value. If you add vertices to the object, you must call
         `payton.scene.geometry.Object.refresh` function to get radius
         and the whole object updated.
@@ -592,11 +597,11 @@ class Object(object):
         automatically effected. So, in every geometry or display mode
         change, a `build` call is necessary.
 
-        if `self.static` is `True`, then system assumes that another update
-        call is not expected, thus frees `_normals&#39;, `_textcoords`,
+        If `self.static` is `True`, then the system assumes that another update
+        call is not expected, thus frees `_normals`, `_textcoords`,
         `_vertices` and `_indices` lists to free memory.
-        So in this case, calling `build` function twice will result with
-        an invisible object (will not be drawn)
+        So in this case, calling `build` function twice will result in
+        an invisible object (will not be drawn).
 
         Returns:
           bool
@@ -757,8 +762,8 @@ class Mesh(Object):
     def scale(self, x: float, y: float, z: float) -&gt; None:
         &#34;&#34;&#34;Scale Mesh by given factors
 
-        Note: This does not create a scale matrix and multiply existing matrix
-              with it. Instead, it will scale the vertices by given factors.
+        This does not create a scale matrix and multiply existing matrix
+        with it. Instead, it will scale the vertices by given factors.
         &#34;&#34;&#34;
         self._vertices = list(
             map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
@@ -991,7 +996,7 @@ class Sphere(Mesh):
         Generate the sphere
 
         Returns:
-          bool
+          bool: `True` on successful creation of a `Sphere` object.
         &#34;&#34;&#34;
         r = self.radius
         # step angle is the rotational angle to build the sphere
@@ -1177,7 +1182,7 @@ class Line(Object):
         &#34;&#34;&#34;Append vertex or vertices to line.
 
         Args:
-          vertice: Vertex array of points.
+          vertices: Vertex array of points.
         &#34;&#34;&#34;
 
         diff = len(vertices)  # Number of vertices added
@@ -1223,7 +1228,7 @@ class Line(Object):
 class PointCloud(Object):
     &#34;&#34;&#34;Point cloud
 
-    Note: If you change the vertices, do not forget to do a `refresh` to take
+    If you change the vertices, do not forget to do a `refresh` to take
     effect.
 
     Example use case:
@@ -1253,6 +1258,9 @@ class PointCloud(Object):
 
     def track(self) -&gt; bool:
         &#34;&#34;&#34;Tracking point cloud is not possible at the moment
+
+        Returns:
+            bool: `False`. Tracking of point clouds not implemented.
         &#34;&#34;&#34;
         return False
 
@@ -1322,7 +1330,7 @@ class Plane(Mesh):
 <dl>
 <dt id="payton.scene.geometry.Cube"><code class="flex name class">
 <span>class <span class="ident">Cube</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span><small>ancestors:</small> <a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a>, <a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cube object</p>
@@ -1348,17 +1356,7 @@ for i in range(100):
     scene.add_object("cube_{}".format(i), cube)
 
 scene.run()
-</code></pre>
-<p>Initialize Cube</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>width</code></strong></dt>
-<dd>Width of the cube (size X)</dd>
-<dt><strong><code>depth</code></strong></dt>
-<dd>Depth of the cube (size Y)</dd>
-<dt><strong><code>height</code></strong></dt>
-<dd>Height of the cube (size Z)</dd>
-</dl></section>
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Cube(Mesh):
@@ -1493,11 +1491,146 @@ scene.run()
 
         return None</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a></li>
-<li><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></li>
-</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.geometry.Cube.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize Cube</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>width</code></strong></dt>
+<dd>Width of the cube (size X)</dd>
+<dt><strong><code>depth</code></strong></dt>
+<dd>Depth of the cube (size Y)</dd>
+<dt><strong><code>height</code></strong></dt>
+<dd>Height of the cube (size Z)</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, **args: Any) -&gt; None:
+    &#34;&#34;&#34;Initialize Cube
+
+    Args:
+      width: Width of the cube (size X)
+      depth: Depth of the cube (size Y)
+      height: Height of the cube (size Z)
+    &#34;&#34;&#34;
+    super().__init__(**args)
+    width = args.get(&#34;width&#34;, 1.0) * 0.5
+    depth = args.get(&#34;depth&#34;, 1.0) * 0.5
+    height = args.get(&#34;height&#34;, 1.0) * 0.5
+
+    self._vertices = [
+        [-width, -depth, height],
+        [width, -depth, height],
+        [-width, depth, height],
+        [width, depth, height],
+        [-width, depth, height],
+        [width, depth, height],
+        [-width, depth, -height],
+        [width, depth, -height],
+        [-width, depth, -height],
+        [width, depth, -height],
+        [-width, -depth, -height],
+        [width, -depth, -height],
+        [-width, -depth, -height],
+        [width, -depth, -height],
+        [-width, -depth, height],
+        [width, -depth, height],
+        [width, -depth, height],
+        [width, -depth, -height],
+        [width, depth, height],
+        [width, depth, height],
+        [width, depth, -height],
+        [-width, -depth, -height],
+        [-width, -depth, height],
+        [-width, depth, -height],
+        [-width, depth, -height],
+        [-width, -depth, height],
+        [-width, depth, height],
+    ]
+
+    self._normals = [
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, -1.0],
+        [0.0, 0.0, -1.0],
+        [0.0, 0.0, -1.0],
+        [0.0, 0.0, -1.0],
+        [0.0, -1.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0],
+    ]
+
+    self._texcoords = [
+        [0.0, 0.0],
+        [0.0, 1.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 0.0],
+        [0.0, 1.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 0.0],
+        [0.0, 1.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 0.0],
+        [0.0, 1.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 0.0],
+        [0.0, 1.0],
+        [1.0, 0.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 1.0],
+        [1.0, 1.0],
+        [0.0, 0.0],
+        [0.0, 0.0],
+        [1.0, 1.0],
+        [1.0, 0.0],
+    ]
+
+    self._indices = [
+        [0, 1, 2],
+        [2, 1, 3],
+        [4, 5, 6],
+        [6, 5, 7],
+        [8, 9, 10],
+        [10, 9, 11],
+        [12, 13, 14],
+        [14, 13, 15],
+        [16, 17, 18],
+        [19, 17, 20],
+        [21, 22, 23],
+        [24, 25, 26],
+    ]
+
+    return None</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a></b></code>:
@@ -1531,24 +1664,12 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.Cylinder"><code class="flex name class">
 <span>class <span class="ident">Cylinder</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span><small>ancestors:</small> <a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a>, <a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cylinder Object</p>
 <p>Beware of using high values for number of meridians. You might end up with
-excessive number of vertices to render.</p>
-<p>Iniitalize the cylinder</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>bottom_radius</code></strong></dt>
-<dd>Radius at the bottom of the cylinder</dd>
-<dt><strong><code>top_radius</code></strong></dt>
-<dd>Radius at the top of the cylinder</dd>
-<dt><strong><code>meridians</code></strong></dt>
-<dd>Number of meridians/edges (as in geography)</dd>
-<dt><strong><code>height</code></strong></dt>
-<dd>Height of the cylinder</dd>
-</dl></section>
+excessive number of vertices to render.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Cylinder(Mesh):
@@ -1625,13 +1746,43 @@ excessive number of vertices to render.</p>
         self.fix_normals()
         return True</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a></li>
-<li><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></li>
-</ul>
 <h3>Methods</h3>
 <dl>
+<dt id="payton.scene.geometry.Cylinder.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Iniitalize the cylinder</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bottom_radius</code></strong></dt>
+<dd>Radius at the bottom of the cylinder</dd>
+<dt><strong><code>top_radius</code></strong></dt>
+<dd>Radius at the top of the cylinder</dd>
+<dt><strong><code>meridians</code></strong></dt>
+<dd>Number of meridians/edges (as in geography)</dd>
+<dt><strong><code>height</code></strong></dt>
+<dd>Height of the cylinder</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, **args: Any) -&gt; None:
+    &#34;&#34;&#34;Iniitalize the cylinder
+
+    Args:
+      bottom_radius: Radius at the bottom of the cylinder
+      top_radius: Radius at the top of the cylinder
+      meridians: Number of meridians/edges (as in geography)
+      height: Height of the cylinder
+    &#34;&#34;&#34;
+    super().__init__(**args)
+    self._bottom_radius: float = args.get(&#34;bottom_radius&#34;, 0.5)
+    self._top_radius: float = args.get(&#34;top_radius&#34;, 0.5)
+    self._meridians: int = args.get(&#34;meridians&#34;, 12)
+    self._height: float = args.get(&#34;height&#34;, 1.0)
+    self.build_cylinder()</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.geometry.Cylinder.build_cylinder"><code class="name flex">
 <span>def <span class="ident">build_cylinder</span></span>(<span>self)</span>
 </code></dt>
@@ -1725,42 +1876,10 @@ excessive number of vertices to render.</p>
 </dd>
 <dt id="payton.scene.geometry.Line"><code class="flex name class">
 <span>class <span class="ident">Line</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span><small>ancestors:</small> <a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Line object</p>
-<p>Iniitalize line</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>vertices</code></strong></dt>
-<dd>Vertices array for list of points.</dd>
-<dt><strong><code>color</code></strong></dt>
-<dd>Color of the line</dd>
-</dl>
-<p>Example use case:</p>
-<pre><code>from payton.scene import Scene
-from payton.scene.geometry import Line
-
-
-scene = Scene()
-
-line = Line(
-    vertices=[
-        [0, 0, 0],
-        [0, 0, 1],
-        [0.5, 0, 1.5],
-        [1, 0, 1],
-        [0, 0, 1],
-        [1, 0, 0],
-        [0, 0, 0],
-        [1, 0, 1],
-        [1, 0, 0],
-    ]
-)
-
-scene.add_object("line", line)
-scene.run()
-</code></pre></section>
+<section class="desc"><p>Line object</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Line(Object):
@@ -1794,7 +1913,7 @@ scene.run()
         &#34;&#34;&#34;Append vertex or vertices to line.
 
         Args:
-          vertice: Vertex array of points.
+          vertices: Vertex array of points.
         &#34;&#34;&#34;
 
         diff = len(vertices)  # Number of vertices added
@@ -1836,12 +1955,66 @@ scene.run()
             # idea so we just update the buffer here.
             self.build()</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></li>
-</ul>
 <h3>Methods</h3>
 <dl>
+<dt id="payton.scene.geometry.Line.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Iniitalize line</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>vertices</code></strong></dt>
+<dd>Vertices array for list of points.</dd>
+<dt><strong><code>color</code></strong></dt>
+<dd>Color of the line</dd>
+</dl>
+<p>Example use case:</p>
+<pre><code>from payton.scene import Scene
+from payton.scene.geometry import Line
+
+
+scene = Scene()
+
+line = Line(
+    vertices=[
+        [0, 0, 0],
+        [0, 0, 1],
+        [0.5, 0, 1.5],
+        [1, 0, 1],
+        [0, 0, 1],
+        [1, 0, 0],
+        [0, 0, 0],
+        [1, 0, 1],
+        [1, 0, 0],
+    ]
+)
+
+scene.add_object("line", line)
+scene.run()
+</code></pre></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, **args: Any) -&gt; None:
+    &#34;&#34;&#34;Iniitalize line
+
+    Args:
+      vertices: Vertices array for list of points.
+      color: Color of the line
+
+    Example use case:
+
+        .. include:: ../../examples/basics/17_line.py
+    &#34;&#34;&#34;
+    super().__init__(**args)
+    self._vertices: VList = args.get(&#34;vertices&#34;, [])
+    self.material.color = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
+
+    self.static: bool = False  # Do not clear the vertices each time.
+    self.material.display = WIREFRAME
+    self.build_lines()</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.geometry.Line.append"><code class="name flex">
 <span>def <span class="ident">append</span></span>(<span>self, vertices)</span>
 </code></dt>
@@ -1849,7 +2022,7 @@ scene.run()
 <section class="desc"><p>Append vertex or vertices to line.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>vertice</code></strong></dt>
+<dt><strong><code>vertices</code></strong></dt>
 <dd>Vertex array of points.</dd>
 </dl></section>
 <details class="source">
@@ -1858,7 +2031,7 @@ scene.run()
     &#34;&#34;&#34;Append vertex or vertices to line.
 
     Args:
-      vertice: Vertex array of points.
+      vertices: Vertex array of points.
     &#34;&#34;&#34;
 
     diff = len(vertices)  # Number of vertices added
@@ -1951,7 +2124,7 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.Mesh"><code class="flex name class">
 <span>class <span class="ident">Mesh</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span><small>ancestors:</small> <a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Mesh Object</p>
@@ -1980,45 +2153,7 @@ texture_file = os.path.join(os.path.dirname(__file__), "cube.png")
 mesh.material.texture = texture_file
 scene.add_object("mesh", mesh)
 scene.run()
-</code></pre>
-<p>Initialize the basic object properties.</p>
-<h2 id="properties">Properties</h2>
-<dl>
-<dt><strong><code>children</code></strong></dt>
-<dd>Children hash for object. Each child object follows parent
-object. They take their parent object as origin and their
-coordinate system is relative to their parent. This
-behaviour resembles stars, planets and their moons.</dd>
-<dt><strong><code>material</code></strong></dt>
-<dd>Material definitions of the object.</dd>
-<dt><strong><code>matrix</code></strong></dt>
-<dd>Matrix definition of the object. This is a 4x4 Uniform Matrix
-But data is set as an array for easier transformations. First
-4 decimals are "Left" vector, Second 4 are "Direction", Third
-4 are "Up" and last four decimals are "Position" vectors.</dd>
-</dl>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>track_motion</code></strong></dt>
-<dd>Track object motion (default: false). Object tracking
-is time independent. It just saves the object matrix
-for every change. Uses matrix position for drawing the
-motion path.</dd>
-<dt><strong><code>static</code></strong></dt>
-<dd>(Default <code>True</code>) Indicates if object geometry is expected
-to be changed in the future. If object is not static, then
-its' vertex buffer object references and vertex informations
-will not be deleted to be used for future reference.</dd>
-<dt><strong><code>name</code></strong></dt>
-<dd>Name of the object (optional, default '') Note that, when
-object gets added to a Scene with a name, Scene will assign
-that name to the object, overwriting any existing name of the
-object.</dd>
-<dt><strong><code>visible</code></strong></dt>
-<dd>Is this object visible at the scene, default: True. To hid
-an object, you can call <code>object.hide()</code> and to show it again
-use: <code>object.show()</code></dd>
-</dl></section>
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Mesh(Object):
@@ -2067,8 +2202,8 @@ use: <code>object.show()</code></dd>
     def scale(self, x: float, y: float, z: float) -&gt; None:
         &#34;&#34;&#34;Scale Mesh by given factors
 
-        Note: This does not create a scale matrix and multiply existing matrix
-              with it. Instead, it will scale the vertices by given factors.
+        This does not create a scale matrix and multiply existing matrix
+        with it. Instead, it will scale the vertices by given factors.
         &#34;&#34;&#34;
         self._vertices = list(
             map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
@@ -2127,10 +2262,6 @@ use: <code>object.show()</code></dd>
             self._texcoords.append(t)
         self.refresh()</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></li>
-</ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="payton.scene.geometry.Cube" href="#payton.scene.geometry.Cube">Cube</a></li>
@@ -2259,15 +2390,15 @@ normals, do not call this method</p></section>
 </code></dt>
 <dd>
 <section class="desc"><p>Scale Mesh by given factors</p>
-<p>Note: This does not create a scale matrix and multiply existing matrix
+<p>This does not create a scale matrix and multiply existing matrix
 with it. Instead, it will scale the vertices by given factors.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def scale(self, x: float, y: float, z: float) -&gt; None:
     &#34;&#34;&#34;Scale Mesh by given factors
 
-    Note: This does not create a scale matrix and multiply existing matrix
-          with it. Instead, it will scale the vertices by given factors.
+    This does not create a scale matrix and multiply existing matrix
+    with it. Instead, it will scale the vertices by given factors.
     &#34;&#34;&#34;
     self._vertices = list(
         map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
@@ -2281,6 +2412,7 @@ with it. Instead, it will scale the vertices by given factors.</p></section>
 <ul class="hlist">
 <li><code><b><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></b></code>:
 <ul class="hlist">
+<li><code><a title="payton.scene.geometry.Object.__init__" href="#payton.scene.geometry.Object.__init__">__init__</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.absolute_vertices" href="#payton.scene.geometry.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.add_child" href="#payton.scene.geometry.Object.add_child">add_child</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.bounding_radius" href="#payton.scene.geometry.Object.bounding_radius">bounding_radius</a></code></li>
@@ -2306,15 +2438,14 @@ with it. Instead, it will scale the vertices by given factors.</p></section>
 </dd>
 <dt id="payton.scene.geometry.Object"><code class="flex name class">
 <span>class <span class="ident">Object</span></span>
-<span>(</span><span>**args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Main Payton Object.</p>
 <p>This is an abstract class to define common properties and methods between
-Mesh / Cube / Sphere/ Shape2D / PointCloud and etc.</p>
+Mesh / Cube / Sphere/ Shape2D / PointCloud, etc.</p>
 <p>Objects are not actually built as 3D vertex arrays until they are rendered.
 Render function calls <code>build</code> function if needed. Build function creates
-the OpenGL Vertex Array Object. VAO is a static data so, once the object
+the OpenGL Vertex Array Object. VAO is static data so, once the object
 is built, changing vertices or indices will not take effect at the scene.</p>
 <p>You need to call <a title="payton.scene.geometry.Object.build" href="#payton.scene.geometry.Object.build"><code>Object.build()</code></a> function to refresh
 Vertex Array Object.</p>
@@ -2322,58 +2453,20 @@ Vertex Array Object.</p>
 added to the object, OpenGL needs to re-create the buffer area. This is
 not an efficitient technique if number of vertices increase in time.
 As a result Payton allocates buffer for 500 vertices in the beginning and
-uses a part of it. If object exceeds 500 vertices, a new buffer is created
-with 500 more vertices, copies existing vertices to new and old buffer
-is deleted.</p>
-<p>Initialize the basic object properties.</p>
-<h2 id="properties">Properties</h2>
-<dl>
-<dt><strong><code>children</code></strong></dt>
-<dd>Children hash for object. Each child object follows parent
-object. They take their parent object as origin and their
-coordinate system is relative to their parent. This
-behaviour resembles stars, planets and their moons.</dd>
-<dt><strong><code>material</code></strong></dt>
-<dd>Material definitions of the object.</dd>
-<dt><strong><code>matrix</code></strong></dt>
-<dd>Matrix definition of the object. This is a 4x4 Uniform Matrix
-But data is set as an array for easier transformations. First
-4 decimals are "Left" vector, Second 4 are "Direction", Third
-4 are "Up" and last four decimals are "Position" vectors.</dd>
-</dl>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>track_motion</code></strong></dt>
-<dd>Track object motion (default: false). Object tracking
-is time independent. It just saves the object matrix
-for every change. Uses matrix position for drawing the
-motion path.</dd>
-<dt><strong><code>static</code></strong></dt>
-<dd>(Default <code>True</code>) Indicates if object geometry is expected
-to be changed in the future. If object is not static, then
-its' vertex buffer object references and vertex informations
-will not be deleted to be used for future reference.</dd>
-<dt><strong><code>name</code></strong></dt>
-<dd>Name of the object (optional, default '') Note that, when
-object gets added to a Scene with a name, Scene will assign
-that name to the object, overwriting any existing name of the
-object.</dd>
-<dt><strong><code>visible</code></strong></dt>
-<dd>Is this object visible at the scene, default: True. To hid
-an object, you can call <code>object.hide()</code> and to show it again
-use: <code>object.show()</code></dd>
-</dl></section>
+uses part of it. If the object exceeds 500 vertices, a new buffer is created
+with 500 vertices more, copies existing vertices to the new buffer and the
+old buffer is deleted.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Object(object):
     &#34;&#34;&#34;Main Payton Object.
 
     This is an abstract class to define common properties and methods between
-    Mesh / Cube / Sphere/ Shape2D / PointCloud and etc.
+    Mesh / Cube / Sphere/ Shape2D / PointCloud, etc.
 
     Objects are not actually built as 3D vertex arrays until they are rendered.
     Render function calls `build` function if needed. Build function creates
-    the OpenGL Vertex Array Object. VAO is a static data so, once the object
+    the OpenGL Vertex Array Object. VAO is static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
 
     You need to call `payton.scene.geometry.Object.build` function to refresh
@@ -2383,9 +2476,9 @@ use: <code>object.show()</code></dd>
     added to the object, OpenGL needs to re-create the buffer area. This is
     not an efficitient technique if number of vertices increase in time.
     As a result Payton allocates buffer for 500 vertices in the beginning and
-    uses a part of it. If object exceeds 500 vertices, a new buffer is created
-    with 500 more vertices, copies existing vertices to new and old buffer
-    is deleted.
+    uses part of it. If the object exceeds 500 vertices, a new buffer is created
+    with 500 vertices more, copies existing vertices to the new buffer and the
+    old buffer is deleted.
 
     &#34;&#34;&#34;
 
@@ -2400,8 +2493,8 @@ use: <code>object.show()</code></dd>
                     behaviour resembles stars, planets and their moons.
           material: Material definitions of the object.
           matrix: Matrix definition of the object. This is a 4x4 Uniform Matrix
-                  But data is set as an array for easier transformations. First
-                  4 decimals are &#34;Left&#34; vector, Second 4 are &#34;Direction&#34;, Third
+                  but data is set as an array for easier transformations. First
+                  4 decimals are &#34;Left&#34; vector, second 4 are &#34;Direction&#34;, third
                   4 are &#34;Up&#34; and last four decimals are &#34;Position&#34; vectors.
 
         Args:
@@ -2417,7 +2510,7 @@ use: <code>object.show()</code></dd>
                 object gets added to a Scene with a name, Scene will assign
                 that name to the object, overwriting any existing name of the
                 object.
-          visible: Is this object visible at the scene, default: True. To hid
+          visible: Is this object visible at the scene, default: `True`. To hide
                    an object, you can call `object.hide()` and to show it again
                    use: `object.show()`
         &#34;&#34;&#34;
@@ -2537,7 +2630,7 @@ use: <code>object.show()</code></dd>
     def select(self, start: np.ndarray, vector: np.ndarray) -&gt; bool:
         &#34;&#34;&#34;Select test for object using bounding Sphere.
 
-        Note: this method is not 100% accurate as it is based on a rough
+        This method is not 100% accurate as it is based on a rough
         assumption. Sphere area will be larger than actual object.
 
         If you want to have a more accurate way to handle this, try
@@ -2545,8 +2638,8 @@ use: <code>object.show()</code></dd>
 
         Args:
           start: Starting point of the ray (such as eye position)
-          vector: Ray direction. This is not the end point of a line! This is
-        a unit vector showing the ray direction.
+          vector: Ray direction. This is not the end point of a line!
+                  This is a unit vector showing the ray direction.
         &#34;&#34;&#34;
         self._selected = raycast_sphere_intersect(
             start,
@@ -2564,9 +2657,10 @@ use: <code>object.show()</code></dd>
 
     def destroy(self) -&gt; bool:
         &#34;&#34;&#34;
-        Destroy objects self
+        Destroy objects self.
 
-        Returns: bool
+        Returns:
+            bool: `True` on successful destroy of `self`.
         &#34;&#34;&#34;
         if self.has_vao:
             glDeleteVertexArrays(1, [self._vao])
@@ -2596,7 +2690,7 @@ use: <code>object.show()</code></dd>
         Track object motion
 
         Returns:
-          bool
+            bool: `True` on successful tracking of `self`.
         &#34;&#34;&#34;
         if not self.track_motion:
             return False
@@ -2620,13 +2714,17 @@ use: <code>object.show()</code></dd>
         &#34;&#34;&#34;Check if this object has an active Vertex Array Object
 
         Returns:
-            bool
+            bool: `True` if `self` has an active Vertex Array Object.
         &#34;&#34;&#34;
         return self._vao &gt; -1
 
     @property
     def visible(self) -&gt; bool:
-        &#34;&#34;&#34;Check if object is visible&#34;&#34;&#34;
+        &#34;&#34;&#34;Check if object is visible
+
+        Returns:
+          bool: `True` if visible.
+        &#34;&#34;&#34;
         return self._visible
 
     def show(self) -&gt; None:
@@ -2840,7 +2938,7 @@ use: <code>object.show()</code></dd>
     def bounding_radius(self) -&gt; float:
         &#34;&#34;&#34;Return bounding radius
 
-        Note: This property function *WILL NOT* update the previously
+        This property function *WILL NOT* update the previously
         calculated value. If you add vertices to the object, you must call
         `payton.scene.geometry.Object.refresh` function to get radius
         and the whole object updated.
@@ -2863,11 +2961,11 @@ use: <code>object.show()</code></dd>
         automatically effected. So, in every geometry or display mode
         change, a `build` call is necessary.
 
-        if `self.static` is `True`, then system assumes that another update
-        call is not expected, thus frees `_normals&#39;, `_textcoords`,
+        If `self.static` is `True`, then the system assumes that another update
+        call is not expected, thus frees `_normals`, `_textcoords`,
         `_vertices` and `_indices` lists to free memory.
-        So in this case, calling `build` function twice will result with
-        an invisible object (will not be drawn)
+        So in this case, calling `build` function twice will result in
+        an invisible object (will not be drawn).
 
         Returns:
           bool
@@ -2993,22 +3091,19 @@ use: <code>object.show()</code></dd>
 <dt id="payton.scene.geometry.Object.bounding_radius"><code class="name">var <span class="ident">bounding_radius</span></code></dt>
 <dd>
 <section class="desc"><p>Return bounding radius</p>
-<p>Note: This property function <em>WILL NOT</em> update the previously
+<p>This property function <em>WILL NOT</em> update the previously
 calculated value. If you add vertices to the object, you must call
 <a title="payton.scene.geometry.Object.refresh" href="#payton.scene.geometry.Object.refresh"><code>Object.refresh()</code></a> function to get radius
 and the whole object updated.</p>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>float</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<p>float</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
 def bounding_radius(self) -&gt; float:
     &#34;&#34;&#34;Return bounding radius
 
-    Note: This property function *WILL NOT* update the previously
+    This property function *WILL NOT* update the previously
     calculated value. If you add vertices to the object, you must call
     `payton.scene.geometry.Object.refresh` function to get radius
     and the whole object updated.
@@ -3027,8 +3122,8 @@ def bounding_radius(self) -&gt; float:
 <section class="desc"><p>Check if this object has an active Vertex Array Object</p>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>bool</code></dt>
-<dd>&nbsp;</dd>
+<dt><strong><code>bool</code></strong></dt>
+<dd><code>True</code> if <code>self</code> has an active Vertex Array Object.</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
@@ -3037,7 +3132,7 @@ def has_vao(self) -&gt; bool:
     &#34;&#34;&#34;Check if this object has an active Vertex Array Object
 
     Returns:
-        bool
+        bool: `True` if `self` has an active Vertex Array Object.
     &#34;&#34;&#34;
     return self._vao &gt; -1</code></pre>
 </details>
@@ -3047,10 +3142,7 @@ def has_vao(self) -&gt; bool:
 <section class="desc"><p>Get position of the Object.</p>
 <p>Return matrix position list</p>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>List</code>[<code>float</code>]</dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<p>List[float]</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
@@ -3067,18 +3159,173 @@ def position(self) -&gt; List[float]:
 </dd>
 <dt id="payton.scene.geometry.Object.visible"><code class="name">var <span class="ident">visible</span></code></dt>
 <dd>
-<section class="desc"><p>Check if object is visible</p></section>
+<section class="desc"><p>Check if object is visible</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>bool</code></strong></dt>
+<dd><code>True</code> if visible.</dd>
+</dl></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
 def visible(self) -&gt; bool:
-    &#34;&#34;&#34;Check if object is visible&#34;&#34;&#34;
+    &#34;&#34;&#34;Check if object is visible
+
+    Returns:
+      bool: `True` if visible.
+    &#34;&#34;&#34;
     return self._visible</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="payton.scene.geometry.Object.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize the basic object properties.</p>
+<h2 id="properties">Properties</h2>
+<dl>
+<dt><strong><code>children</code></strong></dt>
+<dd>Children hash for object. Each child object follows parent
+object. They take their parent object as origin and their
+coordinate system is relative to their parent. This
+behaviour resembles stars, planets and their moons.</dd>
+<dt><strong><code>material</code></strong></dt>
+<dd>Material definitions of the object.</dd>
+<dt><strong><code>matrix</code></strong></dt>
+<dd>Matrix definition of the object. This is a 4x4 Uniform Matrix
+but data is set as an array for easier transformations. First
+4 decimals are "Left" vector, second 4 are "Direction", third
+4 are "Up" and last four decimals are "Position" vectors.</dd>
+</dl>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>track_motion</code></strong></dt>
+<dd>Track object motion (default: false). Object tracking
+is time independent. It just saves the object matrix
+for every change. Uses matrix position for drawing the
+motion path.</dd>
+<dt><strong><code>static</code></strong></dt>
+<dd>(Default <code>True</code>) Indicates if object geometry is expected
+to be changed in the future. If object is not static, then
+its' vertex buffer object references and vertex informations
+will not be deleted to be used for future reference.</dd>
+<dt><strong><code>name</code></strong></dt>
+<dd>Name of the object (optional, default '') Note that, when
+object gets added to a Scene with a name, Scene will assign
+that name to the object, overwriting any existing name of the
+object.</dd>
+<dt><strong><code>visible</code></strong></dt>
+<dd>Is this object visible at the scene, default: <code>True</code>. To hide
+an object, you can call <code>object.hide()</code> and to show it again
+use: <code>object.show()</code></dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, **args: Any) -&gt; None:
+    &#34;&#34;&#34;
+    Initialize the basic object properties.
+
+    Properties:
+      children: Children hash for object. Each child object follows parent
+                object. They take their parent object as origin and their
+                coordinate system is relative to their parent. This
+                behaviour resembles stars, planets and their moons.
+      material: Material definitions of the object.
+      matrix: Matrix definition of the object. This is a 4x4 Uniform Matrix
+              but data is set as an array for easier transformations. First
+              4 decimals are &#34;Left&#34; vector, second 4 are &#34;Direction&#34;, third
+              4 are &#34;Up&#34; and last four decimals are &#34;Position&#34; vectors.
+
+    Args:
+      track_motion: Track object motion (default: false). Object tracking
+                    is time independent. It just saves the object matrix
+                    for every change. Uses matrix position for drawing the
+                    motion path.
+      static: (Default `True`) Indicates if object geometry is expected
+              to be changed in the future. If object is not static, then
+              its&#39; vertex buffer object references and vertex informations
+              will not be deleted to be used for future reference.
+      name: Name of the object (optional, default &#39;&#39;) Note that, when
+            object gets added to a Scene with a name, Scene will assign
+            that name to the object, overwriting any existing name of the
+            object.
+      visible: Is this object visible at the scene, default: `True`. To hide
+               an object, you can call `object.hide()` and to show it again
+               use: `object.show()`
+    &#34;&#34;&#34;
+    self.children: Dict[str, Object] = {}
+    self.material: Material = Material()
+    self.static = args.get(&#34;static&#34;, True)
+    self.name = args.get(&#34;name&#34;, &#34;&#34;)
+    self._visible = args.get(&#34;visible&#34;, True)
+    self.matrix: VList = [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ]
+    # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
+    # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
+    #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
+
+    self._vertices: VList = []  # Object vertex list
+    self._normals: List[
+        List[float]
+    ] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
+    self._texcoords: List[
+        List[float]
+    ] = []  # Texture coordinates, 1 coordinate per Vertex
+    self._vertex_colors: List[
+        List[float]
+    ] = []  # per-vertex colors, optional.
+    self._has_vertex_colors: bool = False  # flag for using vertex colors
+
+    # Vertices do not mean anything unless we define how to use them.
+    # For instance, 3 vertices make a triangle or 2 vertices define a line
+    # order of vertices are defined in self._indices.
+    self._indices: IList = []
+    self._vertex_count: int = 0  # Number of vertices to report to OpenGL.
+
+    # This is an optimization technique for dynamic objects where there are
+    # increasing number of vertices. We allocate some buffer before-hand
+    # and if we fill all of it, we resize it.
+    self._buffer_size: float = 500 * 12
+    self._t_buffer_size: float = 500 * 8
+    self._model_matrix: np.ndarray = []  # Model matrix.
+    # Check if buffer size allocated for the object has changed.
+    self._buffer_size_changed: bool = True
+    self._t_buffer_size_changed: bool = True
+
+    # Track object motion
+    self.track_motion = args.get(&#34;track_motion&#34;, False)
+    # Motion path, stores every matrix change.
+    self._motion_path: List[VList] = []
+    if not isinstance(self, Line):
+        # _motion_path_line is used to display the motion path in scene
+        self._motion_path_line = Line()
+    self._previous_matrix: Union[np.ndarray, None] = None
+
+    # For raycast tests - bounding radius is the radius of the bounding
+    # sphere.
+    self._bounding_radius: float = 0
+    self._bounding_box: VList = []
+    self._selected: bool = False
+
+    # Vertex Array Object pointer
+    self._vao: int = -1
+    self._needs_update: bool = False  # Object geometry has changed.
+    self._hit: bool = False
+    &#34;&#34;&#34; I personally prefer not to delete vbos as in some cases I need to
+    # refer to VBOs to update them partially. I don&#39;t want to loose
+    # their reference and make things harder. I am not naming them
+    # anyways.
+    &#34;&#34;&#34;
+    self._vbos: List[int] = []</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.geometry.Object.absolute_vertices"><code class="name flex">
 <span>def <span class="ident">absolute_vertices</span></span>(<span>self)</span>
 </code></dt>
@@ -3089,10 +3336,7 @@ always stand (follow) relative to A. If you want to know the exact
 world coordinates of all vertices in B, this method will return them.</p>
 <p><strong>Important!</strong> This is a costly operation so use with caution!</p>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>map</code>(<code>List</code>[<code>List</code>[<code>float</code>]])</dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<p>map(List[List[float]])</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def absolute_vertices(self) -&gt; Iterator[List[float]]:
@@ -3210,15 +3454,13 @@ exists in the first render cycle. Once the vba is built,
 geometry changes or material display mode changes will not be
 automatically effected. So, in every geometry or display mode
 change, a <code>build</code> call is necessary.</p>
-<p>if <code>self.static</code> is <code>True</code>, then system assumes that another update
-call is not expected, thus frees <code>_normals',</code>_textcoords<code>,</code>_vertices<code>and</code>_indices<code>lists to free memory.
-So in this case, calling</code>build` function twice will result with
-an invisible object (will not be drawn)</p>
+<p>If <code>self.static</code> is <code>True</code>, then the system assumes that another update
+call is not expected, thus frees <code>_normals</code>, <code>_textcoords</code>,
+<code>_vertices</code> and <code>_indices</code> lists to free memory.
+So in this case, calling <code>build</code> function twice will result in
+an invisible object (will not be drawn).</p>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>bool</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<p>bool</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def build(self) -&gt; bool:
@@ -3231,11 +3473,11 @@ an invisible object (will not be drawn)</p>
     automatically effected. So, in every geometry or display mode
     change, a `build` call is necessary.
 
-    if `self.static` is `True`, then system assumes that another update
-    call is not expected, thus frees `_normals&#39;, `_textcoords`,
+    If `self.static` is `True`, then the system assumes that another update
+    call is not expected, thus frees `_normals`, `_textcoords`,
     `_vertices` and `_indices` lists to free memory.
-    So in this case, calling `build` function twice will result with
-    an invisible object (will not be drawn)
+    So in this case, calling `build` function twice will result in
+    an invisible object (will not be drawn).
 
     Returns:
       bool
@@ -3354,15 +3596,20 @@ an invisible object (will not be drawn)</p>
 <span>def <span class="ident">destroy</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Destroy objects self</p>
-<p>Returns: bool</p></section>
+<section class="desc"><p>Destroy objects self.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>bool</code></strong></dt>
+<dd><code>True</code> on successful destroy of <code>self</code>.</dd>
+</dl></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def destroy(self) -&gt; bool:
     &#34;&#34;&#34;
-    Destroy objects self
+    Destroy objects self.
 
-    Returns: bool
+    Returns:
+        bool: `True` on successful destroy of `self`.
     &#34;&#34;&#34;
     if self.has_vao:
         glDeleteVertexArrays(1, [self._vao])
@@ -3558,7 +3805,7 @@ to its parent object.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Select test for object using bounding Sphere.</p>
-<p>Note: this method is not 100% accurate as it is based on a rough
+<p>This method is not 100% accurate as it is based on a rough
 assumption. Sphere area will be larger than actual object.</p>
 <p>If you want to have a more accurate way to handle this, try
 using raycast triangle intersect</p>
@@ -3567,15 +3814,15 @@ using raycast triangle intersect</p>
 <dt><strong><code>start</code></strong></dt>
 <dd>Starting point of the ray (such as eye position)</dd>
 <dt><strong><code>vector</code></strong></dt>
-<dd>Ray direction. This is not the end point of a line! This is</dd>
-</dl>
-<p>a unit vector showing the ray direction.</p></section>
+<dd>Ray direction. This is not the end point of a line!
+This is a unit vector showing the ray direction.</dd>
+</dl></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def select(self, start: np.ndarray, vector: np.ndarray) -&gt; bool:
     &#34;&#34;&#34;Select test for object using bounding Sphere.
 
-    Note: this method is not 100% accurate as it is based on a rough
+    This method is not 100% accurate as it is based on a rough
     assumption. Sphere area will be larger than actual object.
 
     If you want to have a more accurate way to handle this, try
@@ -3583,8 +3830,8 @@ using raycast triangle intersect</p>
 
     Args:
       start: Starting point of the ray (such as eye position)
-      vector: Ray direction. This is not the end point of a line! This is
-    a unit vector showing the ray direction.
+      vector: Ray direction. This is not the end point of a line!
+              This is a unit vector showing the ray direction.
     &#34;&#34;&#34;
     self._selected = raycast_sphere_intersect(
         start,
@@ -3624,10 +3871,7 @@ space.</p>
 <dd>List[float] (x, y, z)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>List</code>[<code>float</code>] (<code>x'</code>, <code>y'</code>, <code>z'</code>)</dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<p>List[float] (x', y', z')</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def to_absolute(self, coordinates: List[float]) -&gt; List[float]:
@@ -3669,8 +3913,8 @@ space.</p>
 <section class="desc"><p>Track object motion</p>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>bool</code></dt>
-<dd>&nbsp;</dd>
+<dt><strong><code>bool</code></strong></dt>
+<dd><code>True</code> on successful tracking of <code>self</code>.</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
@@ -3679,7 +3923,7 @@ space.</p>
     Track object motion
 
     Returns:
-      bool
+        bool: `True` on successful tracking of `self`.
     &#34;&#34;&#34;
     if not self.track_motion:
         return False
@@ -3759,7 +4003,7 @@ space.</p>
 </dd>
 <dt id="payton.scene.geometry.Plane"><code class="flex name class">
 <span>class <span class="ident">Plane</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span><small>ancestors:</small> <a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a>, <a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Plane object</p>
@@ -3774,15 +4018,7 @@ scene = Scene()
 plane = Plane(width=2, height=2)
 scene.add_object("plane", plane)
 scene.run()
-</code></pre>
-<p>Initialize plane</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>width</code></strong></dt>
-<dd>Width of the plane</dd>
-<dt><strong><code>height</code></strong></dt>
-<dd>Height of the plane</dd>
-</dl></section>
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Plane(Mesh):
@@ -3816,11 +4052,44 @@ scene.run()
         self._texcoords = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
         self._indices = [[0, 1, 2], [0, 2, 3]]</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a></li>
-<li><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></li>
-</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.geometry.Plane.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize plane</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>width</code></strong></dt>
+<dd>Width of the plane</dd>
+<dt><strong><code>height</code></strong></dt>
+<dd>Height of the plane</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, **args: Any) -&gt; None:
+    &#34;&#34;&#34;Initialize plane
+
+    Args:
+      width: Width of the plane
+      height: Height of the plane
+    &#34;&#34;&#34;
+    super().__init__(**args)
+    width = args.get(&#34;width&#34;, 1.0) * 0.5
+    height = args.get(&#34;height&#34;, 1.0) * 0.5
+    self._vertices = [
+        [-width, -height, 0],
+        [width, -height, 0],
+        [width, height, 0],
+        [-width, height, 0],
+    ]
+    self._normals = [[0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]]
+    self._texcoords = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+    self._indices = [[0, 1, 2], [0, 2, 3]]</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a></b></code>:
@@ -3854,11 +4123,11 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.PointCloud"><code class="flex name class">
 <span>class <span class="ident">PointCloud</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span><small>ancestors:</small> <a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Point cloud</p>
-<p>Note: If you change the vertices, do not forget to do a <code>refresh</code> to take
+<p>If you change the vertices, do not forget to do a <code>refresh</code> to take
 effect.</p>
 <p>Example use case:</p>
 <pre><code>import random
@@ -3896,21 +4165,13 @@ scene.add_object("pc", pc)
 scene.create_clock("generate", 0.001, generate)
 
 scene.run()
-</code></pre>
-<p>Initialize Point Cloud</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>vertices</code></strong></dt>
-<dd>List of point vertices</dd>
-<dt><strong><code>colors</code></strong></dt>
-<dd>List of colors per vertex, follows the same index as vertices</dd>
-</dl></section>
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class PointCloud(Object):
     &#34;&#34;&#34;Point cloud
 
-    Note: If you change the vertices, do not forget to do a `refresh` to take
+    If you change the vertices, do not forget to do a `refresh` to take
     effect.
 
     Example use case:
@@ -3940,6 +4201,9 @@ scene.run()
 
     def track(self) -&gt; bool:
         &#34;&#34;&#34;Tracking point cloud is not possible at the moment
+
+        Returns:
+            bool: `False`. Tracking of point clouds not implemented.
         &#34;&#34;&#34;
         return False
 
@@ -3965,12 +4229,39 @@ scene.run()
 
         self._needs_update = True</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></li>
-</ul>
 <h3>Methods</h3>
 <dl>
+<dt id="payton.scene.geometry.PointCloud.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize Point Cloud</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>vertices</code></strong></dt>
+<dd>List of point vertices</dd>
+<dt><strong><code>colors</code></strong></dt>
+<dd>List of colors per vertex, follows the same index as vertices</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, **args: Any) -&gt; None:
+    &#34;&#34;&#34;Initialize Point Cloud
+
+    Args:
+      vertices: List of point vertices
+      colors: List of colors per vertex, follows the same index as vertices
+    &#34;&#34;&#34;
+    super().__init__(**args)
+    self._vertices: VList = args.get(&#34;vertices&#34;, [])
+    # Expose vertices by reference for modification
+    self.vertices: VList = self._vertices
+    self._vertex_colors: VList = args.get(&#34;colors&#34;, [])
+    self._vertex_history: VList = []
+    self.material.display = POINTS
+    self.static: bool = False</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.geometry.PointCloud.add"><code class="name flex">
 <span>def <span class="ident">add</span></span>(<span>self, vertices, colors=None)</span>
 </code></dt>
@@ -4024,11 +4315,19 @@ scene.run()
 <span>def <span class="ident">track</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Tracking point cloud is not possible at the moment</p></section>
+<section class="desc"><p>Tracking point cloud is not possible at the moment</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>bool</code></strong></dt>
+<dd><code>False</code>. Tracking of point clouds not implemented.</dd>
+</dl></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def track(self) -&gt; bool:
     &#34;&#34;&#34;Tracking point cloud is not possible at the moment
+
+    Returns:
+        bool: `False`. Tracking of point clouds not implemented.
     &#34;&#34;&#34;
     return False</code></pre>
 </details>
@@ -4061,7 +4360,7 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.Sphere"><code class="flex name class">
 <span>class <span class="ident">Sphere</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span><small>ancestors:</small> <a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a>, <a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Sphere object.</p>
@@ -4120,18 +4419,7 @@ space.add_object("nucleus", nucleus)
 space.create_clock("motion", 0.01, motion)
 print("Hit SPACE to continue animation")
 space.run()
-</code></pre>
-<p>Initialize the sphere</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>radius</code></strong></dt>
-<dd>Radius of the sphere (default: 0.5, making it a unit sphere)</dd>
-<dt><strong><code>parallels</code></strong></dt>
-<dd>Number of parallels (as in geography). (default: 12, 30
-degrees of arcs)</dd>
-<dt><strong><code>meridians</code></strong></dt>
-<dd>Number of meridians (as in geography). (default: 12)</dd>
-</dl></section>
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Sphere(Mesh):
@@ -4174,7 +4462,7 @@ degrees of arcs)</dd>
         Generate the sphere
 
         Returns:
-          bool
+          bool: `True` on successful creation of a `Sphere` object.
         &#34;&#34;&#34;
         r = self.radius
         # step angle is the rotational angle to build the sphere
@@ -4253,13 +4541,41 @@ degrees of arcs)</dd>
                 indices += 4
         return True</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="payton.scene.geometry.Mesh" href="#payton.scene.geometry.Mesh">Mesh</a></li>
-<li><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></li>
-</ul>
 <h3>Methods</h3>
 <dl>
+<dt id="payton.scene.geometry.Sphere.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize the sphere</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>radius</code></strong></dt>
+<dd>Radius of the sphere (default: 0.5, making it a unit sphere)</dd>
+<dt><strong><code>parallels</code></strong></dt>
+<dd>Number of parallels (as in geography). (default: 12, 30
+degrees of arcs)</dd>
+<dt><strong><code>meridians</code></strong></dt>
+<dd>Number of meridians (as in geography). (default: 12)</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, **args: Any) -&gt; None:
+    &#34;&#34;&#34;Initialize the sphere
+
+    Args:
+      radius: Radius of the sphere (default: 0.5, making it a unit sphere)
+      parallels: Number of parallels (as in geography). (default: 12, 30
+                 degrees of arcs)
+      meridians: Number of meridians (as in geography). (default: 12)
+    &#34;&#34;&#34;
+    super().__init__(**args)
+    self.radius: float = args.get(&#34;radius&#34;, 0.5)
+    self.parallels: int = args.get(&#34;parallels&#34;, 12)
+    self.meridians: int = args.get(&#34;meridians&#34;, 12)
+    self.build_sphere()</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.geometry.Sphere.build_sphere"><code class="name flex">
 <span>def <span class="ident">build_sphere</span></span>(<span>self)</span>
 </code></dt>
@@ -4267,8 +4583,8 @@ degrees of arcs)</dd>
 <section class="desc"><p>Generate the sphere</p>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>bool</code></dt>
-<dd>&nbsp;</dd>
+<dt><strong><code>bool</code></strong></dt>
+<dd><code>True</code> on successful creation of a <a title="payton.scene.geometry.Sphere" href="#payton.scene.geometry.Sphere"><code>Sphere</code></a> object.</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
@@ -4277,7 +4593,7 @@ degrees of arcs)</dd>
     Generate the sphere
 
     Returns:
-      bool
+      bool: `True` on successful creation of a `Sphere` object.
     &#34;&#34;&#34;
     r = self.radius
     # step angle is the rotational angle to build the sphere
@@ -4407,16 +4723,21 @@ degrees of arcs)</dd>
 <ul>
 <li>
 <h4><code><a title="payton.scene.geometry.Cube" href="#payton.scene.geometry.Cube">Cube</a></code></h4>
+<ul class="">
+<li><code><a title="payton.scene.geometry.Cube.__init__" href="#payton.scene.geometry.Cube.__init__">__init__</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="payton.scene.geometry.Cylinder" href="#payton.scene.geometry.Cylinder">Cylinder</a></code></h4>
 <ul class="">
+<li><code><a title="payton.scene.geometry.Cylinder.__init__" href="#payton.scene.geometry.Cylinder.__init__">__init__</a></code></li>
 <li><code><a title="payton.scene.geometry.Cylinder.build_cylinder" href="#payton.scene.geometry.Cylinder.build_cylinder">build_cylinder</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="payton.scene.geometry.Line" href="#payton.scene.geometry.Line">Line</a></code></h4>
 <ul class="">
+<li><code><a title="payton.scene.geometry.Line.__init__" href="#payton.scene.geometry.Line.__init__">__init__</a></code></li>
 <li><code><a title="payton.scene.geometry.Line.append" href="#payton.scene.geometry.Line.append">append</a></code></li>
 <li><code><a title="payton.scene.geometry.Line.build_lines" href="#payton.scene.geometry.Line.build_lines">build_lines</a></code></li>
 <li><code><a title="payton.scene.geometry.Line.toggle_wireframe" href="#payton.scene.geometry.Line.toggle_wireframe">toggle_wireframe</a></code></li>
@@ -4434,6 +4755,7 @@ degrees of arcs)</dd>
 <li>
 <h4><code><a title="payton.scene.geometry.Object" href="#payton.scene.geometry.Object">Object</a></code></h4>
 <ul class="two-column">
+<li><code><a title="payton.scene.geometry.Object.__init__" href="#payton.scene.geometry.Object.__init__">__init__</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.absolute_vertices" href="#payton.scene.geometry.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.add_child" href="#payton.scene.geometry.Object.add_child">add_child</a></code></li>
 <li><code><a title="payton.scene.geometry.Object.bounding_radius" href="#payton.scene.geometry.Object.bounding_radius">bounding_radius</a></code></li>
@@ -4459,10 +4781,14 @@ degrees of arcs)</dd>
 </li>
 <li>
 <h4><code><a title="payton.scene.geometry.Plane" href="#payton.scene.geometry.Plane">Plane</a></code></h4>
+<ul class="">
+<li><code><a title="payton.scene.geometry.Plane.__init__" href="#payton.scene.geometry.Plane.__init__">__init__</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="payton.scene.geometry.PointCloud" href="#payton.scene.geometry.PointCloud">PointCloud</a></code></h4>
 <ul class="">
+<li><code><a title="payton.scene.geometry.PointCloud.__init__" href="#payton.scene.geometry.PointCloud.__init__">__init__</a></code></li>
 <li><code><a title="payton.scene.geometry.PointCloud.add" href="#payton.scene.geometry.PointCloud.add">add</a></code></li>
 <li><code><a title="payton.scene.geometry.PointCloud.toggle_wireframe" href="#payton.scene.geometry.PointCloud.toggle_wireframe">toggle_wireframe</a></code></li>
 <li><code><a title="payton.scene.geometry.PointCloud.track" href="#payton.scene.geometry.PointCloud.track">track</a></code></li>
@@ -4471,6 +4797,7 @@ degrees of arcs)</dd>
 <li>
 <h4><code><a title="payton.scene.geometry.Sphere" href="#payton.scene.geometry.Sphere">Sphere</a></code></h4>
 <ul class="">
+<li><code><a title="payton.scene.geometry.Sphere.__init__" href="#payton.scene.geometry.Sphere.__init__">__init__</a></code></li>
 <li><code><a title="payton.scene.geometry.Sphere.build_sphere" href="#payton.scene.geometry.Sphere.build_sphere">build_sphere</a></code></li>
 </ul>
 </li>
@@ -4480,7 +4807,7 @@ degrees of arcs)</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.5.3</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>
