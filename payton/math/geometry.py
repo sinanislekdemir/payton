@@ -150,9 +150,11 @@ def line_triangle_intersect(
     """Check if line intersects a triangle in space
 
     Args:
-      - start: Staring position of the line
-      - end: End position of the line
-      - p1, p2, p3: Triangle corner coordinates
+      start: Staring position of the line
+      end: End position of the line
+      p1: Triangle corner coordinate 1
+      p2: Triangle corner coordinate 2
+      p3: Triangle corner coordinate 3
     """
     global DIFF
 
