@@ -126,7 +126,7 @@ class Scene(Receiver):
         self.clocks: Dict[str, Clock] = {}
         self.grid = Grid()
         self.controller = Controller()
-        self._background = Background()
+        self.background = Background()
 
         # SDL Related Stuff
         self.window = None
@@ -152,7 +152,7 @@ class Scene(Receiver):
         """
         # Disable Depth Test to draw background at the very back of the scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
-        self._background.render()
+        self.background.render()
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
 
