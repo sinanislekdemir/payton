@@ -55,7 +55,8 @@ class Clock(threading.Thread):
         """
         Args:
           name: Name of the clock (freetext for logging purposes)
-          period: Clock cycle period of time between callbacks (seconds between each tick)
+          period: Clock cycle period of time between callbacks (seconds between
+                  each tick)
           scene: Scene to be called back
           callback: Callback function to call when clock ticks.
         """

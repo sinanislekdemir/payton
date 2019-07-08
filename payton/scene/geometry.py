@@ -76,9 +76,9 @@ class Object(object):
     added to the object, OpenGL needs to re-create the buffer area. This is
     not an efficitient technique if number of vertices increase in time.
     As a result Payton allocates buffer for 500 vertices in the beginning and
-    uses part of it. If the object exceeds 500 vertices, a new buffer is created
-    with 500 vertices more, copies existing vertices to the new buffer and the
-    old buffer is deleted.
+    uses part of it. If the object exceeds 500 vertices, a new buffer is
+    created with 500 vertices more, copies existing vertices to the new
+    buffer and the old buffer is deleted.
 
     """
 
@@ -110,9 +110,9 @@ class Object(object):
                 object gets added to a Scene with a name, Scene will assign
                 that name to the object, overwriting any existing name of the
                 object.
-          visible: Is this object visible at the scene, default: `True`. To hide
-                   an object, you can call `object.hide()` and to show it again
-                   use: `object.show()`
+          visible: Is this object visible at the scene, default: `True`. To
+                   hide an object, you can call `object.hide()` and to show
+                   it again use: `object.show()`
         """
         self.children: Dict[str, Object] = {}
         self.material: Material = Material()
