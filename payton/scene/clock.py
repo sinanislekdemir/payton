@@ -3,11 +3,9 @@ Clock is a special timer which runs in parallel to your scene and can do
 many things.
 
 Each clock has a period, scene and a callback function. Basically, for each
-clock tick, the callback function gets called with `name`, `scene`, `period`
-and `total` variables.
+clock tick, the callback function gets called with `period` and `total`
+variables.
 
-- `name`: name of the clock which calls the function.
-- `scene`: an object reference of the scene to modify if needed
 - `period`: period of clock. (time difference between each click in seconds)
 - `total`: total time past since the beginning of the simulation.
 
@@ -31,8 +29,7 @@ Example usage:
 
 import threading
 import time
-from typing import Callable, Any, Type
-from payton.scene.receiver import Receiver
+from typing import Callable, Any
 
 # SAFE_ASSUMPTION constant is a wait time between each clock cycle.
 SAFE_ASSUMPTION = 0.01
@@ -46,11 +43,7 @@ class Clock(threading.Thread):
     """
 
     def __init__(
-        self,
-        name: str,
-        period: float,
-        scene: Type[Receiver],
-        callback: Callable[[str, Type[Receiver], float, float], None],
+        self, period: float, callback: Callable[[float, float], None]
     ):
         """
         Args:
@@ -61,8 +54,6 @@ class Clock(threading.Thread):
           callback: Callback function to call when clock ticks.
         """
         threading.Thread.__init__(self)
-        self.name = name
-        self.scene = scene
         self.period = period
         self._total_time = 0.0
         self.callback = callback
@@ -101,7 +92,7 @@ class Clock(threading.Thread):
                 # sleep a safe time to avoid excessive cpu usage
                 time.sleep(SAFE_ASSUMPTION)
                 continue
-            self.callback(self.name, self.scene, self.period, self._total_time)
+            self.callback(self.period, self._total_time)
 
             time.sleep(self.period)
             self._total_time += self.period

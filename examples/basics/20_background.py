@@ -7,9 +7,9 @@ initial = [0, 0.1, 0.2, 1.0]
 rise = True
 
 
-def change_background(name, scene, period, total):
-    global rise
-    c = scene._background.top_color
+def change_background(period, total):
+    global scene, rise
+    c = scene.background.top_color
     if rise:
         if c[0] <= target[0]:
             c[0] += 0.01
@@ -29,7 +29,7 @@ def change_background(name, scene, period, total):
 
         if sum(c) <= sum(initial) + 0.01:
             rise = True
-    scene._background.top_color = c
+    scene.background.top_color = c
 
 
 scene = Scene()

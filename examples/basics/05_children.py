@@ -5,19 +5,20 @@ from payton.scene.geometry import Sphere
 from payton.scene.light import Light
 
 
-def motion(name, scene, period, total):
+def motion(period, total):
+    global space
     angle = (total * 10) % 360
     px = math.cos(math.radians(angle)) * 8
     py = math.sin(math.radians(angle)) * 8
-    scene.objects["nucleus"].children["particle"].position = [px, py, 0]
+    space.objects["nucleus"].children["particle"].position = [px, py, 0]
 
     sx = math.cos(math.radians(angle * 10)) * 2  # 10 times faster
     sy = math.sin(math.radians(angle * 10)) * 2
-    scene.objects["nucleus"].children["particle"].children[
+    space.objects["nucleus"].children["particle"].children[
         "sub_particle"
     ].position = [sx, sy, 0]
-    scene.lights[0].position = [px, py, 0]
-    scene.lights[1].position = [-px, -py, 0]
+    space.lights[0].position = [px, py, 0]
+    space.lights[1].position = [-px, -py, 0]
 
 
 space = Scene()

@@ -24,11 +24,9 @@ many things …" />
 <p>Clock is a special timer which runs in parallel to your scene and can do
 many things.</p>
 <p>Each clock has a period, scene and a callback function. Basically, for each
-clock tick, the callback function gets called with <code>name</code>, <code>scene</code>, <code>period</code>
-and <code>total</code> variables.</p>
+clock tick, the callback function gets called with <code>period</code> and <code>total</code>
+variables.</p>
 <ul>
-<li><code>name</code>: name of the clock which calls the function.</li>
-<li><code>scene</code>: an object reference of the scene to modify if needed</li>
 <li><code>period</code>: period of clock. (time difference between each click in seconds)</li>
 <li><code>total</code>: total time past since the beginning of the simulation.</li>
 </ul>
@@ -56,17 +54,18 @@ GRAVITY = 9.8
 INITIAL_VELOCITY = 20  # meters/seconds
 
 
-def projectile_motion(name, scene, period, total):
+def projectile_motion(period, total):
     # projectile motion.
     # y = v0 * t * cos(a)
     # z = v0 * t * sin(a) - 1/2 * g * t^2
     global LAUNCH_ANGLE
     global GRAVITY
     global INITIAL_VELOCITY
+    global scene
     position = scene.objects["ball"].position
     if position[2] &lt; 0:
         # Do not continue simulation if we hit the ground.
-        scene.clocks[name].kill()  # We do not need this clock anymore
+        scene.clocks["motion"].kill()  # We do not need this clock anymore
         return None
 
     # Go towards -Y direction.
@@ -78,10 +77,11 @@ def projectile_motion(name, scene, period, total):
     return None
 
 
-def logger(name, scene, period, total):
+def logger(period, total):
+    global scene
     if scene.objects["ball"].matrix[3][2] &lt; 0:
         # Do not continue simulation if we hit the ground.
-        scene.clocks[name].kill()  # We do not need this clock anymore
+        scene.clocks["logger"].kill()  # We do not need this clock anymore
         return None
 
     # Log ball location
@@ -96,20 +96,20 @@ def logger(name, scene, period, total):
 
 
 #  Definitions
-pm_scene = Scene()
+scene = Scene()
 
 ball = Sphere(radius=1, track_motion=True)
 
 # Add ball to the scene
-pm_scene.add_object("ball", ball)
-pm_scene.observers[0].target_object = ball  # Track the ball
+scene.add_object("ball", ball)
+scene.active_observer.target_object = ball  # Track the ball
 
-pm_scene.grid.resize(30, 30, 2)
+scene.grid.resize(30, 30, 2)
 
-pm_scene.create_clock("motion", 0.01, projectile_motion)
-pm_scene.create_clock("logger", 0.05, logger)
+scene.create_clock("motion", 0.01, projectile_motion)
+scene.create_clock("logger", 0.05, logger)
 
-pm_scene.run()
+scene.run()
 </code></pre>
 <details class="source">
 <summary>Source code</summary>
@@ -118,11 +118,9 @@ Clock is a special timer which runs in parallel to your scene and can do
 many things.
 
 Each clock has a period, scene and a callback function. Basically, for each
-clock tick, the callback function gets called with `name`, `scene`, `period`
-and `total` variables.
+clock tick, the callback function gets called with `period` and `total`
+variables.
 
-- `name`: name of the clock which calls the function.
-- `scene`: an object reference of the scene to modify if needed
 - `period`: period of clock. (time difference between each click in seconds)
 - `total`: total time past since the beginning of the simulation.
 
@@ -146,8 +144,7 @@ Example usage:
 
 import threading
 import time
-from typing import Callable, Any, Type
-from payton.scene.receiver import Receiver
+from typing import Callable, Any
 
 # SAFE_ASSUMPTION constant is a wait time between each clock cycle.
 SAFE_ASSUMPTION = 0.01
@@ -161,11 +158,7 @@ class Clock(threading.Thread):
     &#34;&#34;&#34;
 
     def __init__(
-        self,
-        name: str,
-        period: float,
-        scene: Type[Receiver],
-        callback: Callable[[str, Type[Receiver], float, float], None],
+        self, period: float, callback: Callable[[float, float], None]
     ):
         &#34;&#34;&#34;
         Args:
@@ -176,8 +169,6 @@ class Clock(threading.Thread):
           callback: Callback function to call when clock ticks.
         &#34;&#34;&#34;
         threading.Thread.__init__(self)
-        self.name = name
-        self.scene = scene
         self.period = period
         self._total_time = 0.0
         self.callback = callback
@@ -216,7 +207,7 @@ class Clock(threading.Thread):
                 # sleep a safe time to avoid excessive cpu usage
                 time.sleep(SAFE_ASSUMPTION)
                 continue
-            self.callback(self.name, self.scene, self.period, self._total_time)
+            self.callback(self.period, self._total_time)
 
             time.sleep(self.period)
             self._total_time += self.period
@@ -234,7 +225,7 @@ class Clock(threading.Thread):
 <dl>
 <dt id="payton.scene.clock.Clock"><code class="flex name class">
 <span>class <span class="ident">Clock</span></span>
-<span>(</span><span>name, period, scene, callback)</span>
+<span>(</span><span>period, callback)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Each clock in Scene is actually a thread which has a
@@ -262,11 +253,7 @@ each tick)</dd>
     &#34;&#34;&#34;
 
     def __init__(
-        self,
-        name: str,
-        period: float,
-        scene: Type[Receiver],
-        callback: Callable[[str, Type[Receiver], float, float], None],
+        self, period: float, callback: Callable[[float, float], None]
     ):
         &#34;&#34;&#34;
         Args:
@@ -277,8 +264,6 @@ each tick)</dd>
           callback: Callback function to call when clock ticks.
         &#34;&#34;&#34;
         threading.Thread.__init__(self)
-        self.name = name
-        self.scene = scene
         self.period = period
         self._total_time = 0.0
         self.callback = callback
@@ -317,7 +302,7 @@ each tick)</dd>
                 # sleep a safe time to avoid excessive cpu usage
                 time.sleep(SAFE_ASSUMPTION)
                 continue
-            self.callback(self.name, self.scene, self.period, self._total_time)
+            self.callback(self.period, self._total_time)
 
             time.sleep(self.period)
             self._total_time += self.period
@@ -394,7 +379,7 @@ total time difference from the initial run of the clock</p>
             # sleep a safe time to avoid excessive cpu usage
             time.sleep(SAFE_ASSUMPTION)
             continue
-        self.callback(self.name, self.scene, self.period, self._total_time)
+        self.callback(self.period, self._total_time)
 
         time.sleep(self.period)
         self._total_time += self.period

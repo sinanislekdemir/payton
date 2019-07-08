@@ -72,7 +72,7 @@ def raycast_sphere_intersect(
 
 def raycast_plane_intersect(
     start: GArray, vector: GArray, plane_point: GArray, plane_normal: GArray
-) -> typing.Union[np.ndarray, bool]:
+) -> typing.Optional[np.ndarray]:
     """Raycast Plane Intersection Test
 
     Args:

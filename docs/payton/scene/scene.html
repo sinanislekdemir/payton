@@ -59,7 +59,7 @@ import sdl2
 import logging
 import time
 import numpy as np  # type: ignore
-from typing import Dict, Any, List, Type, Callable, TypeVar
+from typing import Dict, Any, List, Callable, TypeVar
 
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
@@ -76,6 +76,7 @@ from OpenGL.GL import (
     GL_TRIANGLES,
 )
 
+from payton.math.geometry import raycast_plane_intersect
 from payton.scene.controller import Controller
 from payton.scene.grid import Grid
 from payton.scene.geometry import Object
@@ -85,6 +86,7 @@ from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
 from payton.scene.gui import Hud, Shape2D
 from payton.scene.receiver import Receiver
+from payton.scene.types import CPlane
 
 from payton.scene.shader import (
     Shader,
@@ -178,11 +180,54 @@ class Scene(Receiver):
         self._ctrl_down = False
         self._rotate = False
         self._collision_detectors: List[CollisionTest] = []
+        self._click_planes: List[CPlane] = []
 
         self.on_select = args.get(&#34;on_select&#34;, None)
         # Main running state
         self.running = False
         self._render_lock = False
+
+    def add_click_plane(
+        self,
+        plane_point: List[float],
+        plane_normal: List[float],
+        callback: Callable[[List[float]], Any],
+    ):
+        &#34;&#34;&#34;Add click plane to the scene
+
+        A Click Plane is a meta object which is basically an infinite sized 2D
+        plane intersecting with plane_point and has a normal as plane_normal.
+        Click Plane has a callback function which gets called when user
+        mouse click intersects with the Click Plane.
+
+        You can think of Click Plane as a piece of paper on the scene where you
+        can use to draw things on. Clicking on this meta plane will give you
+        exact location of your mouse click which intersects with the plane.
+
+        Click Plane is an invisible plane.
+
+        Example usecase:
+            .. include:: ../../examples/basics/21_click_plane.py
+
+        Args:
+          plane_point: A Point inside Plane (eg: `[0.0, 0.0, 0.0]`)
+          plane_normal: Normal of the plane (eg: `[0.0, 0.0, 1.0]`)
+          callback: Callback function to be called with intersection point
+        &#34;&#34;&#34;
+        pn = plane_normal.copy() + [0.0]
+        pp = plane_point.copy() + [1.0]
+        self._click_planes.append((pp, pn, callback))
+
+    def _check_click_plane(
+        self, eye: List[float], vector: List[float]
+    ) -&gt; None:
+        for click_plane in self._click_planes:
+            hit = raycast_plane_intersect(
+                eye, vector, click_plane[0], click_plane[1]
+            )
+            if hit is None:
+                continue
+            click_plane[2](hit[:3])
 
     def _render(self) -&gt; None:
         &#34;&#34;&#34;
@@ -327,7 +372,7 @@ class Scene(Receiver):
         self,
         name: str,
         period: float,
-        callback: Callable[[str, Type[Receiver], float, float], None],
+        callback: Callable[[float, float], None],
     ) -&gt; None:
         &#34;&#34;&#34;
         Creates a clock in the scene. This is the preffered way to create a
@@ -338,8 +383,6 @@ class Scene(Receiver):
           period: Period of the clock (in seconds), time between each iteration
           callback: Callback function to call in each iteration. Callback
         function must have these arguments:
-            name: Name of the clock that triggers callback function.
-            scene: Scene reference to the callback function.
             period: Period of the clock (time difference between iterations)
             total: Total time elapsed from the beginning.
 
@@ -348,8 +391,7 @@ class Scene(Receiver):
             from payton.scene import Scene
             from payton.scene.clock import Clock
 
-
-            def time_counter_callback(name, scene, period, total):
+            def time_counter_callback(period, total):
                 print(&#34;Total time passed since beginning {}secs&#34;.format(total))
 
             my_scene = Scene()
@@ -376,7 +418,7 @@ class Scene(Receiver):
             logging.error(f&#34;A clock named {name} already exists&#34;)
             return
 
-        c = Clock(name, period, self, callback)  # type: ignore
+        c = Clock(period, callback)
         self.clocks[name] = c
 
     def run(self) -&gt; int:
@@ -762,11 +804,54 @@ scene.run()
         self._ctrl_down = False
         self._rotate = False
         self._collision_detectors: List[CollisionTest] = []
+        self._click_planes: List[CPlane] = []
 
         self.on_select = args.get(&#34;on_select&#34;, None)
         # Main running state
         self.running = False
         self._render_lock = False
+
+    def add_click_plane(
+        self,
+        plane_point: List[float],
+        plane_normal: List[float],
+        callback: Callable[[List[float]], Any],
+    ):
+        &#34;&#34;&#34;Add click plane to the scene
+
+        A Click Plane is a meta object which is basically an infinite sized 2D
+        plane intersecting with plane_point and has a normal as plane_normal.
+        Click Plane has a callback function which gets called when user
+        mouse click intersects with the Click Plane.
+
+        You can think of Click Plane as a piece of paper on the scene where you
+        can use to draw things on. Clicking on this meta plane will give you
+        exact location of your mouse click which intersects with the plane.
+
+        Click Plane is an invisible plane.
+
+        Example usecase:
+            .. include:: ../../examples/basics/21_click_plane.py
+
+        Args:
+          plane_point: A Point inside Plane (eg: `[0.0, 0.0, 0.0]`)
+          plane_normal: Normal of the plane (eg: `[0.0, 0.0, 1.0]`)
+          callback: Callback function to be called with intersection point
+        &#34;&#34;&#34;
+        pn = plane_normal.copy() + [0.0]
+        pp = plane_point.copy() + [1.0]
+        self._click_planes.append((pp, pn, callback))
+
+    def _check_click_plane(
+        self, eye: List[float], vector: List[float]
+    ) -&gt; None:
+        for click_plane in self._click_planes:
+            hit = raycast_plane_intersect(
+                eye, vector, click_plane[0], click_plane[1]
+            )
+            if hit is None:
+                continue
+            click_plane[2](hit[:3])
 
     def _render(self) -&gt; None:
         &#34;&#34;&#34;
@@ -911,7 +996,7 @@ scene.run()
         self,
         name: str,
         period: float,
-        callback: Callable[[str, Type[Receiver], float, float], None],
+        callback: Callable[[float, float], None],
     ) -&gt; None:
         &#34;&#34;&#34;
         Creates a clock in the scene. This is the preffered way to create a
@@ -922,8 +1007,6 @@ scene.run()
           period: Period of the clock (in seconds), time between each iteration
           callback: Callback function to call in each iteration. Callback
         function must have these arguments:
-            name: Name of the clock that triggers callback function.
-            scene: Scene reference to the callback function.
             period: Period of the clock (time difference between iterations)
             total: Total time elapsed from the beginning.
 
@@ -932,8 +1015,7 @@ scene.run()
             from payton.scene import Scene
             from payton.scene.clock import Clock
 
-
-            def time_counter_callback(name, scene, period, total):
+            def time_counter_callback(period, total):
                 print(&#34;Total time passed since beginning {}secs&#34;.format(total))
 
             my_scene = Scene()
@@ -960,7 +1042,7 @@ scene.run()
             logging.error(f&#34;A clock named {name} already exists&#34;)
             return
 
-        c = Clock(name, period, self, callback)  # type: ignore
+        c = Clock(period, callback)
         self.clocks[name] = c
 
     def run(self) -&gt; int:
@@ -1067,6 +1149,76 @@ def active_observer(self) -&gt; Observer:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="payton.scene.scene.Scene.add_click_plane"><code class="name flex">
+<span>def <span class="ident">add_click_plane</span></span>(<span>self, plane_point, plane_normal, callback)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Add click plane to the scene</p>
+<p>A Click Plane is a meta object which is basically an infinite sized 2D
+plane intersecting with plane_point and has a normal as plane_normal.
+Click Plane has a callback function which gets called when user
+mouse click intersects with the Click Plane.</p>
+<p>You can think of Click Plane as a piece of paper on the scene where you
+can use to draw things on. Clicking on this meta plane will give you
+exact location of your mouse click which intersects with the plane.</p>
+<p>Click Plane is an invisible plane.</p>
+<p>Example usecase:
+from payton.scene import Scene
+from payton.scene.geometry import Line</p>
+<pre><code>def draw(hit):
+    global scene
+    scene.objects["line"].append([hit])
+
+
+scene = Scene()
+scene.add_click_plane([0, 0, 0.5], [0, 0, 1], draw)
+scene.add_object("line", Line())
+
+scene.run()
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>plane_point</code></strong></dt>
+<dd>A Point inside Plane (eg: <code>[0.0, 0.0, 0.0]</code>)</dd>
+<dt><strong><code>plane_normal</code></strong></dt>
+<dd>Normal of the plane (eg: <code>[0.0, 0.0, 1.0]</code>)</dd>
+<dt><strong><code>callback</code></strong></dt>
+<dd>Callback function to be called with intersection point</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add_click_plane(
+    self,
+    plane_point: List[float],
+    plane_normal: List[float],
+    callback: Callable[[List[float]], Any],
+):
+    &#34;&#34;&#34;Add click plane to the scene
+
+    A Click Plane is a meta object which is basically an infinite sized 2D
+    plane intersecting with plane_point and has a normal as plane_normal.
+    Click Plane has a callback function which gets called when user
+    mouse click intersects with the Click Plane.
+
+    You can think of Click Plane as a piece of paper on the scene where you
+    can use to draw things on. Clicking on this meta plane will give you
+    exact location of your mouse click which intersects with the plane.
+
+    Click Plane is an invisible plane.
+
+    Example usecase:
+        .. include:: ../../examples/basics/21_click_plane.py
+
+    Args:
+      plane_point: A Point inside Plane (eg: `[0.0, 0.0, 0.0]`)
+      plane_normal: Normal of the plane (eg: `[0.0, 0.0, 1.0]`)
+      callback: Callback function to be called with intersection point
+    &#34;&#34;&#34;
+    pn = plane_normal.copy() + [0.0]
+    pp = plane_point.copy() + [1.0]
+    self._click_planes.append((pp, pn, callback))</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.scene.Scene.add_collision_test"><code class="name flex">
 <span>def <span class="ident">add_collision_test</span></span>(<span>self, tester)</span>
 </code></dt>
@@ -1234,16 +1386,13 @@ clock in the scene as it binds the clock to the scene by itself.</p>
 <dd>Callback function to call in each iteration. Callback</dd>
 </dl>
 <p>function must have these arguments:
-name: Name of the clock that triggers callback function.
-scene: Scene reference to the callback function.
 period: Period of the clock (time difference between iterations)
 total: Total time elapsed from the beginning.</p>
 <p>Example usage:</p>
 <pre><code>from payton.scene import Scene
 from payton.scene.clock import Clock
 
-
-def time_counter_callback(name, scene, period, total):
+def time_counter_callback(period, total):
     print("Total time passed since beginning {}secs".format(total))
 
 my_scene = Scene()
@@ -1271,7 +1420,7 @@ Total time passed since beginning 10.0secs
     self,
     name: str,
     period: float,
-    callback: Callable[[str, Type[Receiver], float, float], None],
+    callback: Callable[[float, float], None],
 ) -&gt; None:
     &#34;&#34;&#34;
     Creates a clock in the scene. This is the preffered way to create a
@@ -1282,8 +1431,6 @@ Total time passed since beginning 10.0secs
       period: Period of the clock (in seconds), time between each iteration
       callback: Callback function to call in each iteration. Callback
     function must have these arguments:
-        name: Name of the clock that triggers callback function.
-        scene: Scene reference to the callback function.
         period: Period of the clock (time difference between iterations)
         total: Total time elapsed from the beginning.
 
@@ -1292,8 +1439,7 @@ Total time passed since beginning 10.0secs
         from payton.scene import Scene
         from payton.scene.clock import Clock
 
-
-        def time_counter_callback(name, scene, period, total):
+        def time_counter_callback(period, total):
             print(&#34;Total time passed since beginning {}secs&#34;.format(total))
 
         my_scene = Scene()
@@ -1320,7 +1466,7 @@ Total time passed since beginning 10.0secs
         logging.error(f&#34;A clock named {name} already exists&#34;)
         return
 
-    c = Clock(name, period, self, callback)  # type: ignore
+    c = Clock(period, callback)
     self.clocks[name] = c</code></pre>
 </details>
 </dd>
@@ -1472,6 +1618,7 @@ etc)</em></li>
 <h4><code><a title="payton.scene.scene.Scene" href="#payton.scene.scene.Scene">Scene</a></code></h4>
 <ul class="two-column">
 <li><code><a title="payton.scene.scene.Scene.active_observer" href="#payton.scene.scene.Scene.active_observer">active_observer</a></code></li>
+<li><code><a title="payton.scene.scene.Scene.add_click_plane" href="#payton.scene.scene.Scene.add_click_plane">add_click_plane</a></code></li>
 <li><code><a title="payton.scene.scene.Scene.add_collision_test" href="#payton.scene.scene.Scene.add_collision_test">add_collision_test</a></code></li>
 <li><code><a title="payton.scene.scene.Scene.add_object" href="#payton.scene.scene.Scene.add_object">add_object</a></code></li>
 <li><code><a title="payton.scene.scene.Scene.add_observer" href="#payton.scene.scene.Scene.add_observer">add_observer</a></code></li>

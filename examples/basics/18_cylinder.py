@@ -4,7 +4,8 @@ from payton.scene import Scene
 from payton.scene.geometry import Cylinder
 
 
-def rotate(name, scene, period, total):
+def rotate(period, total):
+    global scene
     scene.objects["cylinder"].rotate_around_z(math.radians(1))
 
 

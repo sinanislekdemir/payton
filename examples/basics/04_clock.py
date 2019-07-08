@@ -12,17 +12,18 @@ GRAVITY = 9.8
 INITIAL_VELOCITY = 20  # meters/seconds
 
 
-def projectile_motion(name, scene, period, total):
+def projectile_motion(period, total):
     # projectile motion.
     # y = v0 * t * cos(a)
     # z = v0 * t * sin(a) - 1/2 * g * t^2
     global LAUNCH_ANGLE
     global GRAVITY
     global INITIAL_VELOCITY
+    global scene
     position = scene.objects["ball"].position
     if position[2] < 0:
         # Do not continue simulation if we hit the ground.
-        scene.clocks[name].kill()  # We do not need this clock anymore
+        scene.clocks["motion"].kill()  # We do not need this clock anymore
         return None
 
     # Go towards -Y direction.
@@ -34,10 +35,11 @@ def projectile_motion(name, scene, period, total):
     return None
 
 
-def logger(name, scene, period, total):
+def logger(period, total):
+    global scene
     if scene.objects["ball"].matrix[3][2] < 0:
         # Do not continue simulation if we hit the ground.
-        scene.clocks[name].kill()  # We do not need this clock anymore
+        scene.clocks["logger"].kill()  # We do not need this clock anymore
         return None
 
     # Log ball location
@@ -52,17 +54,17 @@ def logger(name, scene, period, total):
 
 
 #  Definitions
-pm_scene = Scene()
+scene = Scene()
 
 ball = Sphere(radius=1, track_motion=True)
 
 # Add ball to the scene
-pm_scene.add_object("ball", ball)
-pm_scene.observers[0].target_object = ball  # Track the ball
+scene.add_object("ball", ball)
+scene.active_observer.target_object = ball  # Track the ball
 
-pm_scene.grid.resize(30, 30, 2)
+scene.grid.resize(30, 30, 2)
 
-pm_scene.create_clock("motion", 0.01, projectile_motion)
-pm_scene.create_clock("logger", 0.05, logger)
+scene.create_clock("motion", 0.01, projectile_motion)
+scene.create_clock("logger", 0.05, logger)
 
-pm_scene.run()
+scene.run()

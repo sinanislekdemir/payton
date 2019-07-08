@@ -4,7 +4,8 @@ from payton.scene.gui import Hud, Text
 from payton.scene.geometry import PointCloud
 
 
-def generate(name, scene, period, total):
+def generate(period, total):
+    global scene
     x = random.randint(-10, 10)
     y = random.randint(-10, 10)
     z = random.randint(-10, 10)

@@ -30,8 +30,8 @@ from payton.scene.collision import CollisionTest
 direction = 0
 
 
-def motion(name, scene, period, total):
-    global direction
+def motion(period, total):
+    global scene, direction
     pos = scene.objects["scar2"].position
     apos = scene.objects["acar2"].position
     if direction == 0:

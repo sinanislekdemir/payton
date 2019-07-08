@@ -96,7 +96,7 @@ def raycast_sphere_intersect(
 
 def raycast_plane_intersect(
     start: GArray, vector: GArray, plane_point: GArray, plane_normal: GArray
-) -&gt; typing.Union[np.ndarray, bool]:
+) -&gt; typing.Optional[np.ndarray]:
     &#34;&#34;&#34;Raycast Plane Intersection Test
 
     Args:
@@ -360,7 +360,7 @@ def line_triangle_intersect(
 <summary>Source code</summary>
 <pre><code class="python">def raycast_plane_intersect(
     start: GArray, vector: GArray, plane_point: GArray, plane_normal: GArray
-) -&gt; typing.Union[np.ndarray, bool]:
+) -&gt; typing.Optional[np.ndarray]:
     &#34;&#34;&#34;Raycast Plane Intersection Test
 
     Args:

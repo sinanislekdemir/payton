@@ -4,7 +4,8 @@ from payton.scene import Scene
 from payton.scene.geometry import Cube
 
 
-def rotate(name, scene, period, total):
+def rotate(period, total):
+    global scene
     y = math.radians(period * 100)
     y = -y if int(total) % 2 == 0 else y
 
