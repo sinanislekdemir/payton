@@ -8,7 +8,7 @@ import numpy as np  # type: ignore
 from typing import Any, List, Optional, Type, Tuple
 
 from payton.scene.geometry import Object
-from payton.math.vector import sub_vector
+from payton.math.vector import sub_vector, invert_vector
 from payton.math.geometry import raycast_plane_intersect
 
 BUTTON_LEFT = 1
@@ -102,6 +102,28 @@ class Observer(object):
         self.position[1] = y + self.target[1]
         self.position[2] = z + self.target[2]
 
+    def pan(self, x: int, y: int, w: int, h: int) -> None:
+        px = math.ceil(w / 2)
+        py = math.ceil(h / 2)
+        _ceye, center_vector = self.screen_to_world(px, py, w, h)
+        eye, vector = self.screen_to_world(x, y, w, h)
+        center_vector = invert_vector(center_vector).copy() + [0.0]
+        starget = self.target.copy() + [1.0]
+        hit = raycast_plane_intersect(eye, vector, starget, center_vector)
+        if hit is None:
+            return
+        if self._prev_intersection is None:
+            self._prev_intersection = hit
+        else:
+            diff = np.subtract(self._prev_intersection, hit)
+            self.position[0] += diff[0]
+            self.position[1] += diff[1]
+            self.position[2] += diff[2]
+
+            self.target[0] += diff[0]
+            self.target[1] += diff[1]
+            self.target[2] += diff[2]
+
     def mouse(
         self,
         button: int,
@@ -115,23 +137,7 @@ class Observer(object):
         h: int,
     ) -> None:
         if shift and ctrl and button == BUTTON_LEFT:  # Panning
-            eye, vector = self.screen_to_world(x, y, w, h)
-            hit = raycast_plane_intersect(
-                eye, vector, [0, 0, 0, 1], [0, 0, 1, 0]
-            )
-
-            if hit is None:
-                return
-
-            if self._prev_intersection is None:
-                self._prev_intersection = hit
-            else:
-                diff = np.subtract(self._prev_intersection, hit)
-                self.position[0] += diff[0]
-                self.position[1] += diff[1]
-
-                self.target[0] += diff[0]
-                self.target[1] += diff[1]
+            self.pan(x, y, w, h)
             return
 
         if shift:
