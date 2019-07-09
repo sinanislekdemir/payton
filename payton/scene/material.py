@@ -133,10 +133,20 @@ class Material(object):
             "view_mode",
         ]  # type: List[str]
 
-        self.shader: Shader = Shader(variables=variables)
+        self._shader: Shader = Shader(variables=variables)
+        self._explicit_shader: bool = False
 
         self._initialized: bool = False
         self._texture: Optional[int] = None
+
+    @property
+    def shader(self) -> Shader:
+        return self._shader
+
+    @shader.setter
+    def shader(self, sh: Shader) -> None:
+        self._shader = sh
+        self._explicit_shader = True
 
     def build_shader(self) -> bool:
         """Build material shaders
@@ -146,10 +156,14 @@ class Material(object):
         """
         global GLOBAL_SHADER
         if GLOBAL_SHADER is None:
-            self.shader.build()
-            GLOBAL_SHADER = copy.deepcopy(self.shader)
+            self._shader.build()
+            if not self._explicit_shader:
+                GLOBAL_SHADER = copy.deepcopy(self._shader)
         else:
-            self.shader = GLOBAL_SHADER
+            if not self._explicit_shader:
+                self._shader = GLOBAL_SHADER
+            else:
+                self._shader.build()
         self._initialized = True
         if os.path.isfile(self.texture):
             img = Image.open(self.texture)
@@ -214,53 +228,55 @@ class Material(object):
         if self.display == SOLID:
             if self.lights and len(lights) > 0:
                 if self._texture is not None:
-                    self.shader._mode = Shader.LIGHT_TEXTURE
+                    self._shader._mode = Shader.LIGHT_TEXTURE
                 else:
-                    self.shader._mode = Shader.LIGHT_COLOR
+                    self._shader._mode = Shader.LIGHT_COLOR
             else:
                 if self._texture is not None:
-                    self.shader._mode = Shader.NO_LIGHT_TEXTURE
+                    self._shader._mode = Shader.NO_LIGHT_TEXTURE
                 else:
-                    self.shader._mode = Shader.NO_LIGHT_COLOR
+                    self._shader._mode = Shader.NO_LIGHT_COLOR
         else:
-            self.shader._mode = Shader.NO_LIGHT_COLOR
+            self._shader._mode = Shader.NO_LIGHT_COLOR
 
         if mode is not None:
-            self.shader._mode = mode
+            self._shader._mode = mode
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        self.shader.use()
-        self.shader.set_int("material_mode", self.shader._mode)
-        self.shader.set_matrix4x4_np("model", model)
+        self._shader.use()
+        self._shader.set_int("material_mode", self._shader._mode)
+        self._shader.set_matrix4x4_np("model", model)
         if view is None:
-            self.shader.set_int("view_mode", 1)
+            self._shader.set_int("view_mode", 1)
         else:
-            self.shader.set_matrix4x4_np("view", view)
-            self.shader.set_int("view_mode", 0)
-        self.shader.set_matrix4x4_np("projection", proj)
-        self.shader.set_float("opacity", self.opacity)
+            self._shader.set_matrix4x4_np("view", view)
+            self._shader.set_int("view_mode", 0)
+        self._shader.set_matrix4x4_np("projection", proj)
+        self._shader.set_float("opacity", self.opacity)
 
         if self._texture is not None:
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, self._texture)
-            self.shader.set_int("tex_unit", 0)
+            self._shader.set_int("tex_unit", 0)
 
         light_array = [light.position for light in lights]
         lcolor_array = [light.color for light in lights]
         light_array = np.array(light_array, dtype=np.float32)
         lcolor_array = np.array(lcolor_array, dtype=np.float32)
-        self.shader.set_vector3_array_np("light_pos", light_array, len(lights))
-        self.shader.set_vector3_array_np(
+        self._shader.set_vector3_array_np(
+            "light_pos", light_array, len(lights)
+        )
+        self._shader.set_vector3_array_np(
             "light_color", lcolor_array, len(lights)
         )
-        self.shader.set_int("LIGHT_COUNT", len(lights))
+        self._shader.set_int("LIGHT_COUNT", len(lights))
 
-        self.shader.set_vector3_np(
+        self._shader.set_vector3_np(
             "object_color", np.array(self.color, dtype=np.float32)
         )
 
     def end(self) -> None:
-        self.shader.end()
+        self._shader.end()
         glDisable(GL_BLEND)

@@ -9,27 +9,27 @@ score_board = 0
 game = Scene()
 
 
-def create_balloon(name, scene, period, total):
-    global sphere_count
+def create_balloon(period, total):
+    global sphere_count, game
     x = random.randint(-5, 5)
     y = random.randint(-5, 5)
     sphere = Sphere()
     sphere.material.color = [1, 1, 1]
     sphere.position = [x, y, 10]
-    scene.add_object(f"sphere_{sphere_count}", sphere)
+    game.add_object(f"sphere_{sphere_count}", sphere)
     sphere_count += 1
 
 
-def move_balloons(name, scene, period, total):
-    global sphere_count
+def move_balloons(period, total):
+    global sphere_count, game
     for k in range(sphere_count):
         sphere_name = f"sphere_{k}"
-        if sphere_name in scene.objects:
-            if not scene.objects[sphere_name].visible:
+        if sphere_name in game.objects:
+            if not game.objects[sphere_name].visible:
                 continue
-            pos = scene.objects[sphere_name].position
+            pos = game.objects[sphere_name].position
             pos[2] -= 0.01
-            scene.objects[sphere_name].position = pos
+            game.objects[sphere_name].position = pos
             if pos[2] < 0:
                 status = Text(
                     label="GAME OVER!!!",
@@ -37,13 +37,13 @@ def move_balloons(name, scene, period, total):
                     color=(1, 1, 1),
                     bgcolor=(1, 0, 0, 1),
                 )
-                scene.clocks["balloon-creator"].pause()
-                scene.clocks["move-balloons"].pause()
-                scene.huds["hud"].add_child("status", status)
+                game.clocks["balloon-creator"].pause()
+                game.clocks["move-balloons"].pause()
+                game.huds["hud"].add_child("status", status)
             if pos[2] < 6:
-                scene.objects[sphere_name].material.color = YELLOW
+                game.objects[sphere_name].material.color = YELLOW
             if pos[2] < 3:
-                scene.objects[sphere_name].material.color = RED
+                game.objects[sphere_name].material.color = RED
 
 
 def select(list):

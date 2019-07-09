@@ -4,6 +4,7 @@
 import math
 import pyrr
 import numpy as np  # type: ignore
+import logging
 
 from typing import Any, List, Optional, Type, Tuple
 
@@ -103,6 +104,9 @@ class Observer(object):
         self.position[2] = z + self.target[2]
 
     def pan(self, x: int, y: int, w: int, h: int) -> None:
+        if self.target_object is not None:
+            logging.error("Camera has an active target, can not pan")
+            return
         px = math.ceil(w / 2)
         py = math.ceil(h / 2)
         _ceye, center_vector = self.screen_to_world(px, py, w, h)

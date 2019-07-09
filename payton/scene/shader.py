@@ -208,6 +208,7 @@ class Shader(object):
         self.vertex_shader_source: str = args.get(
             "vertex", default_vertex_shader
         )
+
         self.variables: List[str] = args.get("variables", [])
         self._stack: Dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
@@ -272,8 +273,7 @@ class Shader(object):
         """
         g_transpose = GL_TRUE if transpose else GL_FALSE
         location = self.get_location(variable)
-        if not location:
-            logging.error(f"Variable not found in program [{variable}]")
+        if location == -1:
             return False
 
         glUniformMatrix4fv(
@@ -290,7 +290,7 @@ class Shader(object):
             return self._stack[variable]
         location = glGetUniformLocation(self.program, variable)
         if location == -1:
-            return False
+            logging.error(f"Variable not found in program [{variable}]")
         self._stack[variable] = location
         return location
 
@@ -315,8 +315,7 @@ class Shader(object):
         """Set array of vec3 as numpy array value"""
         value = value.flatten()
         location = self.get_location(variable)
-        if location < 0:
-            logging.error(f"Variable not found in program [{variable}]")
+        if location == -1:
             return False
         glUniform3fv(location, count, value)
         return True
@@ -333,8 +332,7 @@ class Shader(object):
           value: Vector 3 to set. (Numpy array with 3 elemenets)
         """
         location = self.get_location(variable)
-        if location < 0:
-            logging.error(f"Variable not found in program [{variable}]")
+        if location == -1:
             return False
         glUniform3fv(location, 1, value)
         return True
@@ -350,8 +348,7 @@ class Shader(object):
           value: Vector 4 to set. (Numpy array with 4 elemenets)
         """
         location = self.get_location(variable)
-        if location < 0:
-            logging.error(f"Variable not found in program [{variable}]")
+        if location == -1:
             return False
         glUniform4fv(location, 1, value)
         return True
@@ -376,8 +373,7 @@ class Shader(object):
           value: Integer value to set
         """
         location = self.get_location(variable)
-        if location < 0:
-            logging.error(f"Variable not found in program [{variable}]")
+        if location == -1:
             return False
 
         glUniform1i(location, ctypes.c_int(value))
@@ -391,8 +387,7 @@ class Shader(object):
           value: Floaf value to set
         """
         location = self.get_location(variable)
-        if location < 0:
-            logging.error(f"Variable not found in program [{variable}]")
+        if location == -1:
             return False
 
         glUniform1f(location, ctypes.c_float(value))

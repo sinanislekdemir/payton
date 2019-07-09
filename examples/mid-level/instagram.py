@@ -16,9 +16,9 @@ font_file = os.path.join(
 )
 
 
-def fetch_instagram(name, scene, period, total):
+def fetch_instagram(period, total):
     """This method runs once and continues to build the scene"""
-    global y, z
+    global y, z, scene
     scene.clocks["fetch_instagram"].pause()
     url = "https://www.instagram.com/nasa/?__a=1"
     data = requests.get(url)
