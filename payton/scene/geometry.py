@@ -28,7 +28,7 @@ from OpenGL.GL import (
     GL_FILL,
     GL_TRIANGLES,
     glPolygonMode,
-    GL_LINE_STRIP,
+    GL_LINES,
     glGenVertexArrays,
     glGenBuffers,
     GL_ARRAY_BUFFER,
@@ -359,11 +359,18 @@ class Object(object):
         if not self.has_vao or self._needs_update:
             self.build()
 
-        if self._vertex_count == 0:
-            return
-
         self.update_matrix(parent_matrix=parent_matrix)
         self.track()
+
+        if self._vertex_count == 0:
+            # dummy object, render children and leave
+            # render children
+            for child in self.children:
+                self.children[child].render(
+                    proj, view, lights, self._model_matrix
+                )
+
+            return
 
         # Material shading mode.
         mode = None
@@ -376,7 +383,7 @@ class Object(object):
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
             pmode = GL_LINE
-            primitive = GL_LINE_STRIP
+            primitive = GL_LINES
             if self.material.display == SOLID:
                 pmode = GL_FILL
                 primitive = GL_TRIANGLES
