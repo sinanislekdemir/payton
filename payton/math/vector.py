@@ -209,3 +209,18 @@ def min_max(vlist: List[List[float]]) -> Tuple[List[float], List[float]]:
         [min(x_list), min(y_list), min(z_list)],
         [max(x_list), max(y_list), max(z_list)],
     )
+
+
+def scale_vector(v: List[float], d: float) -> List[float]:
+    """Scale the given vector by d"""
+    return [q * d for q in v]
+
+
+def add_vectors(v1: List[float], v2: List[float]) -> List[float]:
+    """Add V1 and V2"""
+    if len(v1) != len(v2):
+        raise BaseException("Vector lengths must be equal")
+    result = []
+    for i in range(len(v1)):
+        result.append(v1[i] + v2[i])
+    return result

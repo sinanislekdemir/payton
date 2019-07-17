@@ -13,8 +13,9 @@ UNIFORM_MATRIX = [
 ]
 
 
-def create_rotation_matrix(axis: GArray, angle: float) -> np.ndarray:
-    """Create rotation matrix along Axis with given angle
+def create_rotation_matrix_raw(axis: GArray, angle: float) -> np.ndarray:
+    """Create rotation matrix along Axis with given angle, return List
+    instead of Numpy Array
 
     Rotates a matrix around Axis by given angle.
     _(This function is ported from GLScene sources)_
@@ -46,6 +47,23 @@ def create_rotation_matrix(axis: GArray, angle: float) -> np.ndarray:
     result[2][1] = (m_cos * axis[1] * axis[2]) + (axis[0] * sin)
     result[2][2] = (m_cos * axis[2] * axis[2]) + cos
     result[2][3] = 0
+    return result
+
+
+def create_rotation_matrix(axis: GArray, angle: float) -> np.ndarray:
+    """Create rotation matrix along Axis with given angle
+
+    Rotates a matrix around Axis by given angle.
+    _(This function is ported from GLScene sources)_
+
+    Args:
+      axis: Object matrix
+      angle: Angle in radians
+      as_numpy: Return result as a numpy array.
+    Returns:
+      matrix
+    """
+    result = create_rotation_matrix_raw(axis, angle)
     return np.array(result, dtype=np.float32)
 
 

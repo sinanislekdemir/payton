@@ -28,7 +28,7 @@ from OpenGL.GL import (
     GL_FILL,
     GL_TRIANGLES,
     glPolygonMode,
-    GL_LINE_LOOP,
+    GL_LINES,
     glGenVertexArrays,
     glGenBuffers,
     GL_ARRAY_BUFFER,
@@ -383,7 +383,7 @@ class Object(object):
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
             pmode = GL_LINE
-            primitive = GL_LINE_LOOP
+            primitive = GL_LINES
             if self.material.display == SOLID:
                 pmode = GL_FILL
                 primitive = GL_TRIANGLES
