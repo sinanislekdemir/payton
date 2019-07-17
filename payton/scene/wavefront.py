@@ -71,7 +71,7 @@ class Wavefront(Mesh):
                 _vertices.append([x, y, z])
             if command == "vt":
                 u = float(parts[1])
-                w = float(parts[2]) if len(parts) > 2 else 0
+                w = 1.0 - float(parts[2]) if len(parts) > 2 else 0
                 _texcoords.append([u, w])
             if command == "vn":
                 x = float(parts[1])

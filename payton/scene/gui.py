@@ -147,12 +147,12 @@ class Rectangle(Shape2D):
         self.clear_triangles()
         if not self._init:
             self.add_triangle(
-                [[0, 0, 1], [w, 0, 1], [w, h, 1]],
-                texcoords=[[0, 0], [1, 0], [1, 1]],
+                [[0, 0, 1], [w, h, 1], [w, 0, 1]],
+                texcoords=[[0, 0], [1, 1], [1, 0]],
             )
             self.add_triangle(
-                [[0, 0, 1], [w, h, 1], [0, h, 1]],
-                texcoords=[[0, 0], [1, 1], [0, 1]],
+                [[0, 0, 1], [0, h, 1], [w, h, 1]],
+                texcoords=[[0, 0], [0, 1], [1, 1]],
             )
             self._init = True
 

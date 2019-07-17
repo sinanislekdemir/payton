@@ -14,7 +14,7 @@ Example definition:
 """
 
 import math
-from typing import List
+from typing import List, Tuple
 
 
 def sub_vector(v1: List[float], v2: List[float]) -> List:
@@ -186,3 +186,26 @@ def invert_vector(v: List[float]) -> List[float]:
         # result = [-3.0, 4.0, -5.0]
     """
     return [-v[0], -v[1], -v[2]]
+
+
+def min_max(vlist: List[List[float]]) -> Tuple[List[float], List[float]]:
+    """Return min and max coordinates as a bounding box from given list
+    of vector positions
+
+    Example usage:
+
+        from payton.math.vector import min_max
+
+        vlist = [[1.0, 2.0, 3.0], [-4.0, 5.0, 2.0]]
+
+        min, max = min_max(vlist)
+        # min = [-4.0, 2.0, 2.0]
+        # max = [1.0, 5.0, 3.0]
+    """
+    x_list = [item[0] for item in vlist]
+    y_list = [item[1] for item in vlist]
+    z_list = [item[2] for item in vlist]
+    return (
+        [min(x_list), min(y_list), min(z_list)],
+        [max(x_list), max(y_list), max(z_list)],
+    )
