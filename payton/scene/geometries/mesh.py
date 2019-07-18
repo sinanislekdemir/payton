@@ -3,7 +3,7 @@ import logging
 from typing import Any, Optional
 
 from payton.scene.geometries.base import Object
-from payton.math.vector import plane_normal
+from payton.math.vector import plane_normal, vector_angle
 from payton.scene.types import VList
 
 
@@ -57,13 +57,76 @@ class Mesh(Object):
         self._calc_bounds()
         bbox = self._bounding_box
         vmin, vmax = bbox[0], bbox[1]
+        width = vmax[0] - vmin[0]
+        depth = vmax[1] - vmin[1]
+        height = vmax[2] - vmin[2]
+        normals = [
+            [0.0, -1.0, 0.0],  # front
+            [1.0, 0.0, 0.0],  # right
+            [-1.0, 0.0, 0.0],  # left
+            [0.0, 1.0, 0.0],  # back
+            [0.0, 0.0, 1.0],  # top
+            [0.0, 0.0, -1.0],  # bottom
+        ]
         for face in self._indices:
             v1, v2, v3 = (
                 self._vertices[face[0]],
                 self._vertices[face[1]],
                 self._vertices[face[2]],
             )
-            # find closest face
+            # find face normal
+            normal = plane_normal(v1, v2, v3)
+            # determine which face of the cube
+            angles = [vector_angle(normal, n) for n in normals]
+            face_dir = angles.index(min(angles))
+            if face_dir == 0:
+                t1 = (v1[0] - vmin[0]) / width
+                s1 = (v1[2] - vmin[2]) / height
+                t2 = (v2[0] - vmin[0]) / width
+                s2 = (v2[2] - vmin[2]) / height
+                t3 = (v3[0] - vmin[0]) / width
+                s3 = (v3[2] - vmin[2]) / height
+                self._texcoords.extend([[t1, s1], [t2, s2], [t3, s3]])
+            if face_dir == 1:
+                t1 = (v1[1] - vmin[1]) / depth
+                s1 = (v1[2] - vmin[2]) / height
+                t2 = (v2[1] - vmin[1]) / depth
+                s2 = (v2[2] - vmin[2]) / height
+                t3 = (v3[1] - vmin[1]) / depth
+                s3 = (v3[2] - vmin[2]) / height
+                self._texcoords.extend([[t1, s1], [t2, s2], [t3, s3]])
+            if face_dir == 2:
+                t1 = (vmax[1] - v1[1]) / depth
+                s1 = (v1[2] - vmin[2]) / height
+                t2 = (vmax[1] - v2[1]) / depth
+                s2 = (v2[2] - vmin[2]) / height
+                t3 = (vmax[1] - v3[1]) / depth
+                s3 = (v3[2] - vmin[2]) / height
+                self._texcoords.extend([[t1, s1], [t2, s2], [t3, s3]])
+            if face_dir == 3:
+                t1 = (vmax[0] - v1[0]) / width
+                s1 = (v1[2] - vmin[2]) / height
+                t2 = (vmax[0] - v2[0]) / width
+                s2 = (v2[2] - vmin[2]) / height
+                t3 = (vmax[0] - v3[0]) / width
+                s3 = (v3[2] - vmin[2]) / height
+                self._texcoords.extend([[t1, s1], [t2, s2], [t3, s3]])
+            if face_dir == 4:
+                t1 = (v1[0] - vmin[0]) / width
+                s1 = (v1[1] - vmin[1]) / depth
+                t2 = (v2[0] - vmin[0]) / width
+                s2 = (v2[1] - vmin[1]) / depth
+                t3 = (v3[0] - vmin[0]) / width
+                s3 = (v3[1] - vmin[1]) / depth
+                self._texcoords.extend([[t1, s1], [t2, s2], [t3, s3]])
+            if face_dir == 5:
+                t1 = (v1[0] - vmin[0]) / width
+                s1 = (v1[1] - vmin[1]) / depth
+                t2 = (v2[0] - vmin[0]) / width
+                s2 = (v2[1] - vmin[1]) / depth
+                t3 = (v3[0] - vmin[0]) / width
+                s3 = (v3[1] - vmin[1]) / depth
+                self._texcoords.extend([[t1, s1], [t2, s2], [t3, s3]])
 
     def scale(self, x: float, y: float, z: float) -> None:
         """Scale Mesh by given factors

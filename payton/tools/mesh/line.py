@@ -72,6 +72,7 @@ def rotate_line(
                 ],
             )
         vertices = mirror_vertices.copy()
+    mesh.fix_normals()
     return mesh
 
 
@@ -93,4 +94,6 @@ def lines_to_mesh(lines: List[Line]) -> Mesh:
             mesh.add_triangle(
                 vertices=[fvlist[j + 1], tvlist[j + 1], tvlist[j]]
             )
+    mesh.fix_normals()
+    mesh.fix_texcoords()
     return mesh

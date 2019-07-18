@@ -74,7 +74,7 @@ def vector_norm(v: List[float]) -> float:
         # result = 7.0710678118654755
 
     """
-    return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))
+    return math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]))
 
 
 def normalize_vector(v: List[float]) -> List[float]:
@@ -224,3 +224,17 @@ def add_vectors(v1: List[float], v2: List[float]) -> List[float]:
     for i in range(len(v1)):
         result.append(v1[i] + v2[i])
     return result
+
+
+def dot_product(v1: List[float], v2: List[float]) -> float:
+    """Return vector dot product of v1 and v2"""
+    return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
+
+
+def vector_angle(v1: List[float], v2: List[float]) -> float:
+    """Return the angle between vector v1 and v2"""
+    v1_n = normalize_vector(v1)
+    v2_n = normalize_vector(v2)
+    return math.acos(
+        dot_product(v1_n, v2_n) / (vector_norm(v1_n) * vector_norm(v2_n))
+    )
