@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.6.2" />
+<meta name="generator" content="pdoc 0.6.3" />
 <title>payton.math.vector API documentation</title>
 <meta name="description" content="Vector geometry functions …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
@@ -46,7 +46,7 @@ Example definition:
 &#34;&#34;&#34;
 
 import math
-from typing import List
+from typing import List, Tuple
 
 
 def sub_vector(v1: List[float], v2: List[float]) -&gt; List:
@@ -106,7 +106,7 @@ def vector_norm(v: List[float]) -&gt; float:
         # result = 7.0710678118654755
 
     &#34;&#34;&#34;
-    return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))
+    return math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]))
 
 
 def normalize_vector(v: List[float]) -&gt; List[float]:
@@ -217,7 +217,59 @@ def invert_vector(v: List[float]) -&gt; List[float]:
         result = invert_vector(v1)
         # result = [-3.0, 4.0, -5.0]
     &#34;&#34;&#34;
-    return [-v[0], -v[1], -v[2]]</code></pre>
+    return [-v[0], -v[1], -v[2]]
+
+
+def min_max(vlist: List[List[float]]) -&gt; Tuple[List[float], List[float]]:
+    &#34;&#34;&#34;Return min and max coordinates as a bounding box from given list
+    of vector positions
+
+    Example usage:
+
+        from payton.math.vector import min_max
+
+        vlist = [[1.0, 2.0, 3.0], [-4.0, 5.0, 2.0]]
+
+        min, max = min_max(vlist)
+        # min = [-4.0, 2.0, 2.0]
+        # max = [1.0, 5.0, 3.0]
+    &#34;&#34;&#34;
+    x_list = [item[0] for item in vlist]
+    y_list = [item[1] for item in vlist]
+    z_list = [item[2] for item in vlist]
+    return (
+        [min(x_list), min(y_list), min(z_list)],
+        [max(x_list), max(y_list), max(z_list)],
+    )
+
+
+def scale_vector(v: List[float], d: float) -&gt; List[float]:
+    &#34;&#34;&#34;Scale the given vector by d&#34;&#34;&#34;
+    return [q * d for q in v]
+
+
+def add_vectors(v1: List[float], v2: List[float]) -&gt; List[float]:
+    &#34;&#34;&#34;Add V1 and V2&#34;&#34;&#34;
+    if len(v1) != len(v2):
+        raise BaseException(&#34;Vector lengths must be equal&#34;)
+    result = []
+    for i in range(len(v1)):
+        result.append(v1[i] + v2[i])
+    return result
+
+
+def dot_product(v1: List[float], v2: List[float]) -&gt; float:
+    &#34;&#34;&#34;Return vector dot product of v1 and v2&#34;&#34;&#34;
+    return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
+
+
+def vector_angle(v1: List[float], v2: List[float]) -&gt; float:
+    &#34;&#34;&#34;Return the angle between vector v1 and v2&#34;&#34;&#34;
+    v1_n = normalize_vector(v1)
+    v2_n = normalize_vector(v2)
+    return math.acos(
+        dot_product(v1_n, v2_n) / (vector_norm(v1_n) * vector_norm(v2_n))
+    )</code></pre>
 </details>
 </section>
 <section>
@@ -227,6 +279,23 @@ def invert_vector(v: List[float]) -&gt; List[float]:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="payton.math.vector.add_vectors"><code class="name flex">
+<span>def <span class="ident">add_vectors</span></span>(<span>v1, v2)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Add V1 and V2</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add_vectors(v1: List[float], v2: List[float]) -&gt; List[float]:
+    &#34;&#34;&#34;Add V1 and V2&#34;&#34;&#34;
+    if len(v1) != len(v2):
+        raise BaseException(&#34;Vector lengths must be equal&#34;)
+    result = []
+    for i in range(len(v1)):
+        result.append(v1[i] + v2[i])
+    return result</code></pre>
+</details>
+</dd>
 <dt id="payton.math.vector.cross_product"><code class="name flex">
 <span>def <span class="ident">cross_product</span></span>(<span>v1, v2)</span>
 </code></dt>
@@ -273,6 +342,18 @@ result = cross_product(v1, v2)
     ]</code></pre>
 </details>
 </dd>
+<dt id="payton.math.vector.dot_product"><code class="name flex">
+<span>def <span class="ident">dot_product</span></span>(<span>v1, v2)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return vector dot product of v1 and v2</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def dot_product(v1: List[float], v2: List[float]) -&gt; float:
+    &#34;&#34;&#34;Return vector dot product of v1 and v2&#34;&#34;&#34;
+    return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]</code></pre>
+</details>
+</dd>
 <dt id="payton.math.vector.invert_vector"><code class="name flex">
 <span>def <span class="ident">invert_vector</span></span>(<span>v)</span>
 </code></dt>
@@ -300,6 +381,46 @@ result = invert_vector(v1)
         # result = [-3.0, 4.0, -5.0]
     &#34;&#34;&#34;
     return [-v[0], -v[1], -v[2]]</code></pre>
+</details>
+</dd>
+<dt id="payton.math.vector.min_max"><code class="name flex">
+<span>def <span class="ident">min_max</span></span>(<span>vlist)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return min and max coordinates as a bounding box from given list
+of vector positions</p>
+<p>Example usage:</p>
+<pre><code>from payton.math.vector import min_max
+
+vlist = [[1.0, 2.0, 3.0], [-4.0, 5.0, 2.0]]
+
+min, max = min_max(vlist)
+# min = [-4.0, 2.0, 2.0]
+# max = [1.0, 5.0, 3.0]
+</code></pre></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def min_max(vlist: List[List[float]]) -&gt; Tuple[List[float], List[float]]:
+    &#34;&#34;&#34;Return min and max coordinates as a bounding box from given list
+    of vector positions
+
+    Example usage:
+
+        from payton.math.vector import min_max
+
+        vlist = [[1.0, 2.0, 3.0], [-4.0, 5.0, 2.0]]
+
+        min, max = min_max(vlist)
+        # min = [-4.0, 2.0, 2.0]
+        # max = [1.0, 5.0, 3.0]
+    &#34;&#34;&#34;
+    x_list = [item[0] for item in vlist]
+    y_list = [item[1] for item in vlist]
+    z_list = [item[2] for item in vlist]
+    return (
+        [min(x_list), min(y_list), min(z_list)],
+        [max(x_list), max(y_list), max(z_list)],
+    )</code></pre>
 </details>
 </dd>
 <dt id="payton.math.vector.normalize_vector"><code class="name flex">
@@ -413,6 +534,18 @@ result = plane_normal(v1, v2, v3)
     return normalize_vector(r)</code></pre>
 </details>
 </dd>
+<dt id="payton.math.vector.scale_vector"><code class="name flex">
+<span>def <span class="ident">scale_vector</span></span>(<span>v, d)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Scale the given vector by d</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def scale_vector(v: List[float], d: float) -&gt; List[float]:
+    &#34;&#34;&#34;Scale the given vector by d&#34;&#34;&#34;
+    return [q * d for q in v]</code></pre>
+</details>
+</dd>
 <dt id="payton.math.vector.sub_vector"><code class="name flex">
 <span>def <span class="ident">sub_vector</span></span>(<span>v1, v2)</span>
 </code></dt>
@@ -447,6 +580,22 @@ result = sub_vector(v1, v2)
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]]</code></pre>
 </details>
 </dd>
+<dt id="payton.math.vector.vector_angle"><code class="name flex">
+<span>def <span class="ident">vector_angle</span></span>(<span>v1, v2)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return the angle between vector v1 and v2</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def vector_angle(v1: List[float], v2: List[float]) -&gt; float:
+    &#34;&#34;&#34;Return the angle between vector v1 and v2&#34;&#34;&#34;
+    v1_n = normalize_vector(v1)
+    v2_n = normalize_vector(v2)
+    return math.acos(
+        dot_product(v1_n, v2_n) / (vector_norm(v1_n) * vector_norm(v2_n))
+    )</code></pre>
+</details>
+</dd>
 <dt id="payton.math.vector.vector_norm"><code class="name flex">
 <span>def <span class="ident">vector_norm</span></span>(<span>v)</span>
 </code></dt>
@@ -474,7 +623,7 @@ result = vector_norm(v1)
         # result = 7.0710678118654755
 
     &#34;&#34;&#34;
-    return math.sqrt((v[0] ** 2) + (v[1] ** 2) + (v[2] ** 2))</code></pre>
+    return math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]))</code></pre>
 </details>
 </dd>
 <dt id="payton.math.vector.vector_transform"><code class="name flex">
@@ -553,11 +702,16 @@ be assumed as calculating the absolute vertex from a local matrix.</p>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
+<li><code><a title="payton.math.vector.add_vectors" href="#payton.math.vector.add_vectors">add_vectors</a></code></li>
 <li><code><a title="payton.math.vector.cross_product" href="#payton.math.vector.cross_product">cross_product</a></code></li>
+<li><code><a title="payton.math.vector.dot_product" href="#payton.math.vector.dot_product">dot_product</a></code></li>
 <li><code><a title="payton.math.vector.invert_vector" href="#payton.math.vector.invert_vector">invert_vector</a></code></li>
+<li><code><a title="payton.math.vector.min_max" href="#payton.math.vector.min_max">min_max</a></code></li>
 <li><code><a title="payton.math.vector.normalize_vector" href="#payton.math.vector.normalize_vector">normalize_vector</a></code></li>
 <li><code><a title="payton.math.vector.plane_normal" href="#payton.math.vector.plane_normal">plane_normal</a></code></li>
+<li><code><a title="payton.math.vector.scale_vector" href="#payton.math.vector.scale_vector">scale_vector</a></code></li>
 <li><code><a title="payton.math.vector.sub_vector" href="#payton.math.vector.sub_vector">sub_vector</a></code></li>
+<li><code><a title="payton.math.vector.vector_angle" href="#payton.math.vector.vector_angle">vector_angle</a></code></li>
 <li><code><a title="payton.math.vector.vector_norm" href="#payton.math.vector.vector_norm">vector_norm</a></code></li>
 <li><code><a title="payton.math.vector.vector_transform" href="#payton.math.vector.vector_transform">vector_transform</a></code></li>
 </ul>
@@ -566,7 +720,7 @@ be assumed as calculating the absolute vertex from a local matrix.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>
