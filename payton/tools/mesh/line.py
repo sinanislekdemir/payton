@@ -73,3 +73,24 @@ def rotate_line(
             )
         vertices = mirror_vertices.copy()
     return mesh
+
+
+def lines_to_mesh(lines: List[Line]) -> Mesh:
+    """Fill the gap between line objects and construct a mesh"""
+    lens = [len(l._vertices) for l in lines]
+    lmin = min(lens)
+    lmax = max(lens)
+    mesh = Mesh()
+    if lmin != lmax:
+        raise BaseException("Number of vertices for each line must be equal")
+    if len(lines) == 0:
+        raise BaseException("You must specify more than one line object")
+    for i in range(len(lines) - 1):
+        fvlist = lines[i]._vertices
+        tvlist = lines[i + 1]._vertices
+        for j in range(lmin - 1):
+            mesh.add_triangle(vertices=[fvlist[j], fvlist[j + 1], tvlist[j]])
+            mesh.add_triangle(
+                vertices=[fvlist[j + 1], tvlist[j + 1], tvlist[j]]
+            )
+    return mesh
