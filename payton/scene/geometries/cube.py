@@ -12,7 +12,7 @@ class Cube(Mesh):
 
     Cube object use case:
 
-        .. include:: ../../examples/basics/02_cube.py
+        .. include:: ../../../examples/basics/02_cube.py
 
     """
 

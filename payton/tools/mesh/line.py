@@ -40,7 +40,14 @@ def extrude_line(line: Line, direction: List[float], distance: float) -> Mesh:
 def rotate_line(
     line: Line, axis: List[float], angle: float, steps: int = 10
 ) -> Mesh:
-    """Create a mesh by rotating a line around axis at given angle (rad)"""
+    """Create a mesh by rotating a line around axis at given angle (rad)
+
+    Args:
+      line: Line object to rotate
+      axis: Axis to rotate line around (eg. [0, 0, 1.0])
+      angle: Rotation angle
+      steps: How many steps (resolution) to divide
+    """
     step_angle = angle / steps
     vertices = line._vertices
     step_u = 1.0 / steps
@@ -77,7 +84,17 @@ def rotate_line(
 
 
 def lines_to_mesh(lines: List[Line]) -> Mesh:
-    """Fill the gap between line objects and construct a mesh"""
+    """Fill the gap between line objects and construct a mesh
+
+    Note: Algorithm follows the order of lines in the array, not their
+          distances.
+
+    Args:
+      lines: List of line objects to use for construction.
+
+    Returns:
+      mesh
+    """
     lens = [len(l._vertices) for l in lines]
     lmin = min(lens)
     lmax = max(lens)
