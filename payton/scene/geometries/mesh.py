@@ -127,6 +127,7 @@ class Mesh(Object):
                 t3 = (v3[0] - vmin[0]) / width
                 s3 = (v3[1] - vmin[1]) / depth
                 self._texcoords.extend([[t1, s1], [t2, s2], [t3, s3]])
+        self._texcoords = [[t[0] * u, t[1] * v] for t in self._texcoords]
 
     def scale(self, x: float, y: float, z: float) -> None:
         """Scale Mesh by given factors

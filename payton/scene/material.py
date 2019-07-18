@@ -29,7 +29,7 @@ from OpenGL.GL import (
     GL_TEXTURE_MIN_FILTER,
     GL_LINEAR_MIPMAP_LINEAR,
     GL_TEXTURE_WRAP_S,
-    GL_CLAMP_TO_EDGE,
+    GL_REPEAT,
     GL_TEXTURE_WRAP_T,
     glTexImage2D,
     glActiveTexture,
@@ -182,8 +182,8 @@ class Material(object):
         glTexParameterf(
             GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR
         )
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
         mode = GL_RGBA
         if img.mode == "RGB":
             mode = GL_RGB

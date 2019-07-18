@@ -36,6 +36,7 @@ roof_top = Line(
 
 roof = lines_to_mesh([roof_base, roof_top])
 roof.material.texture = texture_file
+roof.fix_texcoords(2, 2)  # Repeat the texture twice, make bricks at half size.
 
 scene.add_object("roof_base_line", roof_base)
 scene.add_object("roof_top_line", roof_top)
