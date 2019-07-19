@@ -14,7 +14,7 @@ def extrude_line(line: Line, direction: List[float], distance: float) -> Mesh:
       distance: Distance to extrude
 
     Returns:
-      mesh
+      Mesh
     """
     vertices = line._vertices
     diff_vector = scale_vector(direction, distance)
