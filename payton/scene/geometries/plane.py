@@ -31,4 +31,4 @@ class Plane(Mesh):
         ]
         self._normals = [[0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]]
         self._texcoords = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
-        self._indices = [[0, 1, 2], [0, 2, 3]]
+        self._indices = [[0, 1, 2], [2, 3, 0]]

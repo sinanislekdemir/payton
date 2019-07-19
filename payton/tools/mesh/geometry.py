@@ -49,9 +49,9 @@ def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
     """
     original = deepcopy(mesh)
     new = deepcopy(original)
-    new.clear_triangles()
     for i in range(rounds):
         has_texcoords = len(original._texcoords) == len(original._vertices)
+        new.clear_triangles()
 
         for indice in original._indices:
             v1 = original._vertices[indice[0]]
@@ -101,7 +101,7 @@ def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
                 texcoords=texcoords_1,
             )
             new.add_triangle(
-                vertices=[vc, b, c],
+                vertices=[c, vc, b],
                 normals=[n1, n1, n1],
                 texcoords=texcoords_2,
             )
