@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from payton.scene.geometry import Mesh
+from payton.math.vector import mid_point, distance
 
 
 def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
@@ -32,3 +33,77 @@ def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
     mesh._calc_bounds()
     mesh.refresh()
     return mesh
+
+
+def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
+    """Subdivide mesh into smaller triangles
+
+    Each triangle is split into two triangles by the longest edge.
+
+    Args:
+      mesh: Mesh to subdivide
+      rounds: Number of subdivisions to apply
+
+    Returns:
+      Mesh
+    """
+    original = deepcopy(mesh)
+    new = deepcopy(original)
+    new.clear_triangles()
+    for i in range(rounds):
+        has_texcoords = len(original._texcoords) == len(original._vertices)
+
+        for indice in original._indices:
+            v1 = original._vertices[indice[0]]
+            v2 = original._vertices[indice[1]]
+            v3 = original._vertices[indice[2]]
+
+            a = v1
+            a_i = indice[0]
+            b = v2
+            b_i = indice[1]
+            c = v3
+            c_i = indice[2]
+
+            if distance(v2, v3) > distance(v1, v2):
+                a = v2
+                a_i = indice[1]
+                b = v3
+                b_i = indice[2]
+                c = v1
+                c_i = indice[0]
+
+            if distance(v3, v1) > distance(v2, v3):
+                a = v3
+                a_i = indice[2]
+                b = v1
+                b_i = indice[0]
+                c = v2
+                c_i = indice[1]
+
+            vc = mid_point(a, b)
+            n1 = original._normals[indice[0]]
+            texcoords_1 = None
+            texcoords_2 = None
+            if has_texcoords:
+                t1 = original._texcoords[a_i]
+                t2 = original._texcoords[b_i]
+                t3 = original._texcoords[c_i]
+
+                tc = mid_point(t1, t2)
+
+                texcoords_1 = [t1, tc, t3]
+                texcoords_2 = [tc, t2, t3]
+
+            new.add_triangle(
+                vertices=[a, vc, c],
+                normals=[n1, n1, n1],
+                texcoords=texcoords_1,
+            )
+            new.add_triangle(
+                vertices=[vc, b, c],
+                normals=[n1, n1, n1],
+                texcoords=texcoords_2,
+            )
+        original = deepcopy(new)
+    return new

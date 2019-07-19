@@ -238,3 +238,34 @@ def vector_angle(v1: List[float], v2: List[float]) -> float:
     return math.acos(
         dot_product(v1_n, v2_n) / (vector_norm(v1_n) * vector_norm(v2_n))
     )
+
+
+def _ensure_affine(v: List[float]):
+    res = v.copy()
+    if len(res) == 2:
+        res.append(0)
+    return res
+
+
+def mid_point(v1: List[float], v2: List[float]) -> List[float]:
+    """Return mid point between v1 and v2
+    """
+    v1_c = _ensure_affine(v1)
+    v2_c = _ensure_affine(v2)
+
+    diff = sub_vector(v2_c, v1_c)
+    leng = vector_norm(diff)
+    diff = normalize_vector(diff)
+    diff = scale_vector(diff, leng / 2.0)
+    result = add_vectors(diff, v1_c)
+    if len(v1) == 2:
+        return result[:2]
+    return result
+
+
+def distance(v1: List[float], v2: List[float]) -> List[float]:
+    """Return distance from v1 to v2"""
+    v1_c = _ensure_affine(v1)
+    v2_c = _ensure_affine(v2)
+    diff = sub_vector(v2_c, v1_c)
+    return vector_norm(diff)
