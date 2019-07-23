@@ -7,6 +7,7 @@ Example collision test:
 
 """
 import logging
+from itertools import combinations
 from typing import Any, List, Type, Callable, Optional
 
 from payton.scene.geometry import Mesh, Sphere, Object
@@ -174,15 +175,13 @@ class CollisionTest(object):
         If there is a collision within the object list, callback function will
         be called and collision pairs can be reached via `self._pairs`
         """
-        for i in range(len(self.objects) - 1):
-            for j in range(len(self.objects) - i - 1):
-                obj1 = self.objects[i]
-                obj2 = self.objects[i + j + 1]
-                pair = {}
-                pair = [obj1, obj2]
-                if pair not in self._pairs:
-                    res = self._test(obj1, obj2)
-                    if res:
-                        self._pairs.append(pair)
+        for obj1, obj2 in combinations(self.objects, 2):
+            pair = {}
+            pair = [obj1, obj2]
+            if pair not in self._pairs:
+                res = self._test(obj1, obj2)
+                if res:
+                    self._pairs.append(pair)
 
-        self.callback(self, self._pairs)
+        if len(self._pairs) > 0:
+            self.callback(self, self._pairs)

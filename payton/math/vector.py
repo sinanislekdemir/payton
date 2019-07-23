@@ -263,7 +263,7 @@ def mid_point(v1: List[float], v2: List[float]) -> List[float]:
     return result
 
 
-def distance(v1: List[float], v2: List[float]) -> List[float]:
+def distance(v1: List[float], v2: List[float]) -> float:
     """Return distance from v1 to v2"""
     v1_c = _ensure_affine(v1)
     v2_c = _ensure_affine(v2)

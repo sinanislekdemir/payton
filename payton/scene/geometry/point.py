@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Optional
 
-from payton.scene.geometries.base import Object
+from payton.scene.geometry import Object
 from payton.scene.types import VList
 from payton.scene.material import POINTS
 

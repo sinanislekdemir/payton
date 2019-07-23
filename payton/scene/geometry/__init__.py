@@ -12,9 +12,9 @@ object is not generated until it arrives in render pipeline.
   * Material (`payton.scene.material`)
     * Shader (`payton.scene.shader`)
 """
-from payton.scene.geometries.base import *
-from payton.scene.geometries.mesh import *
-from payton.scene.geometries.cylinder import *
-from payton.scene.geometries.cube import *
-from payton.scene.geometries.plane import *
-from payton.scene.geometries.sphere import *
+from payton.scene.geometry.base import *
+from payton.scene.geometry.mesh import *
+from payton.scene.geometry.cylinder import *
+from payton.scene.geometry.cube import *
+from payton.scene.geometry.plane import *
+from payton.scene.geometry.sphere import *

@@ -1,3 +1,0 @@
-"""
-Hidden geometries collection module
-"""

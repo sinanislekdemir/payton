@@ -2,7 +2,7 @@
 import logging
 from typing import Any, Optional
 
-from payton.scene.geometries.base import Object
+from payton.scene.geometry import Object
 from payton.math.vector import plane_normal, vector_angle
 from payton.scene.types import VList
 
@@ -40,7 +40,8 @@ class Mesh(Object):
     def fix_normals(self) -> None:
         """Try to re-calculate Mesh normals, if your object has already perfect
         normals, do not call this method"""
-        self._normals = []
+        self._normals = [[0, 0, 1.0]] * len(self._vertices)
+
         for face in self._indices:
             v1, v2, v3 = (
                 self._vertices[face[0]],
@@ -48,7 +49,9 @@ class Mesh(Object):
                 self._vertices[face[2]],
             )
             normal = plane_normal(v1, v2, v3)
-            self._normals.extend([normal, normal, normal])
+            self._normals[face[0]] = normal
+            self._normals[face[1]] = normal
+            self._normals[face[2]] = normal
 
     def fix_texcoords(self, u: int = 1, v: int = 1) -> None:
         """Try to recalculate mesh texture coordinates by cube projection

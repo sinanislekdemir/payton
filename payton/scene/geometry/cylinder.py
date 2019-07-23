@@ -1,7 +1,7 @@
 import math
 from typing import Any
 
-from payton.scene.geometries.mesh import Mesh
+from payton.scene.geometry import Mesh
 
 
 class Cylinder(Mesh):
