@@ -8,7 +8,7 @@ from payton.scene.material import POINTS, LIGHT_STEEL_BLUE
 from payton.tools.mesh.geometry import subdivide
 from payton.math.vector import distance
 
-water_size = 40
+water_size = 100
 damp = 20
 
 
@@ -65,7 +65,7 @@ def drop(period, total):
     global water
     water[random.randint(0, water_size - 1)][
         random.randint(0, water_size - 1)
-    ] = random.randint(-5, 5)
+    ] = random.randint(-5, 15)
 
 
 scene = Scene()
@@ -79,7 +79,7 @@ plane.material.display = POINTS
 plane.material.color = LIGHT_STEEL_BLUE
 
 scene.create_clock("ripple", 0.05, calc_water)
-scene.create_clock("drop", 1, drop)
+scene.create_clock("drop", 5, drop)
 scene.add_object("plane", plane)
 scene.active_observer.distance_to_target(20)
 

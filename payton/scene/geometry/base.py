@@ -1,5 +1,4 @@
 # pylama:ignore=C901
-import pyrr
 import numpy as np  # type: ignore
 import ctypes
 import logging
@@ -35,7 +34,7 @@ from OpenGL.GL import (
 )
 
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.vector import vector_transform
+from payton.math.vector import vector_transform, distance
 from payton.math.matrix import create_rotation_matrix
 from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
 from payton.scene.shader import Shader
@@ -493,37 +492,16 @@ class Object(object):
         Returns:
           float
         """
-        vertices = np.array(self._vertices, dtype=np.float32)
 
         bmin: Optional[List[float]] = None
         bmax: Optional[List[float]] = None
-        for v in vertices:
-            if bmin is None:
-                bmin = [0, 0, 0]
-                bmin[0], bmin[1], bmin[2] = v[0], v[1], v[2]
-            if bmax is None:
-                bmax = [0, 0, 0]
-                bmax[0], bmax[1], bmax[2] = v[0], v[1], v[2]
-            if v[0] < bmin[0]:
-                bmin[0] = v[0]
-            if v[1] < bmin[1]:
-                bmin[1] = v[1]
-            if v[2] < bmin[2]:
-                bmin[2] = v[2]
-            if v[0] > bmax[0]:
-                bmax[0] = v[0]
-            if v[1] > bmax[1]:
-                bmax[1] = v[1]
-            if v[2] > bmax[2]:
-                bmax[2] = v[2]
+        x = [v[0] for v in self._vertices]
+        y = [v[1] for v in self._vertices]
+        z = [v[2] for v in self._vertices]
+        bmin = [min(x), min(y), min(z)]
+        bmax = [max(x), max(y), max(z)]
+        self._bounding_radius = distance(bmax, bmin) / 2.0
 
-            d = pyrr.vector3.length(v)
-            if d > self._bounding_radius:
-                self._bounding_radius = d
-        if bmin is None:
-            bmin = [0.0, 0.0, 0.0]
-        if bmax is None:
-            bmax = [0.0, 0.0, 0.0]
         self._bounding_box = [bmin, bmax]
         return self._bounding_radius
 
@@ -669,7 +647,6 @@ class Object(object):
             self._vbos = []
 
         self._needs_update = False
-
         return True
 
 

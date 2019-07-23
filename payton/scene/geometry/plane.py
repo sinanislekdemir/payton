@@ -1,6 +1,7 @@
 from itertools import product
 from typing import Any, List
 from payton.scene.geometry import Mesh
+from payton.scene.material import SOLID
 
 
 class Plane(Mesh):
@@ -70,7 +71,8 @@ class MatrixPlane(Mesh):
     def update_grid(self) -> None:
         for i, j in product(range(self.x), range(self.y)):
             self._vertices[(self.x * i) + j][2] = self.grid[i][j]
-        self.fix_normals()
+        if self.material.display == SOLID:
+            self.fix_normals()
         self.refresh()
 
     def populate_grid(self) -> None:
