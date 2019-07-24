@@ -68,7 +68,20 @@ def drop(period, total):
     ] = random.randint(-5, 15)
 
 
+def ripple_pos(hit):
+    global water
+    i = int((hit[0] + 10) * 5)
+    j = int((hit[1] + 10) * 5)
+    if not (0 <= i < water_size):
+        return
+    if not (0 <= j < water_size):
+        return
+    water[i][j] = 5
+
+
 scene = Scene()
+
+scene.add_click_plane([0, 0, 0], [0, 0, 1], ripple_pos)
 scene.grid.visible = False
 scene.lights[0].position = [100, 100, 2]
 
