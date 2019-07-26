@@ -40,6 +40,9 @@ a newbie can kick-start it just by following the tutorials.
 
 More information can be found in documents.
 
+[![Payton ripple example](http://img.youtube.com/vi/mMorei0MXvU/0.jpg)](http://www.youtube.com/watch?v=mMorei0MXvU)
+
+
 ## Install and kick-start
 
     $ pip install payton
