@@ -1,3 +1,4 @@
+# pylama:ignore=C901
 """#Payton Scene Module
 
 ##Main Scene Module:
@@ -32,6 +33,7 @@ from OpenGL.GL import (
     glDisable,
     glDrawArrays,
     glClear,
+    glViewport,
     glDepthFunc,
     GL_TRIANGLES,
 )
@@ -416,7 +418,7 @@ class Scene(Receiver):
             sdl2.SDL_WINDOWPOS_UNDEFINED,
             int(self.window_width),
             int(self.window_height),
-            sdl2.SDL_WINDOW_OPENGL,
+            sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE,
         )  # type: ignore
 
         if not self.window:
@@ -437,6 +439,18 @@ class Scene(Receiver):
 
         while self.running:
             while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
+                if (
+                    self.event.type == sdl2.SDL_WINDOWEVENT
+                    and self.event.window.event == sdl2.SDL_WINDOWEVENT_RESIZED
+                ):
+                    self.window_width = self.event.window.data1
+                    self.window_height = self.event.window.data2
+                    glViewport(0, 0, self.window_width, self.window_height)
+
+                    for ob in self.observers:
+                        ob.aspect_ratio = (
+                            self.window_width / self.window_height
+                        )
                 self.controller.keyboard(self.event, self)
                 self.controller.mouse(self.event, self)
 
