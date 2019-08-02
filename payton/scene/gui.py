@@ -304,6 +304,7 @@ class Hud(Object):
         """
         self.width = w
         self.height = h
+        self._projection_matrix = None
 
     def set_font(self, font_name: str, font_size: int = 15) -> None:
         """Set font of the HUD

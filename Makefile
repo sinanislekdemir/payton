@@ -27,7 +27,6 @@ endif
 
 check:
 	@echo "If mypy fails miserably, check your MYPYPATH to include SDL and stuff"
-	@read -n 1 -s -r -p "Press any key to continue"
 	@mypy payton
 
 help:

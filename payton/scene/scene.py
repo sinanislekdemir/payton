@@ -451,6 +451,10 @@ class Scene(Receiver):
                         ob.aspect_ratio = (
                             self.window_width / self.window_height
                         )
+                    for hud in self.huds:
+                        self.huds[hud].set_size(
+                            self.window_width, self.window_height
+                        )
                 self.controller.keyboard(self.event, self)
                 self.controller.mouse(self.event, self)
 
