@@ -1,14 +1,11 @@
-import math
 import random
 from copy import deepcopy
 from itertools import product
 from payton.scene import Scene
 from payton.scene.geometry import MatrixPlane
 from payton.scene.material import POINTS, LIGHT_STEEL_BLUE
-from payton.tools.mesh.geometry import subdivide
-from payton.math.vector import distance
 
-water_size = 100
+water_size = 60
 damp = 20
 
 
@@ -70,8 +67,8 @@ def drop(period, total):
 
 def ripple_pos(hit):
     global water
-    i = int((hit[0] + 10) * 5)
-    j = int((hit[1] + 10) * 5)
+    i = int((hit[0] + 10) * 3)
+    j = int((hit[1] + 10) * 3)
     if not (0 <= i < water_size):
         return
     if not (0 <= j < water_size):
@@ -80,6 +77,8 @@ def ripple_pos(hit):
 
 
 scene = Scene()
+scene.background.top_color = [0, 0, 0, 1]
+scene.background.bottom_color = [0, 0, 0, 1]
 
 scene.add_click_plane([0, 0, 0], [0, 0, 1], ripple_pos)
 scene.grid.visible = False
@@ -91,7 +90,7 @@ water = deepcopy(plane.grid)
 plane.material.display = POINTS
 plane.material.color = LIGHT_STEEL_BLUE
 
-scene.create_clock("ripple", 0.05, calc_water)
+scene.create_clock("ripple", 0.025, calc_water)
 scene.create_clock("drop", 5, drop)
 scene.add_object("plane", plane)
 scene.active_observer.distance_to_target(20)

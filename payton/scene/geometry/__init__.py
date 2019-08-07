@@ -18,3 +18,4 @@ from payton.scene.geometry.cylinder import *
 from payton.scene.geometry.cube import *
 from payton.scene.geometry.plane import *
 from payton.scene.geometry.sphere import *
+from payton.scene.geometry.point import *

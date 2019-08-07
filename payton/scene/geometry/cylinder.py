@@ -61,13 +61,13 @@ class Cylinder(Mesh):
             v4 = 0.0
 
             self.add_triangle(
-                [[x1, y1, -h_2], [x2, y2, h_2], [x3, y3, -h_2]],
-                texcoords=[[u1, v1], [u2, v2], [u3, v3]],
+                [[x1, y1, -h_2], [x3, y3, -h_2], [x2, y2, h_2]],
+                texcoords=[[u1, v1], [u3, v3], [u2, v2]],
             )
 
             self.add_triangle(
-                [[x3, y3, -h_2], [x2, y2, h_2], [x4, y4, h_2]],
-                texcoords=[[u3, v3], [u2, v2], [u4, v4]],
+                [[x3, y3, -h_2], [x4, y4, h_2], [x2, y2, h_2]],
+                texcoords=[[u3, v3], [u4, v4], [u2, v2]],
             )
 
             self.add_triangle(

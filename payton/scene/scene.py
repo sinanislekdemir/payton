@@ -494,8 +494,10 @@ class Background(object):
           top_color: Color at the top of the scene screen
           bottom_color: Color at the bottom of the screen
         """
-        self.top_color = args.get("top_color", [0.0, 0.1, 0.2, 1.0])
-        self.bottom_color = args.get("bottom_color", [0.1, 0.1, 0.1, 1.0])
+        self.top_color = args.get("top_color", [0.6, 0.8, 1.0, 1.0])
+        self.bottom_color = args.get(
+            "bottom_color", [0.6275, 0.6275, 0.6275, 1.0]
+        )
         variables = ["top_color", "bot_color"]
         self._shader = Shader(
             fragment=background_fragment_shader,

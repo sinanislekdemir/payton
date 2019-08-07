@@ -16,6 +16,8 @@ def generate(period, total):
 
 
 scene = Scene()
+scene.background.top_color = [0, 0, 0, 1]
+scene.background.bottom_color = [0, 0, 0, 1]
 
 hud = Hud()
 text = Text(
