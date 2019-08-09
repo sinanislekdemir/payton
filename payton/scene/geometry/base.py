@@ -3,6 +3,7 @@ import numpy as np  # type: ignore
 import ctypes
 import logging
 from typing import Union, List, Dict, Type, Any, Iterator, Optional
+from copy import deepcopy
 
 from OpenGL.GL import (
     glDeleteVertexArrays,
@@ -34,7 +35,12 @@ from OpenGL.GL import (
 )
 
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.vector import vector_transform, distance
+from payton.math.vector import (
+    vector_transform,
+    distance,
+    scale_vector,
+    add_vectors,
+)
 from payton.math.matrix import create_rotation_matrix
 from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
 from payton.scene.shader import Shader
@@ -175,8 +181,8 @@ class Object(object):
         """
         self._needs_update = True
 
-    def yaw(self, angle: float) -> None:
-        """Yaw - Rotate around Z Axis
+    def rotate_around_z(self, angle: float) -> None:
+        """Rotate around Z Axis
 
         Args:
           angle: Angle in radians
@@ -185,10 +191,6 @@ class Object(object):
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
-
-    def rotate_around_z(self, angle: float) -> None:
-        """Rotate around Z axis, alias for yaw function"""
-        return self.yaw(angle)
 
     def rotate_around_x(self, angle: float) -> None:
         """Pitch - Rotate around X axis
@@ -252,6 +254,41 @@ class Object(object):
             self._vao = -1
         return True
 
+    def step_back(self, steps: int = 1) -> bool:
+        """Go back N step in time
+
+        This is suitable for solving collisions and getting a step back.
+        On the other hand, this function requires `Object.track_motion` to be
+        True.
+
+        Args:
+          steps: Number of steps to go back. (Default = 1)
+
+        Returns:
+          bool: If step back is successful
+        """
+        steps += 1
+        if not self.track_motion:
+            raise Exception("track_motion should be True")
+        if len(self._motion_path) < steps:
+            return False
+
+        self.matrix = self._motion_path[-steps]
+        del self._motion_path[-steps + 1:]
+        return True
+
+    def forward(self, distance: float) -> None:
+        """Move object forward
+
+        This method calculates to motion path according to direction
+        of the object's matrix. `self.matrix[1]` indicates the direction.
+
+        So matrix position gets updated according to direction * distance
+        """
+        diff = scale_vector(self.matrix[1], distance)
+        self.matrix[3] = add_vectors(self.matrix[3], diff)
+        self.matrix[3][3] = 1.0
+
     def update_matrix(
         self, parent_matrix: Optional[np.ndarray] = None
     ) -> None:
@@ -283,7 +320,7 @@ class Object(object):
             return True
 
         # Add the new matrix to motion path records
-        self._motion_path.append(self.matrix)
+        self._motion_path.append(deepcopy(self.matrix))
         # Add the matrix position to motion math line for visualisation
         if self._motion_path_line is not None:
             self._motion_path_line.append(
