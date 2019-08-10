@@ -12,8 +12,8 @@ class Mesh(Object):
 
     Mesh is almost like the Object except with some extra methods to make
     things easier. If you want to have custom geometries/shapes, it is
-    better to extend `payton.scene.geometry.Mesh` instead of
-    `payton.scene.geometry.Object`. Because Mesh will give you better
+    better to extend `payton.scene.geometry.mesh.Mesh` instead of
+    `payton.scene.geometry.base.Object`. Because Mesh will give you better
     and easier constructing capabilities such as adding triangles on the fly
     or sub-division or cutting and so forth. It is a way of designing objects
     by code.

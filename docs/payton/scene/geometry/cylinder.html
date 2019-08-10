@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.3" />
+<title>payton.scene.geometry.cylinder API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{margin:40px auto;max-width:1000px;display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>payton.scene.geometry.cylinder</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">import math
+from typing import Any
+
+from payton.scene.geometry import Mesh
+
+
+class Cylinder(Mesh):
+    &#34;&#34;&#34;Cylinder Object
+
+    Beware of using high values for number of meridians. You might end up with
+    excessive number of vertices to render.
+
+    Example use case:
+
+        .. include:: ../../../examples/basics/18_cylinder.py
+
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;Iniitalize the cylinder
+
+        Args:
+          bottom_radius: Radius at the bottom of the cylinder
+          top_radius: Radius at the top of the cylinder
+          meridians: Number of meridians/edges (as in geography)
+          height: Height of the cylinder
+        &#34;&#34;&#34;
+        super().__init__(**args)
+        self._bottom_radius: float = args.get(&#34;bottom_radius&#34;, 0.5)
+        self._top_radius: float = args.get(&#34;top_radius&#34;, 0.5)
+        self._meridians: int = args.get(&#34;meridians&#34;, 12)
+        self._height: float = args.get(&#34;height&#34;, 1.0)
+        self.build_cylinder()
+
+    def build_cylinder(self) -&gt; bool:
+        step_angle = math.radians(360 / self._meridians)
+
+        u_step = 1.0 / self._meridians
+        r_bot = self._bottom_radius
+        r_top = self._top_radius
+        h_2 = self._height / 2.0
+        for i in range(self._meridians):
+            x1 = r_bot * math.cos(step_angle * i)
+            y1 = r_bot * math.sin(step_angle * i)
+            x2 = r_top * math.cos(step_angle * i)
+            y2 = r_top * math.sin(step_angle * i)
+
+            u1 = u_step * i
+            v1 = 1.0
+            u2 = u1
+            v2 = 0.0
+
+            x3 = r_bot * math.cos(step_angle * (i + 1))
+            y3 = r_bot * math.sin(step_angle * (i + 1))
+            x4 = r_top * math.cos(step_angle * (i + 1))
+            y4 = r_top * math.sin(step_angle * (i + 1))
+
+            u3 = u_step * (i + 1)
+            v3 = 1.0
+            u4 = u3
+            v4 = 0.0
+
+            self.add_triangle(
+                [[x1, y1, -h_2], [x3, y3, -h_2], [x2, y2, h_2]],
+                texcoords=[[u1, v1], [u3, v3], [u2, v2]],
+            )
+
+            self.add_triangle(
+                [[x3, y3, -h_2], [x4, y4, h_2], [x2, y2, h_2]],
+                texcoords=[[u3, v3], [u4, v4], [u2, v2]],
+            )
+
+            self.add_triangle(
+                [[x1, y1, -h_2], [0.0, 0.0, -h_2], [x3, y3, -h_2]],
+                texcoords=[[u1, v1], [0.0, 0.0], [u3, v3]],
+            )
+
+            self.add_triangle(
+                [[x4, y4, h_2], [0.0, 0.0, h_2], [x2, y2, h_2]],
+                texcoords=[[u4, v4], [0.0, 0.0], [u2, v2]],
+            )
+
+        self.fix_normals()
+        return True</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="payton.scene.geometry.cylinder.Cylinder"><code class="flex name class">
+<span>class <span class="ident">Cylinder</span></span>
+<span>(</span><span>**args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Cylinder Object</p>
+<p>Beware of using high values for number of meridians. You might end up with
+excessive number of vertices to render.</p>
+<p>Example use case:</p>
+<pre><code>import os
+import math
+from payton.scene import Scene
+from payton.scene.geometry import Cylinder
+
+
+def rotate(period, total):
+    global scene
+    scene.objects["cylinder"].rotate_around_z(math.radians(1))
+
+
+scene = Scene()
+cyl = Cylinder(height=2.0)
+
+scene.create_clock("rotate", 0.01, rotate)
+
+texture_file = os.path.join(os.path.dirname(__file__), "barrel.jpg")
+
+cyl.material.texture = texture_file
+
+scene.add_object("cylinder", cyl)
+scene.run()
+</code></pre>
+<p>Iniitalize the cylinder</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bottom_radius</code></strong></dt>
+<dd>Radius at the bottom of the cylinder</dd>
+<dt><strong><code>top_radius</code></strong></dt>
+<dd>Radius at the top of the cylinder</dd>
+<dt><strong><code>meridians</code></strong></dt>
+<dd>Number of meridians/edges (as in geography)</dd>
+<dt><strong><code>height</code></strong></dt>
+<dd>Height of the cylinder</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Cylinder(Mesh):
+    &#34;&#34;&#34;Cylinder Object
+
+    Beware of using high values for number of meridians. You might end up with
+    excessive number of vertices to render.
+
+    Example use case:
+
+        .. include:: ../../../examples/basics/18_cylinder.py
+
+    &#34;&#34;&#34;
+
+    def __init__(self, **args: Any) -&gt; None:
+        &#34;&#34;&#34;Iniitalize the cylinder
+
+        Args:
+          bottom_radius: Radius at the bottom of the cylinder
+          top_radius: Radius at the top of the cylinder
+          meridians: Number of meridians/edges (as in geography)
+          height: Height of the cylinder
+        &#34;&#34;&#34;
+        super().__init__(**args)
+        self._bottom_radius: float = args.get(&#34;bottom_radius&#34;, 0.5)
+        self._top_radius: float = args.get(&#34;top_radius&#34;, 0.5)
+        self._meridians: int = args.get(&#34;meridians&#34;, 12)
+        self._height: float = args.get(&#34;height&#34;, 1.0)
+        self.build_cylinder()
+
+    def build_cylinder(self) -&gt; bool:
+        step_angle = math.radians(360 / self._meridians)
+
+        u_step = 1.0 / self._meridians
+        r_bot = self._bottom_radius
+        r_top = self._top_radius
+        h_2 = self._height / 2.0
+        for i in range(self._meridians):
+            x1 = r_bot * math.cos(step_angle * i)
+            y1 = r_bot * math.sin(step_angle * i)
+            x2 = r_top * math.cos(step_angle * i)
+            y2 = r_top * math.sin(step_angle * i)
+
+            u1 = u_step * i
+            v1 = 1.0
+            u2 = u1
+            v2 = 0.0
+
+            x3 = r_bot * math.cos(step_angle * (i + 1))
+            y3 = r_bot * math.sin(step_angle * (i + 1))
+            x4 = r_top * math.cos(step_angle * (i + 1))
+            y4 = r_top * math.sin(step_angle * (i + 1))
+
+            u3 = u_step * (i + 1)
+            v3 = 1.0
+            u4 = u3
+            v4 = 0.0
+
+            self.add_triangle(
+                [[x1, y1, -h_2], [x3, y3, -h_2], [x2, y2, h_2]],
+                texcoords=[[u1, v1], [u3, v3], [u2, v2]],
+            )
+
+            self.add_triangle(
+                [[x3, y3, -h_2], [x4, y4, h_2], [x2, y2, h_2]],
+                texcoords=[[u3, v3], [u4, v4], [u2, v2]],
+            )
+
+            self.add_triangle(
+                [[x1, y1, -h_2], [0.0, 0.0, -h_2], [x3, y3, -h_2]],
+                texcoords=[[u1, v1], [0.0, 0.0], [u3, v3]],
+            )
+
+            self.add_triangle(
+                [[x4, y4, h_2], [0.0, 0.0, h_2], [x2, y2, h_2]],
+                texcoords=[[u4, v4], [0.0, 0.0], [u2, v2]],
+            )
+
+        self.fix_normals()
+        return True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="payton.scene.geometry.mesh.Mesh" href="mesh.html#payton.scene.geometry.mesh.Mesh">Mesh</a></li>
+<li><a title="payton.scene.geometry.base.Object" href="base.html#payton.scene.geometry.base.Object">Object</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.geometry.cylinder.Cylinder.build_cylinder"><code class="name flex">
+<span>def <span class="ident">build_cylinder</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def build_cylinder(self) -&gt; bool:
+    step_angle = math.radians(360 / self._meridians)
+
+    u_step = 1.0 / self._meridians
+    r_bot = self._bottom_radius
+    r_top = self._top_radius
+    h_2 = self._height / 2.0
+    for i in range(self._meridians):
+        x1 = r_bot * math.cos(step_angle * i)
+        y1 = r_bot * math.sin(step_angle * i)
+        x2 = r_top * math.cos(step_angle * i)
+        y2 = r_top * math.sin(step_angle * i)
+
+        u1 = u_step * i
+        v1 = 1.0
+        u2 = u1
+        v2 = 0.0
+
+        x3 = r_bot * math.cos(step_angle * (i + 1))
+        y3 = r_bot * math.sin(step_angle * (i + 1))
+        x4 = r_top * math.cos(step_angle * (i + 1))
+        y4 = r_top * math.sin(step_angle * (i + 1))
+
+        u3 = u_step * (i + 1)
+        v3 = 1.0
+        u4 = u3
+        v4 = 0.0
+
+        self.add_triangle(
+            [[x1, y1, -h_2], [x3, y3, -h_2], [x2, y2, h_2]],
+            texcoords=[[u1, v1], [u3, v3], [u2, v2]],
+        )
+
+        self.add_triangle(
+            [[x3, y3, -h_2], [x4, y4, h_2], [x2, y2, h_2]],
+            texcoords=[[u3, v3], [u4, v4], [u2, v2]],
+        )
+
+        self.add_triangle(
+            [[x1, y1, -h_2], [0.0, 0.0, -h_2], [x3, y3, -h_2]],
+            texcoords=[[u1, v1], [0.0, 0.0], [u3, v3]],
+        )
+
+        self.add_triangle(
+            [[x4, y4, h_2], [0.0, 0.0, h_2], [x2, y2, h_2]],
+            texcoords=[[u4, v4], [0.0, 0.0], [u2, v2]],
+        )
+
+    self.fix_normals()
+    return True</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="payton.scene.geometry.mesh.Mesh" href="mesh.html#payton.scene.geometry.mesh.Mesh">Mesh</a></b></code>:
+<ul class="hlist">
+<li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.clear_triangles" href="mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.fix_normals" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.fix_texcoords" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.forward" href="base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.has_vao" href="base.html#payton.scene.geometry.base.Object.has_vao">has_vao</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.position" href="base.html#payton.scene.geometry.base.Object.position">position</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.refresh" href="base.html#payton.scene.geometry.base.Object.refresh">refresh</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.render" href="base.html#payton.scene.geometry.base.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_x" href="base.html#payton.scene.geometry.base.Object.rotate_around_x">rotate_around_x</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_y" href="base.html#payton.scene.geometry.base.Object.rotate_around_y">rotate_around_y</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_z" href="base.html#payton.scene.geometry.base.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.scale" href="mesh.html#payton.scene.geometry.mesh.Mesh.scale">scale</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.select" href="base.html#payton.scene.geometry.base.Object.select">select</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.step_back" href="base.html#payton.scene.geometry.base.Object.step_back">step_back</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.to_absolute" href="base.html#payton.scene.geometry.base.Object.to_absolute">to_absolute</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.toggle_wireframe" href="base.html#payton.scene.geometry.base.Object.toggle_wireframe">toggle_wireframe</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.track" href="base.html#payton.scene.geometry.base.Object.track">track</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.update_matrix" href="base.html#payton.scene.geometry.base.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.visible" href="base.html#payton.scene.geometry.base.Object.visible">visible</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="payton.scene.geometry" href="index.html">payton.scene.geometry</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="payton.scene.geometry.cylinder.Cylinder" href="#payton.scene.geometry.cylinder.Cylinder">Cylinder</a></code></h4>
+<ul class="">
+<li><code><a title="payton.scene.geometry.cylinder.Cylinder.build_cylinder" href="#payton.scene.geometry.cylinder.Cylinder.build_cylinder">build_cylinder</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

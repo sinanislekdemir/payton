@@ -59,8 +59,8 @@ class Object(object):
     the OpenGL Vertex Array Object. VAO is static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
 
-    You need to call `payton.scene.geometry.Object.build` function to refresh
-    Vertex Array Object.
+    You need to call `payton.scene.geometry.base.Object.build` function to
+    refresh Vertex Array Object.
 
     OpenGL can not magically extend a memory buffer, so for every new vertices
     added to the object, OpenGL needs to re-create the buffer area. This is
@@ -258,7 +258,7 @@ class Object(object):
         """Go back N step in time
 
         This is suitable for solving collisions and getting a step back.
-        On the other hand, this function requires `Object.track_motion` to be
+        On the other hand, this function requires `track_motion` to be
         True.
 
         Args:
@@ -472,7 +472,8 @@ class Object(object):
 
         Args:
           name: Name of the object, must be unique within its siblings
-          obj: Object. Must be an instance of `payton.scene.geometry.Object`
+          obj: Object. Must be an instance of
+               `payton.scene.geometry.base.Object`
 
         Returns:
           bool: False in case of an error
@@ -548,7 +549,7 @@ class Object(object):
 
         This property function *WILL NOT* update the previously
         calculated value. If you add vertices to the object, you must call
-        `payton.scene.geometry.Object.refresh` function to get radius
+        `payton.scene.geometry.base.Object.refresh` function to get radius
         and the whole object updated.
 
         Returns:

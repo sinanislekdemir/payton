@@ -145,7 +145,7 @@ def export(mesh: Mesh, **args: Any) -> Optional[str]:
 
 
     Args:
-      mesh: An instance of `payton.scene.geometry.Mesh`
+      mesh: An instance of `payton.scene.geometry.mesh.Mesh`
       name (optional): Name of the object, otherwise `object` will be used
     """
     if not isinstance(mesh, Mesh):

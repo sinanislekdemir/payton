@@ -1,7 +1,7 @@
 """Graphical User Interface support
 
 GUI Module contains several GUI elements which are all instance of
-`payton.scene.geometry.Mesh` and mainly, their projection matrices
+`payton.scene.geometry.mesh.Mesh` and mainly, their projection matrices
 differ in pipeline.
 
 Example code:
@@ -26,7 +26,7 @@ S2 = TypeVar("S2", bound="Shape2D")
 class Shape2D(Mesh):
     """Shape2D is the base of GUI primitives
 
-    An instance of `payton.scene.geometry.Mesh` so as a result of this,
+    An instance of `payton.scene.geometry.mesh.Mesh` so as a result of this,
     you can use the material information to change the color and texture
     of the shape.
     """
@@ -200,8 +200,9 @@ class Text(Rectangle):
     ) -> None:
         """Render the Text
 
-        This calls the super render of `payton.scene.geometry.Object.render`
-        then renders the text on top of the rectangle.
+        This calls the render method of
+        `payton.scene.geometry.base.Object.render` then renders the text on top
+        of the rectangle.
         """
         super().render(proj, view, lights, parent_matrix)
         if not self._init_text:

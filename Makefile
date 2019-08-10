@@ -17,7 +17,7 @@ clean:
 
 docs:
 	@pip install pdoc3
-	@PYTHONPATH=. pdoc3 --html-dir $(DOCSPATH) --html --overwrite payton
+	@PYTHONPATH=. pdoc3 --output-dir $(DOCSPATH) --html --force payton --template-dir ../pdoc_templates
 ifeq ($(UNAME), Linux)
 	@xdg-open $(DOCSPATH)/payton/index.html
 endif

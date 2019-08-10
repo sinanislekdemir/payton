@@ -73,7 +73,7 @@ class CollisionTest(object):
         """Add object to test group
 
         Args:
-          obj: Instance of `payton.scene.geometry.Mesh`
+          obj: Instance of `payton.scene.geometry.mesh.Mesh`
         """
         if not isinstance(obj, Mesh):
             logging.error("object must be an instance of Mesh")

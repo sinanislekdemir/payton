@@ -247,7 +247,8 @@ class Scene(Receiver):
 
         Args:
           name: Name of the object, must be unique within its' scope.
-          obj: Object (must be an instance of `payton.scene.geometry.Object`
+          obj: Object must be an instance of
+               `payton.scene.geometry.base.Object`
 
         Return:
           bool: False in case of an error.

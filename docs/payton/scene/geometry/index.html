@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
-<title>payton.scene.light API documentation</title>
-<meta name="description" content="Payton Lights …" />
+<title>payton.scene.geometry API documentation</title>
+<meta name="description" content="Payton main geometry module …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,152 +17,84 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>payton.scene.light</code></h1>
+<h1 class="title">Module <code>payton.scene.geometry</code></h1>
 </header>
 <section id="section-intro">
-<p>Payton Lights.</p>
-<p>Support for scene lights.</p>
+<p>Payton main geometry module</p>
+<p>Geometry module holds the basic geometry shapes. They are all inherited
+from <a title="payton.scene.geometry.base.Object" href="base.html#payton.scene.geometry.base.Object"><code>Object</code></a> class. They are as simple as possible.</p>
+<p>Their face informations are generated at the initialization but vertex array
+object is not generated until it arrives in render pipeline.</p>
+<ul>
+<li>Object</li>
+<li>Material (<a title="payton.scene.material" href="../material.html"><code>payton.scene.material</code></a>)<ul>
+<li>Shader (<a title="payton.scene.shader" href="../shader.html"><code>payton.scene.shader</code></a>)</li>
+</ul>
+</li>
+</ul>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">&#34;&#34;&#34;Payton Lights.
-
-Support for scene lights.
+<pre><code class="python"># pylama:ignore=W
 &#34;&#34;&#34;
+Payton main geometry module
 
-import numpy as np  # type: ignore
-from typing import Any, List
+Geometry module holds the basic geometry shapes. They are all inherited
+from `payton.scene.geometry.base.Object` class. They are as simple as possible.
 
+Their face informations are generated at the initialization but vertex array
+object is not generated until it arrives in render pipeline.
 
-class Light(object):
-    &#34;&#34;&#34;Main Light object
-    &#34;&#34;&#34;
-
-    def __init__(self, **args: Any):
-        &#34;&#34;&#34;Initialize Payton Light
-
-        Args:
-          position: Position of the light in global coordinates
-          default position is [10, 7, 6]
-          color: Color of the light source.
-        &#34;&#34;&#34;
-        self._position: List[float] = args.get(&#34;position&#34;, [10.0, 7.0, 6.0])
-        self._color: List[float] = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
-        self._position_np: np.ndarray = np.array(
-            self._position, dtype=np.float32
-        )
-        self._color_np: np.ndarray = np.array(self._color, dtype=np.float32)
-
-        self.active: bool = True
-
-    @property
-    def position(self) -&gt; List[float]:
-        return self._position
-
-    @position.setter
-    def position(self, position: List[float]) -&gt; None:
-        self._position = position
-        self._position_np = np.array(self.position, dtype=np.float32)
-
-    @property
-    def color(self) -&gt; List[float]:
-        return self._color
-
-    @color.setter
-    def color(self, color: List[float]) -&gt; None:
-        self._color = color
-        self._color_np = np.array(self._color, dtype=np.float32)</code></pre>
+* Object
+  * Material (`payton.scene.material`)
+    * Shader (`payton.scene.shader`)
+&#34;&#34;&#34;
+from payton.scene.geometry.base import *
+from payton.scene.geometry.mesh import *
+from payton.scene.geometry.cylinder import *
+from payton.scene.geometry.cube import *
+from payton.scene.geometry.plane import *
+from payton.scene.geometry.sphere import *
+from payton.scene.geometry.point import *</code></pre>
 </details>
 </section>
 <section>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt id="payton.scene.light.Light"><code class="flex name class">
-<span>class <span class="ident">Light</span></span>
-<span>(</span><span>**args)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Main Light object</p>
-<p>Initialize Payton Light</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>position</code></strong></dt>
-<dd>Position of the light in global coordinates</dd>
-<dt>default position is [10, 7, 6]</dt>
-<dt><strong><code>color</code></strong></dt>
-<dd>Color of the light source.</dd>
-</dl></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">class Light(object):
-    &#34;&#34;&#34;Main Light object
-    &#34;&#34;&#34;
-
-    def __init__(self, **args: Any):
-        &#34;&#34;&#34;Initialize Payton Light
-
-        Args:
-          position: Position of the light in global coordinates
-          default position is [10, 7, 6]
-          color: Color of the light source.
-        &#34;&#34;&#34;
-        self._position: List[float] = args.get(&#34;position&#34;, [10.0, 7.0, 6.0])
-        self._color: List[float] = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
-        self._position_np: np.ndarray = np.array(
-            self._position, dtype=np.float32
-        )
-        self._color_np: np.ndarray = np.array(self._color, dtype=np.float32)
-
-        self.active: bool = True
-
-    @property
-    def position(self) -&gt; List[float]:
-        return self._position
-
-    @position.setter
-    def position(self, position: List[float]) -&gt; None:
-        self._position = position
-        self._position_np = np.array(self.position, dtype=np.float32)
-
-    @property
-    def color(self) -&gt; List[float]:
-        return self._color
-
-    @color.setter
-    def color(self, color: List[float]) -&gt; None:
-        self._color = color
-        self._color_np = np.array(self._color, dtype=np.float32)</code></pre>
-</details>
-<h3>Instance variables</h3>
-<dl>
-<dt id="payton.scene.light.Light.color"><code class="name">var <span class="ident">color</span></code></dt>
+<dt><code class="name"><a title="payton.scene.geometry.base" href="base.html">payton.scene.geometry.base</a></code></dt>
 <dd>
 <section class="desc"></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@property
-def color(self) -&gt; List[float]:
-    return self._color</code></pre>
-</details>
 </dd>
-<dt id="payton.scene.light.Light.position"><code class="name">var <span class="ident">position</span></code></dt>
+<dt><code class="name"><a title="payton.scene.geometry.cube" href="cube.html">payton.scene.geometry.cube</a></code></dt>
 <dd>
 <section class="desc"></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@property
-def position(self) -&gt; List[float]:
-    return self._position</code></pre>
-</details>
+</dd>
+<dt><code class="name"><a title="payton.scene.geometry.cylinder" href="cylinder.html">payton.scene.geometry.cylinder</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="payton.scene.geometry.mesh" href="mesh.html">payton.scene.geometry.mesh</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="payton.scene.geometry.plane" href="plane.html">payton.scene.geometry.plane</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="payton.scene.geometry.point" href="point.html">payton.scene.geometry.point</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="payton.scene.geometry.sphere" href="sphere.html">payton.scene.geometry.sphere</a></code></dt>
+<dd>
+<section class="desc"></section>
 </dd>
 </dl>
-</dd>
-</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
 </section>
 </article>
 <nav id="sidebar">
@@ -173,18 +105,18 @@ def position(self) -&gt; List[float]:
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="payton.scene" href="index.html">payton.scene</a></code></li>
+<li><code><a title="payton.scene" href="../index.html">payton.scene</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-classes">Classes</a></h3>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li>
-<h4><code><a title="payton.scene.light.Light" href="#payton.scene.light.Light">Light</a></code></h4>
-<ul class="">
-<li><code><a title="payton.scene.light.Light.color" href="#payton.scene.light.Light.color">color</a></code></li>
-<li><code><a title="payton.scene.light.Light.position" href="#payton.scene.light.Light.position">position</a></code></li>
-</ul>
-</li>
+<li><code><a title="payton.scene.geometry.base" href="base.html">payton.scene.geometry.base</a></code></li>
+<li><code><a title="payton.scene.geometry.cube" href="cube.html">payton.scene.geometry.cube</a></code></li>
+<li><code><a title="payton.scene.geometry.cylinder" href="cylinder.html">payton.scene.geometry.cylinder</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh" href="mesh.html">payton.scene.geometry.mesh</a></code></li>
+<li><code><a title="payton.scene.geometry.plane" href="plane.html">payton.scene.geometry.plane</a></code></li>
+<li><code><a title="payton.scene.geometry.point" href="point.html">payton.scene.geometry.point</a></code></li>
+<li><code><a title="payton.scene.geometry.sphere" href="sphere.html">payton.scene.geometry.sphere</a></code></li>
 </ul>
 </li>
 </ul>

@@ -3,7 +3,7 @@
 Payton main geometry module
 
 Geometry module holds the basic geometry shapes. They are all inherited
-from `payton.scene.geometry.Object` class. They are as simple as possible.
+from `payton.scene.geometry.base.Object` class. They are as simple as possible.
 
 Their face informations are generated at the initialization but vertex array
 object is not generated until it arrives in render pipeline.
