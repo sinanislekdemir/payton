@@ -40,6 +40,8 @@ a newbie can kick-start it just by following the tutorials.
 
 More information can be found in documents.
 
+Click image below for Youtube example:
+
 [![Payton ripple example](http://img.youtube.com/vi/mMorei0MXvU/0.jpg)](http://www.youtube.com/watch?v=mMorei0MXvU)
 
 
