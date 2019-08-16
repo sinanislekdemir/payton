@@ -103,3 +103,5 @@ To kick start, after `python setup.py develop` run `python examples/04_clock.py`
 
 And once you see the white ball on the screen, hit `SPACE` from keyboard to unpause
 the animation mode and see the projectile motion demo.
+
+Also, `payton` library sources uses typehints, please keep using them but `examples` are free from all kind of best practices. Keep in mind that, the aim of this library is to let inexperienced people to do things. Therefore, examples are created as simple as possible. You don't have to use any lambda functions or generators or so forth there. Readability matters most at examples. _But **performance** is what we need in the core payton source!_  
