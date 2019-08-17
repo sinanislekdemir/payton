@@ -5,7 +5,7 @@ from functools import lru_cache
 from payton.math.vector import normalize_vector
 from payton.math.types import GArray
 
-UNIFORM_MATRIX = [
+IDENTITY_MATRIX = [
     [1.0, 0.0, 0.0, 0.0],
     [0.0, 1.0, 0.0, 0.0],
     [0.0, 0.0, 1.0, 0.0],
@@ -31,7 +31,7 @@ def create_rotation_matrix_raw(axis: GArray, angle: float) -> np.ndarray:
     cos = math.cos(angle)
     m_cos = 1 - cos
     axis = normalize_vector(axis)
-    result = deepcopy(UNIFORM_MATRIX)
+    result = deepcopy(IDENTITY_MATRIX)
 
     result[0][0] = (m_cos * axis[0] * axis[0]) + cos
     result[0][1] = (m_cos * axis[0] * axis[1]) - (axis[2] * sin)
@@ -80,7 +80,7 @@ def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
     Returns:
       matrix
     """
-    result = deepcopy(UNIFORM_MATRIX)
+    result = deepcopy(IDENTITY_MATRIX)
     result[0][0] = 2 / (right - left)
     result[1][1] = 2 / (top - bottom)
     result[2][2] = -1

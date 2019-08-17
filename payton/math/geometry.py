@@ -84,7 +84,6 @@ def raycast_plane_intersect(
     Returns:
       intersection: Intersection point or None
     """
-    global DIFF
     d = np.dot(vector, plane_normal)
     res = (d > DIFF) or (d < -DIFF)
     if not res:
@@ -156,7 +155,6 @@ def line_triangle_intersect(
       p2: Triangle corner coordinate 2
       p3: Triangle corner coordinate 3
     """
-    global DIFF
 
     direction = end - start
     norm = np.linalg.norm(direction)
