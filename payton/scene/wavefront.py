@@ -19,12 +19,12 @@ class Wavefront(Mesh):
     Only designed to accept your triangular geometries.
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(self, filename: str = "", **args: Any) -> None:
         """
         Initialize Wavefront Object.
         """
         super().__init__()
-        self.filename: str = args.get("filename", "")
+        self.filename: str = filename
         if self.filename != "":
             self.load_file(self.filename)
 

@@ -4,14 +4,19 @@ Support for scene lights.
 """
 
 import numpy as np  # type: ignore
-from typing import Any, List
+from typing import Any, List, Optional
 
 
 class Light(object):
     """Main Light object
     """
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        position: Optional[List[float]] = None,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ):
         """Initialize Payton Light
 
         Args:
@@ -19,8 +24,12 @@ class Light(object):
           default position is [10, 7, 6]
           color: Color of the light source.
         """
-        self._position: List[float] = args.get("position", [10.0, 7.0, 6.0])
-        self._color: List[float] = args.get("color", [1.0, 1.0, 1.0])
+        self._position: List[float] = [
+            10.0,
+            7.0,
+            6.0,
+        ] if position is None else position
+        self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color
         self._position_np: np.ndarray = np.array(
             self._position, dtype=np.float32
         )

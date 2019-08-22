@@ -59,16 +59,23 @@ class Grid(object):
         my_scene.run()
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        xres: int = 20,
+        yres: int = 20,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ) -> None:
         """Initialize Grid
 
         Args:
           xres: Number of lines in X
           yres: Number of lines in Y
         """
-        xres: int = args.get("xres", 20)
-        yres: int = args.get("yres", 20)
-        self._color: List[float] = args.get("color", [0.4, 0.4, 0.4])
+        if color is None:
+            self._color: List[float] = [0.4, 0.4, 0.4]
+        else:
+            self._color = color
 
         self.static: bool = True
         self.matrix: List[float] = [

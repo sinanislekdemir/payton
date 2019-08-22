@@ -46,7 +46,7 @@ hud.add_child("text_rect", texture_rect)
 
 
 def click_func():
-    t = Text(label="Yay!", position=(10, 40))
+    t = Text(label="Yay!", position=(10, 40), size=(100, 100))
     rectangle.add_child(f"l_a", t)
 
 
@@ -77,7 +77,9 @@ info = Text(
 hud.add_child("info", info)
 
 
-fps = Text(label="Hit Space:", position=(0, 0), color=(1, 1, 1))
+fps = Text(
+    label="Hit Space:", position=(0, 0), color=(1, 1, 1), size=(100, 100)
+)
 
 hud.add_child("fps", fps)
 

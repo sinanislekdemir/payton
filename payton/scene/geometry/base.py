@@ -40,6 +40,9 @@ from payton.math.vector import (
     distance,
     scale_vector,
     add_vectors,
+    sub_vector,
+    cross_product,
+    normalize_vector,
 )
 from payton.math.matrix import create_rotation_matrix
 from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
@@ -72,7 +75,14 @@ class Object(object):
 
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        static=True,
+        name="",
+        visible=True,
+        track_motion=False,
+        **args: Any,
+    ) -> None:
         """
         Initialize the basic object properties.
 
@@ -106,9 +116,9 @@ class Object(object):
         """
         self.children: Dict[str, Object] = {}
         self.material: Material = Material()
-        self.static = args.get("static", True)
-        self.name = args.get("name", "")
-        self._visible = args.get("visible", True)
+        self.static = static
+        self.name = name
+        self._visible = visible
         self.matrix: VList = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -148,7 +158,7 @@ class Object(object):
         self._t_buffer_size_changed: bool = True
 
         # Track object motion
-        self.track_motion = args.get("track_motion", False)
+        self.track_motion = track_motion
         # Motion path, stores every matrix change.
         self._motion_path: List[VList] = []
 
@@ -180,6 +190,35 @@ class Object(object):
         Forces object to get built again
         """
         self._needs_update = True
+
+    @property
+    def direction(self) -> List[float]:
+        """Get direction vector from Matrix"""
+        return self.matrix[1][:3]
+
+    @direction.setter
+    def direction(self, v: List[float]):
+        """Set direction vector of Matrix
+
+        Attention! This needs to be a unit vector!
+        """
+        if len(v) < 3:
+            raise Exception("Direction needs 3 components (x,y,z)")
+        self.matrix[1][0] = v[0]
+        self.matrix[1][1] = v[1]
+        self.matrix[1][2] = v[2]
+        left = cross_product(self.matrix[1], self.matrix[2])
+        left += [0]
+        self.matrix[0] = left
+        up = cross_product(self.matrix[0], self.matrix[1])
+        up += [0]
+        self.matrix[2] = up
+
+    def direct_to(self, v: List[float]):
+        """Direct the objects forward towards given point vector"""
+        diff = sub_vector(v, self.position)
+        diff = normalize_vector(diff)
+        self.direction = diff
 
     def rotate_around_z(self, angle: float) -> None:
         """Rotate around Z Axis
@@ -274,7 +313,7 @@ class Object(object):
             return False
 
         self.matrix = self._motion_path[-steps]
-        del self._motion_path[-steps + 1:]
+        del self._motion_path[-steps + 1 :]
         return True
 
     def forward(self, distance: float) -> None:
@@ -695,7 +734,12 @@ class Line(Object):
     is defined in base.py instead of line.py
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        vertices: Optional[VList] = None,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ) -> None:
         """Iniitalize line
 
         Args:
@@ -707,8 +751,8 @@ class Line(Object):
             .. include:: ../../../examples/basics/17_line.py
         """
         super().__init__(**args)
-        self._vertices: VList = args.get("vertices", [])
-        self.material.color = args.get("color", [1.0, 1.0, 1.0])
+        self._vertices: VList = [] if vertices is None else vertices
+        self.material.color = [1.0, 1.0, 1.0] if color is None else color
 
         self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME

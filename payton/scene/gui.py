@@ -10,7 +10,7 @@ Example code:
 
 """
 import numpy as np  # type: ignore
-from typing import Any, Tuple, Callable, TypeVar, List, Optional, Dict
+from typing import Any, Tuple, Callable, TypeVar, List, Optional, Dict, cast
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
 
 from OpenGL.GL import glEnable, GL_DEPTH_TEST, glDisable
@@ -31,7 +31,14 @@ class Shape2D(Mesh):
     of the shape.
     """
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        position: Tuple[int, int, int],
+        size: Tuple[int, int],
+        on_click: Optional[Callable] = None,
+        opacity: float = 0.5,
+        **args: Any,
+    ):
         """Initialize Shape2D
 
         Args:
@@ -39,11 +46,11 @@ class Shape2D(Mesh):
           position: Position of the shape in screen. (0, 0 by default.)
         """
         super().__init__(**args)
-        self.material.opacity = args.get("opacity", 0.5)
-        self.__position: Tuple[int, int, int] = args.get("position", (0, 0, 0))
+        self.material.opacity = opacity
+        self.__position: Tuple[int, int, int] = position
         self.position = list([float(x) for x in self.__position])
-        self.size: Tuple[int, int] = args.get("size", (100, 100))
-        self.on_click: Callable = args.get("on_click", None)
+        self.size: Tuple[int, int] = size
+        self.on_click: Optional[Callable] = on_click
         self._font: ImageFont = None
         self.parent: Any = None
 
@@ -102,7 +109,7 @@ class Shape2D(Mesh):
         """
         if not callable(self.on_click):
             for child in self.children:
-                c = self.children[child].click(x, y)  # type: bool
+                c = cast('Shape2D', self.children[child]).click(x, y)  # type: bool
                 if c:
                     return True
             return False
@@ -165,7 +172,13 @@ class Text(Rectangle):
     to own material
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        label: str = "lorem",
+        bgcolor: Optional[List[int]] = None,
+        color: Optional[List[int]] = None,
+        **args: Any,
+    ) -> None:
         """Initialize Text
 
         Args:
@@ -174,11 +187,11 @@ class Text(Rectangle):
           color: Color of the text (Default, r:0, g:0, b:0)
         """
         super().__init__(**args)
-        self.__label: str = args.get("label", "lorem")
-        self.bgcolor: Tuple[int, ...] = args.get("bgcolor", (0, 0, 0, 0))
-        self.color: Tuple[int, ...] = args.get("color", (0, 0, 0))
-        self.bgcolor = tuple(map(lambda x: int(x * 255), self.bgcolor))
-        self.color = tuple(map(lambda x: int(x * 255), self.color))
+        self.__label: str = label
+        self.bgcolor: List[int] = [0, 0, 0, 0] if bgcolor is None else bgcolor
+        self.color: List[int] = [0, 0, 0] if color is None else color
+        self.bgcolor = list(map(lambda x: int(x * 255), self.bgcolor))
+        self.color = list(map(lambda x: int(x * 255), self.color))
         self.draw_text()
         self._init_text: bool = False
 
@@ -215,12 +228,12 @@ class Text(Rectangle):
         Create an empty transparent image with the rectangle size
         and draw the text on it. Then, assign the image to the material
         """
-        img = Image.new("RGBA", self.size, color=self.bgcolor)
+        img = Image.new("RGBA", self.size, color=tuple(self.bgcolor))
         d = ImageDraw.Draw(img)
         if self.font is not None:
-            d.text((5, 5), self.label, fill=self.color, font=self.font)
+            d.text((5, 5), self.label, fill=tuple(self.color), font=self.font)
         else:
-            d.text((5, 5), self.label, fill=self.color)
+            d.text((5, 5), self.label, fill=tuple(self.color))
 
         self.material._image = img
         self.material.refresh()
@@ -240,7 +253,14 @@ class Hud(Object):
     to one in the scene.
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        width: int = 800,
+        height: int = 600,
+        font: str = "",
+        font_size: int = 15,
+        **args: Any,
+    ) -> None:
         """Initialize HUD
 
         Args:
@@ -252,11 +272,11 @@ class Hud(Object):
         """
 
         super().__init__(**args)
-        self.width: int = args.get("width", 800)
-        self.height: int = args.get("height", 600)
-        self._fontname: str = args.get("font", "")
+        self.width: int = width
+        self.height: int = height
+        self._fontname: str = font
         self.children: Dict[str, Shape2D] = {}  # type: ignore
-        self._font_size: int = args.get("font_size", 15)
+        self._font_size: int = font_size
         if self._fontname != "":
             self.set_font(self._fontname, self._font_size)
         self._font: ImageFont = None

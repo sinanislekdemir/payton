@@ -119,7 +119,15 @@ class Material(object):
     Material information holder.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        color: Optional[List[float]] = None,
+        display: int = SOLID,
+        lights: bool = True,
+        texture: str = &#34;&#34;,
+        opacity: float = 1.0,
+        **args: Any,
+    ):
         &#34;&#34;&#34;
         Initialize Material
 
@@ -147,11 +155,11 @@ class Material(object):
           opacity: Opacity of the material (0 fully transparent, 1 opaque)
         &#34;&#34;&#34;
 
-        self.color: List[float] = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
-        self.display: int = args.get(&#34;display&#34;, SOLID)
-        self.lights: bool = args.get(&#34;lights&#34;, True)
-        self.texture: str = args.get(&#34;texture&#34;, &#34;&#34;)
-        self.opacity: float = args.get(&#34;opacity&#34;, 1.0)
+        self.color: List[float] = [1.0, 1.0, 1.0] if color is None else color
+        self.display: int = display
+        self.lights: bool = lights
+        self.texture: str = texture
+        self.opacity: float = opacity
         self._image: Optional[Image] = None
 
         variables = [
@@ -327,7 +335,7 @@ class Material(object):
 <dl>
 <dt id="payton.scene.material.Material"><code class="flex name class">
 <span>class <span class="ident">Material</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>color=None, display=0, lights=True, texture='', opacity=1.0, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Material information holder.</p>
@@ -364,7 +372,15 @@ object.</p>
     Material information holder.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        color: Optional[List[float]] = None,
+        display: int = SOLID,
+        lights: bool = True,
+        texture: str = &#34;&#34;,
+        opacity: float = 1.0,
+        **args: Any,
+    ):
         &#34;&#34;&#34;
         Initialize Material
 
@@ -392,11 +408,11 @@ object.</p>
           opacity: Opacity of the material (0 fully transparent, 1 opaque)
         &#34;&#34;&#34;
 
-        self.color: List[float] = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
-        self.display: int = args.get(&#34;display&#34;, SOLID)
-        self.lights: bool = args.get(&#34;lights&#34;, True)
-        self.texture: str = args.get(&#34;texture&#34;, &#34;&#34;)
-        self.opacity: float = args.get(&#34;opacity&#34;, 1.0)
+        self.color: List[float] = [1.0, 1.0, 1.0] if color is None else color
+        self.display: int = display
+        self.lights: bool = lights
+        self.texture: str = texture
+        self.opacity: float = opacity
         self._image: Optional[Image] = None
 
         variables = [

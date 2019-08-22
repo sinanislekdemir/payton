@@ -40,7 +40,14 @@ class Cylinder(Mesh):
 
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        bottom_radius: float = 0.5,
+        top_radius: float = 0.5,
+        meridians: int = 12,
+        height: float = 1.0,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Iniitalize the cylinder
 
         Args:
@@ -50,10 +57,10 @@ class Cylinder(Mesh):
           height: Height of the cylinder
         &#34;&#34;&#34;
         super().__init__(**args)
-        self._bottom_radius: float = args.get(&#34;bottom_radius&#34;, 0.5)
-        self._top_radius: float = args.get(&#34;top_radius&#34;, 0.5)
-        self._meridians: int = args.get(&#34;meridians&#34;, 12)
-        self._height: float = args.get(&#34;height&#34;, 1.0)
+        self._bottom_radius: float = bottom_radius
+        self._top_radius: float = top_radius
+        self._meridians: int = meridians
+        self._height: float = height
         self.build_cylinder()
 
     def build_cylinder(self) -&gt; bool:
@@ -119,7 +126,7 @@ class Cylinder(Mesh):
 <dl>
 <dt id="payton.scene.geometry.cylinder.Cylinder"><code class="flex name class">
 <span>class <span class="ident">Cylinder</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>bottom_radius=0.5, top_radius=0.5, meridians=12, height=1.0, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cylinder Object</p>
@@ -175,7 +182,14 @@ scene.run()
 
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        bottom_radius: float = 0.5,
+        top_radius: float = 0.5,
+        meridians: int = 12,
+        height: float = 1.0,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Iniitalize the cylinder
 
         Args:
@@ -185,10 +199,10 @@ scene.run()
           height: Height of the cylinder
         &#34;&#34;&#34;
         super().__init__(**args)
-        self._bottom_radius: float = args.get(&#34;bottom_radius&#34;, 0.5)
-        self._top_radius: float = args.get(&#34;top_radius&#34;, 0.5)
-        self._meridians: int = args.get(&#34;meridians&#34;, 12)
-        self._height: float = args.get(&#34;height&#34;, 1.0)
+        self._bottom_radius: float = bottom_radius
+        self._top_radius: float = top_radius
+        self._meridians: int = meridians
+        self._height: float = height
         self.build_cylinder()
 
     def build_cylinder(self) -&gt; bool:
@@ -320,6 +334,8 @@ scene.run()
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.clear_triangles" href="mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direct_to" href="base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direction" href="base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_normals" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_texcoords" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.forward" href="base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>

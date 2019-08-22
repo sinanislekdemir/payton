@@ -50,7 +50,13 @@ class Sphere(Mesh):
 
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        radius: float = 0.5,
+        parallels: int = 12,
+        meridians: int = 12,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize the sphere
 
         Args:
@@ -60,9 +66,9 @@ class Sphere(Mesh):
           meridians: Number of meridians (as in geography). (default: 12)
         &#34;&#34;&#34;
         super().__init__(**args)
-        self.radius: float = args.get(&#34;radius&#34;, 0.5)
-        self.parallels: int = args.get(&#34;parallels&#34;, 12)
-        self.meridians: int = args.get(&#34;meridians&#34;, 12)
+        self.radius: float = radius
+        self.parallels: int = parallels
+        self.meridians: int = meridians
         self.build_sphere()
 
     def build_sphere(self) -&gt; bool:
@@ -144,7 +150,7 @@ class Sphere(Mesh):
 <dl>
 <dt id="payton.scene.geometry.sphere.Sphere"><code class="flex name class">
 <span>class <span class="ident">Sphere</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>radius=0.5, parallels=12, meridians=12, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Sphere object.</p>
@@ -238,7 +244,13 @@ degrees of arcs)</dd>
 
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        radius: float = 0.5,
+        parallels: int = 12,
+        meridians: int = 12,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize the sphere
 
         Args:
@@ -248,9 +260,9 @@ degrees of arcs)</dd>
           meridians: Number of meridians (as in geography). (default: 12)
         &#34;&#34;&#34;
         super().__init__(**args)
-        self.radius: float = args.get(&#34;radius&#34;, 0.5)
-        self.parallels: int = args.get(&#34;parallels&#34;, 12)
-        self.meridians: int = args.get(&#34;meridians&#34;, 12)
+        self.radius: float = radius
+        self.parallels: int = parallels
+        self.meridians: int = meridians
         self.build_sphere()
 
     def build_sphere(self) -&gt; bool:
@@ -419,6 +431,8 @@ degrees of arcs)</dd>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.clear_triangles" href="mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direct_to" href="base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direction" href="base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_normals" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_texcoords" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.forward" href="base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>

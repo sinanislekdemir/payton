@@ -15,7 +15,9 @@ class Plane(Mesh):
         .. include:: ../../../examples/basics/13_plane.py
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self, width: float = 1.0, height: float = 1.0, **args: Any
+    ) -> None:
         """Initialize plane
 
         Args:
@@ -23,8 +25,8 @@ class Plane(Mesh):
           height: Height of the plane
         """
         super().__init__(**args)
-        width = args.get("width", 1.0) * 0.5
-        height = args.get("height", 1.0) * 0.5
+        width *= 0.5
+        height *= 0.5
         self._vertices = [
             [-width, -height, 0],
             [width, -height, 0],
@@ -47,7 +49,14 @@ class MatrixPlane(Mesh):
         .. include:: ../../../examples/mid-level/ripple.py
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        width: float = 1.0,
+        height: float = 1.0,
+        x: int = 2,
+        y: int = 2,
+        **args: Any,
+    ) -> None:
         """Initialize MatrixPlane
 
         Args:
@@ -57,10 +66,10 @@ class MatrixPlane(Mesh):
           height: Total height
         """
         super().__init__(**args)
-        self.width = args.get("width", 1.0)
-        self.height = args.get("height", 1.0)
-        self.x = args.get("x", 2)
-        self.y = args.get("y", 2)
+        self.width = width
+        self.height = height
+        self.x = x
+        self.y = y
         if self.x < 2:
             self.x = 2
         if self.y < 2:

@@ -26,7 +26,13 @@ class Sphere(Mesh):
 
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        radius: float = 0.5,
+        parallels: int = 12,
+        meridians: int = 12,
+        **args: Any,
+    ) -> None:
         """Initialize the sphere
 
         Args:
@@ -36,9 +42,9 @@ class Sphere(Mesh):
           meridians: Number of meridians (as in geography). (default: 12)
         """
         super().__init__(**args)
-        self.radius: float = args.get("radius", 0.5)
-        self.parallels: int = args.get("parallels", 12)
-        self.meridians: int = args.get("meridians", 12)
+        self.radius: float = radius
+        self.parallels: int = parallels
+        self.meridians: int = meridians
         self.build_sphere()
 
     def build_sphere(self) -> bool:

@@ -22,7 +22,7 @@
 <section id="section-intro">
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">from typing import Any
+<pre><code class="python">from typing import Any, Optional, List
 
 from payton.math.vector import min_max
 from payton.scene.geometry import Mesh
@@ -40,7 +40,15 @@ class Cube(Mesh):
 
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        width: float = 1.0,
+        depth: float = 1.0,
+        height: float = 1.0,
+        from_corner: Optional[List[float]] = None,
+        to_corner: Optional[List[float]] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize Cube
 
         There are two ways to initialize a cube. You can use width, depth,
@@ -57,13 +65,11 @@ class Cube(Mesh):
           to_corner: End point of the cube (Optional)
         &#34;&#34;&#34;
         super().__init__(**args)
-        width = args.get(&#34;width&#34;, 1.0) * 0.5
-        depth = args.get(&#34;depth&#34;, 1.0) * 0.5
-        height = args.get(&#34;height&#34;, 1.0) * 0.5
+        width *= 0.5
+        depth *= 0.5
+        height *= 0.5
 
-        if &#34;from_corner&#34; in args and &#34;to_corner&#34; in args:
-            from_corner = args.get(&#34;from_corner&#34;, [0.0, 0.0, 0.0])
-            to_corner = args.get(&#34;to_corner&#34;, [1.0, 1.0, 1.0])
+        if from_corner is not None and to_corner is not None:
             vmin, vmax = min_max([from_corner, to_corner])
 
             width = (vmax[0] - vmin[0]) / 2
@@ -163,7 +169,7 @@ class Cube(Mesh):
 <dl>
 <dt id="payton.scene.geometry.cube.Cube"><code class="flex name class">
 <span>class <span class="ident">Cube</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>width=1.0, depth=1.0, height=1.0, from_corner=None, to_corner=None, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cube object</p>
@@ -214,7 +220,15 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
 
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        width: float = 1.0,
+        depth: float = 1.0,
+        height: float = 1.0,
+        from_corner: Optional[List[float]] = None,
+        to_corner: Optional[List[float]] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize Cube
 
         There are two ways to initialize a cube. You can use width, depth,
@@ -231,13 +245,11 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
           to_corner: End point of the cube (Optional)
         &#34;&#34;&#34;
         super().__init__(**args)
-        width = args.get(&#34;width&#34;, 1.0) * 0.5
-        depth = args.get(&#34;depth&#34;, 1.0) * 0.5
-        height = args.get(&#34;height&#34;, 1.0) * 0.5
+        width *= 0.5
+        depth *= 0.5
+        height *= 0.5
 
-        if &#34;from_corner&#34; in args and &#34;to_corner&#34; in args:
-            from_corner = args.get(&#34;from_corner&#34;, [0.0, 0.0, 0.0])
-            to_corner = args.get(&#34;to_corner&#34;, [1.0, 1.0, 1.0])
+        if from_corner is not None and to_corner is not None:
             vmin, vmax = min_max([from_corner, to_corner])
 
             width = (vmax[0] - vmin[0]) / 2
@@ -341,6 +353,8 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.clear_triangles" href="mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direct_to" href="base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direction" href="base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_normals" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_texcoords" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.forward" href="base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>

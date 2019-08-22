@@ -54,7 +54,13 @@ class CollisionTest(object):
     SPHERICAL = 0
     AABB = 1
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        callback: Callable,
+        level: int = AABB,
+        objects: Optional[List[Type[Mesh]]] = None,
+        **args: Any,
+    ) -> None:
         """Initialize collision detector
 
         Args:
@@ -62,11 +68,9 @@ class CollisionTest(object):
           callback: Callback function to call incase of collision
           level: Level of collision detection accuracy
         """
-        self.objects: List[Type[Mesh]] = args.get("objects", [])
-        self.callback: Optional[Callable] = args.get("callback", None)
-        self.level: int = args.get("level", self.AABB)
-        if not callable(self.callback):
-            logging.error("callback should be a callable")
+        self.objects: List[Type[Mesh]] = [] if objects is None else objects
+        self.callback: Callable = callback
+        self.level: int = level
         self._pairs: List[List[Mesh]] = []
 
     def add_object(self, obj: Type[Mesh]) -> None:

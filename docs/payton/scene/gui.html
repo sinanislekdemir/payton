@@ -73,7 +73,7 @@ hud.add_child("text_rect", texture_rect)
 
 
 def click_func():
-    t = Text(label="Yay!", position=(10, 40))
+    t = Text(label="Yay!", position=(10, 40), size=(100, 100))
     rectangle.add_child(f"l_a", t)
 
 
@@ -104,7 +104,9 @@ info = Text(
 hud.add_child("info", info)
 
 
-fps = Text(label="Hit Space:", position=(0, 0), color=(1, 1, 1))
+fps = Text(
+    label="Hit Space:", position=(0, 0), color=(1, 1, 1), size=(100, 100)
+)
 
 hud.add_child("fps", fps)
 
@@ -127,7 +129,7 @@ Example code:
 
 &#34;&#34;&#34;
 import numpy as np  # type: ignore
-from typing import Any, Tuple, Callable, TypeVar, List, Optional, Dict
+from typing import Any, Tuple, Callable, TypeVar, List, Optional, Dict, cast
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
 
 from OpenGL.GL import glEnable, GL_DEPTH_TEST, glDisable
@@ -148,7 +150,14 @@ class Shape2D(Mesh):
     of the shape.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        position: Tuple[int, int, int],
+        size: Tuple[int, int],
+        on_click: Optional[Callable] = None,
+        opacity: float = 0.5,
+        **args: Any,
+    ):
         &#34;&#34;&#34;Initialize Shape2D
 
         Args:
@@ -156,11 +165,11 @@ class Shape2D(Mesh):
           position: Position of the shape in screen. (0, 0 by default.)
         &#34;&#34;&#34;
         super().__init__(**args)
-        self.material.opacity = args.get(&#34;opacity&#34;, 0.5)
-        self.__position: Tuple[int, int, int] = args.get(&#34;position&#34;, (0, 0, 0))
+        self.material.opacity = opacity
+        self.__position: Tuple[int, int, int] = position
         self.position = list([float(x) for x in self.__position])
-        self.size: Tuple[int, int] = args.get(&#34;size&#34;, (100, 100))
-        self.on_click: Callable = args.get(&#34;on_click&#34;, None)
+        self.size: Tuple[int, int] = size
+        self.on_click: Optional[Callable] = on_click
         self._font: ImageFont = None
         self.parent: Any = None
 
@@ -219,7 +228,7 @@ class Shape2D(Mesh):
         &#34;&#34;&#34;
         if not callable(self.on_click):
             for child in self.children:
-                c = self.children[child].click(x, y)  # type: bool
+                c = cast(&#39;Shape2D&#39;, self.children[child]).click(x, y)  # type: bool
                 if c:
                     return True
             return False
@@ -282,7 +291,13 @@ class Text(Rectangle):
     to own material
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        label: str = &#34;lorem&#34;,
+        bgcolor: Optional[List[int]] = None,
+        color: Optional[List[int]] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize Text
 
         Args:
@@ -291,11 +306,11 @@ class Text(Rectangle):
           color: Color of the text (Default, r:0, g:0, b:0)
         &#34;&#34;&#34;
         super().__init__(**args)
-        self.__label: str = args.get(&#34;label&#34;, &#34;lorem&#34;)
-        self.bgcolor: Tuple[int, ...] = args.get(&#34;bgcolor&#34;, (0, 0, 0, 0))
-        self.color: Tuple[int, ...] = args.get(&#34;color&#34;, (0, 0, 0))
-        self.bgcolor = tuple(map(lambda x: int(x * 255), self.bgcolor))
-        self.color = tuple(map(lambda x: int(x * 255), self.color))
+        self.__label: str = label
+        self.bgcolor: List[int] = [0, 0, 0, 0] if bgcolor is None else bgcolor
+        self.color: List[int] = [0, 0, 0] if color is None else color
+        self.bgcolor = list(map(lambda x: int(x * 255), self.bgcolor))
+        self.color = list(map(lambda x: int(x * 255), self.color))
         self.draw_text()
         self._init_text: bool = False
 
@@ -332,12 +347,12 @@ class Text(Rectangle):
         Create an empty transparent image with the rectangle size
         and draw the text on it. Then, assign the image to the material
         &#34;&#34;&#34;
-        img = Image.new(&#34;RGBA&#34;, self.size, color=self.bgcolor)
+        img = Image.new(&#34;RGBA&#34;, self.size, color=tuple(self.bgcolor))
         d = ImageDraw.Draw(img)
         if self.font is not None:
-            d.text((5, 5), self.label, fill=self.color, font=self.font)
+            d.text((5, 5), self.label, fill=tuple(self.color), font=self.font)
         else:
-            d.text((5, 5), self.label, fill=self.color)
+            d.text((5, 5), self.label, fill=tuple(self.color))
 
         self.material._image = img
         self.material.refresh()
@@ -357,7 +372,14 @@ class Hud(Object):
     to one in the scene.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        width: int = 800,
+        height: int = 600,
+        font: str = &#34;&#34;,
+        font_size: int = 15,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize HUD
 
         Args:
@@ -369,11 +391,11 @@ class Hud(Object):
         &#34;&#34;&#34;
 
         super().__init__(**args)
-        self.width: int = args.get(&#34;width&#34;, 800)
-        self.height: int = args.get(&#34;height&#34;, 600)
-        self._fontname: str = args.get(&#34;font&#34;, &#34;&#34;)
+        self.width: int = width
+        self.height: int = height
+        self._fontname: str = font
         self.children: Dict[str, Shape2D] = {}  # type: ignore
-        self._font_size: int = args.get(&#34;font_size&#34;, 15)
+        self._font_size: int = font_size
         if self._fontname != &#34;&#34;:
             self.set_font(self._fontname, self._font_size)
         self._font: ImageFont = None
@@ -446,7 +468,7 @@ class Hud(Object):
 <dl>
 <dt id="payton.scene.gui.Hud"><code class="flex name class">
 <span>class <span class="ident">Hud</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>width=800, height=600, font='', font_size=15, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Main 2D Hud</p>
@@ -486,7 +508,14 @@ to one in the scene.</p>
     to one in the scene.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        width: int = 800,
+        height: int = 600,
+        font: str = &#34;&#34;,
+        font_size: int = 15,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize HUD
 
         Args:
@@ -498,11 +527,11 @@ to one in the scene.</p>
         &#34;&#34;&#34;
 
         super().__init__(**args)
-        self.width: int = args.get(&#34;width&#34;, 800)
-        self.height: int = args.get(&#34;height&#34;, 600)
-        self._fontname: str = args.get(&#34;font&#34;, &#34;&#34;)
+        self.width: int = width
+        self.height: int = height
+        self._fontname: str = font
         self.children: Dict[str, Shape2D] = {}  # type: ignore
-        self._font_size: int = args.get(&#34;font_size&#34;, 15)
+        self._font_size: int = font_size
         if self._fontname != &#34;&#34;:
             self.set_font(self._fontname, self._font_size)
         self._font: ImageFont = None
@@ -700,6 +729,8 @@ also supported.</dd>
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="geometry/base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="geometry/base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="geometry/base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.direct_to" href="geometry/base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.direction" href="geometry/base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.forward" href="geometry/base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.has_vao" href="geometry/base.html#payton.scene.geometry.base.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.position" href="geometry/base.html#payton.scene.geometry.base.Object.position">position</a></code></li>
@@ -826,6 +857,8 @@ method again.</p></section>
 <li><code><a title="payton.scene.gui.Shape2D.clear_triangles" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.click" href="#payton.scene.gui.Shape2D.click">click</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.destroy" href="geometry/base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.gui.Shape2D.direct_to" href="geometry/base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.gui.Shape2D.direction" href="geometry/base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.draw_text" href="#payton.scene.gui.Shape2D.draw_text">draw_text</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.fix_normals" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.fix_texcoords" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
@@ -852,7 +885,7 @@ method again.</p></section>
 </dd>
 <dt id="payton.scene.gui.Shape2D"><code class="flex name class">
 <span>class <span class="ident">Shape2D</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>position, size, on_click=None, opacity=0.5, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Shape2D is the base of GUI primitives</p>
@@ -877,7 +910,14 @@ of the shape.</p>
     of the shape.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        position: Tuple[int, int, int],
+        size: Tuple[int, int],
+        on_click: Optional[Callable] = None,
+        opacity: float = 0.5,
+        **args: Any,
+    ):
         &#34;&#34;&#34;Initialize Shape2D
 
         Args:
@@ -885,11 +925,11 @@ of the shape.</p>
           position: Position of the shape in screen. (0, 0 by default.)
         &#34;&#34;&#34;
         super().__init__(**args)
-        self.material.opacity = args.get(&#34;opacity&#34;, 0.5)
-        self.__position: Tuple[int, int, int] = args.get(&#34;position&#34;, (0, 0, 0))
+        self.material.opacity = opacity
+        self.__position: Tuple[int, int, int] = position
         self.position = list([float(x) for x in self.__position])
-        self.size: Tuple[int, int] = args.get(&#34;size&#34;, (100, 100))
-        self.on_click: Callable = args.get(&#34;on_click&#34;, None)
+        self.size: Tuple[int, int] = size
+        self.on_click: Optional[Callable] = on_click
         self._font: ImageFont = None
         self.parent: Any = None
 
@@ -948,7 +988,7 @@ of the shape.</p>
         &#34;&#34;&#34;
         if not callable(self.on_click):
             for child in self.children:
-                c = self.children[child].click(x, y)  # type: bool
+                c = cast(&#39;Shape2D&#39;, self.children[child]).click(x, y)  # type: bool
                 if c:
                     return True
             return False
@@ -1056,7 +1096,7 @@ you handle them yourself or you call the <code>super()</code> for mouse action</
     &#34;&#34;&#34;
     if not callable(self.on_click):
         for child in self.children:
-            c = self.children[child].click(x, y)  # type: bool
+            c = cast(&#39;Shape2D&#39;, self.children[child]).click(x, y)  # type: bool
             if c:
                 return True
         return False
@@ -1110,6 +1150,8 @@ you handle them yourself or you call the <code>super()</code> for mouse action</
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="geometry/base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.clear_triangles" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.destroy" href="geometry/base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direct_to" href="geometry/base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direction" href="geometry/base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_normals" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_texcoords" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.forward" href="geometry/base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>
@@ -1134,7 +1176,7 @@ you handle them yourself or you call the <code>super()</code> for mouse action</
 </dd>
 <dt id="payton.scene.gui.Text"><code class="flex name class">
 <span>class <span class="ident">Text</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>label='lorem', bgcolor=None, color=None, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Text object.</p>
@@ -1161,7 +1203,13 @@ to own material</p>
     to own material
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        label: str = &#34;lorem&#34;,
+        bgcolor: Optional[List[int]] = None,
+        color: Optional[List[int]] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize Text
 
         Args:
@@ -1170,11 +1218,11 @@ to own material</p>
           color: Color of the text (Default, r:0, g:0, b:0)
         &#34;&#34;&#34;
         super().__init__(**args)
-        self.__label: str = args.get(&#34;label&#34;, &#34;lorem&#34;)
-        self.bgcolor: Tuple[int, ...] = args.get(&#34;bgcolor&#34;, (0, 0, 0, 0))
-        self.color: Tuple[int, ...] = args.get(&#34;color&#34;, (0, 0, 0))
-        self.bgcolor = tuple(map(lambda x: int(x * 255), self.bgcolor))
-        self.color = tuple(map(lambda x: int(x * 255), self.color))
+        self.__label: str = label
+        self.bgcolor: List[int] = [0, 0, 0, 0] if bgcolor is None else bgcolor
+        self.color: List[int] = [0, 0, 0] if color is None else color
+        self.bgcolor = list(map(lambda x: int(x * 255), self.bgcolor))
+        self.color = list(map(lambda x: int(x * 255), self.color))
         self.draw_text()
         self._init_text: bool = False
 
@@ -1211,12 +1259,12 @@ to own material</p>
         Create an empty transparent image with the rectangle size
         and draw the text on it. Then, assign the image to the material
         &#34;&#34;&#34;
-        img = Image.new(&#34;RGBA&#34;, self.size, color=self.bgcolor)
+        img = Image.new(&#34;RGBA&#34;, self.size, color=tuple(self.bgcolor))
         d = ImageDraw.Draw(img)
         if self.font is not None:
-            d.text((5, 5), self.label, fill=self.color, font=self.font)
+            d.text((5, 5), self.label, fill=tuple(self.color), font=self.font)
         else:
-            d.text((5, 5), self.label, fill=self.color)
+            d.text((5, 5), self.label, fill=tuple(self.color))
 
         self.material._image = img
         self.material.refresh()</code></pre>
@@ -1258,12 +1306,12 @@ and draw the text on it. Then, assign the image to the material</p></section>
     Create an empty transparent image with the rectangle size
     and draw the text on it. Then, assign the image to the material
     &#34;&#34;&#34;
-    img = Image.new(&#34;RGBA&#34;, self.size, color=self.bgcolor)
+    img = Image.new(&#34;RGBA&#34;, self.size, color=tuple(self.bgcolor))
     d = ImageDraw.Draw(img)
     if self.font is not None:
-        d.text((5, 5), self.label, fill=self.color, font=self.font)
+        d.text((5, 5), self.label, fill=tuple(self.color), font=self.font)
     else:
-        d.text((5, 5), self.label, fill=self.color)
+        d.text((5, 5), self.label, fill=tuple(self.color))
 
     self.material._image = img
     self.material.refresh()</code></pre>
@@ -1311,6 +1359,8 @@ of the rectangle.</p></section>
 <li><code><a title="payton.scene.gui.Rectangle.clear_triangles" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.click" href="#payton.scene.gui.Shape2D.click">click</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.destroy" href="geometry/base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.gui.Rectangle.direct_to" href="geometry/base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.gui.Rectangle.direction" href="geometry/base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.draw" href="#payton.scene.gui.Rectangle.draw">draw</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.fix_normals" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.fix_texcoords" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>

@@ -20,7 +20,7 @@ import sdl2
 import logging
 import time
 import numpy as np  # type: ignore
-from typing import Dict, Any, List, Callable, TypeVar
+from typing import Dict, Any, List, Callable, TypeVar, Optional
 
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
@@ -64,7 +64,13 @@ class Scene(Receiver):
     Main Payton scene.
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        width: int = 800,
+        height: int = 600,
+        on_select: Optional[Callable] = None,
+        **args: Any,
+    ) -> None:
         """
         Initialize the Payton Scene
         There is no parameters here. Every class property must be explicitly
@@ -134,8 +140,8 @@ class Scene(Receiver):
 
         # SDL Related Stuff
         self.window = None
-        self.window_width = args.get("width", 800.0)
-        self.window_height = args.get("height", 600.0)
+        self.window_width = width
+        self.window_height = height
         self._context = None
         self._mouse = [0, 0]
         self._shift_down = False
@@ -144,7 +150,7 @@ class Scene(Receiver):
         self._collision_detectors: List[CollisionTest] = []
         self._click_planes: List[CPlane] = []
 
-        self.on_select = args.get("on_select", None)
+        self.on_select = on_select
         # Main running state
         self.running = False
         self._render_lock = False
@@ -488,16 +494,25 @@ class Background(object):
     https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
     """
 
-    def __init__(self, **args: Dict[str, Any]):
+    def __init__(
+        self,
+        top_color: Optional[List[float]] = None,
+        bottom_color: Optional[List[float]] = None,
+        **args: Dict[str, Any],
+    ):
         """Initialize background
 
         Args:
           top_color: Color at the top of the scene screen
           bottom_color: Color at the bottom of the screen
         """
-        self.top_color = args.get("top_color", [0.6, 0.8, 1.0, 1.0])
-        self.bottom_color = args.get(
-            "bottom_color", [0.6275, 0.6275, 0.6275, 1.0]
+        self.top_color = (
+            [0.6, 0.8, 1.0, 1.0] if top_color is None else top_color
+        )
+        self.bottom_color = (
+            [0.6275, 0.6275, 0.6275, 1.0]
+            if bottom_color is None
+            else bottom_color
         )
         variables = ["top_color", "bot_color"]
         self._shader = Shader(

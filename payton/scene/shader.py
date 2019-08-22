@@ -193,7 +193,13 @@ class Shader(object):
     PER_VERTEX_COLOR = 4  # type:int
     HUD = 5  # type: int
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        fragment: str = default_fragment_shader,
+        vertex: str = default_vertex_shader,
+        variables: Optional[List[str]] = None,
+        **args: Any,
+    ):
         """Initialize Shader.
 
         Args:
@@ -201,15 +207,10 @@ class Shader(object):
           vertex: Vertex shader code
           variables: List of in/out/uniform variable names.
         """
-        global default_fragment_shader, default_vertex_shader
-        self.fragment_shader_source: str = args.get(
-            "fragment", default_fragment_shader
-        )
-        self.vertex_shader_source: str = args.get(
-            "vertex", default_vertex_shader
-        )
+        self.fragment_shader_source = fragment
+        self.vertex_shader_source: str = vertex
 
-        self.variables: List[str] = args.get("variables", [])
+        self.variables: List[str] = [] if variables is None else variables
         self._stack: Dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
 

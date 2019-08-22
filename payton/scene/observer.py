@@ -21,7 +21,21 @@ class Observer(object):
     Observers are basically cameras in the scene.
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        position: Optional[List[float]] = None,
+        target: Optional[List[float]] = None,
+        up: Optional[List[float]] = None,
+        target_object: Optional[Type[Object]] = None,
+        fov: float = 45.0,
+        aspect_ratio: float = 1.33333,
+        near: float = 0.1,
+        far: float = 100.0,
+        zoom: float = 10.0,
+        active: bool = False,
+        perspective: bool = True,
+        **args: Any,
+    ) -> None:
         """
         Initialize the defaults of an Observer.
         Default observer is a perspective mode camera
@@ -41,23 +55,28 @@ class Observer(object):
           far: Far plane. Further objects will be invisible. [100.]
           active: Is this the active camera in the scene? [False]
         """
-        self.position: List[float] = args.get("position", [10.0, 10.0, 5.0])
-        self.target: List[float] = args.get("target", [0.0, 0.0, 0.0])
-        self.up: List[float] = args.get("up", [0.0, 0.0, 1.0])
+        self.position: List[float] = [
+            10.0,
+            10.0,
+            5.0,
+        ] if position is None else position
+        self.target: List[float] = [
+            0.0,
+            0.0,
+            0.0,
+        ] if target is None else target
+        self.up: List[float] = [0.0, 0.0, 1.0] if up is None else up
 
-        self.target_object: Optional[Type[Object]] = args.get(
-            "target_object", None
-        )
-        self.fov: float = args.get("fov", 45.0)
-        self.aspect_ratio: float = args.get("aspect_ratio", 800.0 / 600.0)
-        self.near: float = args.get("near", 0.1)
-        self.far: float = args.get("far", 100.0)
+        self.target_object: Optional[Type[Object]] = target_object
+        self.fov: float = fov
+        self.aspect_ratio: float = aspect_ratio
+        self.near: float = near
+        self.far: float = far
 
-        # self.perspective = args.get('perspective', True)
         # zoom factor for Orthographic projection
-        self.zoom: float = args.get("zoom", 10.0)
-        self.active: bool = args.get("active", False)
-        self.perspective: bool = args.get("perspective", True)
+        self.zoom: float = zoom
+        self.active: bool = active
+        self.perspective: bool = perspective
 
         # Store matrices for future reference.
         self._projection: Optional[np.ndarray] = None

@@ -85,7 +85,15 @@ class Material(object):
     Material information holder.
     """
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        color: Optional[List[float]] = None,
+        display: int = SOLID,
+        lights: bool = True,
+        texture: str = "",
+        opacity: float = 1.0,
+        **args: Any,
+    ):
         """
         Initialize Material
 
@@ -113,11 +121,11 @@ class Material(object):
           opacity: Opacity of the material (0 fully transparent, 1 opaque)
         """
 
-        self.color: List[float] = args.get("color", [1.0, 1.0, 1.0])
-        self.display: int = args.get("display", SOLID)
-        self.lights: bool = args.get("lights", True)
-        self.texture: str = args.get("texture", "")
-        self.opacity: float = args.get("opacity", 1.0)
+        self.color: List[float] = [1.0, 1.0, 1.0] if color is None else color
+        self.display: int = display
+        self.lights: bool = lights
+        self.texture: str = texture
+        self.opacity: float = opacity
         self._image: Optional[Image] = None
 
         variables = [

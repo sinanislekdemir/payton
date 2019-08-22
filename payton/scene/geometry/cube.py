@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional, List
 
 from payton.math.vector import min_max
 from payton.scene.geometry import Mesh
@@ -16,7 +16,15 @@ class Cube(Mesh):
 
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        width: float = 1.0,
+        depth: float = 1.0,
+        height: float = 1.0,
+        from_corner: Optional[List[float]] = None,
+        to_corner: Optional[List[float]] = None,
+        **args: Any,
+    ) -> None:
         """Initialize Cube
 
         There are two ways to initialize a cube. You can use width, depth,
@@ -33,13 +41,11 @@ class Cube(Mesh):
           to_corner: End point of the cube (Optional)
         """
         super().__init__(**args)
-        width = args.get("width", 1.0) * 0.5
-        depth = args.get("depth", 1.0) * 0.5
-        height = args.get("height", 1.0) * 0.5
+        width *= 0.5
+        depth *= 0.5
+        height *= 0.5
 
-        if "from_corner" in args and "to_corner" in args:
-            from_corner = args.get("from_corner", [0.0, 0.0, 0.0])
-            to_corner = args.get("to_corner", [1.0, 1.0, 1.0])
+        if from_corner is not None and to_corner is not None:
             vmin, vmax = min_max([from_corner, to_corner])
 
             width = (vmax[0] - vmin[0]) / 2

@@ -228,7 +228,13 @@ class Shader(object):
     PER_VERTEX_COLOR = 4  # type:int
     HUD = 5  # type: int
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        fragment: str = default_fragment_shader,
+        vertex: str = default_vertex_shader,
+        variables: Optional[List[str]] = None,
+        **args: Any,
+    ):
         &#34;&#34;&#34;Initialize Shader.
 
         Args:
@@ -236,15 +242,10 @@ class Shader(object):
           vertex: Vertex shader code
           variables: List of in/out/uniform variable names.
         &#34;&#34;&#34;
-        global default_fragment_shader, default_vertex_shader
-        self.fragment_shader_source: str = args.get(
-            &#34;fragment&#34;, default_fragment_shader
-        )
-        self.vertex_shader_source: str = args.get(
-            &#34;vertex&#34;, default_vertex_shader
-        )
+        self.fragment_shader_source = fragment
+        self.vertex_shader_source: str = vertex
 
-        self.variables: List[str] = args.get(&#34;variables&#34;, [])
+        self.variables: List[str] = [] if variables is None else variables
         self._stack: Dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
 
@@ -440,7 +441,53 @@ class Shader(object):
 <dl>
 <dt id="payton.scene.shader.Shader"><code class="flex name class">
 <span>class <span class="ident">Shader</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>fragment='\n#version 330 core\nout vec4 FragColor;\n\nin vec3 l_normal;\nin vec3 l_fragpos;\n\nin vec2 tex_coords;\nin vec3 frag_color;\n\nuniform vec3 light_pos[100]; // assume 100 lights max.\nuniform vec3 light_color[100];\nuniform int LIGHT_COUNT;\n\nuniform vec3 object_color;\nuniform int material_mode;\nuniform float opacity;\n\nuniform sampler2D tex_unit;\n\n\nvoid main()\n{\n
+if (material_mode == 0) {\n
+// lightless material with color\n
+FragColor = vec4(object_color, opacity);\n
+}\n
+if (material_mode == 1) {\n
+// lightless material with texture\n
+FragColor = texture(tex_unit, tex_coords);\n
+}\n
+if (material_mode == 2 || material_mode == 3) {\n
+// light material\n
+FragColor = vec4(0, 0, 0, 0);\n
+// ambient\n
+float ambientStrength = 0.2;\n\n
+for (int i = 0; i < LIGHT_COUNT; i++) {\n
+vec3 ambient = ambientStrength * light_color[i];\n\n
+// diffuse\n
+vec3 norm = normalize(l_normal);\n\n
+vec3 lightDir = normalize(light_pos[i] - l_fragpos);\n
+float diff = max(dot(norm, lightDir), 0.0);\n
+vec3 diffuse = diff * light_color[i];\n
+if (material_mode == 2) {\n
+// color material\n
+FragColor += vec4((ambient + diffuse) * object_color, opacity);\n
+}else{\n
+// texture material\n
+FragColor += (vec4(ambient + diffuse, 1.0) *\n
+texture(tex_unit, tex_coords));\n
+}\n
+}\n
+}\n
+if (material_mode == 4) {\n
+// Lightless per vertex color\n
+FragColor = vec4(frag_color, opacity);\n
+}\n}', vertex='\n#version 330 core\nlayout ( location = 0 ) in vec3 position;\nlayout ( location = 1 ) in vec3 normal;\nlayout ( location = 2 ) in vec2 texCoords;\nlayout ( location = 3 ) in vec3 colors; // optional\n\nout vec2 tex_coords;\nout vec3 frag_color;\n\nuniform mat4 model;\nuniform mat4 view;\nuniform mat4 projection;\nuniform int view_mode;\n\nout vec3 l_fragpos;\nout vec3 l_normal;\n\nvoid main()\n{\n
+l_fragpos = vec3(model * vec4(position, 1.0));\n
+l_normal = mat3(transpose(inverse(model))) * normal;\n\n
+if (view_mode == 0) {\n
+gl_Position = projection * view * model * vec4(position, 1.0f);\n
+}\n
+if (view_mode == 1) {\n
+gl_Position = (projection * (vec4(position, 1.0f)\n
++ vec4(model[3].xyz, 0.0f)));\n
+}\n
+gl_PointSize = 2.0;\n\n
+tex_coords = texCoords;\n
+frag_color = colors;\n}\n', variables=None, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Payton shader class. Creates shaders / programs</p>
@@ -491,7 +538,13 @@ it will overwrite the existing list.</p>
     PER_VERTEX_COLOR = 4  # type:int
     HUD = 5  # type: int
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        fragment: str = default_fragment_shader,
+        vertex: str = default_vertex_shader,
+        variables: Optional[List[str]] = None,
+        **args: Any,
+    ):
         &#34;&#34;&#34;Initialize Shader.
 
         Args:
@@ -499,15 +552,10 @@ it will overwrite the existing list.</p>
           vertex: Vertex shader code
           variables: List of in/out/uniform variable names.
         &#34;&#34;&#34;
-        global default_fragment_shader, default_vertex_shader
-        self.fragment_shader_source: str = args.get(
-            &#34;fragment&#34;, default_fragment_shader
-        )
-        self.vertex_shader_source: str = args.get(
-            &#34;vertex&#34;, default_vertex_shader
-        )
+        self.fragment_shader_source = fragment
+        self.vertex_shader_source: str = vertex
 
-        self.variables: List[str] = args.get(&#34;variables&#34;, [])
+        self.variables: List[str] = [] if variables is None else variables
         self._stack: Dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
 

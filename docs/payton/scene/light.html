@@ -30,14 +30,19 @@ Support for scene lights.
 &#34;&#34;&#34;
 
 import numpy as np  # type: ignore
-from typing import Any, List
+from typing import Any, List, Optional
 
 
 class Light(object):
     &#34;&#34;&#34;Main Light object
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        position: Optional[List[float]] = None,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ):
         &#34;&#34;&#34;Initialize Payton Light
 
         Args:
@@ -45,8 +50,12 @@ class Light(object):
           default position is [10, 7, 6]
           color: Color of the light source.
         &#34;&#34;&#34;
-        self._position: List[float] = args.get(&#34;position&#34;, [10.0, 7.0, 6.0])
-        self._color: List[float] = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
+        self._position: List[float] = [
+            10.0,
+            7.0,
+            6.0,
+        ] if position is None else position
+        self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color
         self._position_np: np.ndarray = np.array(
             self._position, dtype=np.float32
         )
@@ -84,7 +93,7 @@ class Light(object):
 <dl>
 <dt id="payton.scene.light.Light"><code class="flex name class">
 <span>class <span class="ident">Light</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>position=None, color=None, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Main Light object</p>
@@ -103,7 +112,12 @@ class Light(object):
     &#34;&#34;&#34;Main Light object
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any):
+    def __init__(
+        self,
+        position: Optional[List[float]] = None,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ):
         &#34;&#34;&#34;Initialize Payton Light
 
         Args:
@@ -111,8 +125,12 @@ class Light(object):
           default position is [10, 7, 6]
           color: Color of the light source.
         &#34;&#34;&#34;
-        self._position: List[float] = args.get(&#34;position&#34;, [10.0, 7.0, 6.0])
-        self._color: List[float] = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
+        self._position: List[float] = [
+            10.0,
+            7.0,
+            6.0,
+        ] if position is None else position
+        self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color
         self._position_np: np.ndarray = np.array(
             self._position, dtype=np.float32
         )

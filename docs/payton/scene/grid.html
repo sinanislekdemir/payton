@@ -88,16 +88,23 @@ class Grid(object):
         my_scene.run()
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        xres: int = 20,
+        yres: int = 20,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize Grid
 
         Args:
           xres: Number of lines in X
           yres: Number of lines in Y
         &#34;&#34;&#34;
-        xres: int = args.get(&#34;xres&#34;, 20)
-        yres: int = args.get(&#34;yres&#34;, 20)
-        self._color: List[float] = args.get(&#34;color&#34;, [0.4, 0.4, 0.4])
+        if color is None:
+            self._color: List[float] = [0.4, 0.4, 0.4]
+        else:
+            self._color = color
 
         self.static: bool = True
         self.matrix: List[float] = [
@@ -274,7 +281,7 @@ class Grid(object):
 <dl>
 <dt id="payton.scene.grid.Grid"><code class="flex name class">
 <span>class <span class="ident">Grid</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>xres=20, yres=20, color=None, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Properties of Grid:</p>
@@ -319,16 +326,23 @@ my_scene.run()
         my_scene.run()
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        xres: int = 20,
+        yres: int = 20,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize Grid
 
         Args:
           xres: Number of lines in X
           yres: Number of lines in Y
         &#34;&#34;&#34;
-        xres: int = args.get(&#34;xres&#34;, 20)
-        yres: int = args.get(&#34;yres&#34;, 20)
-        self._color: List[float] = args.get(&#34;color&#34;, [0.4, 0.4, 0.4])
+        if color is None:
+            self._color: List[float] = [0.4, 0.4, 0.4]
+        else:
+            self._color = color
 
         self.static: bool = True
         self.matrix: List[float] = [

@@ -41,7 +41,12 @@ class PointCloud(Object):
         .. include:: ../../../examples/basics/11_point_cloud.py
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        vertices: Optional[VList] = None,
+        colors: Optional[VList] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize Point Cloud
 
         Args:
@@ -49,10 +54,10 @@ class PointCloud(Object):
           colors: List of colors per vertex, follows the same index as vertices
         &#34;&#34;&#34;
         super().__init__(**args)
-        self._vertices: VList = args.get(&#34;vertices&#34;, [])
+        self._vertices: VList = [] if vertices is None else vertices
         # Expose vertices by reference for modification
         self.vertices: VList = self._vertices
-        self._vertex_colors: VList = args.get(&#34;colors&#34;, [])
+        self._vertex_colors: VList = [] if colors is None else colors
         self._vertex_history: VList = []
         self.material.display = POINTS
         self.static: bool = False
@@ -103,7 +108,7 @@ class PointCloud(Object):
 <dl>
 <dt id="payton.scene.geometry.point.PointCloud"><code class="flex name class">
 <span>class <span class="ident">PointCloud</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>vertices=None, colors=None, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Point cloud</p>
@@ -170,7 +175,12 @@ scene.run()
         .. include:: ../../../examples/basics/11_point_cloud.py
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        vertices: Optional[VList] = None,
+        colors: Optional[VList] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Initialize Point Cloud
 
         Args:
@@ -178,10 +188,10 @@ scene.run()
           colors: List of colors per vertex, follows the same index as vertices
         &#34;&#34;&#34;
         super().__init__(**args)
-        self._vertices: VList = args.get(&#34;vertices&#34;, [])
+        self._vertices: VList = [] if vertices is None else vertices
         # Expose vertices by reference for modification
         self.vertices: VList = self._vertices
-        self._vertex_colors: VList = args.get(&#34;colors&#34;, [])
+        self._vertex_colors: VList = [] if colors is None else colors
         self._vertex_history: VList = []
         self.material.display = POINTS
         self.static: bool = False
@@ -306,6 +316,8 @@ scene.run()
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.direct_to" href="base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.direction" href="base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.forward" href="base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.has_vao" href="base.html#payton.scene.geometry.base.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.position" href="base.html#payton.scene.geometry.base.Object.position">position</a></code></li>

@@ -16,7 +16,14 @@ class Cylinder(Mesh):
 
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        bottom_radius: float = 0.5,
+        top_radius: float = 0.5,
+        meridians: int = 12,
+        height: float = 1.0,
+        **args: Any,
+    ) -> None:
         """Iniitalize the cylinder
 
         Args:
@@ -26,10 +33,10 @@ class Cylinder(Mesh):
           height: Height of the cylinder
         """
         super().__init__(**args)
-        self._bottom_radius: float = args.get("bottom_radius", 0.5)
-        self._top_radius: float = args.get("top_radius", 0.5)
-        self._meridians: int = args.get("meridians", 12)
-        self._height: float = args.get("height", 1.0)
+        self._bottom_radius: float = bottom_radius
+        self._top_radius: float = top_radius
+        self._meridians: int = meridians
+        self._height: float = height
         self.build_cylinder()
 
     def build_cylinder(self) -> bool:

@@ -64,6 +64,9 @@ from payton.math.vector import (
     distance,
     scale_vector,
     add_vectors,
+    sub_vector,
+    cross_product,
+    normalize_vector,
 )
 from payton.math.matrix import create_rotation_matrix
 from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
@@ -83,8 +86,8 @@ class Object(object):
     the OpenGL Vertex Array Object. VAO is static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
 
-    You need to call `payton.scene.geometry.base.Object.build` function to refresh
-    Vertex Array Object.
+    You need to call `payton.scene.geometry.base.Object.build` function to
+    refresh Vertex Array Object.
 
     OpenGL can not magically extend a memory buffer, so for every new vertices
     added to the object, OpenGL needs to re-create the buffer area. This is
@@ -96,7 +99,14 @@ class Object(object):
 
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        static=True,
+        name=&#34;&#34;,
+        visible=True,
+        track_motion=False,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;
         Initialize the basic object properties.
 
@@ -130,9 +140,9 @@ class Object(object):
         &#34;&#34;&#34;
         self.children: Dict[str, Object] = {}
         self.material: Material = Material()
-        self.static = args.get(&#34;static&#34;, True)
-        self.name = args.get(&#34;name&#34;, &#34;&#34;)
-        self._visible = args.get(&#34;visible&#34;, True)
+        self.static = static
+        self.name = name
+        self._visible = visible
         self.matrix: VList = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -172,7 +182,7 @@ class Object(object):
         self._t_buffer_size_changed: bool = True
 
         # Track object motion
-        self.track_motion = args.get(&#34;track_motion&#34;, False)
+        self.track_motion = track_motion
         # Motion path, stores every matrix change.
         self._motion_path: List[VList] = []
 
@@ -204,6 +214,35 @@ class Object(object):
         Forces object to get built again
         &#34;&#34;&#34;
         self._needs_update = True
+
+    @property
+    def direction(self) -&gt; List[float]:
+        &#34;&#34;&#34;Get direction vector from Matrix&#34;&#34;&#34;
+        return self.matrix[1][:3]
+
+    @direction.setter
+    def direction(self, v: List[float]):
+        &#34;&#34;&#34;Set direction vector of Matrix
+
+        Attention! This needs to be a unit vector!
+        &#34;&#34;&#34;
+        if len(v) &lt; 3:
+            raise Exception(&#34;Direction needs 3 components (x,y,z)&#34;)
+        self.matrix[1][0] = v[0]
+        self.matrix[1][1] = v[1]
+        self.matrix[1][2] = v[2]
+        left = cross_product(self.matrix[1], self.matrix[2])
+        left += [0]
+        self.matrix[0] = left
+        up = cross_product(self.matrix[0], self.matrix[1])
+        up += [0]
+        self.matrix[2] = up
+
+    def direct_to(self, v: List[float]):
+        &#34;&#34;&#34;Direct the objects forward towards given point vector&#34;&#34;&#34;
+        diff = sub_vector(v, self.position)
+        diff = normalize_vector(diff)
+        self.direction = diff
 
     def rotate_around_z(self, angle: float) -&gt; None:
         &#34;&#34;&#34;Rotate around Z Axis
@@ -298,7 +337,7 @@ class Object(object):
             return False
 
         self.matrix = self._motion_path[-steps]
-        del self._motion_path[-steps + 1:]
+        del self._motion_path[-steps + 1 :]
         return True
 
     def forward(self, distance: float) -&gt; None:
@@ -719,7 +758,12 @@ class Line(Object):
     is defined in base.py instead of line.py
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        vertices: Optional[VList] = None,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Iniitalize line
 
         Args:
@@ -731,8 +775,8 @@ class Line(Object):
             .. include:: ../../../examples/basics/17_line.py
         &#34;&#34;&#34;
         super().__init__(**args)
-        self._vertices: VList = args.get(&#34;vertices&#34;, [])
-        self.material.color = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
+        self._vertices: VList = [] if vertices is None else vertices
+        self.material.color = [1.0, 1.0, 1.0] if color is None else color
 
         self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
@@ -800,7 +844,7 @@ class Line(Object):
 <dl>
 <dt id="payton.scene.geometry.base.Line"><code class="flex name class">
 <span>class <span class="ident">Line</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>vertices=None, color=None, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Line object</p>
@@ -847,7 +891,12 @@ scene.run()
     is defined in base.py instead of line.py
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        vertices: Optional[VList] = None,
+        color: Optional[List[float]] = None,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;Iniitalize line
 
         Args:
@@ -859,8 +908,8 @@ scene.run()
             .. include:: ../../../examples/basics/17_line.py
         &#34;&#34;&#34;
         super().__init__(**args)
-        self._vertices: VList = args.get(&#34;vertices&#34;, [])
-        self.material.color = args.get(&#34;color&#34;, [1.0, 1.0, 1.0])
+        self._vertices: VList = [] if vertices is None else vertices
+        self.material.color = [1.0, 1.0, 1.0] if color is None else color
 
         self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
@@ -1012,6 +1061,8 @@ scene.run()
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.direct_to" href="#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.direction" href="#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.forward" href="#payton.scene.geometry.base.Object.forward">forward</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.has_vao" href="#payton.scene.geometry.base.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.position" href="#payton.scene.geometry.base.Object.position">position</a></code></li>
@@ -1032,7 +1083,7 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.base.Object"><code class="flex name class">
 <span>class <span class="ident">Object</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>static=True, name='', visible=True, track_motion=False, **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Main Payton Object.</p>
@@ -1042,8 +1093,8 @@ Mesh / Cube / Sphere/ Shape2D / PointCloud, etc.</p>
 Render function calls <code>build</code> function if needed. Build function creates
 the OpenGL Vertex Array Object. VAO is static data so, once the object
 is built, changing vertices or indices will not take effect at the scene.</p>
-<p>You need to call <a title="payton.scene.geometry.base.Object.build" href="#payton.scene.geometry.base.Object.build"><code>Object.build()</code></a> function to refresh
-Vertex Array Object.</p>
+<p>You need to call <a title="payton.scene.geometry.base.Object.build" href="#payton.scene.geometry.base.Object.build"><code>Object.build()</code></a> function to
+refresh Vertex Array Object.</p>
 <p>OpenGL can not magically extend a memory buffer, so for every new vertices
 added to the object, OpenGL needs to re-create the buffer area. This is
 not an efficitient technique if number of vertices increase in time.
@@ -1102,8 +1153,8 @@ it again use: <code>object.show()</code></dd>
     the OpenGL Vertex Array Object. VAO is static data so, once the object
     is built, changing vertices or indices will not take effect at the scene.
 
-    You need to call `payton.scene.geometry.base.Object.build` function to refresh
-    Vertex Array Object.
+    You need to call `payton.scene.geometry.base.Object.build` function to
+    refresh Vertex Array Object.
 
     OpenGL can not magically extend a memory buffer, so for every new vertices
     added to the object, OpenGL needs to re-create the buffer area. This is
@@ -1115,7 +1166,14 @@ it again use: <code>object.show()</code></dd>
 
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(
+        self,
+        static=True,
+        name=&#34;&#34;,
+        visible=True,
+        track_motion=False,
+        **args: Any,
+    ) -&gt; None:
         &#34;&#34;&#34;
         Initialize the basic object properties.
 
@@ -1149,9 +1207,9 @@ it again use: <code>object.show()</code></dd>
         &#34;&#34;&#34;
         self.children: Dict[str, Object] = {}
         self.material: Material = Material()
-        self.static = args.get(&#34;static&#34;, True)
-        self.name = args.get(&#34;name&#34;, &#34;&#34;)
-        self._visible = args.get(&#34;visible&#34;, True)
+        self.static = static
+        self.name = name
+        self._visible = visible
         self.matrix: VList = [
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -1191,7 +1249,7 @@ it again use: <code>object.show()</code></dd>
         self._t_buffer_size_changed: bool = True
 
         # Track object motion
-        self.track_motion = args.get(&#34;track_motion&#34;, False)
+        self.track_motion = track_motion
         # Motion path, stores every matrix change.
         self._motion_path: List[VList] = []
 
@@ -1223,6 +1281,35 @@ it again use: <code>object.show()</code></dd>
         Forces object to get built again
         &#34;&#34;&#34;
         self._needs_update = True
+
+    @property
+    def direction(self) -&gt; List[float]:
+        &#34;&#34;&#34;Get direction vector from Matrix&#34;&#34;&#34;
+        return self.matrix[1][:3]
+
+    @direction.setter
+    def direction(self, v: List[float]):
+        &#34;&#34;&#34;Set direction vector of Matrix
+
+        Attention! This needs to be a unit vector!
+        &#34;&#34;&#34;
+        if len(v) &lt; 3:
+            raise Exception(&#34;Direction needs 3 components (x,y,z)&#34;)
+        self.matrix[1][0] = v[0]
+        self.matrix[1][1] = v[1]
+        self.matrix[1][2] = v[2]
+        left = cross_product(self.matrix[1], self.matrix[2])
+        left += [0]
+        self.matrix[0] = left
+        up = cross_product(self.matrix[0], self.matrix[1])
+        up += [0]
+        self.matrix[2] = up
+
+    def direct_to(self, v: List[float]):
+        &#34;&#34;&#34;Direct the objects forward towards given point vector&#34;&#34;&#34;
+        diff = sub_vector(v, self.position)
+        diff = normalize_vector(diff)
+        self.direction = diff
 
     def rotate_around_z(self, angle: float) -&gt; None:
         &#34;&#34;&#34;Rotate around Z Axis
@@ -1317,7 +1404,7 @@ it again use: <code>object.show()</code></dd>
             return False
 
         self.matrix = self._motion_path[-steps]
-        del self._motion_path[-steps + 1:]
+        del self._motion_path[-steps + 1 :]
         return True
 
     def forward(self, distance: float) -&gt; None:
@@ -1771,6 +1858,17 @@ def bounding_radius(self) -&gt; float:
     return self._calc_bounds()</code></pre>
 </details>
 </dd>
+<dt id="payton.scene.geometry.base.Object.direction"><code class="name">var <span class="ident">direction</span></code></dt>
+<dd>
+<section class="desc"><p>Get direction vector from Matrix</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def direction(self) -&gt; List[float]:
+    &#34;&#34;&#34;Get direction vector from Matrix&#34;&#34;&#34;
+    return self.matrix[1][:3]</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.geometry.base.Object.has_vao"><code class="name">var <span class="ident">has_vao</span></code></dt>
 <dd>
 <section class="desc"><p>Check if this object has an active Vertex Array Object</p>
@@ -2136,6 +2234,20 @@ an invisible object (will not be drawn).</p>
     return True</code></pre>
 </details>
 </dd>
+<dt id="payton.scene.geometry.base.Object.direct_to"><code class="name flex">
+<span>def <span class="ident">direct_to</span></span>(<span>self, v)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Direct the objects forward towards given point vector</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def direct_to(self, v: List[float]):
+    &#34;&#34;&#34;Direct the objects forward towards given point vector&#34;&#34;&#34;
+    diff = sub_vector(v, self.position)
+    diff = normalize_vector(diff)
+    self.direction = diff</code></pre>
+</details>
+</dd>
 <dt id="payton.scene.geometry.base.Object.forward"><code class="name flex">
 <span>def <span class="ident">forward</span></span>(<span>self, distance)</span>
 </code></dt>
@@ -2460,7 +2572,7 @@ True.</p>
         return False
 
     self.matrix = self._motion_path[-steps]
-    del self._motion_path[-steps + 1:]
+    del self._motion_path[-steps + 1 :]
     return True</code></pre>
 </details>
 </dd>
@@ -2617,6 +2729,8 @@ space.</p>
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.direct_to" href="#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.direction" href="#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.forward" href="#payton.scene.geometry.base.Object.forward">forward</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.has_vao" href="#payton.scene.geometry.base.Object.has_vao">has_vao</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.hide" href="#payton.scene.geometry.base.Object.hide">hide</a></code></li>

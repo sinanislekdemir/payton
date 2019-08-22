@@ -43,12 +43,12 @@ class Wavefront(Mesh):
     Only designed to accept your triangular geometries.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(self, filename: str = &#34;&#34;, **args: Any) -&gt; None:
         &#34;&#34;&#34;
         Initialize Wavefront Object.
         &#34;&#34;&#34;
         super().__init__()
-        self.filename: str = args.get(&#34;filename&#34;, &#34;&#34;)
+        self.filename: str = filename
         if self.filename != &#34;&#34;:
             self.load_file(self.filename)
 
@@ -292,7 +292,7 @@ f.close()
 <dl>
 <dt id="payton.scene.wavefront.Wavefront"><code class="flex name class">
 <span>class <span class="ident">Wavefront</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>filename='', **args)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Wavefront object file class.
@@ -310,12 +310,12 @@ Only designed to accept your triangular geometries.</p>
     Only designed to accept your triangular geometries.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
+    def __init__(self, filename: str = &#34;&#34;, **args: Any) -&gt; None:
         &#34;&#34;&#34;
         Initialize Wavefront Object.
         &#34;&#34;&#34;
         super().__init__()
-        self.filename: str = args.get(&#34;filename&#34;, &#34;&#34;)
+        self.filename: str = filename
         if self.filename != &#34;&#34;:
             self.load_file(self.filename)
 
@@ -559,6 +559,8 @@ wavefront object files and always a single object at a time.</p></section>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="geometry/base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.clear_triangles" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.destroy" href="geometry/base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direct_to" href="geometry/base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direction" href="geometry/base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_normals" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.fix_texcoords" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.forward" href="geometry/base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>

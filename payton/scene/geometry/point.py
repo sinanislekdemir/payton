@@ -17,7 +17,12 @@ class PointCloud(Object):
         .. include:: ../../../examples/basics/11_point_cloud.py
     """
 
-    def __init__(self, **args: Any) -> None:
+    def __init__(
+        self,
+        vertices: Optional[VList] = None,
+        colors: Optional[VList] = None,
+        **args: Any,
+    ) -> None:
         """Initialize Point Cloud
 
         Args:
@@ -25,10 +30,10 @@ class PointCloud(Object):
           colors: List of colors per vertex, follows the same index as vertices
         """
         super().__init__(**args)
-        self._vertices: VList = args.get("vertices", [])
+        self._vertices: VList = [] if vertices is None else vertices
         # Expose vertices by reference for modification
         self.vertices: VList = self._vertices
-        self._vertex_colors: VList = args.get("colors", [])
+        self._vertex_colors: VList = [] if colors is None else colors
         self._vertex_history: VList = []
         self.material.display = POINTS
         self.static: bool = False
