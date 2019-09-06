@@ -45,7 +45,15 @@ from payton.math.vector import (
     normalize_vector,
 )
 from payton.math.matrix import create_rotation_matrix
-from payton.scene.material import Material, SOLID, POINTS, WIREFRAME
+from payton.scene.material import (
+    Material,
+    SOLID,
+    POINTS,
+    WIREFRAME,
+    DEFAULT,
+    NO_VERTEX_ARRAY,
+    NO_INDICE,
+)
 from payton.scene.shader import Shader
 from payton.scene.light import Light
 from payton.scene.types import VList, IList
@@ -115,7 +123,13 @@ class Object(object):
                    it again use: `object.show()`
         """
         self.children: Dict[str, Object] = {}
-        self.material: Material = Material()
+
+        # store diffeerent materials
+        self.materials: Dict[str, Material] = {DEFAULT: Material()}
+
+        self._vao: int = NO_VERTEX_ARRAY
+        self._vbos: List[int] = []
+
         self.static = static
         self.name = name
         self._visible = visible
@@ -130,6 +144,10 @@ class Object(object):
         #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
 
         self._vertices: VList = []  # Object vertex list
+
+        # @NOTE: we have separate indices for materials but this base
+        #        index list holds all indice definitions for fast access
+        self._indices: IList = []  # Indices
         self._normals: List[
             List[float]
         ] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
@@ -143,8 +161,7 @@ class Object(object):
 
         # Vertices do not mean anything unless we define how to use them.
         # For instance, 3 vertices make a triangle or 2 vertices define a line
-        # order of vertices are defined in self._indices.
-        self._indices: IList = []
+        # order of vertices are defined in materials indices
         self._vertex_count: int = 0  # Number of vertices to report to OpenGL.
 
         # This is an optimization technique for dynamic objects where there are
@@ -174,15 +191,8 @@ class Object(object):
         self._selected: bool = False
 
         # Vertex Array Object pointer
-        self._vao: int = -1
         self._needs_update: bool = False  # Object geometry has changed.
         self._hit: bool = False
-        """ I personally prefer not to delete vbos as in some cases I need to
-        # refer to VBOs to update them partially. I don't want to loose
-        # their reference and make things harder. I am not naming them
-        # anyways.
-        """
-        self._vbos: List[int] = []
 
     def refresh(self) -> None:
         """Refresh object
@@ -190,6 +200,19 @@ class Object(object):
         Forces object to get built again
         """
         self._needs_update = True
+
+    @property
+    def material(self) -> Material:
+        return self.materials[DEFAULT]
+
+    @material.setter
+    def material(self, mat: Material) -> None:
+        self.materials[DEFAULT] = mat
+
+    def add_material(self, name: str, material: Material) -> None:
+        if name in self.materials:
+            raise Exception(f"Name {name} already exists")
+        self.materials[name] = material
 
     @property
     def direction(self) -> List[float]:
@@ -288,9 +311,14 @@ class Object(object):
         Returns:
             bool: `True` on successful destroy of `self`.
         """
-        if self.has_vao:
+        for material in self.materials.values():
+            if material._vao > NO_VERTEX_ARRAY:
+                glDeleteVertexArrays(1, [self._vao])
+                material._vao = NO_VERTEX_ARRAY
+
+        if self._vao > NO_VERTEX_ARRAY:
             glDeleteVertexArrays(1, [self._vao])
-            self._vao = -1
+            self._vao = NO_VERTEX_ARRAY
         return True
 
     def step_back(self, steps: int = 1) -> bool:
@@ -313,7 +341,7 @@ class Object(object):
             return False
 
         self.matrix = self._motion_path[-steps]
-        del self._motion_path[-steps + 1 :]
+        del self._motion_path[-steps + 1 :]  # noqa
         return True
 
     def forward(self, distance: float) -> None:
@@ -371,15 +399,6 @@ class Object(object):
         return True
 
     @property
-    def has_vao(self) -> bool:
-        """Check if this object has an active Vertex Array Object
-
-        Returns:
-            bool: `True` if `self` has an active Vertex Array Object.
-        """
-        return self._vao > -1
-
-    @property
     def visible(self) -> bool:
         """Check if object is visible
 
@@ -393,6 +412,15 @@ class Object(object):
 
     def hide(self) -> None:
         self._visible = False
+
+    @property
+    def has_missing_vao(self) -> bool:
+        return any(
+            [
+                material._vao == NO_VERTEX_ARRAY
+                for material in self.materials.values()
+            ]
+        )
 
     def render(
         self,
@@ -417,7 +445,7 @@ class Object(object):
         if not self._visible:
             return
 
-        if not self.has_vao or self._needs_update:
+        if self.has_missing_vao or self._needs_update:
             self.build()
 
         self.update_matrix(parent_matrix=parent_matrix)
@@ -438,33 +466,37 @@ class Object(object):
         if self._has_vertex_colors:
             mode = Shader.PER_VERTEX_COLOR
 
-        self.material.render(proj, view, self._model_matrix, lights, mode)
+        for material in self.materials.values():
+            material.render(proj, view, self._model_matrix, lights, mode)
 
-        # Actual rendering
-        if glIsVertexArray(self._vao):
-            glBindVertexArray(self._vao)
-            pmode = GL_LINE
-            primitive = GL_LINE_STRIP
-            if self.material.display == SOLID:
-                pmode = GL_FILL
-                primitive = GL_TRIANGLES
-            if self.material.display == POINTS:
-                pmode = GL_POINT
-                primitive = GL_POINTS
-            glPolygonMode(GL_FRONT_AND_BACK, pmode)
+            # Actual rendering
+            if material._vao > NO_VERTEX_ARRAY and glIsVertexArray(
+                material._vao
+            ):
+                glBindVertexArray(material._vao)
+                pmode = GL_LINE
+                primitive = GL_LINE_STRIP
+                if material.display == SOLID:
+                    pmode = GL_FILL
+                    primitive = GL_TRIANGLES
+                if material.display == POINTS:
+                    pmode = GL_POINT
+                    primitive = GL_POINTS
+                glPolygonMode(GL_FRONT_AND_BACK, pmode)
 
-            glDrawElements(
-                primitive,
-                self._vertex_count,
-                GL_UNSIGNED_INT,
-                ctypes.c_void_p(0),
-            )
-            if pmode != GL_FILL:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-            glBindVertexArray(0)
+                glDrawElements(
+                    primitive,
+                    material._vertex_count,
+                    GL_UNSIGNED_INT,
+                    ctypes.c_void_p(0),
+                )
 
-        # End using the shader program.
-        self.material.end()
+                if pmode != GL_FILL:
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+                glBindVertexArray(0)
+
+            # End using the shader program.
+            material.end()
 
         # Render motion path
         if self.track_motion:
@@ -575,11 +607,17 @@ class Object(object):
         x = [v[0] for v in self._vertices]
         y = [v[1] for v in self._vertices]
         z = [v[2] for v in self._vertices]
-        bmin = [min(x), min(y), min(z)]
-        bmax = [max(x), max(y), max(z)]
-        self._bounding_radius = distance(bmax, bmin) / 2.0
 
+        if len(x) == 0 or len(y) == 0 or len(z) == 0:
+            bmin = [0.0, 0.0, 0.0]
+            bmax = [0.0, 0.0, 0.0]
+        else:
+            bmin = [min(x), min(y), min(z)]
+            bmax = [max(x), max(y), max(z)]
+
+        self._bounding_radius = distance(bmax, bmin) / 2.0
         self._bounding_box = [bmin, bmax]
+
         return self._bounding_radius
 
     @property
@@ -603,7 +641,7 @@ class Object(object):
         """
         Build OpenGL Vertex Array for the object
 
-        This function gets automatically called if `self._vao` does not
+        This function gets automatically called if material's `._vao` does not
         exists in the first render cycle. Once the vba is built,
         geometry changes or material display mode changes will not be
         automatically effected. So, in every geometry or display mode
@@ -615,25 +653,15 @@ class Object(object):
         So in this case, calling `build` function twice will result in
         an invisible object (will not be drawn).
 
+        Additionally, this method goes through each material mapping and
+        build their indices as well. Each material map has its own
+        Vertex Array Object and gets rendered by separate glDrawElements
+        call.
+
         Returns:
           bool
         """
-        if len(self._indices) == 0:
-            return False
-
-        # If we don't have a VAO yet, we need to create one
-        if not self.has_vao:
-            # Generate Vertex Array
-            self._vao = glGenVertexArrays(1)
-            # We need 5 buffers (vertex, normal, texcoord, color, indices)
-            self._vbos = glGenBuffers(5)
-            glBindVertexArray(self._vao)
-            # Material shader must be built when there is an active binding
-            # to vertex array
-            self.material.build_shader()
-        else:
-            # Ok, we already have vertex array object, just bind it to modify
-            glBindVertexArray(self._vao)
+        self._vertex_count = 0
 
         # Turn python arrays into C type arrays using Numpy.
         # This is required for OpenGL. Python memory model is a bit
@@ -642,7 +670,19 @@ class Object(object):
         normals = np.array(self._normals, dtype=np.float32).flatten()
         texcoords = np.array(self._texcoords, dtype=np.float32).flatten()
         colors = np.array(self._vertex_colors, dtype=np.float32).flatten()
-        indices = np.array(self._indices, dtype=np.int32).flatten()
+
+        if self._vao == NO_INDICE:
+            return False
+
+        if self._vao == NO_VERTEX_ARRAY:
+            self._vao = glGenVertexArrays(1)
+            self._vbos = glGenBuffers(5)
+
+        # We will let all materials to share the same buffer objects
+        # We need 4 buffers (vertex, normal, texcoord, color)
+
+        glBindVertexArray(self._vao)
+
         self._calc_bounds()
 
         # OpenGL allocates buffers in different mechanisms between
@@ -663,8 +703,6 @@ class Object(object):
 
         # Bind Vertices
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[0])
-        glEnableVertexAttribArray(0)  # shader layout location
-        glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
         if self._buffer_size_changed:
             # glBufferData creates a new data area
             glBufferData(GL_ARRAY_BUFFER, self._buffer_size, vertices, draw)
@@ -675,8 +713,6 @@ class Object(object):
 
         # Bind Normals
         glBindBuffer(GL_ARRAY_BUFFER, self._vbos[1])
-        glEnableVertexAttribArray(1)  # shader layout location
-        glVertexAttribPointer(1, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
         if self._buffer_size_changed:
             glBufferData(GL_ARRAY_BUFFER, self._buffer_size, normals, draw)
         else:
@@ -685,8 +721,6 @@ class Object(object):
         # Bind TexCoords
         if len(self._texcoords) == len(self._vertices):
             glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
-            glEnableVertexAttribArray(2)  # shader layout location
-            glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
             if self._t_buffer_size_changed:
                 glBufferData(
                     GL_ARRAY_BUFFER, self._t_buffer_size, texcoords, draw
@@ -699,24 +733,73 @@ class Object(object):
         # Bind Vertex Colors
         if len(self._vertex_colors) == len(self._vertices):
             glBindBuffer(GL_ARRAY_BUFFER, self._vbos[4])
-            glEnableVertexAttribArray(3)  # shader layout location
-            glVertexAttribPointer(3, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
             self._has_vertex_colors = True
             if self._buffer_size_changed:
                 glBufferData(GL_ARRAY_BUFFER, self._buffer_size, colors, draw)
             else:
                 glBufferSubData(GL_ARRAY_BUFFER, 0, colors.nbytes, colors)
 
+        glBindVertexArray(0)
         self._buffer_size_changed = False
         self._t_buffer_size_changed = False
 
-        # Bind Indices
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self._vbos[3])
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, draw)
-        self._vertex_count = len(indices)
+        for material in self.materials.values():
+            if len(material._indices) == 0:
+                material._vao == NO_INDICE
+                continue
 
-        glBindVertexArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+            if material._vao == NO_VERTEX_ARRAY:
+                # Generate Vertex Array
+                material._vao = glGenVertexArrays(1)
+                # We need 1 buffer for material as indices
+                material._vbos = [glGenBuffers(1)]
+                glBindVertexArray(material._vao)
+                # Material shader must be built when there is an active binding
+                # to vertex array
+                material.build_shader()
+            else:
+                # we already have vertex array object, just bind it to modify
+                glBindVertexArray(material._vao)
+
+            indices = np.array(material._indices, dtype=np.int32).flatten()
+
+            # Bind Vertices
+            glBindBuffer(GL_ARRAY_BUFFER, self._vbos[0])
+            glEnableVertexAttribArray(0)  # shader layout location
+            glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+
+            # Bind Normals
+            glBindBuffer(GL_ARRAY_BUFFER, self._vbos[1])
+            glEnableVertexAttribArray(1)  # shader layout location
+            glVertexAttribPointer(1, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+
+            # Bind TexCoords
+            if len(self._texcoords) == len(self._vertices):
+                glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
+                glEnableVertexAttribArray(2)  # shader layout location
+                glVertexAttribPointer(
+                    2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+                )
+
+            # Bind Vertex Colors
+            if len(self._vertex_colors) == len(self._vertices):
+                glBindBuffer(GL_ARRAY_BUFFER, self._vbos[4])
+                glEnableVertexAttribArray(3)  # shader layout location
+                glVertexAttribPointer(
+                    3, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+                )
+
+            # Bind Indices
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, material._vbos[0])
+            glBufferData(
+                GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, draw
+            )
+            i_len = len(indices)
+            material._vertex_count = i_len
+            self._vertex_count += i_len
+
+            glBindVertexArray(0)
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
 
         if self.static:
             # we can clear this data to free some more memory
@@ -762,13 +845,16 @@ class Line(Object):
         """Toggle Wireframe overwrite to disable mode change"""
         pass
 
-    def append(self, vertices: VList) -> None:
+    def add_material(self, name: str, material: Material) -> None:
+        """@TODO Implement this later! Not urgent"""
+        logging.error("Can't add materials to Line object")
+
+    def append(self, vertices: VList, material: str = DEFAULT) -> None:
         """Append vertex or vertices to line.
 
         Args:
           vertices: Vertex array of points.
         """
-
         diff = len(vertices)  # Number of vertices added
         last_index = len(self._vertices)
         self._vertices += vertices
@@ -776,10 +862,12 @@ class Line(Object):
         self._texcoords += [[0, 0]] * diff
         self._normals += [[0, 0, 0]] * diff
         self._vertex_count = len(self._vertices)
-        indices = list(map(lambda x: x + last_index, range(diff)))
-        self._indices.extend([indices])
 
-        if self.has_vao:
+        indices = list(map(lambda x: x + last_index, range(diff)))
+
+        self.material._indices.extend([indices])
+        self._indices = self.material._indices
+        if self.material._vao > NO_VERTEX_ARRAY:
             self._needs_update = True
 
     def build_lines(
@@ -796,14 +884,17 @@ class Line(Object):
         if color is not None:
             self.material.color = color
         self._vertex_count = len(self._vertices)
+        self.material._vertex_count = len(self._vertices)
+
         for i in range(self._vertex_count - 1):
-            self._indices.append([i, i + 1])
+            self.material._indices.append([i, i + 1])
+            self._indices = self.material._indices
 
         for i in range(self._vertex_count):
             self._normals.append([0, 0, 0])
             self._texcoords.append([0, 0])
 
-        if self.has_vao:
+        if not self.has_missing_vao:
             # This is a dynamic object, destroying the object is not a good
             # idea so we just update the buffer here.
             self.build()

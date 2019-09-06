@@ -30,6 +30,7 @@ def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
         [i[0] + len_v, i[1] + len_v, i[2] + len_v] for i in mesh2._indices
     ]
     mesh._indices = mesh1._indices + m2_indices
+    mesh.material._indices = mesh._indices
     mesh._calc_bounds()
     mesh.refresh()
     return mesh

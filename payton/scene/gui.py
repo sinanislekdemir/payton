@@ -109,7 +109,9 @@ class Shape2D(Mesh):
         """
         if not callable(self.on_click):
             for child in self.children:
-                c = cast('Shape2D', self.children[child]).click(x, y)  # type: bool
+                c = cast("Shape2D", self.children[child]).click(
+                    x, y
+                )  # type: bool
                 if c:
                     return True
             return False

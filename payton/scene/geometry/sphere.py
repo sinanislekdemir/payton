@@ -2,6 +2,7 @@ import math
 from typing import Any
 from itertools import product
 
+from payton.scene.material import DEFAULT
 from payton.scene.geometry import Mesh
 from payton.math.vector import plane_normal
 
@@ -111,5 +112,11 @@ class Sphere(Mesh):
             self._normals.append([normal[0], normal[1], normal[2]])
             self._indices.append([indices, indices + 1, indices + 2])
             self._indices.append([indices, indices + 2, indices + 3])
+            self.materials[DEFAULT]._indices.append(
+                [indices, indices + 1, indices + 2]
+            )
+            self.materials[DEFAULT]._indices.append(
+                [indices, indices + 2, indices + 3]
+            )
             indices += 4
         return True

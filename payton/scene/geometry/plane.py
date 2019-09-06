@@ -36,6 +36,7 @@ class Plane(Mesh):
         self._normals = [[0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]]
         self._texcoords = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
         self._indices = [[0, 1, 2], [2, 3, 0]]
+        self.material._indices = self._indices
 
 
 class MatrixPlane(Mesh):
@@ -110,5 +111,6 @@ class MatrixPlane(Mesh):
                 self._indices.append([left, right, top_right])
                 self._indices.append([top_right, top_left, left])
 
+        self.material._indices = self._indices
         self.fix_normals()
         self.refresh()
