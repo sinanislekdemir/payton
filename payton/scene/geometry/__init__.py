@@ -12,10 +12,23 @@ object is not generated until it arrives in render pipeline.
   * Material (`payton.scene.material`)
     * Shader (`payton.scene.shader`)
 """
-from payton.scene.geometry.base import *
-from payton.scene.geometry.mesh import *
-from payton.scene.geometry.cylinder import *
-from payton.scene.geometry.cube import *
-from payton.scene.geometry.plane import *
-from payton.scene.geometry.sphere import *
-from payton.scene.geometry.point import *
+from payton.scene.geometry.base import Object, Line
+from payton.scene.geometry.mesh import Mesh
+from payton.scene.geometry.cylinder import Cylinder
+from payton.scene.geometry.cube import Cube
+from payton.scene.geometry.plane import Plane, MatrixPlane
+from payton.scene.geometry.sphere import Sphere
+from payton.scene.geometry.point import PointCloud
+
+
+__all__ = [
+    "Object",
+    "Line",
+    "Mesh",
+    "Cylinder",
+    "Cube",
+    "Plane",
+    "MatrixPlane",
+    "Sphere",
+    "PointCloud",
+]

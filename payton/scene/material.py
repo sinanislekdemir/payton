@@ -135,6 +135,7 @@ class Material(object):
         self._indices: IList = []
         self._vao: int = -1
         self._vbos: List[int] = []
+
         self._vertex_count: int = 0
 
         variables = [
