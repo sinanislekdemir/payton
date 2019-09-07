@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from payton.scene.geometry import Object
 from payton.scene.types import VList
-from payton.scene.material import POINTS
+from payton.scene.material import POINTS, DEFAULT
 
 
 class PointCloud(Object):
@@ -50,7 +50,12 @@ class PointCloud(Object):
         """
         return False
 
-    def add(self, vertices: VList, colors: Optional[VList] = None) -> None:
+    def add(
+        self,
+        vertices: VList,
+        colors: Optional[VList] = None,
+        material: str = DEFAULT,
+    ) -> None:
         """Add a point to the cloud
 
         Args:
@@ -61,6 +66,7 @@ class PointCloud(Object):
         for vertex in vertices:
             self._vertices.append(vertex)
             self._indices.append([i])
+            self.materials[material]._indices.append([i])
             i += 1
 
         if colors is not None:

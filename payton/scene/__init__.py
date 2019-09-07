@@ -21,4 +21,6 @@
 Also, `payton.scene.scene` contents are accessible through `payton.scene` main
 module
 """
-from payton.scene.scene import *
+from payton.scene.scene import Scene, Background
+
+__all__ = ["Scene", "Background"]

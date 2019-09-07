@@ -2,6 +2,7 @@
 import logging
 from typing import Any, Optional
 
+from payton.scene.material import DEFAULT
 from payton.scene.geometry import Object
 from payton.math.vector import plane_normal, vector_angle
 from payton.scene.types import VList
@@ -35,6 +36,9 @@ class Mesh(Object):
         self._normals = []
         self._texcoords = []
         self._vertex_colors = []
+        for material in self.materials.values():
+            material._indices = []
+
         self.refresh()
 
     def fix_normals(self) -> None:
@@ -147,6 +151,7 @@ class Mesh(Object):
     def add_triangle(
         self,
         vertices: VList,
+        material: str = DEFAULT,
         normals: Optional[VList] = None,
         texcoords: Optional[VList] = None,
         colors: Optional[VList] = None,
@@ -184,11 +189,11 @@ class Mesh(Object):
             for color in colors:
                 self._vertex_colors.append(color)
 
-        for v in vertices:
-            self._vertices.append(v)
+        self._vertices += vertices
 
         i = len(self._indices) * 3
         self._indices.append([i, i + 1, i + 2])
+        self.materials[material]._indices.append([i, i + 1, i + 2])
         for normal in normals:
             self._normals.append(normal)
         for t in texcoords:

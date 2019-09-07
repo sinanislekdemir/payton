@@ -48,6 +48,7 @@ from OpenGL.GL import (
 
 from typing import Any, List, Optional
 
+from payton.scene.types import IList
 from payton.scene.shader import Shader
 from payton.scene.light import Light
 
@@ -76,6 +77,10 @@ WHITE = [1.0, 1.0, 1.0]  # type: List[float]
 BLACK = [0.0, 0.0, 0.0]  # type: List[float]
 DARK_GRAY = [0.2, 0.2, 0.2]  # type: List[float]
 LIGHT_GRAY = [0.8, 0.8, 0.8]  # type: List[float]
+
+DEFAULT = "default"
+NO_VERTEX_ARRAY = -1
+NO_INDICE = -2
 
 GLOBAL_SHADER: Optional[Shader] = None
 
@@ -127,6 +132,11 @@ class Material(object):
         self.texture: str = texture
         self.opacity: float = opacity
         self._image: Optional[Image] = None
+        self._indices: IList = []
+        self._vao: int = -1
+        self._vbos: List[int] = []
+
+        self._vertex_count: int = 0
 
         variables = [
             "model",

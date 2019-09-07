@@ -124,6 +124,7 @@ class Wavefront(Mesh):
                 ind.append(i)
                 i += 1
             self._indices.append(ind)
+        self.material._indices = self._indices
         if fix_normals:
             self.fix_normals()
 

@@ -64,7 +64,7 @@ scene.active_observer.target_object = ball  # Track the ball
 
 scene.grid.resize(30, 30, 2)
 
-scene.create_clock("motion", 0.01, projectile_motion)
+scene.create_clock("motion", 0.005, projectile_motion)
 scene.create_clock("logger", 0.05, logger)
 
 scene.run()

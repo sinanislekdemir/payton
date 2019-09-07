@@ -2,6 +2,7 @@ from typing import Any, Optional, List
 
 from payton.math.vector import min_max
 from payton.scene.geometry import Mesh
+from payton.scene.material import DEFAULT
 
 
 class Cube(Mesh):
@@ -129,6 +130,7 @@ class Cube(Mesh):
                 self._texcoords.append(l_tex)
                 ind.append(i)
                 i += 1
-            self._indices.append(ind)
+            self.materials[DEFAULT]._indices.append(ind)
+        self._indices = self.materials[DEFAULT]._indices
 
         return None
