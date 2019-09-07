@@ -210,9 +210,16 @@ class Object(object):
         self.materials[DEFAULT] = mat
 
     def add_material(self, name: str, material: Material) -> None:
+        """Add a material to the object.
+
+        Keep in mind that, adding material does not refer to the material
+        but does it through deepcopy. Initially, material holds indice
+        and vertex buffer objectt references. In order to prevent user
+        from breaking the objects, we create the clone of the material.
+        """
         if name in self.materials:
             raise Exception(f"Name {name} already exists")
-        self.materials[name] = material
+        self.materials[name] = deepcopy(material)
 
     @property
     def direction(self) -> List[float]:
