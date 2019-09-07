@@ -164,6 +164,7 @@ class Mesh(Object):
           normals: Normals of the triangle. _(When left as None, Payton will
                    calculate the surface normal based on vertices and assign
                    it per given vertex.)_
+          material: Name of the material to use.
           texcoords: Texture UV coordinates.
           colors: Per vertex colors (optional)
         """
