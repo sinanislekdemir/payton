@@ -9,6 +9,7 @@ import os
 from typing import Any, List, Optional
 from payton.scene.types import VList, IList
 from payton.scene.geometry import Mesh
+from payton.scene.material import Material, DEFAULT
 
 
 class Wavefront(Mesh):
@@ -25,6 +26,7 @@ class Wavefront(Mesh):
         """
         super().__init__()
         self.filename: str = filename
+        self.path: str = ""
         if self.filename != "":
             self.load_file(self.filename)
 
@@ -37,11 +39,47 @@ class Wavefront(Mesh):
             return False
 
         self.filename = filename
+        self.path = os.path.dirname(os.path.abspath(self.filename))
         f = open(filename)
         data = f.read()
         f.close()
         self.load(data)
         return True
+
+    def load_material(self, material_string: str):
+        lines = material_string.splitlines()
+        material = Material()
+        material_name = DEFAULT
+        for line in lines:
+            parts = line.split(" ")
+
+            if parts[0] == "newmtl":
+                material = Material()
+                material_name = parts[1]
+
+            if parts[0] == "Kd":
+                # Currently we only support diffuse color
+                material.color = [
+                    float(parts[1]),
+                    float(parts[2]),
+                    float(parts[3]),
+                ]
+
+            if parts[0] == "map_Kd":
+                material.texture = f"{self.path}/{parts[1]}"
+
+            if parts[0] == "" and material_name != DEFAULT:
+                self.add_material(material_name, material)
+
+        if material_name != DEFAULT:
+            self.add_material(material_name, material)
+
+    def load_material_file(self, filename: str) -> bool:
+        if not os.path.isfile(filename):
+            logging.exception(f"File not found {filename}")
+            return False
+        data = open(filename).read()
+        return self.load_material(data)
 
     def load(self, obj_string: str) -> None:
         """
@@ -57,14 +95,18 @@ class Wavefront(Mesh):
         """
         _vertices: VList = []
         _indices: List[IList] = []
+        _indice_materials: List[str] = []
         _normals: VList = []
         _texcoords: VList = []
         lines: List[str] = obj_string.splitlines()
+        material = DEFAULT
         for line in lines:
             line = line.replace("  ", " ")
-            command = line[0:2].lower()
             parts = line.split(" ")
-            if command == "v ":
+            command = parts[0].lower()
+            if parts[0] == "mtllib":
+                self.load_material_file(f"{self.path}/{parts[1]}")
+            if command == "v":
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
@@ -78,7 +120,11 @@ class Wavefront(Mesh):
                 y = float(parts[2])
                 z = float(parts[3])
                 _normals.append([x, y, z])
-            if command == "f ":
+            if command == "usemtl":
+                if parts[1] in self.materials:
+                    material = parts[1]
+
+            if command == "f":
                 # I guess this part of the code should be compatable
                 # with POLYGON as well but IDK.
                 face = []  # type: List[List[int]]
@@ -101,12 +147,15 @@ class Wavefront(Mesh):
                 if len(face) > 3:
                     logging.error("Only triangular wavefronts are accepted")
                     return
+
                 _indices.append(face)
+                _indice_materials.append(material)
 
         # Now unpack indices to actual object data
         i = 0
         fix_normals = False
-        for index in _indices:
+
+        for _k, index in enumerate(_indices):
             ind = []
             for f in index:
                 l_vertex = _vertices[f[0]]
@@ -124,7 +173,8 @@ class Wavefront(Mesh):
                 ind.append(i)
                 i += 1
             self._indices.append(ind)
-        self.material._indices = self._indices
+            self.materials[_indice_materials[_k]]._indices.append(ind)
+
         if fix_normals:
             self.fix_normals()
 
