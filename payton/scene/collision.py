@@ -59,7 +59,7 @@ class CollisionTest(object):
         callback: Callable,
         level: int = AABB,
         objects: Optional[List[Type[Mesh]]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Initialize collision detector
 

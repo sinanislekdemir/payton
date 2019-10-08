@@ -198,7 +198,7 @@ class Shader(object):
         fragment: str = default_fragment_shader,
         vertex: str = default_vertex_shader,
         variables: Optional[List[str]] = None,
-        **args: Any,
+        **kwargs: Any,
     ):
         """Initialize Shader.
 

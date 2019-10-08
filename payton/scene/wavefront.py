@@ -20,7 +20,7 @@ class Wavefront(Mesh):
     Only designed to accept your triangular geometries.
     """
 
-    def __init__(self, filename: str = "", **args: Any) -> None:
+    def __init__(self, filename: str = "", **kwargs: Any) -> None:
         """
         Initialize Wavefront Object.
         """
@@ -179,7 +179,7 @@ class Wavefront(Mesh):
             self.fix_normals()
 
 
-def export(mesh: Mesh, **args: Any) -> Optional[str]:
+def export(mesh: Mesh, **kwargs: Any) -> Optional[str]:
     """Export mesh as wavefront object string
 
     @TODO Add material export support.
@@ -203,7 +203,7 @@ def export(mesh: Mesh, **args: Any) -> Optional[str]:
         logging.exception("Object is not an instance of Mesh")
         return None
 
-    name = args.get("name", "object")
+    name = kwargs.get("name", "object")
     output = ["# Payton Wavefront OBJ Exporter", f"o {name}"]
     for v in mesh._vertices:
         output.append("v {}".format(" ".join([str(x) for x in v])))

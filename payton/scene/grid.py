@@ -64,7 +64,7 @@ class Grid(object):
         xres: int = 20,
         yres: int = 20,
         color: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Initialize Grid
 

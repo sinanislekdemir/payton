@@ -89,7 +89,7 @@ class Object(object):
         name="",
         visible=True,
         track_motion=False,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the basic object properties.
@@ -828,7 +828,7 @@ class Line(Object):
         self,
         vertices: Optional[VList] = None,
         color: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Iniitalize line
 
@@ -840,7 +840,7 @@ class Line(Object):
 
             .. include:: ../../../examples/basics/17_line.py
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         self.material.color = [1.0, 1.0, 1.0] if color is None else color
 

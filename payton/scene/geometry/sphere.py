@@ -32,7 +32,7 @@ class Sphere(Mesh):
         radius: float = 0.5,
         parallels: int = 12,
         meridians: int = 12,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Initialize the sphere
 
@@ -42,7 +42,7 @@ class Sphere(Mesh):
                      degrees of arcs)
           meridians: Number of meridians (as in geography). (default: 12)
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.radius: float = radius
         self.parallels: int = parallels
         self.meridians: int = meridians

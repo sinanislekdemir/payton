@@ -22,7 +22,7 @@ class Cylinder(Mesh):
         top_radius: float = 0.5,
         meridians: int = 12,
         height: float = 1.0,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Iniitalize the cylinder
 
@@ -32,7 +32,7 @@ class Cylinder(Mesh):
           meridians: Number of meridians/edges (as in geography)
           height: Height of the cylinder
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._bottom_radius: float = bottom_radius
         self._top_radius: float = top_radius
         self._meridians: int = meridians

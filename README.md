@@ -38,6 +38,40 @@ software with that complexity will probably be too hard to use and understand
 where Payton is designed to be as simple as it can be. So easy to program that
 a newbie can kick-start it just by following the tutorials.
 
+## Features:
+
+* 3D Math Library
+* Various base geometries:
+  * Cube
+  * Cylinder
+  * Triangular Mesh
+  * Plane
+  * Lines
+  * Point Cloud
+  * Sphere
+  * Dynamic Grid
+* Clean default scene
+* Pre-defined keyboard-mouse and camera controls
+* Pre-defined environment
+* Clock system for parallel tasks and time based operations
+* Simple collision detection
+* Extendable controllers
+* Pre-defined lighting
+* Material support
+* Clickable objects and virtual planes
+* Shader support
+* 3D File formats:
+  * Wavefront OBJ
+  * Quake 2 MD2 with Animations
+* Mesh Generation Tools
+  * Extrude Line in 3D
+  * Rotate Line around an exis in 3D
+  * Fill between lines
+* Mesh modifiers:
+  * Merge Mesh
+  * Subdivide Mesh
+* Extensive examples for every feature and more.
+
 More information can be found in documents.
 
 Click image below for Youtube example:

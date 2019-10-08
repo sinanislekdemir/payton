@@ -25,8 +25,8 @@ class Mesh(Object):
         .. include:: ../../../examples/basics/09_mesh.py
     """
 
-    def __init__(self, **args: Any) -> None:
-        super().__init__(**args)
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.static = False
 
     def clear_triangles(self) -> None:

@@ -69,7 +69,7 @@ class Scene(Receiver):
         width: int = 800,
         height: int = 600,
         on_select: Optional[Callable] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the Payton Scene
@@ -498,7 +498,7 @@ class Background(object):
         self,
         top_color: Optional[List[float]] = None,
         bottom_color: Optional[List[float]] = None,
-        **args: Dict[str, Any],
+        **kwargs: Dict[str, Any],
     ):
         """Initialize background
 

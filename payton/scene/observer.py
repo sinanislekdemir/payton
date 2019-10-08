@@ -34,7 +34,7 @@ class Observer(object):
         zoom: float = 10.0,
         active: bool = False,
         perspective: bool = True,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the defaults of an Observer.

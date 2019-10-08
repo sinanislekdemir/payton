@@ -16,7 +16,7 @@ class Plane(Mesh):
     """
 
     def __init__(
-        self, width: float = 1.0, height: float = 1.0, **args: Any
+        self, width: float = 1.0, height: float = 1.0, **kwargs: Any
     ) -> None:
         """Initialize plane
 
@@ -24,7 +24,7 @@ class Plane(Mesh):
           width: Width of the plane
           height: Height of the plane
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         width *= 0.5
         height *= 0.5
         self._vertices = [
@@ -56,7 +56,7 @@ class MatrixPlane(Mesh):
         height: float = 1.0,
         x: int = 2,
         y: int = 2,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Initialize MatrixPlane
 
@@ -66,7 +66,7 @@ class MatrixPlane(Mesh):
           width: Total width
           height: Total height
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.width = width
         self.height = height
         self.x = x

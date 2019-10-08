@@ -24,7 +24,7 @@ class Cube(Mesh):
         height: float = 1.0,
         from_corner: Optional[List[float]] = None,
         to_corner: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Initialize Cube
 
@@ -41,7 +41,7 @@ class Cube(Mesh):
           from_corner: Starting point of the cube (Optional)
           to_corner: End point of the cube (Optional)
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         width *= 0.5
         depth *= 0.5
         height *= 0.5

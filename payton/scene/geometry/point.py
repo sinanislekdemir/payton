@@ -21,7 +21,7 @@ class PointCloud(Object):
         self,
         vertices: Optional[VList] = None,
         colors: Optional[VList] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Initialize Point Cloud
 
@@ -29,7 +29,7 @@ class PointCloud(Object):
           vertices: List of point vertices
           colors: List of colors per vertex, follows the same index as vertices
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         # Expose vertices by reference for modification
         self.vertices: VList = self._vertices

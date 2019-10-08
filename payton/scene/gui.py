@@ -37,7 +37,7 @@ class Shape2D(Mesh):
         size: Tuple[int, int],
         on_click: Optional[Callable] = None,
         opacity: float = 0.5,
-        **args: Any,
+        **kwargs: Any,
     ):
         """Initialize Shape2D
 
@@ -45,7 +45,7 @@ class Shape2D(Mesh):
           opacity: Opacity of the shape. (1: transparent)
           position: Position of the shape in screen. (0, 0 by default.)
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.material.opacity = opacity
         self.__position: Tuple[int, int, int] = position
         self.position = list([float(x) for x in self.__position])
@@ -137,9 +137,9 @@ class Rectangle(Shape2D):
       size: Size of the rectangle.
     """
 
-    def __init__(self, **args: Any):
+    def __init__(self, **kwargs: Any):
         """Initialize the rectangle"""
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._init: bool = False
         self.draw()
 
@@ -179,7 +179,7 @@ class Text(Rectangle):
         label: str = "lorem",
         bgcolor: Optional[List[int]] = None,
         color: Optional[List[int]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Initialize Text
 
@@ -188,7 +188,7 @@ class Text(Rectangle):
           bgcolor: Background color of the text (Default, r:0, g:0, b:0, a:0)
           color: Color of the text (Default, r:0, g:0, b:0)
         """
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.__label: str = label
         self.bgcolor: List[int] = [0, 0, 0, 0] if bgcolor is None else bgcolor
         self.color: List[int] = [0, 0, 0] if color is None else color
@@ -261,7 +261,7 @@ class Hud(Object):
         height: int = 600,
         font: str = "",
         font_size: int = 15,
-        **args: Any,
+        **kwargs: Any,
     ) -> None:
         """Initialize HUD
 
@@ -273,7 +273,7 @@ class Hud(Object):
           font_size: Font size
         """
 
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.width: int = width
         self.height: int = height
         self._fontname: str = font

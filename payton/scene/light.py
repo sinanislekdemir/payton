@@ -15,7 +15,7 @@ class Light(object):
         self,
         position: Optional[List[float]] = None,
         color: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ):
         """Initialize Payton Light
 

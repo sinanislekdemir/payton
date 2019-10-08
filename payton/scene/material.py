@@ -97,7 +97,7 @@ class Material(object):
         lights: bool = True,
         texture: str = "",
         opacity: float = 1.0,
-        **args: Any,
+        **kwargs: Any,
     ):
         """
         Initialize Material
@@ -202,8 +202,13 @@ class Material(object):
         )
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+
         mode = GL_RGBA
         if img.mode == "RGB":
+            mode = GL_RGB
+        if img.mode == "P":
+            img = img.convert("RGB")
+            img_data = np.fromstring(img.tobytes(), np.uint8)
             mode = GL_RGB
         glTexImage2D(
             GL_TEXTURE_2D,
@@ -235,7 +240,8 @@ class Material(object):
 
         Args:
           proj: Projection materix
-          view: View matrix
+          vi
+        ew: View matrix
           model: Model matrix
           lights: Light objects in the scene
           mode: Set explicit shader mode (optional - used for vertex colors)

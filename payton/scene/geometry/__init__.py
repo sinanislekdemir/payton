@@ -19,6 +19,7 @@ from payton.scene.geometry.cube import Cube
 from payton.scene.geometry.plane import Plane, MatrixPlane
 from payton.scene.geometry.sphere import Sphere
 from payton.scene.geometry.point import PointCloud
+from payton.scene.geometry.md2 import MD2
 
 
 __all__ = [
@@ -31,4 +32,5 @@ __all__ = [
     "MatrixPlane",
     "Sphere",
     "PointCloud",
+    "MD2",
 ]
