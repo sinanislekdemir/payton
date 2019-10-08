@@ -233,7 +233,7 @@ class Shader(object):
         fragment: str = default_fragment_shader,
         vertex: str = default_vertex_shader,
         variables: Optional[List[str]] = None,
-        **args: Any,
+        **kwargs: Any,
     ):
         &#34;&#34;&#34;Initialize Shader.
 
@@ -487,7 +487,7 @@ gl_Position = (projection * (vec4(position, 1.0f)\n
 }\n
 gl_PointSize = 2.0;\n\n
 tex_coords = texCoords;\n
-frag_color = colors;\n}\n', variables=None, **args)</span>
+frag_color = colors;\n}\n', variables=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Payton shader class. Creates shaders / programs</p>
@@ -543,7 +543,7 @@ it will overwrite the existing list.</p>
         fragment: str = default_fragment_shader,
         vertex: str = default_vertex_shader,
         variables: Optional[List[str]] = None,
-        **args: Any,
+        **kwargs: Any,
     ):
         &#34;&#34;&#34;Initialize Shader.
 

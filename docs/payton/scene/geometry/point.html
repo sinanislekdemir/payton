@@ -45,7 +45,7 @@ class PointCloud(Object):
         self,
         vertices: Optional[VList] = None,
         colors: Optional[VList] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize Point Cloud
 
@@ -53,7 +53,7 @@ class PointCloud(Object):
           vertices: List of point vertices
           colors: List of colors per vertex, follows the same index as vertices
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         # Expose vertices by reference for modification
         self.vertices: VList = self._vertices
@@ -114,7 +114,7 @@ class PointCloud(Object):
 <dl>
 <dt id="payton.scene.geometry.point.PointCloud"><code class="flex name class">
 <span>class <span class="ident">PointCloud</span></span>
-<span>(</span><span>vertices=None, colors=None, **args)</span>
+<span>(</span><span>vertices=None, colors=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Point cloud</p>
@@ -185,7 +185,7 @@ scene.run()
         self,
         vertices: Optional[VList] = None,
         colors: Optional[VList] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize Point Cloud
 
@@ -193,7 +193,7 @@ scene.run()
           vertices: List of point vertices
           colors: List of colors per vertex, follows the same index as vertices
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         # Expose vertices by reference for modification
         self.vertices: VList = self._vertices
@@ -331,6 +331,7 @@ scene.run()
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.base.Object.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>

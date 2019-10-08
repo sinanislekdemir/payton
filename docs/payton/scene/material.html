@@ -131,7 +131,7 @@ class Material(object):
         lights: bool = True,
         texture: str = &#34;&#34;,
         opacity: float = 1.0,
-        **args: Any,
+        **kwargs: Any,
     ):
         &#34;&#34;&#34;
         Initialize Material
@@ -236,8 +236,13 @@ class Material(object):
         )
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+
         mode = GL_RGBA
         if img.mode == &#34;RGB&#34;:
+            mode = GL_RGB
+        if img.mode == &#34;P&#34;:
+            img = img.convert(&#34;RGB&#34;)
+            img_data = np.fromstring(img.tobytes(), np.uint8)
             mode = GL_RGB
         glTexImage2D(
             GL_TEXTURE_2D,
@@ -269,7 +274,8 @@ class Material(object):
 
         Args:
           proj: Projection materix
-          view: View matrix
+          vi
+        ew: View matrix
           model: Model matrix
           lights: Light objects in the scene
           mode: Set explicit shader mode (optional - used for vertex colors)
@@ -345,7 +351,7 @@ class Material(object):
 <dl>
 <dt id="payton.scene.material.Material"><code class="flex name class">
 <span>class <span class="ident">Material</span></span>
-<span>(</span><span>color=None, display=0, lights=True, texture='', opacity=1.0, **args)</span>
+<span>(</span><span>color=None, display=0, lights=True, texture='', opacity=1.0, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Material information holder.</p>
@@ -389,7 +395,7 @@ object.</p>
         lights: bool = True,
         texture: str = &#34;&#34;,
         opacity: float = 1.0,
-        **args: Any,
+        **kwargs: Any,
     ):
         &#34;&#34;&#34;
         Initialize Material
@@ -494,8 +500,13 @@ object.</p>
         )
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+
         mode = GL_RGBA
         if img.mode == &#34;RGB&#34;:
+            mode = GL_RGB
+        if img.mode == &#34;P&#34;:
+            img = img.convert(&#34;RGB&#34;)
+            img_data = np.fromstring(img.tobytes(), np.uint8)
             mode = GL_RGB
         glTexImage2D(
             GL_TEXTURE_2D,
@@ -527,7 +538,8 @@ object.</p>
 
         Args:
           proj: Projection materix
-          view: View matrix
+          vi
+        ew: View matrix
           model: Model matrix
           lights: Light objects in the scene
           mode: Set explicit shader mode (optional - used for vertex colors)
@@ -671,8 +683,13 @@ An active vba is required for building shader properly.</p></section>
     )
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+
     mode = GL_RGBA
     if img.mode == &#34;RGB&#34;:
+        mode = GL_RGB
+    if img.mode == &#34;P&#34;:
+        img = img.convert(&#34;RGB&#34;)
+        img_data = np.fromstring(img.tobytes(), np.uint8)
         mode = GL_RGB
     glTexImage2D(
         GL_TEXTURE_2D,
@@ -709,15 +726,14 @@ An active vba is required for building shader properly.</p></section>
 <dl>
 <dt><strong><code>proj</code></strong></dt>
 <dd>Projection materix</dd>
-<dt><strong><code>view</code></strong></dt>
-<dd>View matrix</dd>
-<dt><strong><code>model</code></strong></dt>
-<dd>Model matrix</dd>
-<dt><strong><code>lights</code></strong></dt>
-<dd>Light objects in the scene</dd>
-<dt><strong><code>mode</code></strong></dt>
-<dd>Set explicit shader mode (optional - used for vertex colors)</dd>
-</dl></section>
+<dt><strong><code>vi</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>ew</code></strong> :&ensp;<code>View</code> <code>matrix</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>model: Model matrix
+lights: Light objects in the scene
+mode: Set explicit shader mode (optional - used for vertex colors)</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def render(
@@ -734,7 +750,8 @@ An active vba is required for building shader properly.</p></section>
 
     Args:
       proj: Projection materix
-      view: View matrix
+      vi
+    ew: View matrix
       model: Model matrix
       lights: Light objects in the scene
       mode: Set explicit shader mode (optional - used for vertex colors)

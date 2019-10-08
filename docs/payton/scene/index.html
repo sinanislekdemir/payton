@@ -147,7 +147,7 @@ many things …</p></section>
 <dl>
 <dt id="payton.scene.Background"><code class="flex name class">
 <span>class <span class="ident">Background</span></span>
-<span>(</span><span>top_color=None, bottom_color=None, **args)</span>
+<span>(</span><span>top_color=None, bottom_color=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Background is a special object</p>
@@ -183,7 +183,7 @@ in the scene can be drawn on top of this background.</p>
         self,
         top_color: Optional[List[float]] = None,
         bottom_color: Optional[List[float]] = None,
-        **args: Dict[str, Any],
+        **kwargs: Dict[str, Any],
     ):
         &#34;&#34;&#34;Initialize background
 
@@ -274,7 +274,7 @@ in the scene can be drawn on top of this background.</p>
 </dd>
 <dt id="payton.scene.Scene"><code class="flex name class">
 <span>class <span class="ident">Scene</span></span>
-<span>(</span><span>width=800, height=600, on_select=None, **args)</span>
+<span>(</span><span>width=800, height=600, on_select=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Main Payton scene.</p>
@@ -324,7 +324,7 @@ scene.run()
         width: int = 800,
         height: int = 600,
         on_select: Optional[Callable] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;
         Initialize the Payton Scene

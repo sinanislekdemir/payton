@@ -113,7 +113,7 @@ class Object(object):
         name=&#34;&#34;,
         visible=True,
         track_motion=False,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;
         Initialize the basic object properties.
@@ -234,9 +234,16 @@ class Object(object):
         self.materials[DEFAULT] = mat
 
     def add_material(self, name: str, material: Material) -&gt; None:
+        &#34;&#34;&#34;Add a material to the object.
+
+        Keep in mind that, adding material does not refer to the material
+        but does it through deepcopy. Initially, material holds indice
+        and vertex buffer objectt references. In order to prevent user
+        from breaking the objects, we create the clone of the material.
+        &#34;&#34;&#34;
         if name in self.materials:
             raise Exception(f&#34;Name {name} already exists&#34;)
-        self.materials[name] = material
+        self.materials[name] = deepcopy(material)
 
     @property
     def direction(self) -&gt; List[float]:
@@ -845,7 +852,7 @@ class Line(Object):
         self,
         vertices: Optional[VList] = None,
         color: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Iniitalize line
 
@@ -857,7 +864,7 @@ class Line(Object):
 
             .. include:: ../../../examples/basics/17_line.py
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         self.material.color = [1.0, 1.0, 1.0] if color is None else color
 
@@ -935,7 +942,7 @@ class Line(Object):
 <dl>
 <dt id="payton.scene.geometry.base.Line"><code class="flex name class">
 <span>class <span class="ident">Line</span></span>
-<span>(</span><span>vertices=None, color=None, **args)</span>
+<span>(</span><span>vertices=None, color=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Line object</p>
@@ -986,7 +993,7 @@ scene.run()
         self,
         vertices: Optional[VList] = None,
         color: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Iniitalize line
 
@@ -998,7 +1005,7 @@ scene.run()
 
             .. include:: ../../../examples/basics/17_line.py
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         self.material.color = [1.0, 1.0, 1.0] if color is None else color
 
@@ -1197,7 +1204,7 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.base.Object"><code class="flex name class">
 <span>class <span class="ident">Object</span></span>
-<span>(</span><span>static=True, name='', visible=True, track_motion=False, **args)</span>
+<span>(</span><span>static=True, name='', visible=True, track_motion=False, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Main Payton Object.</p>
@@ -1286,7 +1293,7 @@ it again use: <code>object.show()</code></dd>
         name=&#34;&#34;,
         visible=True,
         track_motion=False,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;
         Initialize the basic object properties.
@@ -1407,9 +1414,16 @@ it again use: <code>object.show()</code></dd>
         self.materials[DEFAULT] = mat
 
     def add_material(self, name: str, material: Material) -&gt; None:
+        &#34;&#34;&#34;Add a material to the object.
+
+        Keep in mind that, adding material does not refer to the material
+        but does it through deepcopy. Initially, material holds indice
+        and vertex buffer objectt references. In order to prevent user
+        from breaking the objects, we create the clone of the material.
+        &#34;&#34;&#34;
         if name in self.materials:
             raise Exception(f&#34;Name {name} already exists&#34;)
-        self.materials[name] = material
+        self.materials[name] = deepcopy(material)
 
     @property
     def direction(self) -&gt; List[float]:
@@ -2257,13 +2271,24 @@ space.run()
 <span>def <span class="ident">add_material</span></span>(<span>self, name, material)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Add a material to the object.</p>
+<p>Keep in mind that, adding material does not refer to the material
+but does it through deepcopy. Initially, material holds indice
+and vertex buffer objectt references. In order to prevent user
+from breaking the objects, we create the clone of the material.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def add_material(self, name: str, material: Material) -&gt; None:
+    &#34;&#34;&#34;Add a material to the object.
+
+    Keep in mind that, adding material does not refer to the material
+    but does it through deepcopy. Initially, material holds indice
+    and vertex buffer objectt references. In order to prevent user
+    from breaking the objects, we create the clone of the material.
+    &#34;&#34;&#34;
     if name in self.materials:
         raise Exception(f&#34;Name {name} already exists&#34;)
-    self.materials[name] = material</code></pre>
+    self.materials[name] = deepcopy(material)</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.geometry.base.Object.build"><code class="name flex">

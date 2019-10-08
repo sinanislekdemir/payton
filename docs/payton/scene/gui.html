@@ -156,7 +156,7 @@ class Shape2D(Mesh):
         size: Tuple[int, int],
         on_click: Optional[Callable] = None,
         opacity: float = 0.5,
-        **args: Any,
+        **kwargs: Any,
     ):
         &#34;&#34;&#34;Initialize Shape2D
 
@@ -164,7 +164,7 @@ class Shape2D(Mesh):
           opacity: Opacity of the shape. (1: transparent)
           position: Position of the shape in screen. (0, 0 by default.)
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.material.opacity = opacity
         self.__position: Tuple[int, int, int] = position
         self.position = list([float(x) for x in self.__position])
@@ -256,9 +256,9 @@ class Rectangle(Shape2D):
       size: Size of the rectangle.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any):
+    def __init__(self, **kwargs: Any):
         &#34;&#34;&#34;Initialize the rectangle&#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._init: bool = False
         self.draw()
 
@@ -298,7 +298,7 @@ class Text(Rectangle):
         label: str = &#34;lorem&#34;,
         bgcolor: Optional[List[int]] = None,
         color: Optional[List[int]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize Text
 
@@ -307,7 +307,7 @@ class Text(Rectangle):
           bgcolor: Background color of the text (Default, r:0, g:0, b:0, a:0)
           color: Color of the text (Default, r:0, g:0, b:0)
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.__label: str = label
         self.bgcolor: List[int] = [0, 0, 0, 0] if bgcolor is None else bgcolor
         self.color: List[int] = [0, 0, 0] if color is None else color
@@ -380,7 +380,7 @@ class Hud(Object):
         height: int = 600,
         font: str = &#34;&#34;,
         font_size: int = 15,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize HUD
 
@@ -392,7 +392,7 @@ class Hud(Object):
           font_size: Font size
         &#34;&#34;&#34;
 
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.width: int = width
         self.height: int = height
         self._fontname: str = font
@@ -470,7 +470,7 @@ class Hud(Object):
 <dl>
 <dt id="payton.scene.gui.Hud"><code class="flex name class">
 <span>class <span class="ident">Hud</span></span>
-<span>(</span><span>width=800, height=600, font='', font_size=15, **args)</span>
+<span>(</span><span>width=800, height=600, font='', font_size=15, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Main 2D Hud</p>
@@ -516,7 +516,7 @@ to one in the scene.</p>
         height: int = 600,
         font: str = &#34;&#34;,
         font_size: int = 15,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize HUD
 
@@ -528,7 +528,7 @@ to one in the scene.</p>
           font_size: Font size
         &#34;&#34;&#34;
 
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.width: int = width
         self.height: int = height
         self._fontname: str = font
@@ -728,6 +728,7 @@ also supported.</dd>
 <li><code><b><a title="payton.scene.geometry.base.Object" href="geometry/base.html#payton.scene.geometry.base.Object">Object</a></b></code>:
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.base.Object.absolute_vertices" href="geometry/base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.add_material" href="geometry/base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="geometry/base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="geometry/base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="geometry/base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
@@ -752,7 +753,7 @@ also supported.</dd>
 </dd>
 <dt id="payton.scene.gui.Rectangle"><code class="flex name class">
 <span>class <span class="ident">Rectangle</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Rectangle primitive, an instance of <a title="payton.scene.gui.Shape2D" href="#payton.scene.gui.Shape2D"><code>Shape2D</code></a></p>
@@ -771,9 +772,9 @@ also supported.</dd>
       size: Size of the rectangle.
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any):
+    def __init__(self, **kwargs: Any):
         &#34;&#34;&#34;Initialize the rectangle&#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._init: bool = False
         self.draw()
 
@@ -852,6 +853,7 @@ method again.</p></section>
 <ul class="hlist">
 <li><code><a title="payton.scene.gui.Shape2D.absolute_vertices" href="geometry/base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.add_child" href="#payton.scene.gui.Shape2D.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.gui.Shape2D.add_material" href="geometry/base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.add_triangle" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.bounding_radius" href="geometry/base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.gui.Shape2D.build" href="geometry/base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
@@ -885,7 +887,7 @@ method again.</p></section>
 </dd>
 <dt id="payton.scene.gui.Shape2D"><code class="flex name class">
 <span>class <span class="ident">Shape2D</span></span>
-<span>(</span><span>position, size, on_click=None, opacity=0.5, **args)</span>
+<span>(</span><span>position, size, on_click=None, opacity=0.5, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Shape2D is the base of GUI primitives</p>
@@ -916,7 +918,7 @@ of the shape.</p>
         size: Tuple[int, int],
         on_click: Optional[Callable] = None,
         opacity: float = 0.5,
-        **args: Any,
+        **kwargs: Any,
     ):
         &#34;&#34;&#34;Initialize Shape2D
 
@@ -924,7 +926,7 @@ of the shape.</p>
           opacity: Opacity of the shape. (1: transparent)
           position: Position of the shape in screen. (0, 0 by default.)
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.material.opacity = opacity
         self.__position: Tuple[int, int, int] = position
         self.position = list([float(x) for x in self.__position])
@@ -1149,6 +1151,7 @@ you handle them yourself or you call the <code>super()</code> for mouse action</
 <li><code><b><a title="payton.scene.geometry.mesh.Mesh" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh">Mesh</a></b></code>:
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="geometry/base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="geometry/base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="geometry/base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="geometry/base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
@@ -1179,7 +1182,7 @@ you handle them yourself or you call the <code>super()</code> for mouse action</
 </dd>
 <dt id="payton.scene.gui.Text"><code class="flex name class">
 <span>class <span class="ident">Text</span></span>
-<span>(</span><span>label='lorem', bgcolor=None, color=None, **args)</span>
+<span>(</span><span>label='lorem', bgcolor=None, color=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Text object.</p>
@@ -1211,7 +1214,7 @@ to own material</p>
         label: str = &#34;lorem&#34;,
         bgcolor: Optional[List[int]] = None,
         color: Optional[List[int]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize Text
 
@@ -1220,7 +1223,7 @@ to own material</p>
           bgcolor: Background color of the text (Default, r:0, g:0, b:0, a:0)
           color: Color of the text (Default, r:0, g:0, b:0)
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.__label: str = label
         self.bgcolor: List[int] = [0, 0, 0, 0] if bgcolor is None else bgcolor
         self.color: List[int] = [0, 0, 0] if color is None else color
@@ -1356,6 +1359,7 @@ of the rectangle.</p></section>
 <ul class="hlist">
 <li><code><a title="payton.scene.gui.Rectangle.absolute_vertices" href="geometry/base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.add_child" href="#payton.scene.gui.Shape2D.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.gui.Rectangle.add_material" href="geometry/base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.add_triangle" href="geometry/mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.bounding_radius" href="geometry/base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.gui.Rectangle.build" href="geometry/base.html#payton.scene.geometry.base.Object.build">build</a></code></li>

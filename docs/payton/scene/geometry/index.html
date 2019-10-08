@@ -55,6 +55,7 @@ from payton.scene.geometry.cube import Cube
 from payton.scene.geometry.plane import Plane, MatrixPlane
 from payton.scene.geometry.sphere import Sphere
 from payton.scene.geometry.point import PointCloud
+from payton.scene.geometry.md2 import MD2
 
 
 __all__ = [
@@ -67,6 +68,7 @@ __all__ = [
     &#34;MatrixPlane&#34;,
     &#34;Sphere&#34;,
     &#34;PointCloud&#34;,
+    &#34;MD2&#34;,
 ]</code></pre>
 </details>
 </section>
@@ -84,6 +86,12 @@ __all__ = [
 <dt><code class="name"><a title="payton.scene.geometry.cylinder" href="cylinder.html">payton.scene.geometry.cylinder</a></code></dt>
 <dd>
 <section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="payton.scene.geometry.md2" href="md2.html">payton.scene.geometry.md2</a></code></dt>
+<dd>
+<section class="desc"><p>ID Software Quake 2 Model File
+Some parts of this file is based on the original work from:
+…</p></section>
 </dd>
 <dt><code class="name"><a title="payton.scene.geometry.mesh" href="mesh.html">payton.scene.geometry.mesh</a></code></dt>
 <dd>
@@ -112,7 +120,7 @@ __all__ = [
 <dl>
 <dt id="payton.scene.geometry.Cube"><code class="flex name class">
 <span>class <span class="ident">Cube</span></span>
-<span>(</span><span>width=1.0, depth=1.0, height=1.0, from_corner=None, to_corner=None, **args)</span>
+<span>(</span><span>width=1.0, depth=1.0, height=1.0, from_corner=None, to_corner=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cube object</p>
@@ -170,7 +178,7 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
         height: float = 1.0,
         from_corner: Optional[List[float]] = None,
         to_corner: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize Cube
 
@@ -187,7 +195,7 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
           from_corner: Starting point of the cube (Optional)
           to_corner: End point of the cube (Optional)
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         width *= 0.5
         depth *= 0.5
         height *= 0.5
@@ -292,6 +300,7 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
@@ -322,7 +331,7 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
 </dd>
 <dt id="payton.scene.geometry.Cylinder"><code class="flex name class">
 <span>class <span class="ident">Cylinder</span></span>
-<span>(</span><span>bottom_radius=0.5, top_radius=0.5, meridians=12, height=1.0, **args)</span>
+<span>(</span><span>bottom_radius=0.5, top_radius=0.5, meridians=12, height=1.0, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cylinder Object</p>
@@ -384,7 +393,7 @@ scene.run()
         top_radius: float = 0.5,
         meridians: int = 12,
         height: float = 1.0,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Iniitalize the cylinder
 
@@ -394,7 +403,7 @@ scene.run()
           meridians: Number of meridians/edges (as in geography)
           height: Height of the cylinder
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._bottom_radius: float = bottom_radius
         self._top_radius: float = top_radius
         self._meridians: int = meridians
@@ -525,6 +534,7 @@ scene.run()
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
@@ -555,7 +565,7 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.Line"><code class="flex name class">
 <span>class <span class="ident">Line</span></span>
-<span>(</span><span>vertices=None, color=None, **args)</span>
+<span>(</span><span>vertices=None, color=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Line object</p>
@@ -606,7 +616,7 @@ scene.run()
         self,
         vertices: Optional[VList] = None,
         color: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Iniitalize line
 
@@ -618,7 +628,7 @@ scene.run()
 
             .. include:: ../../../examples/basics/17_line.py
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         self.material.color = [1.0, 1.0, 1.0] if color is None else color
 
@@ -815,9 +825,604 @@ scene.run()
 </li>
 </ul>
 </dd>
+<dt id="payton.scene.geometry.MD2"><code class="flex name class">
+<span>class <span class="ident">MD2</span></span>
+<span>(</span><span>filename='', **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>MD2 File Format Loader
+I know that this is a pretty old file format. We can consider it as ancient
+On the other hand, our target on creating Payton is not to make a game
+engine.</p>
+<p>Also note that there might be some bugs, I give no guarantee here.
+As this is a generic class, I haven't defined any animations before hand.
+So to make things properly looping in your code, you need to set the
+animation frame ranges yourself. For instance, as you will see at the
+defined example, infantry has a perfect walking loop between frames 2-13</p>
+<p>Unlike original frame names, frames in this class starts from 0 and goes
+incremented by one.</p>
+<p>NOTE: There are some hard-coded pre-assumptions like the scale of the
+objects and they are just defined to look okay on a default scene.</p>
+<p>Example use case:</p>
+<pre><code>"""Quake 2 Model Test"""
+import os
+import sdl2
+from payton.scene import Scene
+from payton.scene.geometry import MD2
+from payton.scene.controller import Controller
+
+
+scene = Scene()
+object_file = os.path.join(os.path.dirname(__file__), "infantry", "tris.md2")
+model = MD2(filename=object_file)
+
+
+class CustomKeyboardControls(Controller):
+    def keyboard(self, event, scene):
+        super().keyboard(event, scene)
+        if event.type == sdl2.SDL_KEYUP:
+            key = event.key.keysym.sym
+            if key == sdl2.SDLK_UP:
+                model.animate("walk", 2, 13)
+            if key == sdl2.SDLK_DOWN:
+                model.animate("death", 0, 19, False)
+
+
+print(
+    """
+Hit Keyboard UP to walk
+Hit Keyboard Down to death animation
+"""
+)
+
+
+scene.add_object("infantry", model)
+scene.controller = CustomKeyboardControls()
+model.animate("walk", 2, 13)
+scene.run()
+</code></pre>
+<p>Initialize the MD2 Object</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filename</code></strong></dt>
+<dd>Filename to load</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class MD2(Mesh):
+    &#34;&#34;&#34;
+    MD2 File Format Loader
+    I know that this is a pretty old file format. We can consider it as ancient
+    On the other hand, our target on creating Payton is not to make a game
+    engine.
+
+    Also note that there might be some bugs, I give no guarantee here.
+    As this is a generic class, I haven&#39;t defined any animations before hand.
+    So to make things properly looping in your code, you need to set the
+    animation frame ranges yourself. For instance, as you will see at the
+    defined example, infantry has a perfect walking loop between frames 2-13
+
+    Unlike original frame names, frames in this class starts from 0 and goes
+    incremented by one.
+
+    NOTE: There are some hard-coded pre-assumptions like the scale of the
+    objects and they are just defined to look okay on a default scene.
+
+    Example use case:
+
+        .. include:: ../../../examples/basics/26_quake2.py
+    &#34;&#34;&#34;
+
+    def __init__(self, filename: str = &#34;&#34;, **kwargs: Any):
+        &#34;&#34;&#34;Initialize the MD2 Object
+
+        Args:
+          filename: Filename to load
+        &#34;&#34;&#34;
+        super().__init__(**kwargs)
+        self.header: MD2Header = MD2Header()
+        self.triangle_layout = MD2TriangleLayout()
+        self.skins: List[str] = []
+        self.frames: List[MD2Frame] = []
+        self.animation: str = &#34;&#34;
+        self.animations: Dict[str, List] = {}
+
+        self._active_frame: int = 0
+        self._frame_rate: float = 0
+        self._from_frame: int = 0
+        self._to_frame: int = 0
+        self._time: float = 0
+        self._path: str = &#34;&#34;
+        self._loop: bool = False
+
+        if os.path.exists(filename):
+            self.load_file(filename)
+
+    def animate(
+        self,
+        animation_name: str,
+        from_frame: int,
+        to_frame: int,
+        loop: bool = True,
+    ):
+        &#34;&#34;&#34;Set the model in motion
+
+        Args:
+          animation_name: Name of the animation to play
+          from_frame: Loop starting frame
+          to_frame: Loop ending frame
+          loop: Loop the animation?
+        &#34;&#34;&#34;
+        self.animation = &#34;&#34;  # For thread safety
+        if animation_name not in self.animations:
+            logging.error(f&#34;Animation {animation_name} not found in object&#34;)
+            return
+        anim = self.animations[animation_name]
+        if from_frame &lt; anim[0] or from_frame &gt; anim[1]:
+            logging.error(f&#34;from_frame out of bounds&#34;)
+            return
+        if to_frame &lt; anim[0] or to_frame &gt; anim[1]:
+            logging.error(f&#34;to_frame out of bounds&#34;)
+            return
+        self._loop = loop
+        self._active_frame = from_frame
+        self._from_frame = from_frame
+        self._to_frame = to_frame
+        self.animation = animation_name
+
+    def render(
+        self,
+        proj: np.ndarray,
+        view: np.ndarray,
+        lights: List[Light],
+        parent_matrix: Optional[np.ndarray] = None,
+    ) -&gt; None:
+        if not self._visible:
+            return
+
+        if self.has_missing_vao or self._needs_update:
+            self.build()
+
+        if self.animation == &#34;&#34;:
+            for child in self.children:
+                self.children[child].render(
+                    proj, view, lights, self._model_matrix
+                )
+                return
+
+        if self._time == 0:
+            self._time = time.time()
+
+        tdiff = time.time() - self._time
+        if self._frame_rate == 0:
+            self._frame_rate = 1 / (self._to_frame - self._from_frame)
+
+        if tdiff &gt;= self._frame_rate:
+            self._active_frame += 1
+            if self._active_frame &gt; self._to_frame:
+                if self._loop:
+                    self._active_frame = self._from_frame
+                else:
+                    self._active_frame -= 1
+
+            self._time = time.time()
+
+        self.update_matrix(parent_matrix=parent_matrix)
+        self.track()
+
+        frame_name = f&#34;{self.animation}{self._active_frame}&#34;
+
+        self.children[frame_name].render(
+            proj, view, lights, self._model_matrix
+        )
+
+    def load_file(self, filename: str):
+        if not os.path.exists(filename):
+            raise BaseException(f&#34;File not found: {filename}&#34;)
+        self._path = os.path.dirname(os.path.abspath(filename))
+        with open(filename, &#34;rb&#34;) as f:
+            self.load_buffer(f)
+
+    def load_buffer(self, f: BinaryIO):
+        self.read_header(f)
+        self.read_skin(f)
+        self.read_tex_coords(f)
+        self.read_triangles(f)
+        self.load_frames(f)
+        self.compile()
+
+    def read_triangles(self, f: BinaryIO):
+        f.seek(self.header.offset_tris, os.SEEK_SET)
+        triangles = np.array(
+            read_block(f, &#34;&lt; 6H&#34;, self.header.num_tris), dtype=np.uint16
+        )
+        triangles.shape = (-1, 6)
+        vertex_indices = triangles[:, :3]
+        tc_indices = triangles[:, 3:]
+        self.triangle_layout = MD2TriangleLayout(
+            vertex_indices=vertex_indices, tc_indices=tc_indices
+        )
+
+    def compile(self):
+        self.animations = {}
+        for frame in self.frames:
+            name = &#34;&#34;.join(i for i in frame.name if not i.isdigit())
+            if name not in self.animations:
+                self.animations[name] = [0, -1]
+            self.animations[name][1] += 1
+            num = self.animations[name][1]
+            frame_name = f&#34;{name}{num}&#34;
+            self.build_frame(frame, frame_name)
+
+    def build_frame(self, frame_information: MD2Frame, name: str):
+        mesh = Mesh()
+        for i, tri in enumerate(self.triangle_layout.vertex_indices):
+            v3 = frame_information.vertices[tri[0]].tolist()
+            v2 = frame_information.vertices[tri[1]].tolist()
+            v1 = frame_information.vertices[tri[2]].tolist()
+            t3 = self._texcoords[self.triangle_layout.tc_indices[i][0]]
+            t2 = self._texcoords[self.triangle_layout.tc_indices[i][1]]
+            t1 = self._texcoords[self.triangle_layout.tc_indices[i][2]]
+            normal = plane_normal(v1, v2, v3)
+            mesh.add_triangle(
+                vertices=[v1, v2, v3],
+                normals=[normal, normal, normal],
+                texcoords=[t1, t2, t3],
+            )
+
+        mesh.material.texture = os.path.join(
+            self._path, os.path.basename(self.skins[0])
+        )
+        self.add_child(name, cast(Type[Object], mesh))
+
+    def read_header(self, f: BinaryIO):
+        self.header = MD2Header._make(read_block(f, &#34;&lt; 4s16l&#34;, 1)[0])
+
+        if self.header.ident.decode(&#34;ascii&#34;) != _SIGNATURE:
+            raise BaseException(&#34;MD2 Identifier is incorrect&#34;)
+        if self.header.version != _VERSION:
+            raise BaseException(&#34;Invalid Version&#34;)
+
+    def read_skin(self, f: BinaryIO):
+        f.seek(self.header.offset_skins, os.SEEK_SET)
+        skin_struct = struct.Struct(&#34;&lt; %s&#34; % (&#34;64s&#34; * self.header.num_skins))
+
+        self.skins = [
+            fix_skin_name(skin)
+            for skin in skin_struct.unpack(f.read(skin_struct.size))
+        ]
+
+    def read_tex_coords(self, f: BinaryIO):
+        f.seek(self.header.offset_st, os.SEEK_SET)
+        tcs = np.array(
+            read_block(f, &#34;&lt; 2h&#34;, self.header.num_st), dtype=np.float
+        )
+        tcs.shape = (-1, 2)
+        tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
+        self._texcoords = tcs
+
+    def load_frames(self, f: BinaryIO):
+        f.seek(self.header.offset_frames, os.SEEK_SET)
+        self.frames = [
+            self.read_frame(f) for x in range(self.header.num_frames)
+        ]
+
+    def read_frame(self, f: BinaryIO):
+        frame_translations = np.array(read_block(f, &#34;&lt; 3f&#34;, 2), dtype=np.float)
+        scale = frame_translations[0]
+        translation = frame_translations[1]
+
+        name = read_block(f, &#34;&lt; 16s&#34;, 1)[0][0]
+        name = name.decode(&#34;ascii&#34;).strip(&#34;\x00&#34;).replace(&#34;\x00&#34;, &#34;&#34;)
+
+        frame_vertex_data = np.array(
+            read_block(f, &#34;&lt;4B&#34;, self.header.num_vertices), dtype=np.uint8
+        )
+
+        frame_vertex_data.shape = (-1, 4)
+
+        vertices_short = frame_vertex_data[:, :3]
+        vertices = vertices_short.astype(np.float)
+        vertices.shape = (-1, 3)
+
+        vertices *= scale
+        vertices += (translation[0], translation[1], 0)
+        vertices /= 20.0
+
+        return MD2Frame(name=name, vertices=vertices)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="payton.scene.geometry.mesh.Mesh" href="mesh.html#payton.scene.geometry.mesh.Mesh">Mesh</a></li>
+<li><a title="payton.scene.geometry.base.Object" href="base.html#payton.scene.geometry.base.Object">Object</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.geometry.MD2.animate"><code class="name flex">
+<span>def <span class="ident">animate</span></span>(<span>self, animation_name, from_frame, to_frame, loop=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Set the model in motion</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>animation_name</code></strong></dt>
+<dd>Name of the animation to play</dd>
+<dt><strong><code>from_frame</code></strong></dt>
+<dd>Loop starting frame</dd>
+<dt><strong><code>to_frame</code></strong></dt>
+<dd>Loop ending frame</dd>
+<dt><strong><code>loop</code></strong></dt>
+<dd>Loop the animation?</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def animate(
+    self,
+    animation_name: str,
+    from_frame: int,
+    to_frame: int,
+    loop: bool = True,
+):
+    &#34;&#34;&#34;Set the model in motion
+
+    Args:
+      animation_name: Name of the animation to play
+      from_frame: Loop starting frame
+      to_frame: Loop ending frame
+      loop: Loop the animation?
+    &#34;&#34;&#34;
+    self.animation = &#34;&#34;  # For thread safety
+    if animation_name not in self.animations:
+        logging.error(f&#34;Animation {animation_name} not found in object&#34;)
+        return
+    anim = self.animations[animation_name]
+    if from_frame &lt; anim[0] or from_frame &gt; anim[1]:
+        logging.error(f&#34;from_frame out of bounds&#34;)
+        return
+    if to_frame &lt; anim[0] or to_frame &gt; anim[1]:
+        logging.error(f&#34;to_frame out of bounds&#34;)
+        return
+    self._loop = loop
+    self._active_frame = from_frame
+    self._from_frame = from_frame
+    self._to_frame = to_frame
+    self.animation = animation_name</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.build_frame"><code class="name flex">
+<span>def <span class="ident">build_frame</span></span>(<span>self, frame_information, name)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def build_frame(self, frame_information: MD2Frame, name: str):
+    mesh = Mesh()
+    for i, tri in enumerate(self.triangle_layout.vertex_indices):
+        v3 = frame_information.vertices[tri[0]].tolist()
+        v2 = frame_information.vertices[tri[1]].tolist()
+        v1 = frame_information.vertices[tri[2]].tolist()
+        t3 = self._texcoords[self.triangle_layout.tc_indices[i][0]]
+        t2 = self._texcoords[self.triangle_layout.tc_indices[i][1]]
+        t1 = self._texcoords[self.triangle_layout.tc_indices[i][2]]
+        normal = plane_normal(v1, v2, v3)
+        mesh.add_triangle(
+            vertices=[v1, v2, v3],
+            normals=[normal, normal, normal],
+            texcoords=[t1, t2, t3],
+        )
+
+    mesh.material.texture = os.path.join(
+        self._path, os.path.basename(self.skins[0])
+    )
+    self.add_child(name, cast(Type[Object], mesh))</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.compile"><code class="name flex">
+<span>def <span class="ident">compile</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def compile(self):
+    self.animations = {}
+    for frame in self.frames:
+        name = &#34;&#34;.join(i for i in frame.name if not i.isdigit())
+        if name not in self.animations:
+            self.animations[name] = [0, -1]
+        self.animations[name][1] += 1
+        num = self.animations[name][1]
+        frame_name = f&#34;{name}{num}&#34;
+        self.build_frame(frame, frame_name)</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.load_buffer"><code class="name flex">
+<span>def <span class="ident">load_buffer</span></span>(<span>self, f)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_buffer(self, f: BinaryIO):
+    self.read_header(f)
+    self.read_skin(f)
+    self.read_tex_coords(f)
+    self.read_triangles(f)
+    self.load_frames(f)
+    self.compile()</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.load_file"><code class="name flex">
+<span>def <span class="ident">load_file</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_file(self, filename: str):
+    if not os.path.exists(filename):
+        raise BaseException(f&#34;File not found: {filename}&#34;)
+    self._path = os.path.dirname(os.path.abspath(filename))
+    with open(filename, &#34;rb&#34;) as f:
+        self.load_buffer(f)</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.load_frames"><code class="name flex">
+<span>def <span class="ident">load_frames</span></span>(<span>self, f)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_frames(self, f: BinaryIO):
+    f.seek(self.header.offset_frames, os.SEEK_SET)
+    self.frames = [
+        self.read_frame(f) for x in range(self.header.num_frames)
+    ]</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.read_frame"><code class="name flex">
+<span>def <span class="ident">read_frame</span></span>(<span>self, f)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def read_frame(self, f: BinaryIO):
+    frame_translations = np.array(read_block(f, &#34;&lt; 3f&#34;, 2), dtype=np.float)
+    scale = frame_translations[0]
+    translation = frame_translations[1]
+
+    name = read_block(f, &#34;&lt; 16s&#34;, 1)[0][0]
+    name = name.decode(&#34;ascii&#34;).strip(&#34;\x00&#34;).replace(&#34;\x00&#34;, &#34;&#34;)
+
+    frame_vertex_data = np.array(
+        read_block(f, &#34;&lt;4B&#34;, self.header.num_vertices), dtype=np.uint8
+    )
+
+    frame_vertex_data.shape = (-1, 4)
+
+    vertices_short = frame_vertex_data[:, :3]
+    vertices = vertices_short.astype(np.float)
+    vertices.shape = (-1, 3)
+
+    vertices *= scale
+    vertices += (translation[0], translation[1], 0)
+    vertices /= 20.0
+
+    return MD2Frame(name=name, vertices=vertices)</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.read_header"><code class="name flex">
+<span>def <span class="ident">read_header</span></span>(<span>self, f)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def read_header(self, f: BinaryIO):
+    self.header = MD2Header._make(read_block(f, &#34;&lt; 4s16l&#34;, 1)[0])
+
+    if self.header.ident.decode(&#34;ascii&#34;) != _SIGNATURE:
+        raise BaseException(&#34;MD2 Identifier is incorrect&#34;)
+    if self.header.version != _VERSION:
+        raise BaseException(&#34;Invalid Version&#34;)</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.read_skin"><code class="name flex">
+<span>def <span class="ident">read_skin</span></span>(<span>self, f)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def read_skin(self, f: BinaryIO):
+    f.seek(self.header.offset_skins, os.SEEK_SET)
+    skin_struct = struct.Struct(&#34;&lt; %s&#34; % (&#34;64s&#34; * self.header.num_skins))
+
+    self.skins = [
+        fix_skin_name(skin)
+        for skin in skin_struct.unpack(f.read(skin_struct.size))
+    ]</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.read_tex_coords"><code class="name flex">
+<span>def <span class="ident">read_tex_coords</span></span>(<span>self, f)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def read_tex_coords(self, f: BinaryIO):
+    f.seek(self.header.offset_st, os.SEEK_SET)
+    tcs = np.array(
+        read_block(f, &#34;&lt; 2h&#34;, self.header.num_st), dtype=np.float
+    )
+    tcs.shape = (-1, 2)
+    tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
+    self._texcoords = tcs</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.MD2.read_triangles"><code class="name flex">
+<span>def <span class="ident">read_triangles</span></span>(<span>self, f)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def read_triangles(self, f: BinaryIO):
+    f.seek(self.header.offset_tris, os.SEEK_SET)
+    triangles = np.array(
+        read_block(f, &#34;&lt; 6H&#34;, self.header.num_tris), dtype=np.uint16
+    )
+    triangles.shape = (-1, 6)
+    vertex_indices = triangles[:, :3]
+    tc_indices = triangles[:, 3:]
+    self.triangle_layout = MD2TriangleLayout(
+        vertex_indices=vertex_indices, tc_indices=tc_indices
+    )</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="payton.scene.geometry.mesh.Mesh" href="mesh.html#payton.scene.geometry.mesh.Mesh">Mesh</a></b></code>:
+<ul class="hlist">
+<li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.clear_triangles" href="mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direct_to" href="base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direction" href="base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.fix_normals" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.fix_texcoords" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.forward" href="base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.position" href="base.html#payton.scene.geometry.base.Object.position">position</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.refresh" href="base.html#payton.scene.geometry.base.Object.refresh">refresh</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.render" href="base.html#payton.scene.geometry.base.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_x" href="base.html#payton.scene.geometry.base.Object.rotate_around_x">rotate_around_x</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_y" href="base.html#payton.scene.geometry.base.Object.rotate_around_y">rotate_around_y</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_z" href="base.html#payton.scene.geometry.base.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.scale" href="mesh.html#payton.scene.geometry.mesh.Mesh.scale">scale</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.select" href="base.html#payton.scene.geometry.base.Object.select">select</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.step_back" href="base.html#payton.scene.geometry.base.Object.step_back">step_back</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.to_absolute" href="base.html#payton.scene.geometry.base.Object.to_absolute">to_absolute</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.toggle_wireframe" href="base.html#payton.scene.geometry.base.Object.toggle_wireframe">toggle_wireframe</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.track" href="base.html#payton.scene.geometry.base.Object.track">track</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.update_matrix" href="base.html#payton.scene.geometry.base.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.visible" href="base.html#payton.scene.geometry.base.Object.visible">visible</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="payton.scene.geometry.MatrixPlane"><code class="flex name class">
 <span>class <span class="ident">MatrixPlane</span></span>
-<span>(</span><span>width=1.0, height=1.0, x=2, y=2, **args)</span>
+<span>(</span><span>width=1.0, height=1.0, x=2, y=2, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Grid plane is a special plane which is generated by a NxM matrix and you
@@ -954,7 +1559,7 @@ scene.run()
         height: float = 1.0,
         x: int = 2,
         y: int = 2,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize MatrixPlane
 
@@ -964,7 +1569,7 @@ scene.run()
           width: Total width
           height: Total height
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.width = width
         self.height = height
         self.x = x
@@ -1080,6 +1685,7 @@ scene.run()
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
@@ -1110,7 +1716,7 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.Mesh"><code class="flex name class">
 <span>class <span class="ident">Mesh</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Mesh Object</p>
@@ -1197,8 +1803,8 @@ it again use: <code>object.show()</code></dd>
         .. include:: ../../../examples/basics/09_mesh.py
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
-        super().__init__(**args)
+    def __init__(self, **kwargs: Any) -&gt; None:
+        super().__init__(**kwargs)
         self.static = False
 
     def clear_triangles(self) -&gt; None:
@@ -1384,6 +1990,7 @@ it again use: <code>object.show()</code></dd>
 <li><a title="payton.scene.geometry.plane.Plane" href="plane.html#payton.scene.geometry.plane.Plane">Plane</a></li>
 <li><a title="payton.scene.geometry.plane.MatrixPlane" href="plane.html#payton.scene.geometry.plane.MatrixPlane">MatrixPlane</a></li>
 <li><a title="payton.scene.geometry.sphere.Sphere" href="sphere.html#payton.scene.geometry.sphere.Sphere">Sphere</a></li>
+<li><a title="payton.scene.geometry.md2.MD2" href="md2.html#payton.scene.geometry.md2.MD2">MD2</a></li>
 <li><a title="payton.scene.gui.Shape2D" href="../gui.html#payton.scene.gui.Shape2D">Shape2D</a></li>
 <li><a title="payton.scene.wavefront.Wavefront" href="../wavefront.html#payton.scene.wavefront.Wavefront">Wavefront</a></li>
 </ul>
@@ -1627,6 +2234,7 @@ with it. Instead, it will scale the vertices by given factors.</p></section>
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.base.Object.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
@@ -1652,7 +2260,7 @@ with it. Instead, it will scale the vertices by given factors.</p></section>
 </dd>
 <dt id="payton.scene.geometry.Object"><code class="flex name class">
 <span>class <span class="ident">Object</span></span>
-<span>(</span><span>static=True, name='', visible=True, track_motion=False, **args)</span>
+<span>(</span><span>static=True, name='', visible=True, track_motion=False, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Main Payton Object.</p>
@@ -1741,7 +2349,7 @@ it again use: <code>object.show()</code></dd>
         name=&#34;&#34;,
         visible=True,
         track_motion=False,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;
         Initialize the basic object properties.
@@ -1862,9 +2470,16 @@ it again use: <code>object.show()</code></dd>
         self.materials[DEFAULT] = mat
 
     def add_material(self, name: str, material: Material) -&gt; None:
+        &#34;&#34;&#34;Add a material to the object.
+
+        Keep in mind that, adding material does not refer to the material
+        but does it through deepcopy. Initially, material holds indice
+        and vertex buffer objectt references. In order to prevent user
+        from breaking the objects, we create the clone of the material.
+        &#34;&#34;&#34;
         if name in self.materials:
             raise Exception(f&#34;Name {name} already exists&#34;)
-        self.materials[name] = material
+        self.materials[name] = deepcopy(material)
 
     @property
     def direction(self) -&gt; List[float]:
@@ -2712,13 +3327,24 @@ space.run()
 <span>def <span class="ident">add_material</span></span>(<span>self, name, material)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Add a material to the object.</p>
+<p>Keep in mind that, adding material does not refer to the material
+but does it through deepcopy. Initially, material holds indice
+and vertex buffer objectt references. In order to prevent user
+from breaking the objects, we create the clone of the material.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def add_material(self, name: str, material: Material) -&gt; None:
+    &#34;&#34;&#34;Add a material to the object.
+
+    Keep in mind that, adding material does not refer to the material
+    but does it through deepcopy. Initially, material holds indice
+    and vertex buffer objectt references. In order to prevent user
+    from breaking the objects, we create the clone of the material.
+    &#34;&#34;&#34;
     if name in self.materials:
         raise Exception(f&#34;Name {name} already exists&#34;)
-    self.materials[name] = material</code></pre>
+    self.materials[name] = deepcopy(material)</code></pre>
 </details>
 </dd>
 <dt id="payton.scene.geometry.Object.build"><code class="name flex">
@@ -3419,7 +4045,7 @@ space.</p>
 </dd>
 <dt id="payton.scene.geometry.Plane"><code class="flex name class">
 <span>class <span class="ident">Plane</span></span>
-<span>(</span><span>width=1.0, height=1.0, **args)</span>
+<span>(</span><span>width=1.0, height=1.0, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Plane object</p>
@@ -3457,7 +4083,7 @@ scene.run()
     &#34;&#34;&#34;
 
     def __init__(
-        self, width: float = 1.0, height: float = 1.0, **args: Any
+        self, width: float = 1.0, height: float = 1.0, **kwargs: Any
     ) -&gt; None:
         &#34;&#34;&#34;Initialize plane
 
@@ -3465,7 +4091,7 @@ scene.run()
           width: Width of the plane
           height: Height of the plane
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         width *= 0.5
         height *= 0.5
         self._vertices = [
@@ -3490,6 +4116,7 @@ scene.run()
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
@@ -3520,7 +4147,7 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.PointCloud"><code class="flex name class">
 <span>class <span class="ident">PointCloud</span></span>
-<span>(</span><span>vertices=None, colors=None, **args)</span>
+<span>(</span><span>vertices=None, colors=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Point cloud</p>
@@ -3591,7 +4218,7 @@ scene.run()
         self,
         vertices: Optional[VList] = None,
         colors: Optional[VList] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize Point Cloud
 
@@ -3599,7 +4226,7 @@ scene.run()
           vertices: List of point vertices
           colors: List of colors per vertex, follows the same index as vertices
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         # Expose vertices by reference for modification
         self.vertices: VList = self._vertices
@@ -3737,6 +4364,7 @@ scene.run()
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.base.Object.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
@@ -3760,7 +4388,7 @@ scene.run()
 </dd>
 <dt id="payton.scene.geometry.Sphere"><code class="flex name class">
 <span>class <span class="ident">Sphere</span></span>
-<span>(</span><span>radius=0.5, parallels=12, meridians=12, **args)</span>
+<span>(</span><span>radius=0.5, parallels=12, meridians=12, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Sphere object.</p>
@@ -3859,7 +4487,7 @@ degrees of arcs)</dd>
         radius: float = 0.5,
         parallels: int = 12,
         meridians: int = 12,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize the sphere
 
@@ -3869,7 +4497,7 @@ degrees of arcs)</dd>
                      degrees of arcs)
           meridians: Number of meridians (as in geography). (default: 12)
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self.radius: float = radius
         self.parallels: int = parallels
         self.meridians: int = meridians
@@ -4048,6 +4676,7 @@ degrees of arcs)</dd>
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
@@ -4095,6 +4724,7 @@ degrees of arcs)</dd>
 <li><code><a title="payton.scene.geometry.base" href="base.html">payton.scene.geometry.base</a></code></li>
 <li><code><a title="payton.scene.geometry.cube" href="cube.html">payton.scene.geometry.cube</a></code></li>
 <li><code><a title="payton.scene.geometry.cylinder" href="cylinder.html">payton.scene.geometry.cylinder</a></code></li>
+<li><code><a title="payton.scene.geometry.md2" href="md2.html">payton.scene.geometry.md2</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh" href="mesh.html">payton.scene.geometry.mesh</a></code></li>
 <li><code><a title="payton.scene.geometry.plane" href="plane.html">payton.scene.geometry.plane</a></code></li>
 <li><code><a title="payton.scene.geometry.point" href="point.html">payton.scene.geometry.point</a></code></li>
@@ -4119,6 +4749,22 @@ degrees of arcs)</dd>
 <li><code><a title="payton.scene.geometry.Line.append" href="#payton.scene.geometry.Line.append">append</a></code></li>
 <li><code><a title="payton.scene.geometry.Line.build_lines" href="#payton.scene.geometry.Line.build_lines">build_lines</a></code></li>
 <li><code><a title="payton.scene.geometry.Line.toggle_wireframe" href="#payton.scene.geometry.Line.toggle_wireframe">toggle_wireframe</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="payton.scene.geometry.MD2" href="#payton.scene.geometry.MD2">MD2</a></code></h4>
+<ul class="two-column">
+<li><code><a title="payton.scene.geometry.MD2.animate" href="#payton.scene.geometry.MD2.animate">animate</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.build_frame" href="#payton.scene.geometry.MD2.build_frame">build_frame</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.compile" href="#payton.scene.geometry.MD2.compile">compile</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.load_buffer" href="#payton.scene.geometry.MD2.load_buffer">load_buffer</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.load_file" href="#payton.scene.geometry.MD2.load_file">load_file</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.load_frames" href="#payton.scene.geometry.MD2.load_frames">load_frames</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.read_frame" href="#payton.scene.geometry.MD2.read_frame">read_frame</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.read_header" href="#payton.scene.geometry.MD2.read_header">read_header</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.read_skin" href="#payton.scene.geometry.MD2.read_skin">read_skin</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.read_tex_coords" href="#payton.scene.geometry.MD2.read_tex_coords">read_tex_coords</a></code></li>
+<li><code><a title="payton.scene.geometry.MD2.read_triangles" href="#payton.scene.geometry.MD2.read_triangles">read_triangles</a></code></li>
 </ul>
 </li>
 <li>

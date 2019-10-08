@@ -46,7 +46,7 @@ class Cylinder(Mesh):
         top_radius: float = 0.5,
         meridians: int = 12,
         height: float = 1.0,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Iniitalize the cylinder
 
@@ -56,7 +56,7 @@ class Cylinder(Mesh):
           meridians: Number of meridians/edges (as in geography)
           height: Height of the cylinder
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._bottom_radius: float = bottom_radius
         self._top_radius: float = top_radius
         self._meridians: int = meridians
@@ -126,7 +126,7 @@ class Cylinder(Mesh):
 <dl>
 <dt id="payton.scene.geometry.cylinder.Cylinder"><code class="flex name class">
 <span>class <span class="ident">Cylinder</span></span>
-<span>(</span><span>bottom_radius=0.5, top_radius=0.5, meridians=12, height=1.0, **args)</span>
+<span>(</span><span>bottom_radius=0.5, top_radius=0.5, meridians=12, height=1.0, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cylinder Object</p>
@@ -188,7 +188,7 @@ scene.run()
         top_radius: float = 0.5,
         meridians: int = 12,
         height: float = 1.0,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Iniitalize the cylinder
 
@@ -198,7 +198,7 @@ scene.run()
           meridians: Number of meridians/edges (as in geography)
           height: Height of the cylinder
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         self._bottom_radius: float = bottom_radius
         self._top_radius: float = top_radius
         self._meridians: int = meridians
@@ -329,6 +329,7 @@ scene.run()
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>

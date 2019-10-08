@@ -48,7 +48,7 @@ class Cube(Mesh):
         height: float = 1.0,
         from_corner: Optional[List[float]] = None,
         to_corner: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize Cube
 
@@ -65,7 +65,7 @@ class Cube(Mesh):
           from_corner: Starting point of the cube (Optional)
           to_corner: End point of the cube (Optional)
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         width *= 0.5
         depth *= 0.5
         height *= 0.5
@@ -171,7 +171,7 @@ class Cube(Mesh):
 <dl>
 <dt id="payton.scene.geometry.cube.Cube"><code class="flex name class">
 <span>class <span class="ident">Cube</span></span>
-<span>(</span><span>width=1.0, depth=1.0, height=1.0, from_corner=None, to_corner=None, **args)</span>
+<span>(</span><span>width=1.0, depth=1.0, height=1.0, from_corner=None, to_corner=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Cube object</p>
@@ -229,7 +229,7 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
         height: float = 1.0,
         from_corner: Optional[List[float]] = None,
         to_corner: Optional[List[float]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize Cube
 
@@ -246,7 +246,7 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
           from_corner: Starting point of the cube (Optional)
           to_corner: End point of the cube (Optional)
         &#34;&#34;&#34;
-        super().__init__(**args)
+        super().__init__(**kwargs)
         width *= 0.5
         depth *= 0.5
         height *= 0.5
@@ -351,6 +351,7 @@ as <code>from_corner</code> and <code>to_corner</code>.</p>
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>

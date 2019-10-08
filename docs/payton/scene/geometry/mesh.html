@@ -49,8 +49,8 @@ class Mesh(Object):
         .. include:: ../../../examples/basics/09_mesh.py
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
-        super().__init__(**args)
+    def __init__(self, **kwargs: Any) -&gt; None:
+        super().__init__(**kwargs)
         self.static = False
 
     def clear_triangles(self) -&gt; None:
@@ -237,7 +237,7 @@ class Mesh(Object):
 <dl>
 <dt id="payton.scene.geometry.mesh.Mesh"><code class="flex name class">
 <span>class <span class="ident">Mesh</span></span>
-<span>(</span><span>**args)</span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Mesh Object</p>
@@ -324,8 +324,8 @@ it again use: <code>object.show()</code></dd>
         .. include:: ../../../examples/basics/09_mesh.py
     &#34;&#34;&#34;
 
-    def __init__(self, **args: Any) -&gt; None:
-        super().__init__(**args)
+    def __init__(self, **kwargs: Any) -&gt; None:
+        super().__init__(**kwargs)
         self.static = False
 
     def clear_triangles(self) -&gt; None:
@@ -511,6 +511,7 @@ it again use: <code>object.show()</code></dd>
 <li><a title="payton.scene.geometry.plane.Plane" href="plane.html#payton.scene.geometry.plane.Plane">Plane</a></li>
 <li><a title="payton.scene.geometry.plane.MatrixPlane" href="plane.html#payton.scene.geometry.plane.MatrixPlane">MatrixPlane</a></li>
 <li><a title="payton.scene.geometry.sphere.Sphere" href="sphere.html#payton.scene.geometry.sphere.Sphere">Sphere</a></li>
+<li><a title="payton.scene.geometry.md2.MD2" href="md2.html#payton.scene.geometry.md2.MD2">MD2</a></li>
 <li><a title="payton.scene.gui.Shape2D" href="../gui.html#payton.scene.gui.Shape2D">Shape2D</a></li>
 <li><a title="payton.scene.wavefront.Wavefront" href="../wavefront.html#payton.scene.wavefront.Wavefront">Wavefront</a></li>
 </ul>
@@ -754,6 +755,7 @@ with it. Instead, it will scale the vertices by given factors.</p></section>
 <ul class="hlist">
 <li><code><a title="payton.scene.geometry.base.Object.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.base.Object.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
 <li><code><a title="payton.scene.geometry.base.Object.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>

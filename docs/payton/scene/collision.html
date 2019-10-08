@@ -174,7 +174,7 @@ class CollisionTest(object):
         callback: Callable,
         level: int = AABB,
         objects: Optional[List[Type[Mesh]]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize collision detector
 
@@ -334,7 +334,7 @@ class CollisionTest(object):
 </dd>
 <dt id="payton.scene.collision.CollisionTest"><code class="flex name class">
 <span>class <span class="ident">CollisionTest</span></span>
-<span>(</span><span>callback, level=1, objects=None, **args)</span>
+<span>(</span><span>callback, level=1, objects=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Collision detection class</p>
@@ -407,7 +407,7 @@ two different approximations:</p>
         callback: Callable,
         level: int = AABB,
         objects: Optional[List[Type[Mesh]]] = None,
-        **args: Any,
+        **kwargs: Any,
     ) -&gt; None:
         &#34;&#34;&#34;Initialize collision detector
 
