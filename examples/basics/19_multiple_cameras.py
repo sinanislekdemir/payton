@@ -5,6 +5,8 @@ from payton.scene.observer import Observer
 from payton.scene.gui import Hud, Text
 
 scene = Scene()
+scene.background.top_color = [0, 0, 0, 1]
+scene.background.bottom_color = [0, 0, 0, 1]
 
 texture_file = os.path.join(os.path.dirname(__file__), "cube.png")
 

@@ -20,6 +20,7 @@ from payton.scene.geometry.plane import Plane, MatrixPlane
 from payton.scene.geometry.sphere import Sphere
 from payton.scene.geometry.point import PointCloud
 from payton.scene.geometry.md2 import MD2
+from payton.scene.geometry.wavefront import Wavefront
 
 
 __all__ = [
@@ -33,4 +34,5 @@ __all__ = [
     "Sphere",
     "PointCloud",
     "MD2",
+    "Wavefront",
 ]

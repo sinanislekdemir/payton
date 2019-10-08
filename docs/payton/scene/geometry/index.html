@@ -56,6 +56,7 @@ from payton.scene.geometry.plane import Plane, MatrixPlane
 from payton.scene.geometry.sphere import Sphere
 from payton.scene.geometry.point import PointCloud
 from payton.scene.geometry.md2 import MD2
+from payton.scene.geometry.wavefront import Wavefront
 
 
 __all__ = [
@@ -69,6 +70,7 @@ __all__ = [
     &#34;Sphere&#34;,
     &#34;PointCloud&#34;,
     &#34;MD2&#34;,
+    &#34;Wavefront&#34;,
 ]</code></pre>
 </details>
 </section>
@@ -106,6 +108,10 @@ Some parts of this file is based on the original work from:
 <section class="desc"></section>
 </dd>
 <dt><code class="name"><a title="payton.scene.geometry.sphere" href="sphere.html">payton.scene.geometry.sphere</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="payton.scene.geometry.wavefront" href="wavefront.html">payton.scene.geometry.wavefront</a></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -1991,8 +1997,8 @@ it again use: <code>object.show()</code></dd>
 <li><a title="payton.scene.geometry.plane.MatrixPlane" href="plane.html#payton.scene.geometry.plane.MatrixPlane">MatrixPlane</a></li>
 <li><a title="payton.scene.geometry.sphere.Sphere" href="sphere.html#payton.scene.geometry.sphere.Sphere">Sphere</a></li>
 <li><a title="payton.scene.geometry.md2.MD2" href="md2.html#payton.scene.geometry.md2.MD2">MD2</a></li>
+<li><a title="payton.scene.geometry.wavefront.Wavefront" href="wavefront.html#payton.scene.geometry.wavefront.Wavefront">Wavefront</a></li>
 <li><a title="payton.scene.gui.Shape2D" href="../gui.html#payton.scene.gui.Shape2D">Shape2D</a></li>
-<li><a title="payton.scene.wavefront.Wavefront" href="../wavefront.html#payton.scene.wavefront.Wavefront">Wavefront</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -4705,6 +4711,414 @@ degrees of arcs)</dd>
 </li>
 </ul>
 </dd>
+<dt id="payton.scene.geometry.Wavefront"><code class="flex name class">
+<span>class <span class="ident">Wavefront</span></span>
+<span>(</span><span>filename='', **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Wavefront object file class.
+Only supports ascii obj files in a limited way.
+So do not depend so much on this class.
+Only designed to accept your triangular geometries.</p>
+<p>Initialize Wavefront Object.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Wavefront(Mesh):
+    &#34;&#34;&#34;
+    Wavefront object file class.
+    Only supports ascii obj files in a limited way.
+    So do not depend so much on this class.
+    Only designed to accept your triangular geometries.
+    &#34;&#34;&#34;
+
+    def __init__(self, filename: str = &#34;&#34;, **kwargs: Any) -&gt; None:
+        &#34;&#34;&#34;
+        Initialize Wavefront Object.
+        &#34;&#34;&#34;
+        super().__init__()
+        self.filename: str = filename
+        self.path: str = &#34;&#34;
+        if self.filename != &#34;&#34;:
+            self.load_file(self.filename)
+
+    def load_file(self, filename: str) -&gt; bool:
+        &#34;&#34;&#34;
+        Load obj file.
+        &#34;&#34;&#34;
+        if not os.path.isfile(filename):
+            logging.exception(f&#34;File not found {filename}&#34;)
+            return False
+
+        self.filename = filename
+        self.path = os.path.dirname(os.path.abspath(self.filename))
+        f = open(filename)
+        data = f.read()
+        f.close()
+        self.load(data)
+        return True
+
+    def load_material(self, material_string: str):
+        lines = material_string.splitlines()
+        material = Material()
+        material_name = DEFAULT
+        for line in lines:
+            parts = line.split(&#34; &#34;)
+
+            if parts[0] == &#34;newmtl&#34;:
+                material = Material()
+                material_name = parts[1]
+
+            if parts[0] == &#34;Kd&#34;:
+                # Currently we only support diffuse color
+                material.color = [
+                    float(parts[1]),
+                    float(parts[2]),
+                    float(parts[3]),
+                ]
+
+            if parts[0] == &#34;map_Kd&#34;:
+                material.texture = f&#34;{self.path}/{parts[1]}&#34;
+
+            if parts[0] == &#34;&#34; and material_name != DEFAULT:
+                self.add_material(material_name, material)
+
+        if material_name != DEFAULT:
+            self.add_material(material_name, material)
+
+    def load_material_file(self, filename: str) -&gt; bool:
+        if not os.path.isfile(filename):
+            logging.exception(f&#34;File not found {filename}&#34;)
+            return False
+        data = open(filename).read()
+        return self.load_material(data)
+
+    def load(self, obj_string: str) -&gt; None:
+        &#34;&#34;&#34;
+        A bit of information on file format,
+        v -&gt; x, y, z, (w)
+        vt -&gt; u, [v, (w)]
+        vn -&gt; x, y, z
+        f -&gt; vertex_index/texcoord_index/normal_index ...
+
+        Also there are definitions of material and line and object name
+        but for now, the assumption is there will always be triangulated
+        wavefront object files and always a single object at a time.
+        &#34;&#34;&#34;
+        _vertices: VList = []
+        _indices: List[IList] = []
+        _indice_materials: List[str] = []
+        _normals: VList = []
+        _texcoords: VList = []
+        lines: List[str] = obj_string.splitlines()
+        material = DEFAULT
+        for line in lines:
+            line = line.replace(&#34;  &#34;, &#34; &#34;)
+            parts = line.split(&#34; &#34;)
+            command = parts[0].lower()
+            if parts[0] == &#34;mtllib&#34;:
+                self.load_material_file(f&#34;{self.path}/{parts[1]}&#34;)
+            if command == &#34;v&#34;:
+                x = float(parts[1])
+                y = float(parts[2])
+                z = float(parts[3])
+                _vertices.append([x, y, z])
+            if command == &#34;vt&#34;:
+                u = float(parts[1])
+                w = 1.0 - float(parts[2]) if len(parts) &gt; 2 else 0
+                _texcoords.append([u, w])
+            if command == &#34;vn&#34;:
+                x = float(parts[1])
+                y = float(parts[2])
+                z = float(parts[3])
+                _normals.append([x, y, z])
+            if command == &#34;usemtl&#34;:
+                if parts[1] in self.materials:
+                    material = parts[1]
+
+            if command == &#34;f&#34;:
+                # I guess this part of the code should be compatable
+                # with POLYGON as well but IDK.
+                face = []  # type: List[List[int]]
+                for i in range(len(parts)):
+                    if parts[i] == &#34;f&#34; or parts[i] == &#34;&#34;:
+                        continue
+                    subs = parts[i].split(&#34;/&#34;)
+                    vertex = int(subs[0]) - 1
+                    textcoord = (
+                        int(subs[1]) - 1
+                        if len(subs) &gt; 1 and len(subs[1]) &gt; 0
+                        else -1
+                    )
+                    normal = (
+                        int(subs[2]) - 1
+                        if len(subs) &gt; 2 and len(subs[2]) &gt; 0
+                        else -1
+                    )
+                    face.append([vertex, textcoord, normal])
+                if len(face) &gt; 3:
+                    logging.error(&#34;Only triangular wavefronts are accepted&#34;)
+                    return
+
+                _indices.append(face)
+                _indice_materials.append(material)
+
+        # Now unpack indices to actual object data
+        i = 0
+        fix_normals = False
+
+        for _k, index in enumerate(_indices):
+            ind = []
+            for f in index:
+                l_vertex = _vertices[f[0]]
+                if f[2] != -1:
+                    l_normal = _normals[f[2]]
+                else:
+                    fix_normals = True
+                    l_normal = [0.0, 0.0, 1.0]
+                l_tex = [0.0, 0.0]
+                if f[1] &gt; -1:
+                    l_tex = _texcoords[f[1]]
+                self._vertices.append(l_vertex)
+                self._normals.append(l_normal)
+                self._texcoords.append(l_tex)
+                ind.append(i)
+                i += 1
+            self._indices.append(ind)
+            self.materials[_indice_materials[_k]]._indices.append(ind)
+
+        if fix_normals:
+            self.fix_normals()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="payton.scene.geometry.mesh.Mesh" href="mesh.html#payton.scene.geometry.mesh.Mesh">Mesh</a></li>
+<li><a title="payton.scene.geometry.base.Object" href="base.html#payton.scene.geometry.base.Object">Object</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="payton.scene.geometry.Wavefront.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, obj_string)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A bit of information on file format,
+v -&gt; x, y, z, (w)
+vt -&gt; u, [v, (w)]
+vn -&gt; x, y, z
+f -&gt; vertex_index/texcoord_index/normal_index &hellip;</p>
+<p>Also there are definitions of material and line and object name
+but for now, the assumption is there will always be triangulated
+wavefront object files and always a single object at a time.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load(self, obj_string: str) -&gt; None:
+    &#34;&#34;&#34;
+    A bit of information on file format,
+    v -&gt; x, y, z, (w)
+    vt -&gt; u, [v, (w)]
+    vn -&gt; x, y, z
+    f -&gt; vertex_index/texcoord_index/normal_index ...
+
+    Also there are definitions of material and line and object name
+    but for now, the assumption is there will always be triangulated
+    wavefront object files and always a single object at a time.
+    &#34;&#34;&#34;
+    _vertices: VList = []
+    _indices: List[IList] = []
+    _indice_materials: List[str] = []
+    _normals: VList = []
+    _texcoords: VList = []
+    lines: List[str] = obj_string.splitlines()
+    material = DEFAULT
+    for line in lines:
+        line = line.replace(&#34;  &#34;, &#34; &#34;)
+        parts = line.split(&#34; &#34;)
+        command = parts[0].lower()
+        if parts[0] == &#34;mtllib&#34;:
+            self.load_material_file(f&#34;{self.path}/{parts[1]}&#34;)
+        if command == &#34;v&#34;:
+            x = float(parts[1])
+            y = float(parts[2])
+            z = float(parts[3])
+            _vertices.append([x, y, z])
+        if command == &#34;vt&#34;:
+            u = float(parts[1])
+            w = 1.0 - float(parts[2]) if len(parts) &gt; 2 else 0
+            _texcoords.append([u, w])
+        if command == &#34;vn&#34;:
+            x = float(parts[1])
+            y = float(parts[2])
+            z = float(parts[3])
+            _normals.append([x, y, z])
+        if command == &#34;usemtl&#34;:
+            if parts[1] in self.materials:
+                material = parts[1]
+
+        if command == &#34;f&#34;:
+            # I guess this part of the code should be compatable
+            # with POLYGON as well but IDK.
+            face = []  # type: List[List[int]]
+            for i in range(len(parts)):
+                if parts[i] == &#34;f&#34; or parts[i] == &#34;&#34;:
+                    continue
+                subs = parts[i].split(&#34;/&#34;)
+                vertex = int(subs[0]) - 1
+                textcoord = (
+                    int(subs[1]) - 1
+                    if len(subs) &gt; 1 and len(subs[1]) &gt; 0
+                    else -1
+                )
+                normal = (
+                    int(subs[2]) - 1
+                    if len(subs) &gt; 2 and len(subs[2]) &gt; 0
+                    else -1
+                )
+                face.append([vertex, textcoord, normal])
+            if len(face) &gt; 3:
+                logging.error(&#34;Only triangular wavefronts are accepted&#34;)
+                return
+
+            _indices.append(face)
+            _indice_materials.append(material)
+
+    # Now unpack indices to actual object data
+    i = 0
+    fix_normals = False
+
+    for _k, index in enumerate(_indices):
+        ind = []
+        for f in index:
+            l_vertex = _vertices[f[0]]
+            if f[2] != -1:
+                l_normal = _normals[f[2]]
+            else:
+                fix_normals = True
+                l_normal = [0.0, 0.0, 1.0]
+            l_tex = [0.0, 0.0]
+            if f[1] &gt; -1:
+                l_tex = _texcoords[f[1]]
+            self._vertices.append(l_vertex)
+            self._normals.append(l_normal)
+            self._texcoords.append(l_tex)
+            ind.append(i)
+            i += 1
+        self._indices.append(ind)
+        self.materials[_indice_materials[_k]]._indices.append(ind)
+
+    if fix_normals:
+        self.fix_normals()</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.Wavefront.load_file"><code class="name flex">
+<span>def <span class="ident">load_file</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Load obj file.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_file(self, filename: str) -&gt; bool:
+    &#34;&#34;&#34;
+    Load obj file.
+    &#34;&#34;&#34;
+    if not os.path.isfile(filename):
+        logging.exception(f&#34;File not found {filename}&#34;)
+        return False
+
+    self.filename = filename
+    self.path = os.path.dirname(os.path.abspath(self.filename))
+    f = open(filename)
+    data = f.read()
+    f.close()
+    self.load(data)
+    return True</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.Wavefront.load_material"><code class="name flex">
+<span>def <span class="ident">load_material</span></span>(<span>self, material_string)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_material(self, material_string: str):
+    lines = material_string.splitlines()
+    material = Material()
+    material_name = DEFAULT
+    for line in lines:
+        parts = line.split(&#34; &#34;)
+
+        if parts[0] == &#34;newmtl&#34;:
+            material = Material()
+            material_name = parts[1]
+
+        if parts[0] == &#34;Kd&#34;:
+            # Currently we only support diffuse color
+            material.color = [
+                float(parts[1]),
+                float(parts[2]),
+                float(parts[3]),
+            ]
+
+        if parts[0] == &#34;map_Kd&#34;:
+            material.texture = f&#34;{self.path}/{parts[1]}&#34;
+
+        if parts[0] == &#34;&#34; and material_name != DEFAULT:
+            self.add_material(material_name, material)
+
+    if material_name != DEFAULT:
+        self.add_material(material_name, material)</code></pre>
+</details>
+</dd>
+<dt id="payton.scene.geometry.Wavefront.load_material_file"><code class="name flex">
+<span>def <span class="ident">load_material_file</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def load_material_file(self, filename: str) -&gt; bool:
+    if not os.path.isfile(filename):
+        logging.exception(f&#34;File not found {filename}&#34;)
+        return False
+    data = open(filename).read()
+    return self.load_material(data)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="payton.scene.geometry.mesh.Mesh" href="mesh.html#payton.scene.geometry.mesh.Mesh">Mesh</a></b></code>:
+<ul class="hlist">
+<li><code><a title="payton.scene.geometry.mesh.Mesh.absolute_vertices" href="base.html#payton.scene.geometry.base.Object.absolute_vertices">absolute_vertices</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_child" href="base.html#payton.scene.geometry.base.Object.add_child">add_child</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_material" href="base.html#payton.scene.geometry.base.Object.add_material">add_material</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.add_triangle" href="mesh.html#payton.scene.geometry.mesh.Mesh.add_triangle">add_triangle</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.bounding_radius" href="base.html#payton.scene.geometry.base.Object.bounding_radius">bounding_radius</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.build" href="base.html#payton.scene.geometry.base.Object.build">build</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.clear_triangles" href="mesh.html#payton.scene.geometry.mesh.Mesh.clear_triangles">clear_triangles</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.destroy" href="base.html#payton.scene.geometry.base.Object.destroy">destroy</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direct_to" href="base.html#payton.scene.geometry.base.Object.direct_to">direct_to</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.direction" href="base.html#payton.scene.geometry.base.Object.direction">direction</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.fix_normals" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_normals">fix_normals</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.fix_texcoords" href="mesh.html#payton.scene.geometry.mesh.Mesh.fix_texcoords">fix_texcoords</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.forward" href="base.html#payton.scene.geometry.base.Object.forward">forward</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.position" href="base.html#payton.scene.geometry.base.Object.position">position</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.refresh" href="base.html#payton.scene.geometry.base.Object.refresh">refresh</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.render" href="base.html#payton.scene.geometry.base.Object.render">render</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_x" href="base.html#payton.scene.geometry.base.Object.rotate_around_x">rotate_around_x</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_y" href="base.html#payton.scene.geometry.base.Object.rotate_around_y">rotate_around_y</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.rotate_around_z" href="base.html#payton.scene.geometry.base.Object.rotate_around_z">rotate_around_z</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.scale" href="mesh.html#payton.scene.geometry.mesh.Mesh.scale">scale</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.select" href="base.html#payton.scene.geometry.base.Object.select">select</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.step_back" href="base.html#payton.scene.geometry.base.Object.step_back">step_back</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.to_absolute" href="base.html#payton.scene.geometry.base.Object.to_absolute">to_absolute</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.toggle_wireframe" href="base.html#payton.scene.geometry.base.Object.toggle_wireframe">toggle_wireframe</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.track" href="base.html#payton.scene.geometry.base.Object.track">track</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.update_matrix" href="base.html#payton.scene.geometry.base.Object.update_matrix">update_matrix</a></code></li>
+<li><code><a title="payton.scene.geometry.mesh.Mesh.visible" href="base.html#payton.scene.geometry.base.Object.visible">visible</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -4729,6 +5143,7 @@ degrees of arcs)</dd>
 <li><code><a title="payton.scene.geometry.plane" href="plane.html">payton.scene.geometry.plane</a></code></li>
 <li><code><a title="payton.scene.geometry.point" href="point.html">payton.scene.geometry.point</a></code></li>
 <li><code><a title="payton.scene.geometry.sphere" href="sphere.html">payton.scene.geometry.sphere</a></code></li>
+<li><code><a title="payton.scene.geometry.wavefront" href="wavefront.html">payton.scene.geometry.wavefront</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -4830,6 +5245,15 @@ degrees of arcs)</dd>
 <h4><code><a title="payton.scene.geometry.Sphere" href="#payton.scene.geometry.Sphere">Sphere</a></code></h4>
 <ul class="">
 <li><code><a title="payton.scene.geometry.Sphere.build_sphere" href="#payton.scene.geometry.Sphere.build_sphere">build_sphere</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="payton.scene.geometry.Wavefront" href="#payton.scene.geometry.Wavefront">Wavefront</a></code></h4>
+<ul class="">
+<li><code><a title="payton.scene.geometry.Wavefront.load" href="#payton.scene.geometry.Wavefront.load">load</a></code></li>
+<li><code><a title="payton.scene.geometry.Wavefront.load_file" href="#payton.scene.geometry.Wavefront.load_file">load_file</a></code></li>
+<li><code><a title="payton.scene.geometry.Wavefront.load_material" href="#payton.scene.geometry.Wavefront.load_material">load_material</a></code></li>
+<li><code><a title="payton.scene.geometry.Wavefront.load_material_file" href="#payton.scene.geometry.Wavefront.load_material_file">load_material_file</a></code></li>
 </ul>
 </li>
 </ul>

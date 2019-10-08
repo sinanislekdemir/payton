@@ -22,6 +22,9 @@ def print_fps(period, total):
 texture_file = os.path.join(os.path.dirname(__file__), "cube.png")
 
 scene = Scene()
+scene.background.top_color = [0, 0, 0, 1]
+scene.background.bottom_color = [0, 0, 0, 1]
+
 scene.observers[0].distance_to_target(3)
 
 cube = Cube()

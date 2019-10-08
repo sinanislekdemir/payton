@@ -137,9 +137,14 @@ class Rectangle(Shape2D):
       size: Size of the rectangle.
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(
+        self,
+        position: Tuple[int, int, int],
+        size: Tuple[int, int],
+        **kwargs: Any,
+    ):
         """Initialize the rectangle"""
-        super().__init__(**kwargs)
+        super().__init__(position=position, size=size, **kwargs)
         self._init: bool = False
         self.draw()
 
@@ -176,6 +181,8 @@ class Text(Rectangle):
 
     def __init__(
         self,
+        position: Tuple[int, int, int],
+        size: Tuple[int, int],
         label: str = "lorem",
         bgcolor: Optional[List[int]] = None,
         color: Optional[List[int]] = None,
@@ -188,7 +195,7 @@ class Text(Rectangle):
           bgcolor: Background color of the text (Default, r:0, g:0, b:0, a:0)
           color: Color of the text (Default, r:0, g:0, b:0)
         """
-        super().__init__(**kwargs)
+        super().__init__(position=position, size=size, **kwargs)
         self.__label: str = label
         self.bgcolor: List[int] = [0, 0, 0, 0] if bgcolor is None else bgcolor
         self.color: List[int] = [0, 0, 0] if color is None else color

@@ -12,7 +12,6 @@
     * Light (`payton.scene.light.Light`)
     * Collision Test (`payton.scene.collision.CollisionTest`)
     * Observer (`payton.scene.observer.Observer`)
-    * Wavefront (`payton.scene.wavefront.Wavefront`)
 
 """
 import ctypes

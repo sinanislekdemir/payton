@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="Payton",
-    version="0.0.2.31",
+    version="0.0.2.32",
     author="Sinan ISLEKDEMIR",
     author_email="sinan@islekdemir.com",
     # Packages
@@ -18,12 +18,5 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     # Dependent packages (distributions)
-    install_requires=[
-        "numpy",
-        "Pillow",
-        "PyOpenGL",
-        "pyrr",
-        "PySDL2",
-        "read",
-    ],
+    install_requires=["numpy", "Pillow", "PyOpenGL", "pyrr", "PySDL2", "read"],
 )

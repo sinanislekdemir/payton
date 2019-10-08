@@ -34,6 +34,7 @@ def move_balloons(period, total):
                 status = Text(
                     label="GAME OVER!!!",
                     position=(200, 300),
+                    size=(100, 100),
                     color=(1, 1, 1),
                     bgcolor=(1, 0, 0, 1),
                 )

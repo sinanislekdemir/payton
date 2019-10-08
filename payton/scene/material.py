@@ -240,8 +240,7 @@ class Material(object):
 
         Args:
           proj: Projection materix
-          vi
-        ew: View matrix
+          view: View matrix
           model: Model matrix
           lights: Light objects in the scene
           mode: Set explicit shader mode (optional - used for vertex colors)

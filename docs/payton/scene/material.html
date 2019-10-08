@@ -274,8 +274,7 @@ class Material(object):
 
         Args:
           proj: Projection materix
-          vi
-        ew: View matrix
+          view: View matrix
           model: Model matrix
           lights: Light objects in the scene
           mode: Set explicit shader mode (optional - used for vertex colors)
@@ -538,8 +537,7 @@ object.</p>
 
         Args:
           proj: Projection materix
-          vi
-        ew: View matrix
+          view: View matrix
           model: Model matrix
           lights: Light objects in the scene
           mode: Set explicit shader mode (optional - used for vertex colors)
@@ -726,14 +724,15 @@ An active vba is required for building shader properly.</p></section>
 <dl>
 <dt><strong><code>proj</code></strong></dt>
 <dd>Projection materix</dd>
-<dt><strong><code>vi</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>ew</code></strong> :&ensp;<code>View</code> <code>matrix</code></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>model: Model matrix
-lights: Light objects in the scene
-mode: Set explicit shader mode (optional - used for vertex colors)</p></section>
+<dt><strong><code>view</code></strong></dt>
+<dd>View matrix</dd>
+<dt><strong><code>model</code></strong></dt>
+<dd>Model matrix</dd>
+<dt><strong><code>lights</code></strong></dt>
+<dd>Light objects in the scene</dd>
+<dt><strong><code>mode</code></strong></dt>
+<dd>Set explicit shader mode (optional - used for vertex colors)</dd>
+</dl></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def render(
@@ -750,8 +749,7 @@ mode: Set explicit shader mode (optional - used for vertex colors)</p></section>
 
     Args:
       proj: Projection materix
-      vi
-    ew: View matrix
+      view: View matrix
       model: Model matrix
       lights: Light objects in the scene
       mode: Set explicit shader mode (optional - used for vertex colors)

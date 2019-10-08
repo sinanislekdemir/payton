@@ -2,7 +2,7 @@ import os
 from payton.scene import Scene
 from payton.math.vector import distance
 from payton.scene.geometry import Plane
-from payton.scene.wavefront import Wavefront
+from payton.scene.geometry import Wavefront
 
 scene = Scene(width=1600, height=800)
 target = [0, 0, 0]

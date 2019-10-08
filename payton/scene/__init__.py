@@ -12,7 +12,6 @@
     * Lighting (`payton.scene.light`)
     * Collision Test (`payton.scene.collision`)
     * Observer (`payton.scene.observer`)
-    * Wavefront Support (`payton.scene.wavefront`)
     * GUI (`payton.scene.gui`)
     * Material (`payton.scene.material`)
       * Shader (`payton.scene.shader`)
