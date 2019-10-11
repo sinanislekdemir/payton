@@ -2,14 +2,14 @@
 # Wavefront Object File Support
 # Only support ascii obj files and without material support.
 # So pretty limited.
-
 import logging
 import os
+from shutil import copyfile
+from typing import Any, List
 
-from typing import Any, List, Optional
-from payton.scene.types import VList, IList
 from payton.scene.geometry import Mesh
-from payton.scene.material import Material, DEFAULT
+from payton.scene.material import DEFAULT, Material
+from payton.scene.types import IList, VList
 
 
 class Wavefront(Mesh):
@@ -54,6 +54,8 @@ class Wavefront(Mesh):
             parts = line.split(" ")
 
             if parts[0] == "newmtl":
+                if material_name != DEFAULT:
+                    self.add_material(material_name, material)
                 material = Material()
                 material_name = parts[1]
 
@@ -66,13 +68,12 @@ class Wavefront(Mesh):
                 ]
 
             if parts[0] == "map_Kd":
-                material.texture = f"{self.path}/{parts[1]}"
+                if parts[1][0] == "/":
+                    material.texture = parts[1]
+                else:
+                    material.texture = f"{self.path}/{parts[1]}"
 
-            if parts[0] == "" and material_name != DEFAULT:
-                self.add_material(material_name, material)
-
-        if material_name != DEFAULT:
-            self.add_material(material_name, material)
+        self.add_material(material_name, material)
 
     def load_material_file(self, filename: str) -> bool:
         if not os.path.isfile(filename):
@@ -179,10 +180,10 @@ class Wavefront(Mesh):
             self.fix_normals()
 
 
-def export(mesh: Mesh, **kwargs: Any) -> Optional[str]:
+def export(mesh: Mesh, filename: str, name: str = "object"):
     """Export mesh as wavefront object string
-
-    @TODO Add material export support.
+    @NOTE: Along with your object file, this function will create a separate
+           .mtl file for the object material.
 
     Basic usage:
 
@@ -190,21 +191,23 @@ def export(mesh: Mesh, **kwargs: Any) -> Optional[str]:
         from payton.scene.wavefront import export
 
         cube = Cube()
-        f = open('cube.obj', 'w')
-        f.write(export(cube, name='Cube'))
-        f.close()
-
+        export(cube, "cube.obj")
 
     Args:
       mesh: An instance of `payton.scene.geometry.mesh.Mesh`
+      filename: Filename to write output file.
       name (optional): Name of the object, otherwise `object` will be used
     """
     if not isinstance(mesh, Mesh):
         logging.exception("Object is not an instance of Mesh")
         return None
+    mat_filename = filename.replace(".obj", "") + ".mtl"
 
-    name = kwargs.get("name", "object")
-    output = ["# Payton Wavefront OBJ Exporter", f"o {name}"]
+    output = [
+        "# Payton Wavefront OBJ Exporter",
+        f"mtllib {mat_filename}",
+        f"o {name}",
+    ]
     for v in mesh._vertices:
         output.append("v {}".format(" ".join([str(x) for x in v])))
 
@@ -216,15 +219,38 @@ def export(mesh: Mesh, **kwargs: Any) -> Optional[str]:
 
     len_texcoords = len(mesh._texcoords) + 1
     len_normals = len(mesh._normals) + 1
-    for f in mesh._indices:
-        f = [x + 1 for x in f]
-        t0 = str(f[0]) if len_texcoords > f[0] else ""
-        n0 = str(f[0]) if len_normals > f[0] else ""
 
-        t1 = str(f[1]) if len_texcoords > f[1] else ""
-        n1 = str(f[1]) if len_normals > f[1] else ""
+    material_data = ["# Payton Wavefront OBJ Expoerter"]
+    for name in mesh.materials:
+        if len(mesh.materials[name]._indices) == 0:
+            continue
+        output.append(f"usemtl {name}")
+        output.append("s off")
+        material = mesh.materials[name]
+        for indice in material._indices:
+            f = [x + 1 for x in indice]
+            t0 = str(f[0]) if len_texcoords > f[0] else ""
+            n0 = str(f[0]) if len_normals > f[0] else ""
 
-        t2 = str(f[2]) if len_texcoords > f[2] else ""
-        n2 = str(f[2]) if len_normals > f[2] else ""
-        output.append(f"f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}")
-    return "\n".join(output)
+            t1 = str(f[1]) if len_texcoords > f[1] else ""
+            n1 = str(f[1]) if len_normals > f[1] else ""
+
+            t2 = str(f[2]) if len_texcoords > f[2] else ""
+            n2 = str(f[2]) if len_normals > f[2] else ""
+            output.append(
+                f"f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}"
+            )
+        material_data.append(f"newmtl {name}")
+        material_data.append(
+            f"Kd {material.color[0]} {material.color[1]} {material.color[2]}"
+        )
+        if material.texture != "":
+            base_name = os.path.basename(material.texture)
+            path = os.path.join(
+                os.path.abspath(os.path.dirname(filename)), base_name
+            )
+            copyfile(material.texture, path)
+            material_data.append(f"map_Kd {base_name}")
+
+    open(filename, "w").write("\n".join(output))
+    open(mat_filename, "w").write("\n".join(material_data))
