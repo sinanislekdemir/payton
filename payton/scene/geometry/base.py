@@ -89,7 +89,7 @@ class Object(object):
         name="",
         visible=True,
         track_motion=False,
-        **kwargs: Any,
+        **kwargs: Dict[str, Any],
     ) -> None:
         """
         Initialize the basic object properties.
@@ -379,7 +379,7 @@ class Object(object):
 
         # When there is a parent object, child object follows parents matrix
         if parent_matrix is not None and len(parent_matrix) > 0:
-            self._model_matrix = parent_matrix.dot(self._model_matrix)
+            self._model_matrix = self._model_matrix.dot(parent_matrix)
 
     def track(self) -> bool:
         """
