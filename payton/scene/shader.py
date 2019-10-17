@@ -133,7 +133,7 @@ void main()
         gl_Position = (projection * (vec4(position, 1.0f)
                         + vec4(model[3].xyz, 0.0f)));
     }
-    gl_PointSize = 2.0;
+    gl_PointSize = 5.0;
 
     tex_coords = texCoords;
     frag_color = colors;

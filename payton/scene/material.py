@@ -46,7 +46,7 @@ from OpenGL.GL import (
     glGenerateMipmap,
 )
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Dict
 
 from payton.scene.types import IList
 from payton.scene.shader import Shader
@@ -156,6 +156,25 @@ class Material(object):
 
         self._initialized: bool = False
         self._texture: Optional[int] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "color": self.color,
+            "display": self.display,
+            "texture": self.texture,
+            "opacity": self.opacity,
+            "indices": self._indices,
+        }
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Material":
+        res = cls()
+        res.color = d["color"]
+        res.display = d["display"]
+        res.texture = d["texture"]
+        res.opacity = d["opacity"]
+        res._indices = d["indices"]
+        return res
 
     @property
     def shader(self) -> Shader:

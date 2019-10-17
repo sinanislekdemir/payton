@@ -63,6 +63,7 @@ class Sphere(Mesh):
         indices = 0
         u_step = 1.0 / self.meridians
         v_step = 1.0 / self.parallels
+        self.clear_triangles()
 
         for i, j in product(range(self.parallels), range(self.meridians)):
             x1 = r * math.sin(step_height * i) * math.cos(step_angle * j)

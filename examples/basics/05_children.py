@@ -11,12 +11,14 @@ def motion(period, total):
     px = math.cos(math.radians(angle)) * 8
     py = math.sin(math.radians(angle)) * 8
     space.objects["nucleus"].children["particle"].position = [px, py, 0]
+    space.objects["nucleus"].rotate_around_z(math.radians(1.0))
 
     sx = math.cos(math.radians(angle * 10)) * 2  # 10 times faster
     sy = math.sin(math.radians(angle * 10)) * 2
     space.objects["nucleus"].children["particle"].children[
         "sub_particle"
     ].position = [sx, sy, 0]
+
     space.lights[0].position = [px, py, 0]
     space.lights[1].position = [-px, -py, 0]
 

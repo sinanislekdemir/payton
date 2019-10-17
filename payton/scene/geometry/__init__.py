@@ -21,6 +21,7 @@ from payton.scene.geometry.sphere import Sphere
 from payton.scene.geometry.point import PointCloud
 from payton.scene.geometry.md2 import MD2
 from payton.scene.geometry.wavefront import Wavefront
+from payton.scene.geometry.ragdoll import RagDoll, Joint
 
 
 __all__ = [
@@ -35,4 +36,6 @@ __all__ = [
     "PointCloud",
     "MD2",
     "Wavefront",
+    "RagDoll",
+    "Joint",
 ]

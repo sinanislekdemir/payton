@@ -1,8 +1,9 @@
 # pylama:ignore=C901
 import logging
-from typing import Any, Optional
+import json
+from typing import Any, Optional, Dict, cast
 
-from payton.scene.material import DEFAULT
+from payton.scene.material import DEFAULT, Material
 from payton.scene.geometry import Object
 from payton.math.vector import plane_normal, vector_angle
 from payton.scene.types import VList
@@ -40,6 +41,47 @@ class Mesh(Object):
             material._indices = []
 
         self.refresh()
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "vertices": self._vertices,
+            "normals": self._normals,
+            "texcoords": self._texcoords,
+            "matrix": self.matrix,
+            "materials": {
+                mat: self.materials[mat].to_dict() for mat in self.materials
+            },
+            "children": {
+                n: cast(Mesh, self.children[n]).to_dict()
+                for n in self.children
+                if isinstance(self.children[n], Mesh)
+            },
+        }
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Mesh":
+        res = cls()
+        res._vertices = d["vertices"]
+        res._normals = d["normals"]
+        res._texcoords = d["texcoords"]
+        res.matrix = d["matrix"]
+        res.materials = {
+            n: Material.from_dict(d["materials"][n]) for n in d["materials"]
+        }
+
+        res.children = {
+            n: cls.from_dict(d["children"][n]) for n in d["children"]
+        }
+
+        return res
+
+    def to_json(self, **kwargs) -> str:
+        return json.dumps(self.to_dict(), **kwargs)
+
+    @classmethod
+    def from_json(cls, jstr: str) -> "Mesh":
+        data = json.loads(jstr)
+        return cls.from_dict(data)
 
     def fix_normals(self) -> None:
         """Try to re-calculate Mesh normals, if your object has already perfect
