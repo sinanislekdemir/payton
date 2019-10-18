@@ -7,38 +7,37 @@ the origin of the scene (0, 0, 0) and can not be moved.
 Grid size can be adjusted. Grid is a perfect way to visually see the movement
 and positions of objects in space.
 """
-import numpy as np  # type: ignore
 import ctypes
-
 from typing import Any, List, Optional
 
+import numpy as np  # type: ignore
 from OpenGL.GL import (
-    glDeleteVertexArrays,
-    glIsVertexArray,
-    glPolygonMode,
+    GL_ARRAY_BUFFER,
+    GL_ELEMENT_ARRAY_BUFFER,
+    GL_FILL,
+    GL_FLOAT,
     GL_FRONT_AND_BACK,
     GL_LINE,
-    glDrawElements,
-    glBindVertexArray,
-    GL_FILL,
-    glBindBuffer,
-    glBufferData,
-    glGenVertexArrays,
-    glGenBuffers,
-    GL_ARRAY_BUFFER,
-    glEnableVertexAttribArray,
-    glVertexAttribPointer,
-    GL_FLOAT,
-    GL_STATIC_DRAW,
-    GL_ELEMENT_ARRAY_BUFFER,
     GL_LINES,
+    GL_STATIC_DRAW,
     GL_UNSIGNED_INT,
+    glBindBuffer,
+    glBindVertexArray,
+    glBufferData,
     glDeleteBuffers,
+    glDeleteVertexArrays,
+    glDrawElements,
+    glEnableVertexAttribArray,
+    glGenBuffers,
+    glGenVertexArrays,
+    glIsVertexArray,
+    glPolygonMode,
+    glVertexAttribPointer,
 )
 
-from payton.scene.material import Material
-from payton.scene.light import Light
 from payton.scene.geometry import Line
+from payton.scene.light import Light
+from payton.scene.material import Material
 
 
 class Grid(object):

@@ -1,16 +1,16 @@
 """Observer module
 """
 
-import math
-import pyrr
-import numpy as np  # type: ignore
 import logging
+import math
+from typing import Any, List, Optional, Tuple, Type
 
-from typing import Any, List, Optional, Type, Tuple
+import numpy as np  # type: ignore
+import pyrr
 
-from payton.scene.geometry import Object
-from payton.math.vector import sub_vector, invert_vector
 from payton.math.geometry import raycast_plane_intersect
+from payton.math.vector import invert_vector, sub_vector
+from payton.scene.geometry import Object
 
 BUTTON_LEFT = 1
 BUTTON_RIGHT = 2

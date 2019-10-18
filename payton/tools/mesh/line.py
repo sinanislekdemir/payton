@@ -1,7 +1,8 @@
 """Payton Line to Mesh module"""
 from typing import List
+
 from payton.math.matrix import create_rotation_matrix_raw
-from payton.math.vector import scale_vector, add_vectors, vector_transform
+from payton.math.vector import add_vectors, scale_vector, vector_transform
 from payton.scene.geometry import Line, Mesh
 
 

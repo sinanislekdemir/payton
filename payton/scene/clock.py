@@ -29,7 +29,7 @@ Example usage:
 
 import threading
 import time
-from typing import Callable, Any
+from typing import Any, Callable
 
 # SAFE_ASSUMPTION constant is a wait time between each clock cycle.
 SAFE_ASSUMPTION = 0.01

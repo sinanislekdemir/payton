@@ -3,18 +3,17 @@ ID Software Quake 2 Model File
 Some parts of this file is based on the original work from:
 https://github.com/adamlwgriffiths/PyMesh/tree/master/pymesh/md2
 """
-import os
-import time
-import numpy as np  # type: ignore
-import struct
 import logging
+import os
+import struct
+import time
+from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional, cast
 
-from typing import BinaryIO, Any, Optional, List, NamedTuple, Dict, cast, Type
+import numpy as np  # type: ignore
 
+from payton.math.vector import plane_normal
 from payton.scene.geometry.mesh import Mesh, Object
 from payton.scene.light import Light
-from payton.math.vector import plane_normal
-
 
 _SIGNATURE = "IDP2"
 _VERSION = 8
@@ -262,7 +261,7 @@ class MD2(Mesh):
         mesh.material.texture = os.path.join(
             self._path, os.path.basename(self.skins[0])
         )
-        self.add_child(name, cast(Type[Object], mesh))
+        self.add_child(name, mesh)
 
     def read_header(self, f: BinaryIO):
         self.header = MD2Header._make(read_block(f, "< 4s16l", 1)[0])

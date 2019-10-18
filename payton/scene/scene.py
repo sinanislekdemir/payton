@@ -15,45 +15,44 @@
 
 """
 import ctypes
-import sdl2
 import logging
 import time
-import numpy as np  # type: ignore
-from typing import Dict, Any, List, Callable, TypeVar, Optional
+from typing import Any, Callable, Dict, List, Optional, TypeVar
 
+import numpy as np  # type: ignore
+import sdl2
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
-    glEnable,
     GL_DEPTH_TEST,
     GL_LESS,
-    glGenVertexArrays,
+    GL_TRIANGLES,
     glBindVertexArray,
+    glClear,
+    glDepthFunc,
     glDisable,
     glDrawArrays,
-    glClear,
+    glEnable,
+    glGenVertexArrays,
     glViewport,
-    glDepthFunc,
-    GL_TRIANGLES,
 )
 
 from payton.math.geometry import raycast_plane_intersect
-from payton.scene.controller import Controller
-from payton.scene.grid import Grid
-from payton.scene.geometry import Object
-from payton.scene.light import Light
-from payton.scene.observer import Observer
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
+from payton.scene.controller import Controller
+from payton.scene.geometry import Object
+from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
+from payton.scene.light import Light
+from payton.scene.observer import Observer
 from payton.scene.receiver import Receiver
-from payton.scene.types import CPlane
-
 from payton.scene.shader import (
     Shader,
     background_fragment_shader,
     background_vertex_shader,
 )
+from payton.scene.types import CPlane
 
 S = TypeVar("S", bound="Scene")
 

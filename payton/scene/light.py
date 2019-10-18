@@ -3,8 +3,9 @@
 Support for scene lights.
 """
 
-import numpy as np  # type: ignore
 from typing import Any, List, Optional
+
+import numpy as np  # type: ignore
 
 
 class Light(object):

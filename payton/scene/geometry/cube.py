@@ -1,4 +1,4 @@
-from typing import Any, Optional, List
+from typing import Any, List, Optional
 
 from payton.math.vector import min_max
 from payton.scene.geometry import Mesh

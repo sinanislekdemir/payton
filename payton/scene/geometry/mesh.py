@@ -1,11 +1,11 @@
 # pylama:ignore=C901
-import logging
 import json
-from typing import Any, Optional, Dict, cast
+import logging
+from typing import Any, Dict, Optional, cast
 
-from payton.scene.material import DEFAULT, Material
-from payton.scene.geometry import Object
 from payton.math.vector import plane_normal, vector_angle
+from payton.scene.geometry import Object
+from payton.scene.material import DEFAULT, Material
 from payton.scene.types import VList
 
 

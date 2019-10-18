@@ -1,62 +1,62 @@
 # pylama:ignore=C901
-import numpy as np  # type: ignore
 import ctypes
 import logging
-from typing import Union, List, Dict, Type, Any, Iterator, Optional
 from copy import deepcopy
+from typing import Any, Dict, Iterator, List, Optional, Type, Union
 
+import numpy as np  # type: ignore
 from OpenGL.GL import (
-    glDeleteVertexArrays,
-    glIsVertexArray,
-    glBindVertexArray,
-    GL_LINE,
-    GL_FILL,
-    GL_TRIANGLES,
-    glPolygonMode,
-    GL_LINE_STRIP,
-    glGenVertexArrays,
-    glGenBuffers,
     GL_ARRAY_BUFFER,
-    glEnableVertexAttribArray,
-    glVertexAttribPointer,
-    GL_FLOAT,
-    GL_STATIC_DRAW,
     GL_DYNAMIC_DRAW,
-    glBindBuffer,
-    glBufferData,
-    glBufferSubData,
     GL_ELEMENT_ARRAY_BUFFER,
-    glDeleteBuffers,
+    GL_FILL,
+    GL_FLOAT,
+    GL_FRONT_AND_BACK,
+    GL_LINE,
+    GL_LINE_STRIP,
     GL_POINT,
     GL_POINTS,
-    GL_FRONT_AND_BACK,
-    glDrawElements,
+    GL_STATIC_DRAW,
+    GL_TRIANGLES,
     GL_UNSIGNED_INT,
+    glBindBuffer,
+    glBindVertexArray,
+    glBufferData,
+    glBufferSubData,
+    glDeleteBuffers,
+    glDeleteVertexArrays,
+    glDrawElements,
+    glEnableVertexAttribArray,
+    glGenBuffers,
+    glGenVertexArrays,
+    glIsVertexArray,
+    glPolygonMode,
+    glVertexAttribPointer,
 )
 
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.vector import (
-    vector_transform,
-    distance,
-    scale_vector,
-    add_vectors,
-    sub_vector,
-    cross_product,
-    normalize_vector,
-)
 from payton.math.matrix import create_rotation_matrix
+from payton.math.vector import (
+    add_vectors,
+    cross_product,
+    distance,
+    normalize_vector,
+    scale_vector,
+    sub_vector,
+    vector_transform,
+)
+from payton.scene.light import Light
 from payton.scene.material import (
-    Material,
-    SOLID,
-    POINTS,
-    WIREFRAME,
     DEFAULT,
-    NO_VERTEX_ARRAY,
     NO_INDICE,
+    NO_VERTEX_ARRAY,
+    POINTS,
+    SOLID,
+    WIREFRAME,
+    Material,
 )
 from payton.scene.shader import Shader
-from payton.scene.light import Light
-from payton.scene.types import VList, IList
+from payton.scene.types import IList, VList
 
 
 class Object(object):
@@ -541,7 +541,7 @@ class Object(object):
         self.matrix[3][1] = pos[1]
         self.matrix[3][2] = pos[2]
 
-    def add_child(self, name: str, obj: Type["Object"]) -> bool:
+    def add_child(self, name: str, obj: "Object") -> bool:
         """Add child to this object.
 
         In a basic example:

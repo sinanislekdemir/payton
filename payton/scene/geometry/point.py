@@ -2,8 +2,8 @@ import logging
 from typing import Any, Optional
 
 from payton.scene.geometry import Object
+from payton.scene.material import DEFAULT, POINTS
 from payton.scene.types import VList
-from payton.scene.material import POINTS, DEFAULT
 
 
 class PointCloud(Object):

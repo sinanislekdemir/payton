@@ -29,9 +29,11 @@ If you want to create your own keyboard keys or mouse behaviour:
 - L_SHIFT + L_CTRL + Mouse(Left) Drag: Panning
 
 """
-import sdl2
 import logging
 from typing import Any
+
+import sdl2
+
 from payton.scene.observer import BUTTON_LEFT, BUTTON_RIGHT
 
 

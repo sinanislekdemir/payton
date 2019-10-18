@@ -1,7 +1,7 @@
 from copy import deepcopy
 
+from payton.math.vector import distance, mid_point
 from payton.scene.geometry import Mesh
-from payton.math.vector import mid_point, distance
 
 
 def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:

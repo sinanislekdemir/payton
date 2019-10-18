@@ -1,10 +1,10 @@
 import math
-from typing import Any
 from itertools import product
+from typing import Any
 
-from payton.scene.material import DEFAULT
-from payton.scene.geometry import Mesh
 from payton.math.vector import plane_normal
+from payton.scene.geometry import Mesh
+from payton.scene.material import DEFAULT
 
 
 class Sphere(Mesh):

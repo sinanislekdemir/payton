@@ -1,5 +1,6 @@
 from itertools import product
 from typing import Any, List
+
 from payton.scene.geometry import Mesh
 from payton.scene.material import SOLID
 

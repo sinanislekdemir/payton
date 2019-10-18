@@ -12,45 +12,44 @@ There are also predefined colors in this module.
   * Shader (`payton.scene.shader`)
 
 """
-import os
 import copy
-import numpy as np  # type: ignore
-from PIL import Image  # type: ignore
+import os
+from typing import Any, Dict, List, Optional
 
+import numpy as np  # type: ignore
 from OpenGL.GL import (
+    GL_BLEND,
+    GL_LINEAR,
+    GL_LINEAR_MIPMAP_LINEAR,
+    GL_ONE_MINUS_SRC_ALPHA,
+    GL_REPEAT,
+    GL_RGB,
+    GL_RGBA,
+    GL_SRC_ALPHA,
+    GL_TEXTURE0,
+    GL_TEXTURE_2D,
+    GL_TEXTURE_MAG_FILTER,
+    GL_TEXTURE_MIN_FILTER,
+    GL_TEXTURE_WRAP_S,
+    GL_TEXTURE_WRAP_T,
+    GL_UNPACK_ALIGNMENT,
+    GL_UNSIGNED_BYTE,
+    glActiveTexture,
+    glBindTexture,
+    glBlendFunc,
+    glDisable,
+    glEnable,
+    glGenerateMipmap,
     glGenTextures,
     glPixelStorei,
-    GL_UNPACK_ALIGNMENT,
-    glBindTexture,
-    GL_TEXTURE_2D,
-    glTexParameterf,
-    GL_TEXTURE_MAG_FILTER,
-    GL_LINEAR,
-    GL_TEXTURE_MIN_FILTER,
-    GL_LINEAR_MIPMAP_LINEAR,
-    GL_TEXTURE_WRAP_S,
-    GL_REPEAT,
-    GL_TEXTURE_WRAP_T,
     glTexImage2D,
-    glActiveTexture,
-    glEnable,
-    glDisable,
-    GL_BLEND,
-    glBlendFunc,
-    GL_SRC_ALPHA,
-    GL_ONE_MINUS_SRC_ALPHA,
-    GL_TEXTURE0,
-    GL_RGBA,
-    GL_RGB,
-    GL_UNSIGNED_BYTE,
-    glGenerateMipmap,
+    glTexParameterf,
 )
+from PIL import Image  # type: ignore
 
-from typing import Any, List, Optional, Dict
-
-from payton.scene.types import IList
-from payton.scene.shader import Shader
 from payton.scene.light import Light
+from payton.scene.shader import Shader
+from payton.scene.types import IList
 
 SOLID = 0  # type: int
 WIREFRAME = 1  # type: int

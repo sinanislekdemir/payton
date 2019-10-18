@@ -1,4 +1,4 @@
-from typing import List, Tuple, Callable, Any
+from typing import Any, Callable, List, Tuple
 
 VList = List[List[float]]
 IList = List[List[int]]

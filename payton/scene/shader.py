@@ -16,29 +16,27 @@ essential to Payton Library. That is all.
 """
 
 import ctypes
-import numpy as np  # type: ignore
 import logging
+from typing import Any, Dict, List, Optional
 
-from typing import Any, List, Dict, Optional
-
+import numpy as np  # type: ignore
 from OpenGL.GL import (
-    GL_VERTEX_SHADER,
-    GL_FRAGMENT_SHADER,
-    glEnable,
-    glDisable,
-    GL_PROGRAM_POINT_SIZE,
-    glGetUniformLocation,
-    glUseProgram,
-    GL_TRUE,
     GL_FALSE,
-    glUniformMatrix4fv,
-    glUniform1i,
+    GL_FRAGMENT_SHADER,
+    GL_PROGRAM_POINT_SIZE,
+    GL_TRUE,
+    GL_VERTEX_SHADER,
+    glDisable,
+    glEnable,
+    glGetUniformLocation,
     glUniform1f,
+    glUniform1i,
     glUniform3fv,
     glUniform4fv,
+    glUniformMatrix4fv,
+    glUseProgram,
+    shaders,
 )
-
-from OpenGL.GL import shaders
 
 default_fragment_shader = """
 #version 330 core

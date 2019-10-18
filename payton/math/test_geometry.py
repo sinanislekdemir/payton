@@ -1,10 +1,12 @@
 import unittest
+
 import numpy as np  # type: ignore
+
 from payton.math.geometry import (
-    raycast_triangle_intersect,
     distance,
     distance2,
     point_project,
+    raycast_triangle_intersect,
 )
 
 

@@ -2,7 +2,7 @@
 import math
 from typing import Any, Dict
 
-from payton.scene.geometry import Line, Sphere, Cube
+from payton.scene.geometry import Cube, Line, Sphere
 from payton.scene.material import WIREFRAME
 
 R_COLLAR = "right_collar"
@@ -41,9 +41,11 @@ class Bone(Line):
         **kwargs,
     ):
         super().__init__(**kwargs)
-        self.add_child(root_joint_name, Joint(name=root_joint_name))
+        root_joint = Joint(name=root_joint_name)
+        end_joint = Joint(name=end_joint_name)
+        self.add_child(root_joint_name, root_joint)
         self.root = self.children[root_joint_name]
-        self.root.add_child(end_joint_name, Joint(name=end_joint_name))
+        self.root.add_child(end_joint_name, end_joint)
         self.end = self.root.children[end_joint_name]
         self.end.position = [0.0, 0.0, length]
 

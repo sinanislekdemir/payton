@@ -1,9 +1,11 @@
-import numpy as np  # type: ignore
 import math
 from copy import deepcopy
 from functools import lru_cache
-from payton.math.vector import normalize_vector
+
+import numpy as np  # type: ignore
+
 from payton.math.types import GArray
+from payton.math.vector import normalize_vector
 
 IDENTITY_MATRIX = [
     [1.0, 0.0, 0.0, 0.0],

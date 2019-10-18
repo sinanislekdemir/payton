@@ -9,16 +9,15 @@ Example code:
     .. include:: ../../examples/basics/15_gui.py
 
 """
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
+
 import numpy as np  # type: ignore
-from typing import Any, Tuple, Callable, TypeVar, List, Optional, Dict, cast
+from OpenGL.GL import GL_DEPTH_TEST, glDisable, glEnable
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
 
-from OpenGL.GL import glEnable, GL_DEPTH_TEST, glDisable
-
+from payton.math.matrix import ortho
 from payton.scene.geometry import Mesh, Object
 from payton.scene.light import Light
-from payton.math.matrix import ortho
-
 
 S2 = TypeVar("S2", bound="Shape2D")
 

@@ -8,10 +8,10 @@ Example collision test:
 """
 import logging
 from itertools import combinations
-from typing import Any, List, Type, Callable, Optional
+from typing import Any, Callable, List, Optional, Type
 
-from payton.scene.geometry import Mesh, Sphere, Object
 from payton.math.geometry import distance
+from payton.scene.geometry import Mesh, Object, Sphere
 
 
 class Collision(object):
