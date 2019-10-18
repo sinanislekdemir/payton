@@ -10,7 +10,7 @@ import pyrr
 
 from payton.math.geometry import raycast_plane_intersect
 from payton.math.vector import invert_vector, sub_vector
-from payton.scene.geometry import Object
+from payton.scene.geometry.base import Object
 
 BUTTON_LEFT = 1
 BUTTON_RIGHT = 2

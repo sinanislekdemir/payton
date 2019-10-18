@@ -7,7 +7,7 @@ import os
 from shutil import copyfile
 from typing import Any, List
 
-from payton.scene.geometry import Mesh
+from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT, Material
 from payton.scene.types import IList, VList
 

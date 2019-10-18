@@ -2,7 +2,7 @@
 import ctypes
 import logging
 from copy import deepcopy
-from typing import Any, Dict, Iterator, List, Optional, Type, Union
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 import numpy as np  # type: ignore
 from OpenGL.GL import (

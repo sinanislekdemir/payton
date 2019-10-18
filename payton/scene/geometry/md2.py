@@ -7,12 +7,12 @@ import logging
 import os
 import struct
 import time
-from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional, cast
+from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional
 
 import numpy as np  # type: ignore
 
 from payton.math.vector import plane_normal
-from payton.scene.geometry.mesh import Mesh, Object
+from payton.scene.geometry.mesh import Mesh
 from payton.scene.light import Light
 
 _SIGNATURE = "IDP2"

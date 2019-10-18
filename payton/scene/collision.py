@@ -11,7 +11,9 @@ from itertools import combinations
 from typing import Any, Callable, List, Optional, Type
 
 from payton.math.geometry import distance
-from payton.scene.geometry import Mesh, Object, Sphere
+from payton.scene.geometry.base import Object
+from payton.scene.geometry.mesh import Mesh
+from payton.scene.geometry.sphere import Sphere
 
 
 class Collision(object):

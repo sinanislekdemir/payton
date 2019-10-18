@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 
 from payton.math.vector import min_max
-from payton.scene.geometry import Mesh
+from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT
 
 

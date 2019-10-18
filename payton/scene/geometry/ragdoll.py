@@ -2,7 +2,9 @@
 import math
 from typing import Any, Dict
 
-from payton.scene.geometry import Cube, Line, Sphere
+from payton.scene.geometry.base import Line
+from payton.scene.geometry.cube import Cube
+from payton.scene.geometry.sphere import Sphere
 from payton.scene.material import WIREFRAME
 
 R_COLLAR = "right_collar"

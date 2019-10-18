@@ -16,7 +16,8 @@ from OpenGL.GL import GL_DEPTH_TEST, glDisable, glEnable
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
 
 from payton.math.matrix import ortho
-from payton.scene.geometry import Mesh, Object
+from payton.scene.geometry.base import Object
+from payton.scene.geometry.mesh import Mesh
 from payton.scene.light import Light
 
 S2 = TypeVar("S2", bound="Shape2D")

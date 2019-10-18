@@ -35,7 +35,7 @@ from OpenGL.GL import (
     glVertexAttribPointer,
 )
 
-from payton.scene.geometry import Line
+from payton.scene.geometry.base import Line
 from payton.scene.light import Light
 from payton.scene.material import Material
 

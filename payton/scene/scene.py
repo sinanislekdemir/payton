@@ -41,7 +41,7 @@ from payton.math.geometry import raycast_plane_intersect
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
 from payton.scene.controller import Controller
-from payton.scene.geometry import Object
+from payton.scene.geometry.base import Object
 from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
 from payton.scene.light import Light

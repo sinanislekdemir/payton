@@ -4,7 +4,7 @@ import logging
 from typing import Any, Dict, Optional, cast
 
 from payton.math.vector import plane_normal, vector_angle
-from payton.scene.geometry import Object
+from payton.scene.geometry.base import Object
 from payton.scene.material import DEFAULT, Material
 from payton.scene.types import VList
 

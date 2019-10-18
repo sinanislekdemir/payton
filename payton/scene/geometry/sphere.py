@@ -3,7 +3,7 @@ from itertools import product
 from typing import Any
 
 from payton.math.vector import plane_normal
-from payton.scene.geometry import Mesh
+from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT
 
 
