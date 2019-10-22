@@ -72,6 +72,9 @@ a newbie can kick-start it just by following the tutorials.
   * Subdivide Mesh
 * Extensive examples for every feature and more.
 
+
+Also checkout the examples from [https://github.com/sinanislekdemir/payton/tree/master/examples](https://github.com/sinanislekdemir/payton/tree/master/examples)
+
 More information can be found in documents.
 
 Click image below for Youtube example:
@@ -90,7 +93,6 @@ Then go ahead and create a `test.py`
     a = Scene()
     a.run()
     
-And thats all!
 
 ### Default key mapping:
 
