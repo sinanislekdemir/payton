@@ -1,7 +1,8 @@
-numpy==1.16.2
-pdoc3==0.5.3
-Pillow==5.4.1
-PyOpenGL==3.1.0
-pyrr==0.10.2
+multipledispatch==0.6.0
+numpy==1.17.3
+Pillow==6.2.1
+PyOpenGL==3.1.3b2
+pyrr==0.10.3
 PySDL2==0.9.6
-read==2018.11.20
+read==2019.4.13
+six==1.12.0
