@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>payton.tools.mesh API documentation</title>
-    <meta name="description" content="Payton Mesh Tools" />
+    <title>payton.tools.mesh.line API documentation</title>
+    <meta name="description" content="Payton Line to Mesh module" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1044,20 +1044,14 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#payton.tools.mesh.extrude_line">extrude_line</a></li>
-    <li class="mono"><a href="#payton.tools.mesh.lines_to_mesh">lines_to_mesh</a></li>
-    <li class="mono"><a href="#payton.tools.mesh.rotate_line">rotate_line</a></li>
+    <li class="mono"><a href="#payton.tools.mesh.line.extrude_line">extrude_line</a></li>
+    <li class="mono"><a href="#payton.tools.mesh.line.lines_to_mesh">lines_to_mesh</a></li>
+    <li class="mono"><a href="#payton.tools.mesh.line.rotate_line">rotate_line</a></li>
   </ul>
 
     </li>
 
 
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="geometry.m.html">payton.tools.mesh.geometry</a></li>
-        <li class="mono"><a href="line.m.html">payton.tools.mesh.line</a></li>
-      </ul>
-    </li>
     </ul>
   </div>
 
@@ -1069,16 +1063,128 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">payton.tools.mesh</span> module</h1>
-  <p>Payton Mesh Tools</p>
+  <h1 class="title"><span class="name">payton.tools.mesh.line</span> module</h1>
+  <p>Payton Line to Mesh module</p>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.tools.mesh', this);">Show source &equiv;</a></p>
-  <div id="source-payton.tools.mesh" class="source">
-    <div class="codehilite"><pre><span></span><span class="c1"># pylama:ignore=W</span>
-<span class="sd">&quot;&quot;&quot;Payton Mesh Tools&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">payton.tools.mesh.line</span> <span class="kn">import</span> <span class="n">extrude_line</span><span class="p">,</span> <span class="n">lines_to_mesh</span><span class="p">,</span> <span class="n">rotate_line</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.tools.mesh.line', this);">Show source &equiv;</a></p>
+  <div id="source-payton.tools.mesh.line" class="source">
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;Payton Line to Mesh module&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;extrude_line&quot;</span><span class="p">,</span> <span class="s2">&quot;rotate_line&quot;</span><span class="p">,</span> <span class="s2">&quot;lines_to_mesh&quot;</span><span class="p">]</span>
+<span class="kn">from</span> <span class="nn">payton.math.matrix</span> <span class="kn">import</span> <span class="n">create_rotation_matrix_raw</span>
+<span class="kn">from</span> <span class="nn">payton.math.vector</span> <span class="kn">import</span> <span class="n">add_vectors</span><span class="p">,</span> <span class="n">scale_vector</span><span class="p">,</span> <span class="n">vector_transform</span>
+<span class="kn">from</span> <span class="nn">payton.scene.geometry</span> <span class="kn">import</span> <span class="n">Line</span><span class="p">,</span> <span class="n">Mesh</span>
+
+
+<span class="k">def</span> <span class="nf">extrude_line</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="n">Line</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">distance</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mesh</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Construct a mesh by extruding a line</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      line: Line to extrude</span>
+<span class="sd">      direction: Direction vector to apply extrusion</span>
+<span class="sd">      distance: Distance to extrude</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Mesh</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">_vertices</span>
+    <span class="n">diff_vector</span> <span class="o">=</span> <span class="n">scale_vector</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+    <span class="n">mirror_vertices</span> <span class="o">=</span> <span class="p">[</span><span class="n">add_vectors</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">diff_vector</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">]</span>
+
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">add_triangle</span><span class="p">(</span>
+            <span class="n">vertices</span><span class="o">=</span><span class="p">[</span><span class="n">vertices</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vertices</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">mirror_vertices</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span>
+            <span class="n">texcoords</span><span class="o">=</span><span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]],</span>
+        <span class="p">)</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">add_triangle</span><span class="p">(</span>
+            <span class="n">vertices</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">vertices</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">mirror_vertices</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">mirror_vertices</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="n">texcoords</span><span class="o">=</span><span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]],</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">mesh</span>
+
+
+<span class="k">def</span> <span class="nf">rotate_line</span><span class="p">(</span>
+    <span class="n">line</span><span class="p">:</span> <span class="n">Line</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mesh</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Create a mesh by rotating a line around axis at given angle (rad)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      line: Line object to rotate</span>
+<span class="sd">      axis: Axis to rotate line around (eg. [0, 0, 1.0])</span>
+<span class="sd">      angle: Rotation angle</span>
+<span class="sd">      steps: How many steps (resolution) to divide</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">step_angle</span> <span class="o">=</span> <span class="n">angle</span> <span class="o">/</span> <span class="n">steps</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">_vertices</span>
+    <span class="n">step_u</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">steps</span>
+    <span class="n">step_v</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">create_rotation_matrix_raw</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">step_angle</span><span class="p">)</span>
+        <span class="n">mirror_vertices</span> <span class="o">=</span> <span class="p">[</span><span class="n">vector_transform</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">add_triangle</span><span class="p">(</span>
+                <span class="n">vertices</span><span class="o">=</span><span class="p">[</span><span class="n">vertices</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">vertices</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">mirror_vertices</span><span class="p">[</span><span class="n">j</span><span class="p">]],</span>
+                <span class="n">texcoords</span><span class="o">=</span><span class="p">[</span>
+                    <span class="p">[</span><span class="n">step_u</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span> <span class="n">step_v</span> <span class="o">*</span> <span class="n">j</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">step_u</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">step_v</span> <span class="o">*</span> <span class="n">j</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">step_u</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span> <span class="n">step_v</span> <span class="o">*</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">add_triangle</span><span class="p">(</span>
+                <span class="n">vertices</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">vertices</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">mirror_vertices</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">mirror_vertices</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+                <span class="p">],</span>
+                <span class="n">texcoords</span><span class="o">=</span><span class="p">[</span>
+                    <span class="p">[</span><span class="n">step_u</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">step_v</span> <span class="o">*</span> <span class="n">j</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">step_u</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">step_v</span> <span class="o">*</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span>
+                    <span class="p">[</span><span class="n">step_u</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span> <span class="n">step_v</span> <span class="o">*</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="n">mirror_vertices</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">fix_normals</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">mesh</span>
+
+
+<span class="k">def</span> <span class="nf">lines_to_mesh</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Line</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Mesh</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Fill the gap between line objects and construct a mesh</span>
+
+<span class="sd">    Note: Algorithm follows the order of lines in the array, not their</span>
+<span class="sd">          distances.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      lines: List of line objects to use for construction.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      mesh</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">_vertices</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span>
+    <span class="n">lmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lens</span><span class="p">)</span>
+    <span class="n">lmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lens</span><span class="p">)</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">lmin</span> <span class="o">!=</span> <span class="n">lmax</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">BaseException</span><span class="p">(</span><span class="s2">&quot;Number of vertices for each line must be equal&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">BaseException</span><span class="p">(</span><span class="s2">&quot;You must specify more than one line object&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">fvlist</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">_vertices</span>
+        <span class="n">tvlist</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_vertices</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmin</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">add_triangle</span><span class="p">(</span><span class="n">vertices</span><span class="o">=</span><span class="p">[</span><span class="n">fvlist</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">fvlist</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">tvlist</span><span class="p">[</span><span class="n">j</span><span class="p">]])</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">add_triangle</span><span class="p">(</span>
+                <span class="n">vertices</span><span class="o">=</span><span class="p">[</span><span class="n">fvlist</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">tvlist</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">tvlist</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+            <span class="p">)</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">fix_normals</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">fix_texcoords</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">mesh</span>
 </pre></div>
 
   </div>
@@ -1090,7 +1196,7 @@ table {
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="payton.tools.mesh.extrude_line">
+    <div class="name def" id="payton.tools.mesh.line.extrude_line">
     <p>def <span class="ident">extrude_line</span>(</p><p>line, direction, distance)</p>
     </div>
     
@@ -1105,8 +1211,8 @@ table {
 <p>Returns:
   Mesh</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.tools.mesh.extrude_line', this);">Show source &equiv;</a></p>
-  <div id="source-payton.tools.mesh.extrude_line" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.tools.mesh.line.extrude_line', this);">Show source &equiv;</a></p>
+  <div id="source-payton.tools.mesh.line.extrude_line" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">extrude_line</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="n">Line</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">distance</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mesh</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; Construct a mesh by extruding a line</span>
 
@@ -1146,7 +1252,7 @@ table {
   
       
   <div class="item">
-    <div class="name def" id="payton.tools.mesh.lines_to_mesh">
+    <div class="name def" id="payton.tools.mesh.line.lines_to_mesh">
     <p>def <span class="ident">lines_to_mesh</span>(</p><p>lines)</p>
     </div>
     
@@ -1161,8 +1267,8 @@ table {
 <p>Returns:
   mesh</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.tools.mesh.lines_to_mesh', this);">Show source &equiv;</a></p>
-  <div id="source-payton.tools.mesh.lines_to_mesh" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.tools.mesh.line.lines_to_mesh', this);">Show source &equiv;</a></p>
+  <div id="source-payton.tools.mesh.line.lines_to_mesh" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">lines_to_mesh</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Line</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Mesh</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fill the gap between line objects and construct a mesh</span>
 
@@ -1203,7 +1309,7 @@ table {
   
       
   <div class="item">
-    <div class="name def" id="payton.tools.mesh.rotate_line">
+    <div class="name def" id="payton.tools.mesh.line.rotate_line">
     <p>def <span class="ident">rotate_line</span>(</p><p>line, axis, angle, steps=10)</p>
     </div>
     
@@ -1217,8 +1323,8 @@ table {
   angle: Rotation angle
   steps: How many steps (resolution) to divide</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.tools.mesh.rotate_line', this);">Show source &equiv;</a></p>
-  <div id="source-payton.tools.mesh.rotate_line" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.tools.mesh.line.rotate_line', this);">Show source &equiv;</a></p>
+  <div id="source-payton.tools.mesh.line.rotate_line" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">rotate_line</span><span class="p">(</span>
     <span class="n">line</span><span class="p">:</span> <span class="n">Line</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mesh</span><span class="p">:</span>
@@ -1272,20 +1378,6 @@ table {
   
 
 
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="geometry.m.html">payton.tools.mesh.geometry</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="line.m.html">payton.tools.mesh.line</a></p>
-      
-  
-    <div class="desc"><p>Payton Line to Mesh module</p></div>
-
-      </div>
   </section>
 
     </article>

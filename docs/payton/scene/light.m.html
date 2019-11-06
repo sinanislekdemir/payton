@@ -3,11 +3,10 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>payton.math API documentation</title>
-    <meta name="description" content="Payton math library
+    <title>payton.scene.light API documentation</title>
+    <meta name="description" content="Payton Lights.
 
-Payton is designed with minimum requirements in mind. So, to reduce the number
-..." />
+Support for scene lights." />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1045,16 +1044,20 @@ table {
     <ul id="index">
 
 
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
-        <li class="mono"><a href="geometry.m.html">payton.math.geometry</a></li>
-        <li class="mono"><a href="matrix.m.html">payton.math.matrix</a></li>
-        <li class="mono"><a href="test_geometry.m.html">payton.math.test_geometry</a></li>
-        <li class="mono"><a href="types.m.html">payton.math.types</a></li>
-        <li class="mono"><a href="vector.m.html">payton.math.vector</a></li>
+        <li class="mono">
+        <span class="class_name"><a href="#payton.scene.light.Light">Light</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#payton.scene.light.Light.__init__">__init__</a></li>
+  </ul>
+
+        </li>
       </ul>
     </li>
+
     </ul>
   </div>
 
@@ -1066,26 +1069,69 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">payton.math</span> module</h1>
-  <p>Payton math library</p>
-<p>Payton is designed with minimum requirements in mind. So, to reduce the number
-of requirements, instead of using 3rd party mathematical libraries, I created
-my simple functions here.</p>
-<p>This math module has no requirements, so it can be used separately in other
-projects.</p>
+  <h1 class="title"><span class="name">payton.scene.light</span> module</h1>
+  <p>Payton Lights.</p>
+<p>Support for scene lights.</p>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.math', this);">Show source &equiv;</a></p>
-  <div id="source-payton.math" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Payton math library</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.light', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.light" class="source">
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;Payton Lights.</span>
 
-<span class="sd">Payton is designed with minimum requirements in mind. So, to reduce the number</span>
-<span class="sd">of requirements, instead of using 3rd party mathematical libraries, I created</span>
-<span class="sd">my simple functions here.</span>
-
-<span class="sd">This math module has no requirements, so it can be used separately in other</span>
-<span class="sd">projects.</span>
+<span class="sd">Support for scene lights.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>  <span class="c1"># type: ignore</span>
+
+
+<span class="k">class</span> <span class="nc">Light</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main Light object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize Payton Light</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          position: Position of the light in global coordinates</span>
+<span class="sd">          default position is [10, 7, 6]</span>
+<span class="sd">          color: Color of the light source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mf">10.0</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+        <span class="p">]</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position_np</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color_np</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+
+    <span class="nd">@position.setter</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
+
+    <span class="nd">@color.setter</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1095,46 +1141,147 @@ projects.</p>
   <section id="section-items">
 
 
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+    <h2 class="section-title" id="header-classes">Classes</h2>
+      
       <div class="item">
-      <p class="name"><a href="geometry.m.html">payton.math.geometry</a></p>
+      <p id="payton.scene.light.Light" class="name">class <span class="ident">Light</span></p>
       
   
+    <div class="desc"><p>Main Light object</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.light.Light', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.light.Light" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Light</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main Light object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="matrix.m.html">payton.math.matrix</a></p>
-      
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize Payton Light</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          position: Position of the light in global coordinates</span>
+<span class="sd">          default position is [10, 7, 6]</span>
+<span class="sd">          color: Color of the light source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mf">10.0</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+        <span class="p">]</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position_np</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color_np</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+
+    <span class="nd">@position.setter</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
+
+    <span class="nd">@color.setter</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#payton.scene.light.Light">Light</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="payton.scene.light.Light.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, position=None, color=None, **kwargs)</p>
+    </div>
+    
+
+    
   
+    <div class="desc"><p>Initialize Payton Light</p>
+<p>Args:
+  position: Position of the light in global coordinates
+  default position is [10, 7, 6]
+  color: Color of the light source.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.light.Light.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.light.Light.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initialize Payton Light</span>
+<span class="sd">    Args:</span>
+<span class="sd">      position: Position of the light in global coordinates</span>
+<span class="sd">      default position is [10, 7, 6]</span>
+<span class="sd">      color: Color of the light source.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="mf">10.0</span><span class="p">,</span>
+        <span class="mf">7.0</span><span class="p">,</span>
+        <span class="mf">6.0</span><span class="p">,</span>
+    <span class="p">]</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">position</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">color</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_position_np</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_color_np</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="test_geometry.m.html">payton.math.test_geometry</a></p>
-      
+  </div>
+</div>
+
+  </div>
   
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="payton.scene.light.Light.color" class="name">var <span class="ident">color</span></p>
+            
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="types.m.html">payton.math.types</a></p>
-      
+            
   
+  <div class="source_cont">
+</div>
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="vector.m.html">payton.math.vector</a></p>
-      
+            </div>
+            <div class="item">
+            <p id="payton.scene.light.Light.position" class="name">var <span class="ident">position</span></p>
+            
+
+            
   
-    <div class="desc"><p>Vector geometry functions</p>
-<p>A vector is described by a list or a tuple with 3 indices.</p>
-<p>Example definition:</p>
-<div class="codehilite"><pre><span></span>vector_x = 3.0
-vector_y = 4.0
-vector_z = 5.0
-v = (vector_x, vector_y, vector_z)
-</pre></div></div>
+  <div class="source_cont">
+</div>
 
+            </div>
       </div>
+      </div>
+
   </section>
 
     </article>

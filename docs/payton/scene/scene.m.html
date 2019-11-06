@@ -3,14 +3,14 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>payton.scene API documentation</title>
+    <title>payton.scene.scene API documentation</title>
     <meta name="description" content="#Payton Scene Module
 
 ##Main Scene Module:
 
 * SDL2 Window
-  * Scene (`payton.scene.scene.Scene`)
-   ..." />
+  * Scene (`payton.scene`)
+    * Geometry ..." />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1046,56 +1046,48 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#payton.scene.scene.S">S</a></li>
+    <li class="mono"><a href="#payton.scene.scene.background_fragment_shader">background_fragment_shader</a></li>
+    <li class="mono"><a href="#payton.scene.scene.background_vertex_shader">background_vertex_shader</a></li>
+  </ul>
+
+    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
         <li class="mono">
-        <span class="class_name"><a href="#payton.scene.Background">Background</a></span>
+        <span class="class_name"><a href="#payton.scene.scene.Background">Background</a></span>
         
           
   <ul>
-    <li class="mono"><a href="#payton.scene.Background.__init__">__init__</a></li>
-    <li class="mono"><a href="#payton.scene.Background.render">render</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Background.__init__">__init__</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Background.render">render</a></li>
   </ul>
 
         </li>
         <li class="mono">
-        <span class="class_name"><a href="#payton.scene.Scene">Scene</a></span>
+        <span class="class_name"><a href="#payton.scene.scene.Scene">Scene</a></span>
         
           
   <ul>
-    <li class="mono"><a href="#payton.scene.Scene.__init__">__init__</a></li>
-    <li class="mono"><a href="#payton.scene.Scene.add_click_plane">add_click_plane</a></li>
-    <li class="mono"><a href="#payton.scene.Scene.add_collision_test">add_collision_test</a></li>
-    <li class="mono"><a href="#payton.scene.Scene.add_object">add_object</a></li>
-    <li class="mono"><a href="#payton.scene.Scene.add_observer">add_observer</a></li>
-    <li class="mono"><a href="#payton.scene.Scene.create_clock">create_clock</a></li>
-    <li class="mono"><a href="#payton.scene.Scene.create_observer">create_observer</a></li>
-    <li class="mono"><a href="#payton.scene.Scene.run">run</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Scene.__init__">__init__</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Scene.add_click_plane">add_click_plane</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Scene.add_collision_test">add_collision_test</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Scene.add_object">add_object</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Scene.add_observer">add_observer</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Scene.create_clock">create_clock</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Scene.create_observer">create_observer</a></li>
+    <li class="mono"><a href="#payton.scene.scene.Scene.run">run</a></li>
   </ul>
 
         </li>
       </ul>
     </li>
 
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="clock.m.html">payton.scene.clock</a></li>
-        <li class="mono"><a href="collision.m.html">payton.scene.collision</a></li>
-        <li class="mono"><a href="controller.m.html">payton.scene.controller</a></li>
-        <li class="mono"><a href="geometry/index.html">payton.scene.geometry</a></li>
-        <li class="mono"><a href="grid.m.html">payton.scene.grid</a></li>
-        <li class="mono"><a href="gui/index.html">payton.scene.gui</a></li>
-        <li class="mono"><a href="light.m.html">payton.scene.light</a></li>
-        <li class="mono"><a href="material.m.html">payton.scene.material</a></li>
-        <li class="mono"><a href="observer.m.html">payton.scene.observer</a></li>
-        <li class="mono"><a href="receiver.m.html">payton.scene.receiver</a></li>
-        <li class="mono"><a href="scene.m.html">payton.scene.scene</a></li>
-        <li class="mono"><a href="shader.m.html">payton.scene.shader</a></li>
-        <li class="mono"><a href="types.m.html">payton.scene.types</a></li>
-      </ul>
-    </li>
     </ul>
   </div>
 
@@ -1107,56 +1099,566 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">payton.scene</span> module</h1>
+  <h1 class="title"><span class="name">payton.scene.scene</span> module</h1>
   <h1>Payton Scene Module</h1>
 <h2>Main Scene Module:</h2>
 <ul>
 <li>SDL2 Window</li>
-<li>Scene (<a href="scene.m.html#payton.scene.scene.Scene"><code>payton.scene.scene.Scene</code></a>)<ul>
-<li>Geometry (<a href="geometry/index.html"><code>payton.scene.geometry</code></a>)</li>
-<li>Grid (<a href="grid.m.html"><code>payton.scene.grid</code></a>)</li>
-<li>Background (<a href="scene.m.html#payton.scene.scene.Background"><code>payton.scene.scene.Background</code></a>)</li>
-<li>Clock (<a href="clock.m.html"><code>payton.scene.clock</code></a>)</li>
-<li>Lighting (<a href="light.m.html"><code>payton.scene.light</code></a>)</li>
-<li>Collision Test (<a href="collision.m.html"><code>payton.scene.collision</code></a>)</li>
-<li>Observer (<a href="observer.m.html"><code>payton.scene.observer</code></a>)</li>
-<li>GUI (<a href="gui/index.html"><code>payton.scene.gui</code></a>)</li>
-<li>Material (<a href="material.m.html"><code>payton.scene.material</code></a>)</li>
-<li>Shader (<a href="shader.m.html"><code>payton.scene.shader</code></a>)</li>
-<li>Type Support (<a href="types.m.html"><code>payton.scene.types</code></a>)</li>
+<li>Scene (<code>payton.scene</code>)<ul>
+<li>Geometry (<code>payton.scene.geometry</code>)</li>
+<li>Grid (<code>payton.scene.grid</code>)</li>
+<li>Background (<a href="#payton.scene.scene.Background"><code>Background</code></a>)</li>
+<li>Clock (<code>payton.scene.clock</code>)</li>
+<li>Light (<code>payton.scene.light.Light</code>)</li>
+<li>Collision Test (<code>payton.scene.collision.CollisionTest</code>)</li>
+<li>Observer (<code>payton.scene.observer.Observer</code>)</li>
 </ul>
 </li>
 </ul>
-<p>Also, <a href="scene.m.html"><code>payton.scene.scene</code></a> contents are accessible through <code>payton.scene</code> main
-module</p>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene" class="source">
-    <div class="codehilite"><pre><span></span><span class="c1"># pylama:ignore=W</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># pylama:ignore=C901</span>
 <span class="sd">&quot;&quot;&quot;#Payton Scene Module</span>
 
 <span class="sd">##Main Scene Module:</span>
 
 <span class="sd">* SDL2 Window</span>
-<span class="sd">  * Scene (`payton.scene.scene.Scene`)</span>
+<span class="sd">  * Scene (`payton.scene`)</span>
 <span class="sd">    * Geometry (`payton.scene.geometry`)</span>
 <span class="sd">    * Grid (`payton.scene.grid`)</span>
 <span class="sd">    * Background (`payton.scene.scene.Background`)</span>
 <span class="sd">    * Clock (`payton.scene.clock`)</span>
-<span class="sd">    * Lighting (`payton.scene.light`)</span>
-<span class="sd">    * Collision Test (`payton.scene.collision`)</span>
-<span class="sd">    * Observer (`payton.scene.observer`)</span>
-<span class="sd">    * GUI (`payton.scene.gui`)</span>
-<span class="sd">    * Material (`payton.scene.material`)</span>
-<span class="sd">      * Shader (`payton.scene.shader`)</span>
-<span class="sd">    * Type Support (`payton.scene.types`)</span>
+<span class="sd">    * Light (`payton.scene.light.Light`)</span>
+<span class="sd">    * Collision Test (`payton.scene.collision.CollisionTest`)</span>
+<span class="sd">    * Observer (`payton.scene.observer.Observer`)</span>
 
-<span class="sd">Also, `payton.scene.scene` contents are accessible through `payton.scene` main</span>
-<span class="sd">module</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">payton.scene.scene</span> <span class="kn">import</span> <span class="n">Scene</span><span class="p">,</span> <span class="n">Background</span>
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Scene&quot;</span><span class="p">,</span> <span class="s2">&quot;Background&quot;</span><span class="p">]</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>  <span class="c1"># type: ignore</span>
+<span class="kn">import</span> <span class="nn">sdl2</span>
+<span class="kn">from</span> <span class="nn">OpenGL.GL</span> <span class="kn">import</span> <span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span><span class="p">,</span> <span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">,</span> <span class="n">GL_DEPTH_TEST</span><span class="p">,</span>
+                       <span class="n">GL_LESS</span><span class="p">,</span> <span class="n">GL_TRIANGLES</span><span class="p">,</span> <span class="n">glBindVertexArray</span><span class="p">,</span> <span class="n">glClear</span><span class="p">,</span>
+                       <span class="n">glDepthFunc</span><span class="p">,</span> <span class="n">glDisable</span><span class="p">,</span> <span class="n">glDrawArrays</span><span class="p">,</span> <span class="n">glEnable</span><span class="p">,</span>
+                       <span class="n">glGenVertexArrays</span><span class="p">,</span> <span class="n">glViewport</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">payton.math.geometry</span> <span class="kn">import</span> <span class="n">raycast_plane_intersect</span>
+<span class="kn">from</span> <span class="nn">payton.scene.clock</span> <span class="kn">import</span> <span class="n">Clock</span>
+<span class="kn">from</span> <span class="nn">payton.scene.collision</span> <span class="kn">import</span> <span class="n">CollisionTest</span>
+<span class="kn">from</span> <span class="nn">payton.scene.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span> <span class="nn">payton.scene.geometry.base</span> <span class="kn">import</span> <span class="n">Object</span>
+<span class="kn">from</span> <span class="nn">payton.scene.grid</span> <span class="kn">import</span> <span class="n">Grid</span>
+<span class="kn">from</span> <span class="nn">payton.scene.gui</span> <span class="kn">import</span> <span class="n">Hud</span><span class="p">,</span> <span class="n">Shape2D</span>
+<span class="kn">from</span> <span class="nn">payton.scene.gui.help</span> <span class="kn">import</span> <span class="n">help_win</span>
+<span class="kn">from</span> <span class="nn">payton.scene.light</span> <span class="kn">import</span> <span class="n">Light</span>
+<span class="kn">from</span> <span class="nn">payton.scene.observer</span> <span class="kn">import</span> <span class="n">Observer</span>
+<span class="kn">from</span> <span class="nn">payton.scene.receiver</span> <span class="kn">import</span> <span class="n">Receiver</span>
+<span class="kn">from</span> <span class="nn">payton.scene.shader</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Shader</span><span class="p">,</span> <span class="n">background_fragment_shader</span><span class="p">,</span>
+                                 <span class="n">background_vertex_shader</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">payton.scene.types</span> <span class="kn">import</span> <span class="n">CPlane</span>
+
+<span class="n">S</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Scene&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Scene</span><span class="p">(</span><span class="n">Receiver</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main Payton scene.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">800</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">600</span><span class="p">,</span>
+        <span class="n">on_select</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the Payton Scene</span>
+<span class="sd">        There is no parameters here. Every class property must be explicitly</span>
+<span class="sd">        defined.</span>
+
+<span class="sd">        Simplest form of usage:</span>
+
+<span class="sd">            from payton.scene import Scene</span>
+<span class="sd">            a = Scene()</span>
+<span class="sd">            a.run()</span>
+
+<span class="sd">        on_select sample:</span>
+
+<span class="sd">            from payton.scene import Scene</span>
+<span class="sd">            from payton.scene.geometry import Cube</span>
+
+<span class="sd">            def select(objects):</span>
+<span class="sd">                print(objects)</span>
+<span class="sd">                for obj in objects:</span>
+<span class="sd">                    obj.material.color = [1.0, 0.0, 0.0]</span>
+
+<span class="sd">            scene = Scene(on_select=select)</span>
+<span class="sd">            cube1 = Cube()</span>
+
+<span class="sd">            scene.add_object(&#39;cube1&#39;, cube1)</span>
+
+<span class="sd">            scene.run()</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          width: Window width</span>
+<span class="sd">          height: Window height</span>
+<span class="sd">          on_select: On object select callback function. Controller passes</span>
+<span class="sd">        selected objects in a list as the first parameter of the function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># All objects list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># All Huds (Heads Up Display)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Hud</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_help&quot;</span><span class="p">:</span> <span class="n">Hud</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="p">[</span><span class="s2">&quot;_help&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="n">help_win</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="p">[</span><span class="s2">&quot;_help&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__fps_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__timer</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="c1"># List of observers (cameras) in the scene. There can be only</span>
+        <span class="c1"># one active observer at a time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Observer</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Observer</span><span class="p">(</span><span class="n">active</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hudcam</span> <span class="o">=</span> <span class="n">Observer</span><span class="p">(</span>
+            <span class="n">active</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+            <span class="n">up</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">perspective</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Instead of looping through observers to find the active</span>
+        <span class="c1"># observer, we are keeping the known index to avoid redundant</span>
+        <span class="c1"># loops.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active_observer</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lights</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Light</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Light</span><span class="p">())</span>
+
+        <span class="c1"># List of all clocks. Clocks are time based function holders which</span>
+        <span class="c1"># animate objects in the scene or do other stuff.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Clock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">Grid</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">background</span> <span class="o">=</span> <span class="n">Background</span><span class="p">()</span>
+
+        <span class="c1"># SDL Related Stuff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mouse</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shift_down</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ctrl_down</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rotate</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collision_detectors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CollisionTest</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_click_planes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CPlane</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_select</span> <span class="o">=</span> <span class="n">on_select</span>
+        <span class="c1"># Main running state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_lock</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">add_click_plane</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plane_point</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">plane_normal</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add click plane to the scene</span>
+
+<span class="sd">        A Click Plane is a meta object which is basically an infinite sized 2D</span>
+<span class="sd">        plane intersecting with plane_point and has a normal as plane_normal.</span>
+<span class="sd">        Click Plane has a callback function which gets called when user</span>
+<span class="sd">        mouse click intersects with the Click Plane.</span>
+
+<span class="sd">        You can think of Click Plane as a piece of paper on the scene where you</span>
+<span class="sd">        can use to draw things on. Clicking on this meta plane will give you</span>
+<span class="sd">        exact location of your mouse click which intersects with the plane.</span>
+
+<span class="sd">        Click Plane is an invisible plane.</span>
+
+<span class="sd">        Example usecase:</span>
+<span class="sd">            .. include:: ../../examples/basics/21_click_plane.py</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          plane_point: A Point inside Plane (eg: `[0.0, 0.0, 0.0]`)</span>
+<span class="sd">          plane_normal: Normal of the plane (eg: `[0.0, 0.0, 1.0]`)</span>
+<span class="sd">          callback: Callback function to be called with intersection point</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pn</span> <span class="o">=</span> <span class="n">plane_normal</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">plane_point</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_click_planes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pp</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_check_click_plane</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">eye</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">vector</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">click_plane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_click_planes</span><span class="p">:</span>
+            <span class="n">hit</span> <span class="o">=</span> <span class="n">raycast_plane_intersect</span><span class="p">(</span>
+                <span class="n">eye</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">click_plane</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">click_plane</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">hit</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">click_plane</span><span class="p">[</span><span class="mi">2</span><span class="p">](</span><span class="n">hit</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Render the whole scene here. Note that, this is a private function and</span>
+<span class="sd">        should not be overriden unless you really know what you are dealing</span>
+<span class="sd">        with.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Disable Depth Test to draw background at the very back of the scene</span>
+        <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">background</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+        <span class="n">glEnable</span><span class="p">(</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+        <span class="n">glDepthFunc</span><span class="p">(</span><span class="n">GL_LESS</span><span class="p">)</span>
+
+        <span class="n">proj</span><span class="p">,</span> <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_observer</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">proj</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lights</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_lock</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">proj</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lights</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">proj</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lights</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_lock</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collision_detectors</span><span class="p">:</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__fps_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__timer</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__timer</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__timer</span>
+        <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__timer</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__fps_counter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__fps_counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">add_collision_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tester</span><span class="p">:</span> <span class="n">CollisionTest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add collision test to the scene</span>
+
+<span class="sd">        See `payton.scene.collision` module for details on collision</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          tester: Instance of `payton.scene.collision.CollisionTest`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tester</span><span class="p">,</span> <span class="n">CollisionTest</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;tester must be an instance of CollisionTest&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collision_detectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tester</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add object to the scene root.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          name: Name of the object, must be unique within its&#39; scope.</span>
+<span class="sd">          obj: Object must be an instance of</span>
+<span class="sd">               `payton.scene.geometry.base.Object`</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">          bool: False in case of an error.</span>
+
+<span class="sd">        Example usage:</span>
+
+<span class="sd">            from payton.scene import Scene</span>
+<span class="sd">            from payton.scene.geometry import Cube</span>
+
+<span class="sd">            my_scene = Scene()</span>
+<span class="sd">            cube = Cube()</span>
+<span class="sd">            my_scene.add_object(&#39;cube&#39;, cube)</span>
+<span class="sd">            my_scene.run()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Object</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Given object is not an instance of `scene.Object`&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Given object name [{name}] already exists&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Shape2D</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;2D Shapes can&#39;t be added directly to the scene&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Hud</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Huds must be rendered in a different loop after rendering</span>
+<span class="sd">            all objects&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_lock</span><span class="p">:</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_lock</span><span class="p">:</span>
+                    <span class="c1"># Wait for render loop to release the lock</span>
+                    <span class="c1"># TODO: This can cause a possible deadlock.</span>
+                    <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_height</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_lock</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_lock</span><span class="p">:</span>
+                <span class="c1"># Wait for render loop to release the lock</span>
+                <span class="c1"># TODO: This can cause a possible deadlock.</span>
+                <span class="k">continue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">add_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Observer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add observer to the scene. Observer must be an instance of</span>
+<span class="sd">        `payton.scene.observer.Observer`</span>
+<span class="sd">        Generally this is not needed as scene has already a default observer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          obj: Observer object, instance of `payton.scene.observer.Observer`</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">          bool: False in case of an error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Observer</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Observer is not an instance of `scene.Observer`&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">observers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">active_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Observer</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return active observer</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          observer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_active_observer</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">create_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new observer in the scene and add to scene observers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Observer</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">create_clock</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">period</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="bp">None</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a clock in the scene. This is the preffered way to create a</span>
+<span class="sd">        clock in the scene as it binds the clock to the scene by itself.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          name: Name of the clock. Must be unique within the scene.</span>
+<span class="sd">          period: Period of the clock (in seconds), time between each iteration</span>
+<span class="sd">          callback: Callback function to call in each iteration. Callback</span>
+<span class="sd">        function must have these arguments:</span>
+<span class="sd">            period: Period of the clock (time difference between iterations)</span>
+<span class="sd">            total: Total time elapsed from the beginning.</span>
+
+<span class="sd">        Example usage:</span>
+
+<span class="sd">            from payton.scene import Scene</span>
+<span class="sd">            from payton.scene.clock import Clock</span>
+
+<span class="sd">            def time_counter_callback(period, total):</span>
+<span class="sd">                print(&quot;Total time passed since beginning {}secs&quot;.format(total))</span>
+
+<span class="sd">            my_scene = Scene()</span>
+<span class="sd">            my_scene.create_clock(&#39;time_counter&#39;, 1.0, time_counter_callback)</span>
+<span class="sd">            print(&quot;Hit space to start clock&quot;)</span>
+<span class="sd">            my_scene.run()</span>
+
+<span class="sd">        Result output to console:</span>
+
+<span class="sd">            Total time passed since beginning 0secs</span>
+<span class="sd">            Total time passed since beginning 1.0secs</span>
+<span class="sd">            Total time passed since beginning 2.0secs</span>
+<span class="sd">            Total time passed since beginning 3.0secs</span>
+<span class="sd">            Total time passed since beginning 4.0secs</span>
+<span class="sd">            Total time passed since beginning 5.0secs</span>
+<span class="sd">            Total time passed since beginning 6.0secs</span>
+<span class="sd">            Total time passed since beginning 7.0secs</span>
+<span class="sd">            Total time passed since beginning 8.0secs</span>
+<span class="sd">            Total time passed since beginning 9.0secs</span>
+<span class="sd">            Total time passed since beginning 10.0secs</span>
+<span class="sd">            ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;A clock named {name} already exists&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Clock</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run scene.</span>
+
+<span class="sd">        This is a complex function and needs some refactoring.</span>
+<span class="sd">        Here is the logic and flow behind this function:</span>
+
+<span class="sd">        1. Initialize SDL</span>
+<span class="sd">        2. Create SDL window with given parameters enabling OpenGL Pipeline</span>
+<span class="sd">        3. Create and set active context as OpenGL Context</span>
+<span class="sd">        4. Set running flag.</span>
+<span class="sd">        5. Fix aspect ratios of observers *aka cameras* in the scene.</span>
+<span class="sd">        6. Start scene loop.</span>
+<span class="sd">            1. Poll for SDL events</span>
+<span class="sd">            2. React to SDL events *(quit, key press, key up, mouse motion</span>
+<span class="sd">               etc)*</span>
+<span class="sd">            3. Render scene, turn to step 6.1 if not quit</span>
+<span class="sd">        7. Destroy objects and clear memory.</span>
+<span class="sd">        8. Destroy window and such.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_Init</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_INIT_VIDEO</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_SetAttribute</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_CONTEXT_MAJOR_VERSION</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_SetAttribute</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_CONTEXT_MINOR_VERSION</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_SetAttribute</span><span class="p">(</span>
+            <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_CONTEXT_PROFILE_MASK</span><span class="p">,</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_CONTEXT_PROFILE_CORE</span>
+        <span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_SetAttribute</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_MULTISAMPLEBUFFERS</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_SetAttribute</span><span class="p">(</span><span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_MULTISAMPLESAMPLES</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_CreateWindow</span><span class="p">(</span>
+            <span class="sa">b</span><span class="s2">&quot;Payton Scene&quot;</span><span class="p">,</span>
+            <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_WINDOWPOS_UNDEFINED</span><span class="p">,</span>
+            <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_WINDOWPOS_UNDEFINED</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_width</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_height</span><span class="p">),</span>
+            <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_WINDOW_OPENGL</span> <span class="o">|</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_WINDOW_RESIZABLE</span><span class="p">,</span>
+        <span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_CreateContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_SetSwapInterval</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c1"># Fix aspect ratios of observers</span>
+        <span class="k">for</span> <span class="n">observer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">observers</span><span class="p">:</span>
+            <span class="n">observer</span><span class="o">.</span><span class="n">aspect_ratio</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">window_width</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_height</span> <span class="o">*</span> <span class="mf">1.0</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">hud</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">hud</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_height</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">clock</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">[</span><span class="n">clock</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_PollEvent</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_WINDOWEVENT</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">event</span> <span class="o">==</span> <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_WINDOWEVENT_RESIZED</span>
+                <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">window_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">data1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">window_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">data2</span>
+                    <span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_height</span><span class="p">)</span>
+
+                    <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">observers</span><span class="p">:</span>
+                        <span class="n">ob</span><span class="o">.</span><span class="n">aspect_ratio</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">window_width</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_height</span>
+                        <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">hud</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">huds</span><span class="p">[</span><span class="n">hud</span><span class="p">]</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">window_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_height</span>
+                        <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">keyboard</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">mouse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">()</span>
+
+            <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_SwapWindow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>
+            <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_Delay</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">clock</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">[</span><span class="n">clock</span><span class="p">]</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_GL_DeleteContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="p">)</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_DestroyWindow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">sdl2</span><span class="o">.</span><span class="n">SDL_Quit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">class</span> <span class="nc">Background</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Background is a special object</span>
+
+<span class="sd">    Only used by Scene and used for once. It has a special place in the render</span>
+<span class="sd">    pipeline. This is the first object to be rendered in each cycle and before</span>
+<span class="sd">    rendering this object, Scene disables depth test. So, every other element</span>
+<span class="sd">    in the scene can be drawn on top of this background.</span>
+
+<span class="sd">    (Shader code and idea derived from the original work of:</span>
+<span class="sd">    https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">top_color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">bottom_color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize background</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          top_color: Color at the top of the scene screen</span>
+<span class="sd">          bottom_color: Color at the bottom of the screen</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_color</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span> <span class="k">if</span> <span class="n">top_color</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">top_color</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom_color</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="mf">0.6275</span><span class="p">,</span> <span class="mf">0.6275</span><span class="p">,</span> <span class="mf">0.6275</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">bottom_color</span> <span class="ow">is</span> <span class="bp">None</span>
+            <span class="k">else</span> <span class="n">bottom_color</span>
+        <span class="p">)</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;top_color&quot;</span><span class="p">,</span> <span class="s2">&quot;bot_color&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shader</span> <span class="o">=</span> <span class="n">Shader</span><span class="p">(</span>
+            <span class="n">fragment</span><span class="o">=</span><span class="n">background_fragment_shader</span><span class="p">,</span>
+            <span class="n">vertex</span><span class="o">=</span><span class="n">background_vertex_shader</span><span class="p">,</span>
+            <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vao</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Render background of the scene&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vao</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vao</span> <span class="o">=</span> <span class="n">glGenVertexArrays</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">glBindVertexArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vao</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shader</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+            <span class="n">glBindVertexArray</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">glDisable</span><span class="p">(</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shader</span><span class="o">.</span><span class="n">use</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shader</span><span class="o">.</span><span class="n">set_vector4_np</span><span class="p">(</span>
+            <span class="s2">&quot;top_color&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top_color</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shader</span><span class="o">.</span><span class="n">set_vector4_np</span><span class="p">(</span>
+            <span class="s2">&quot;bot_color&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bottom_color</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">glBindVertexArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vao</span><span class="p">)</span>
+        <span class="n">glDrawArrays</span><span class="p">(</span><span class="n">GL_TRIANGLES</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">glBindVertexArray</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shader</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+        <span class="n">glEnable</span><span class="p">(</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1164,12 +1666,37 @@ module</p>
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="payton.scene.scene.S" class="name">var <span class="ident">S</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="payton.scene.scene.background_fragment_shader" class="name">var <span class="ident">background_fragment_shader</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="payton.scene.scene.background_vertex_shader" class="name">var <span class="ident">background_vertex_shader</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
       
       <div class="item">
-      <p id="payton.scene.Background" class="name">class <span class="ident">Background</span></p>
+      <p id="payton.scene.scene.Background" class="name">class <span class="ident">Background</span></p>
       
   
     <div class="desc"><p>Background is a special object</p>
@@ -1180,8 +1707,8 @@ in the scene can be drawn on top of this background.</p>
 <p>(Shader code and idea derived from the original work of:
 https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Background', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Background" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Background', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Background" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Background</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Background is a special object</span>
 
@@ -1257,13 +1784,13 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
       <div class="class">
           <h3>Ancestors (in MRO)</h3>
           <ul class="class_list">
-          <li><a href="#payton.scene.Background">Background</a></li>
+          <li><a href="#payton.scene.scene.Background">Background</a></li>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
             
   <div class="item">
-    <div class="name def" id="payton.scene.Background.__init__">
+    <div class="name def" id="payton.scene.scene.Background.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self, top_color=None, bottom_color=None, **kwargs)</p>
     </div>
     
@@ -1275,8 +1802,8 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
   top_color: Color at the top of the scene screen
   bottom_color: Color at the bottom of the screen</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Background.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Background.__init__" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Background.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Background.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
@@ -1313,7 +1840,7 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
   
             
   <div class="item">
-    <div class="name def" id="payton.scene.Background.render">
+    <div class="name def" id="payton.scene.scene.Background.render">
     <p>def <span class="ident">render</span>(</p><p>self)</p>
     </div>
     
@@ -1322,8 +1849,8 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
   
     <div class="desc"><p>Render background of the scene</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Background.render', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Background.render" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Background.render', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Background.render" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Render background of the scene&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span><span class="p">:</span>
@@ -1355,7 +1882,7 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
   
           <h3>Instance variables</h3>
             <div class="item">
-            <p id="payton.scene.Background.bottom_color" class="name">var <span class="ident">bottom_color</span></p>
+            <p id="payton.scene.scene.Background.bottom_color" class="name">var <span class="ident">bottom_color</span></p>
             
 
             
@@ -1365,7 +1892,7 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Background.top_color" class="name">var <span class="ident">top_color</span></p>
+            <p id="payton.scene.scene.Background.top_color" class="name">var <span class="ident">top_color</span></p>
             
 
             
@@ -1375,7 +1902,7 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Background.visible" class="name">var <span class="ident">visible</span></p>
+            <p id="payton.scene.scene.Background.visible" class="name">var <span class="ident">visible</span></p>
             
 
             
@@ -1388,13 +1915,13 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
       </div>
       
       <div class="item">
-      <p id="payton.scene.Scene" class="name">class <span class="ident">Scene</span></p>
+      <p id="payton.scene.scene.Scene" class="name">class <span class="ident">Scene</span></p>
       
   
     <div class="desc"><p>Main Payton scene.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Scene</span><span class="p">(</span><span class="n">Receiver</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main Payton scene.</span>
@@ -1831,14 +2358,14 @@ https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)</p></div>
       <div class="class">
           <h3>Ancestors (in MRO)</h3>
           <ul class="class_list">
-          <li><a href="#payton.scene.Scene">Scene</a></li>
-          <li><a href="receiver.m.html#payton.scene.receiver.Receiver">payton.scene.receiver.Receiver</a></li>
+          <li><a href="#payton.scene.scene.Scene">Scene</a></li>
+          <li>payton.scene.receiver.Receiver</li>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
             
   <div class="item">
-    <div class="name def" id="payton.scene.Scene.__init__">
+    <div class="name def" id="payton.scene.scene.Scene.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self, width=800, height=600, on_select=None, **kwargs)</p>
     </div>
     
@@ -1879,8 +2406,8 @@ defined.</p>
   on_select: On object select callback function. Controller passes
 selected objects in a list as the first parameter of the function.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene.__init__" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">800</span><span class="p">,</span>
@@ -1968,7 +2495,7 @@ selected objects in a list as the first parameter of the function.</p></div>
   
             
   <div class="item">
-    <div class="name def" id="payton.scene.Scene.add_click_plane">
+    <div class="name def" id="payton.scene.scene.Scene.add_click_plane">
     <p>def <span class="ident">add_click_plane</span>(</p><p>self, plane_point, plane_normal, callback)</p>
     </div>
     
@@ -1991,8 +2518,8 @@ exact location of your mouse click which intersects with the plane.</p>
   plane_normal: Normal of the plane (eg: <code>[0.0, 0.0, 1.0]</code>)
   callback: Callback function to be called with intersection point</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene.add_click_plane', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene.add_click_plane" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene.add_click_plane', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene.add_click_plane" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_click_plane</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">plane_point</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -2027,7 +2554,7 @@ exact location of your mouse click which intersects with the plane.</p>
   
             
   <div class="item">
-    <div class="name def" id="payton.scene.Scene.add_collision_test">
+    <div class="name def" id="payton.scene.scene.Scene.add_collision_test">
     <p>def <span class="ident">add_collision_test</span>(</p><p>self, tester)</p>
     </div>
     
@@ -2035,12 +2562,12 @@ exact location of your mouse click which intersects with the plane.</p>
     
   
     <div class="desc"><p>Add collision test to the scene</p>
-<p>See <a href="collision.m.html"><code>payton.scene.collision</code></a> module for details on collision</p>
+<p>See <code>payton.scene.collision</code> module for details on collision</p>
 <p>Args:
-  tester: Instance of <a href="collision.m.html#payton.scene.collision.CollisionTest"><code>payton.scene.collision.CollisionTest</code></a></p></div>
+  tester: Instance of <code>payton.scene.collision.CollisionTest</code></p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene.add_collision_test', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene.add_collision_test" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene.add_collision_test', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene.add_collision_test" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_collision_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tester</span><span class="p">:</span> <span class="n">CollisionTest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Add collision test to the scene</span>
 <span class="sd">    See `payton.scene.collision` module for details on collision</span>
@@ -2060,7 +2587,7 @@ exact location of your mouse click which intersects with the plane.</p>
   
             
   <div class="item">
-    <div class="name def" id="payton.scene.Scene.add_object">
+    <div class="name def" id="payton.scene.scene.Scene.add_object">
     <p>def <span class="ident">add_object</span>(</p><p>self, name, obj)</p>
     </div>
     
@@ -2071,7 +2598,7 @@ exact location of your mouse click which intersects with the plane.</p>
 <p>Args:
   name: Name of the object, must be unique within its' scope.
   obj: Object must be an instance of
-       <a href="geometry/base.m.html#payton.scene.geometry.base.Object"><code>payton.scene.geometry.base.Object</code></a></p>
+       <code>payton.scene.geometry.base.Object</code></p>
 <p>Return:
   bool: False in case of an error.</p>
 <p>Example usage:</p>
@@ -2084,8 +2611,8 @@ exact location of your mouse click which intersects with the plane.</p>
 <span class="n">my_scene</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene.add_object', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene.add_object" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene.add_object', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene.add_object" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add object to the scene root.</span>
@@ -2141,7 +2668,7 @@ exact location of your mouse click which intersects with the plane.</p>
   
             
   <div class="item">
-    <div class="name def" id="payton.scene.Scene.add_observer">
+    <div class="name def" id="payton.scene.scene.Scene.add_observer">
     <p>def <span class="ident">add_observer</span>(</p><p>self, obj)</p>
     </div>
     
@@ -2149,15 +2676,15 @@ exact location of your mouse click which intersects with the plane.</p>
     
   
     <div class="desc"><p>Add observer to the scene. Observer must be an instance of
-<a href="observer.m.html#payton.scene.observer.Observer"><code>payton.scene.observer.Observer</code></a>
+<code>payton.scene.observer.Observer</code>
 Generally this is not needed as scene has already a default observer.</p>
 <p>Args:
-  obj: Observer object, instance of <a href="observer.m.html#payton.scene.observer.Observer"><code>payton.scene.observer.Observer</code></a></p>
+  obj: Observer object, instance of <code>payton.scene.observer.Observer</code></p>
 <p>Return:
   bool: False in case of an error.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene.add_observer', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene.add_observer" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene.add_observer', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene.add_observer" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Observer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add observer to the scene. Observer must be an instance of</span>
@@ -2182,7 +2709,7 @@ Generally this is not needed as scene has already a default observer.</p>
   
             
   <div class="item">
-    <div class="name def" id="payton.scene.Scene.create_clock">
+    <div class="name def" id="payton.scene.scene.Scene.create_clock">
     <p>def <span class="ident">create_clock</span>(</p><p>self, name, period, callback)</p>
     </div>
     
@@ -2227,8 +2754,8 @@ function must have these arguments:
 <span class="p">...</span>
 </pre></div></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene.create_clock', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene.create_clock" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene.create_clock', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene.create_clock" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create_clock</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2282,7 +2809,7 @@ function must have these arguments:
   
             
   <div class="item">
-    <div class="name def" id="payton.scene.Scene.create_observer">
+    <div class="name def" id="payton.scene.scene.Scene.create_observer">
     <p>def <span class="ident">create_observer</span>(</p><p>self)</p>
     </div>
     
@@ -2291,8 +2818,8 @@ function must have these arguments:
   
     <div class="desc"><p>Create a new observer in the scene and add to scene observers.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene.create_observer', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene.create_observer" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene.create_observer', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene.create_observer" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a new observer in the scene and add to scene observers.</span>
@@ -2307,7 +2834,7 @@ function must have these arguments:
   
             
   <div class="item">
-    <div class="name def" id="payton.scene.Scene.run">
+    <div class="name def" id="payton.scene.scene.Scene.run">
     <p>def <span class="ident">run</span>(</p><p>self)</p>
     </div>
     
@@ -2334,8 +2861,8 @@ Here is the logic and flow behind this function:</p>
 <li>Destroy window and such.</li>
 </ol></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.Scene.run', this);">Show source &equiv;</a></p>
-  <div id="source-payton.scene.Scene.run" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.scene.Scene.run', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.scene.Scene.run" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run scene.</span>
@@ -2426,7 +2953,7 @@ Here is the logic and flow behind this function:</p>
   
           <h3>Instance variables</h3>
             <div class="item">
-            <p id="payton.scene.Scene.active_observer" class="name">var <span class="ident">active_observer</span></p>
+            <p id="payton.scene.scene.Scene.active_observer" class="name">var <span class="ident">active_observer</span></p>
             
 
             
@@ -2439,7 +2966,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.background" class="name">var <span class="ident">background</span></p>
+            <p id="payton.scene.scene.Scene.background" class="name">var <span class="ident">background</span></p>
             
 
             
@@ -2449,7 +2976,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.controller" class="name">var <span class="ident">controller</span></p>
+            <p id="payton.scene.scene.Scene.controller" class="name">var <span class="ident">controller</span></p>
             
 
             
@@ -2459,7 +2986,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.fps" class="name">var <span class="ident">fps</span></p>
+            <p id="payton.scene.scene.Scene.fps" class="name">var <span class="ident">fps</span></p>
             
 
             
@@ -2469,7 +2996,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.grid" class="name">var <span class="ident">grid</span></p>
+            <p id="payton.scene.scene.Scene.grid" class="name">var <span class="ident">grid</span></p>
             
 
             
@@ -2479,7 +3006,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.hudcam" class="name">var <span class="ident">hudcam</span></p>
+            <p id="payton.scene.scene.Scene.hudcam" class="name">var <span class="ident">hudcam</span></p>
             
 
             
@@ -2489,7 +3016,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.on_select" class="name">var <span class="ident">on_select</span></p>
+            <p id="payton.scene.scene.Scene.on_select" class="name">var <span class="ident">on_select</span></p>
             
 
             
@@ -2499,7 +3026,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.running" class="name">var <span class="ident">running</span></p>
+            <p id="payton.scene.scene.Scene.running" class="name">var <span class="ident">running</span></p>
             
 
             
@@ -2509,7 +3036,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.window" class="name">var <span class="ident">window</span></p>
+            <p id="payton.scene.scene.Scene.window" class="name">var <span class="ident">window</span></p>
             
 
             
@@ -2519,7 +3046,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.window_height" class="name">var <span class="ident">window_height</span></p>
+            <p id="payton.scene.scene.Scene.window_height" class="name">var <span class="ident">window_height</span></p>
             
 
             
@@ -2529,7 +3056,7 @@ Here is the logic and flow behind this function:</p>
 
             </div>
             <div class="item">
-            <p id="payton.scene.Scene.window_width" class="name">var <span class="ident">window_width</span></p>
+            <p id="payton.scene.scene.Scene.window_width" class="name">var <span class="ident">window_width</span></p>
             
 
             
@@ -2541,145 +3068,6 @@ Here is the logic and flow behind this function:</p>
       </div>
       </div>
 
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="clock.m.html">payton.scene.clock</a></p>
-      
-  
-    <div class="desc"><p>Clock is a special timer which runs in parallel to your scene and can do
-many things.</p>
-<p>Each clock has a period, scene and a callback function. Basically, for each
-clock tick, the callback function gets called with <code>period</code> and <code>total</code>
-variables.</p>
-<ul>
-<li><code>period</code>: period of clock. (time difference between...</li>
-</ul></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="collision.m.html">payton.scene.collision</a></p>
-      
-  
-    <div class="desc"><p>Collision detection module</p>
-<p>Example collision test:</p>
-<div class="codehilite"><pre><span></span>.. <span class="k">include</span>:: ..<span class="o">/</span>..<span class="o">/</span><span class="nv">examples</span><span class="o">/</span><span class="nv">basics</span><span class="o">/</span><span class="mi">12</span><span class="nv">_1_collision_detailed</span>.<span class="nv">py</span>
-</pre></div></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="controller.m.html">payton.scene.controller</a></p>
-      
-  
-    <div class="desc"><p>Scene controller module</p>
-<p>This module is mainly for private use.</p>
-<p>But if you want to create your own keyboard shortcuts or extended controls,
-you can extend this controller for your own needs.</p>
-<p>If you want to create your own keyboard keys or mouse behaviour:</p>
-<div class="codehilite"><pre><span></span>.. <span class="k">include</span>:: ..<span class="o">/</span>..<span class="o">/</span><span class="nv">examples</span><span class="o">/</span><span class="nv">basics</span><span class="o">/</span><span class="mi">16</span>...
-</pre></div></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="geometry/index.html">payton.scene.geometry</a></p>
-      
-  
-    <div class="desc"><p>Payton main geometry module</p>
-<p>Geometry module holds the basic geometry shapes. They are all inherited
-from <a href="geometry/base.m.html#payton.scene.geometry.base.Object"><code>payton.scene.geometry.base.Object</code></a> class. They are as simple as possible.</p>
-<p>Their face informations are generated at the initialization but vertex array
-object is not generated until it arrives ...</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="grid.m.html">payton.scene.grid</a></p>
-      
-  
-    <div class="desc"><p>Grid module</p>
-<p>Grid is a basic layout <em>(virtual ground)</em> for the entire scene which centers
-the origin of the scene (0, 0, 0) and can not be moved.</p>
-<p>Grid size can be adjusted. Grid is a perfect way to visually see the movement
-and positions of objects in space.</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="gui/index.html">payton.scene.gui</a></p>
-      
-  
-    <div class="desc"><h1>Payton GUI Module</h1></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="light.m.html">payton.scene.light</a></p>
-      
-  
-    <div class="desc"><p>Payton Lights.</p>
-<p>Support for scene lights.</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="material.m.html">payton.scene.material</a></p>
-      
-  
-    <div class="desc"><p>What is a material?</p>
-<p>Materials define how your scene entities look like. Their colors, shininess,
-or displaying them as solid objects or wireframes, all are defined inside
-object materials. This also effects if your object will respond to light
-sources or not.</p>
-<p>There are also predefined colors in th...</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="observer.m.html">payton.scene.observer</a></p>
-      
-  
-    <div class="desc"><p>Observer module</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="receiver.m.html">payton.scene.receiver</a></p>
-      
-  
-    <div class="desc"><p>Receiver module to overcome internal circular dependency on Scene feedbacks</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="scene.m.html">payton.scene.scene</a></p>
-      
-  
-    <div class="desc"><h1>Payton Scene Module</h1>
-<h2>Main Scene Module:</h2>
-<ul>
-<li>SDL2 Window</li>
-<li>Scene (<code>payton.scene</code>)<ul>
-<li>Geometry (<a href="geometry/index.html"><code>payton.scene.geometry</code></a>)</li>
-<li>Grid (<a href="grid.m.html"><code>payton.scene.grid</code></a>)</li>
-<li>Background (<a href="scene.m.html#payton.scene.scene.Background"><code>payton.scene.scene.Background</code></a>)</li>
-<li>Clock (<a href="clock.m.html"><code>payton.scene.clock</code></a>)</li>
-<li>Light (<a href="light.m.html#payton.scene.light.Light"><code>payton.scene.light.Light</code></a>)</li>
-<li>Collisio...</li>
-</ul>
-</li>
-</ul></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="shader.m.html">payton.scene.shader</a></p>
-      
-  
-    <div class="desc"><p>Payton Shader</p>
-<p>Payton Shader is an OpenGL 3.3 Compatible GLSL (330) module. Basic principle
-is to be be able to compile vertex and fragment shaders and hold basic
-ready-to-use shaders.</p>
-<p>A usual user should not be aware of this shading system. Basic shaders defined
-should be enough for simple simulat...</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="types.m.html">payton.scene.types</a></p>
-      
-  
-
-      </div>
   </section>
 
     </article>

@@ -3,11 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>payton.math API documentation</title>
-    <meta name="description" content="Payton math library
-
-Payton is designed with minimum requirements in mind. So, to reduce the number
-..." />
+    <title>payton.scene.types API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1043,18 +1040,18 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#payton.scene.types.CPlane">CPlane</a></li>
+    <li class="mono"><a href="#payton.scene.types.IList">IList</a></li>
+    <li class="mono"><a href="#payton.scene.types.VList">VList</a></li>
+  </ul>
 
-
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="geometry.m.html">payton.math.geometry</a></li>
-        <li class="mono"><a href="matrix.m.html">payton.math.matrix</a></li>
-        <li class="mono"><a href="test_geometry.m.html">payton.math.test_geometry</a></li>
-        <li class="mono"><a href="types.m.html">payton.math.types</a></li>
-        <li class="mono"><a href="vector.m.html">payton.math.vector</a></li>
-      </ul>
     </li>
+
+
+
     </ul>
   </div>
 
@@ -1066,26 +1063,16 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">payton.math</span> module</h1>
-  <p>Payton math library</p>
-<p>Payton is designed with minimum requirements in mind. So, to reduce the number
-of requirements, instead of using 3rd party mathematical libraries, I created
-my simple functions here.</p>
-<p>This math module has no requirements, so it can be used separately in other
-projects.</p>
+  <h1 class="title"><span class="name">payton.scene.types</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.math', this);">Show source &equiv;</a></p>
-  <div id="source-payton.math" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Payton math library</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-payton.scene.types', this);">Show source &equiv;</a></p>
+  <div id="source-payton.scene.types" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="sd">Payton is designed with minimum requirements in mind. So, to reduce the number</span>
-<span class="sd">of requirements, instead of using 3rd party mathematical libraries, I created</span>
-<span class="sd">my simple functions here.</span>
-
-<span class="sd">This math module has no requirements, so it can be used separately in other</span>
-<span class="sd">projects.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">VList</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>
+<span class="n">IList</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
+<span class="n">CPlane</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">Any</span><span class="p">]]</span>
 </pre></div>
 
   </div>
@@ -1093,48 +1080,34 @@ projects.</p>
   </header>
 
   <section id="section-items">
-
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+    <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
-      <p class="name"><a href="geometry.m.html">payton.math.geometry</a></p>
+      <p id="payton.scene.types.CPlane" class="name">var <span class="ident">CPlane</span></p>
       
   
+  <div class="source_cont">
+</div>
 
       </div>
       <div class="item">
-      <p class="name"><a href="matrix.m.html">payton.math.matrix</a></p>
+      <p id="payton.scene.types.IList" class="name">var <span class="ident">IList</span></p>
       
   
+  <div class="source_cont">
+</div>
 
       </div>
       <div class="item">
-      <p class="name"><a href="test_geometry.m.html">payton.math.test_geometry</a></p>
+      <p id="payton.scene.types.VList" class="name">var <span class="ident">VList</span></p>
       
   
+  <div class="source_cont">
+</div>
 
       </div>
-      <div class="item">
-      <p class="name"><a href="types.m.html">payton.math.types</a></p>
-      
-  
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="vector.m.html">payton.math.vector</a></p>
-      
-  
-    <div class="desc"><p>Vector geometry functions</p>
-<p>A vector is described by a list or a tuple with 3 indices.</p>
-<p>Example definition:</p>
-<div class="codehilite"><pre><span></span>vector_x = 3.0
-vector_y = 4.0
-vector_z = 5.0
-v = (vector_x, vector_y, vector_z)
-</pre></div></div>
 
-      </div>
+
   </section>
 
     </article>
