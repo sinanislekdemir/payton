@@ -1,4 +1,17 @@
-"""Ragdoll Object"""
+"""Ragdoll Object
+
+Please note that, this is not a complete feature. Most likely many things
+are still quite hard to accomplish using RagDoll. But it will be gradually
+better in time. It just needs some time. Therefore, I am going to visit
+this file every now and then.
+
+Ragdoll is simply a basic skeleton.
+
+Example use case:
+
+    .. include:: ../../../examples/basics/28_ragdoll.py
+
+"""
 import math
 from typing import Any, Dict
 
@@ -26,6 +39,12 @@ L_FOOT = "left_foot"
 
 
 class Joint(Sphere):
+    """Joint object definition
+
+    Joints are basically moving parts of a bone. For each
+    bone, there is a starting (root) and end Joint.
+    """
+
     def __init__(self, name: str, **kwargs):
         super().__init__(**kwargs)
         self.radius = 0.01
@@ -56,6 +75,10 @@ class Bone(Line):
 
     def connect_to_end(self, joint: Joint):
         self.end.add_child(joint.name, joint)
+
+
+class Animation:
+    pass
 
 
 class RagDoll(Bone):

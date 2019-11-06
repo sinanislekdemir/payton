@@ -1,6 +1,4 @@
-import os
 from payton.scene import Scene
-from payton.scene.gui import Hud, Text
 
 target = [124 / 255, 185 / 255, 232 / 255]
 initial = [0, 0.1, 0.2, 1.0]
@@ -34,20 +32,6 @@ def change_background(period, total):
 
 scene = Scene()
 scene.create_clock("sun", 0.1, change_background)
-
-hud = Hud()
-font_file = os.path.join(
-    os.path.dirname(__file__), "../static/arial_narrow_7.ttf"
-)
-hud.set_font(font_file, 15)
-
-info_text = "Hit space to start background animation"
-
-info = Text(
-    label=info_text, position=(550, 0), color=(1, 1, 1), size=(300, 200)
-)
-
-hud.add_child("info", info)
-scene.add_object("hud", hud)
+scene.huds["_help"].show()
 
 scene.run()

@@ -9,6 +9,8 @@ Example code:
     .. include:: ../../examples/basics/15_gui.py
 
 """
+import math
+import os
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 import numpy as np  # type: ignore
@@ -53,6 +55,8 @@ class Shape2D(Mesh):
         self.on_click: Optional[Callable] = on_click
         self._font: ImageFont = None
         self.parent: Any = None
+        self._scene_width: int = 0
+        self._scene_height: int = 0
 
     def add_child(self, name: str, obj: "Shape2D") -> bool:  # type: ignore
         """Add child to the shape, childs position will be relative to its
@@ -89,6 +93,14 @@ class Shape2D(Mesh):
         """
         self._font = font
         self.draw_text()
+
+    def set_parent_size(self, w: int, h: int):
+        self._parent_width = w
+        self._parent_height = h
+        self._init = False
+        self.draw()
+        for child in self.children.values():
+            cast("Shape2D", child).set_parent_size(self.size[0], self.size[1])
 
     def click(self, x: int, y: int) -> bool:
         """Click trigger function
@@ -184,8 +196,8 @@ class Text(Rectangle):
         position: Tuple[int, int, int],
         size: Tuple[int, int],
         label: str = "lorem",
-        bgcolor: Optional[List[int]] = None,
-        color: Optional[List[int]] = None,
+        bgcolor: Optional[Tuple[float, float, float]] = None,
+        color: Optional[Tuple[float, float, float]] = None,
         **kwargs: Any,
     ) -> None:
         """Initialize Text
@@ -197,10 +209,22 @@ class Text(Rectangle):
         """
         super().__init__(position=position, size=size, **kwargs)
         self.__label: str = label
-        self.bgcolor: List[int] = [0, 0, 0, 0] if bgcolor is None else bgcolor
-        self.color: List[int] = [0, 0, 0] if color is None else color
-        self.bgcolor = list(map(lambda x: int(x * 255), self.bgcolor))
-        self.color = list(map(lambda x: int(x * 255), self.color))
+        self.bgcolor: List[int] = [0, 0, 0, 0]
+        if bgcolor is not None:
+            self.bgcolor = [
+                math.floor(bgcolor[0] * 255),
+                math.floor(bgcolor[1] * 255),
+                math.floor(bgcolor[2] * 255)
+            ]
+
+        self.color: List[int] = [0, 0, 0]
+        if color is not None:
+            self.color = [
+                math.floor(color[0] * 255),
+                math.floor(color[1] * 255),
+                math.floor(color[2] * 255)
+            ]
+
         self.draw_text()
         self._init_text: bool = False
 
@@ -231,6 +255,15 @@ class Text(Rectangle):
             self.draw_text()
             self._init_text = True
 
+    @property
+    def text_size(self) -> Tuple[int, int]:
+        timg = Image.new("RGBA", (1, 1))
+        d = ImageDraw.Draw(timg)
+        if self.font is None:
+            return d.textsize(self.label)
+
+        return d.textsize(self.label, font=self.font)
+
     def draw_text(self) -> None:
         """Draw text
 
@@ -239,10 +272,11 @@ class Text(Rectangle):
         """
         img = Image.new("RGBA", self.size, color=tuple(self.bgcolor))
         d = ImageDraw.Draw(img)
+
         if self.font is not None:
-            d.text((5, 5), self.label, fill=tuple(self.color), font=self.font)
+            d.text((1, 1), self.label, fill=tuple(self.color), font=self.font)
         else:
-            d.text((5, 5), self.label, fill=tuple(self.color))
+            d.text((1, 1), self.label, fill=tuple(self.color))
 
         self.material._image = img
         self.material.refresh()
@@ -290,6 +324,11 @@ class Hud(Object):
             self.set_font(self._fontname, self._font_size)
         self._font: ImageFont = None
         self._projection_matrix: Optional[np.ndarray] = None
+        self.set_font(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "monofonto.ttf"
+            )
+        )
 
     @property
     def font(self) -> ImageFont:
@@ -306,7 +345,10 @@ class Hud(Object):
           name: Name of the child shape
           obj: Shape object to add
         """
-        res = super().add_child(name, obj)  # type: ignore
+        res = super().add_child(name, obj)
+        obj._scene_height = self.height
+        obj._scene_width = self.width
+
         if not res:
             return res
         obj.parent = self
@@ -317,6 +359,8 @@ class Hud(Object):
 
         Disables depth test and renders child primitives
         """
+        if not self.visible:
+            return
         glDisable(GL_DEPTH_TEST)
         if self._projection_matrix is None:
             self._projection_matrix = ortho(0, self.width, self.height, 0)
@@ -334,9 +378,14 @@ class Hud(Object):
         """
         self.width = w
         self.height = h
+        for child in self.children.values():
+            cast(Shape2D, child).set_parent_size(w, h)
+            child._init = False
+            child.draw()
+
         self._projection_matrix = None
 
-    def set_font(self, font_name: str, font_size: int = 15) -> None:
+    def set_font(self, font_name: str, font_size: int = 16) -> None:
         """Set font of the HUD
 
         Args:

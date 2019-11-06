@@ -2,7 +2,6 @@ import os
 from payton.scene import Scene
 from payton.scene.geometry import Cube
 from payton.scene.observer import Observer
-from payton.scene.gui import Hud, Text
 
 scene = Scene()
 scene.background.top_color = [0, 0, 0, 1]
@@ -23,20 +22,6 @@ inside_box = Observer(
 )
 
 scene.add_observer(inside_box)
+scene.huds["_help"].show()
 
-hud = Hud()
-font_file = os.path.join(
-    os.path.dirname(__file__), "../static/arial_narrow_7.ttf"
-)
-hud.set_font(font_file, 15)
-
-info_text = "Cycle through cameras using F2 and F3"
-
-info = Text(
-    label=info_text, position=(550, 0), color=(1, 1, 1), size=(300, 200)
-)
-
-hud.add_child("info", info)
-
-scene.add_object("hud", hud)
 scene.run()

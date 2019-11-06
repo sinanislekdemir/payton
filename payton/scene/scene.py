@@ -21,21 +21,10 @@ from typing import Any, Callable, Dict, List, Optional, TypeVar
 
 import numpy as np  # type: ignore
 import sdl2
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_LESS,
-    GL_TRIANGLES,
-    glBindVertexArray,
-    glClear,
-    glDepthFunc,
-    glDisable,
-    glDrawArrays,
-    glEnable,
-    glGenVertexArrays,
-    glViewport,
-)
+from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST,
+                       GL_LESS, GL_TRIANGLES, glBindVertexArray, glClear,
+                       glDepthFunc, glDisable, glDrawArrays, glEnable,
+                       glGenVertexArrays, glViewport)
 
 from payton.math.geometry import raycast_plane_intersect
 from payton.scene.clock import Clock
@@ -44,14 +33,12 @@ from payton.scene.controller import Controller
 from payton.scene.geometry.base import Object
 from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
+from payton.scene.gui.help import help_win
 from payton.scene.light import Light
 from payton.scene.observer import Observer
 from payton.scene.receiver import Receiver
-from payton.scene.shader import (
-    Shader,
-    background_fragment_shader,
-    background_vertex_shader,
-)
+from payton.scene.shader import (Shader, background_fragment_shader,
+                                 background_vertex_shader)
 from payton.scene.types import CPlane
 
 S = TypeVar("S", bound="Scene")
@@ -106,7 +93,10 @@ class Scene(Receiver):
         # All objects list
         self.objects: Dict[str, Object] = {}
         # All Huds (Heads Up Display)
-        self.huds: Dict[str, Hud] = {}
+        self.huds: Dict[str, Hud] = {"_help": Hud(width=width, height=height)}
+        self.huds["_help"].add_child("help", help_win())
+        self.huds["_help"].hide()
+
         self.__fps_counter = 0
         self.fps = 0
 
@@ -430,6 +420,7 @@ class Scene(Receiver):
             return -1
 
         self._context = sdl2.SDL_GL_CreateContext(self.window)
+        sdl2.SDL_GL_SetSwapInterval(0)
         self.event = sdl2.SDL_Event()
         self.running = True
 
@@ -438,6 +429,8 @@ class Scene(Receiver):
             observer.aspect_ratio = (
                 self.window_width / self.window_height * 1.0
             )
+        for hud in self.huds.values():
+            hud.set_size(self.window_width, self.window_height)
 
         for clock in self.clocks:
             self.clocks[clock].start()

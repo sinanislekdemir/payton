@@ -88,6 +88,9 @@ class Controller(object):
                     logging.debug(f"Pause clock [{clock}]")
                     c.pause()
 
+            if key == sdl2.SDLK_h:
+                scene.huds["_help"]._visible = not scene.huds["_help"]._visible
+
             if key == sdl2.SDLK_w:
                 for obj in scene.objects:
                     scene.objects[obj].toggle_wireframe()
