@@ -214,7 +214,7 @@ class Text(Rectangle):
             self.bgcolor = [
                 math.floor(bgcolor[0] * 255),
                 math.floor(bgcolor[1] * 255),
-                math.floor(bgcolor[2] * 255)
+                math.floor(bgcolor[2] * 255),
             ]
 
         self.color: List[int] = [0, 0, 0]
@@ -222,7 +222,7 @@ class Text(Rectangle):
             self.color = [
                 math.floor(color[0] * 255),
                 math.floor(color[1] * 255),
-                math.floor(color[2] * 255)
+                math.floor(color[2] * 255),
             ]
 
         self.draw_text()

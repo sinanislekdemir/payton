@@ -21,10 +21,21 @@ from typing import Any, Callable, Dict, List, Optional, TypeVar
 
 import numpy as np  # type: ignore
 import sdl2
-from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST,
-                       GL_LESS, GL_TRIANGLES, glBindVertexArray, glClear,
-                       glDepthFunc, glDisable, glDrawArrays, glEnable,
-                       glGenVertexArrays, glViewport)
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_LESS,
+    GL_TRIANGLES,
+    glBindVertexArray,
+    glClear,
+    glDepthFunc,
+    glDisable,
+    glDrawArrays,
+    glEnable,
+    glGenVertexArrays,
+    glViewport,
+)
 
 from payton.math.geometry import raycast_plane_intersect
 from payton.scene.clock import Clock
@@ -37,8 +48,11 @@ from payton.scene.gui.help import help_win
 from payton.scene.light import Light
 from payton.scene.observer import Observer
 from payton.scene.receiver import Receiver
-from payton.scene.shader import (Shader, background_fragment_shader,
-                                 background_vertex_shader)
+from payton.scene.shader import (
+    Shader,
+    background_fragment_shader,
+    background_vertex_shader,
+)
 from payton.scene.types import CPlane
 
 S = TypeVar("S", bound="Scene")

@@ -209,7 +209,7 @@ class Panel(WindowElement):
                 colors=[
                     self.theme.title_background_color,
                     self.theme.title_background_color,
-                    self.theme.title_background_color
+                    self.theme.title_background_color,
                 ],
             )
             self.add_triangle(
@@ -218,7 +218,7 @@ class Panel(WindowElement):
                 colors=[
                     self.theme.title_background_color,
                     self.theme.title_background_color,
-                    self.theme.title_background_color
+                    self.theme.title_background_color,
                 ],
             )
             self.add_triangle(
@@ -236,7 +236,7 @@ class Panel(WindowElement):
                 colors=[
                     self.theme.background_color,
                     self.theme.background_color,
-                    self.theme.background_color
+                    self.theme.background_color,
                 ],
             )
 

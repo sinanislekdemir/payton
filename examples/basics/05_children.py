@@ -17,7 +17,11 @@ def motion(period, total):
     sy = math.sin(math.radians(angle * 10)) * 2
     space.objects["nucleus"].children["particle"].children[
         "sub_particle"
-    ].position = [sx, sy, 0]
+    ].position = [
+        sx,
+        sy,
+        0,
+    ]
 
     space.lights[0].position = [px, py, 0]
     space.lights[1].position = [-px, -py, 0]

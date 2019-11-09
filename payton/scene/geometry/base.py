@@ -73,14 +73,6 @@ class Object(object):
     You need to call `payton.scene.geometry.base.Object.build` function to
     refresh Vertex Array Object.
 
-    OpenGL can not magically extend a memory buffer, so for every new vertices
-    added to the object, OpenGL needs to re-create the buffer area. This is
-    not an efficitient technique if number of vertices increase in time.
-    As a result Payton allocates buffer for 500 vertices in the beginning and
-    uses part of it. If the object exceeds 500 vertices, a new buffer is
-    created with 500 vertices more, copies existing vertices to the new
-    buffer and the old buffer is deleted.
-
     """
 
     def __init__(
@@ -598,7 +590,9 @@ class Object(object):
         d += 1
         d = d % 3
 
-        self.material.display = d
+        for mat in self.materials.values():
+            mat.display = d
+
         for n in self.children:
             self.children[n].toggle_wireframe()
 
