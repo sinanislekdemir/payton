@@ -1,4 +1,5 @@
 import random
+
 from payton.scene import Scene
 from payton.scene.geometry import Cube
 

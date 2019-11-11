@@ -1,4 +1,5 @@
 import os
+
 from payton.scene import Scene
 from payton.scene.geometry import Line
 from payton.tools.mesh import lines_to_mesh

@@ -1,8 +1,8 @@
 import random
+
 from payton.scene import Scene
 from payton.scene.geometry import Cube
-from payton.scene.gui import Button, Hud, Window, WindowAlignment, Theme
-
+from payton.scene.gui import Button, Hud, Theme, Window, WindowAlignment
 
 scene = Scene()
 hud = Hud()

@@ -1,8 +1,8 @@
 import os
-from payton.scene import Scene
-from payton.scene.material import Material, DEFAULT
-from payton.scene.geometry import Mesh
 
+from payton.scene import Scene
+from payton.scene.geometry import Mesh
+from payton.scene.material import DEFAULT, Material
 
 scene = Scene()
 mesh = Mesh()

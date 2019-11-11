@@ -1,7 +1,6 @@
 from payton.scene import Scene
 from payton.scene.geometry import Mesh
 
-
 scene = Scene()
 mesh = Mesh()
 mesh.add_triangle(

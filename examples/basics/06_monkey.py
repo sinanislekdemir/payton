@@ -1,4 +1,5 @@
 import os
+
 from payton.scene import Scene
 from payton.scene.geometry import Wavefront
 from payton.scene.geometry.wavefront import export

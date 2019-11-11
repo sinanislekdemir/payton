@@ -24,7 +24,7 @@ class Cylinder(Mesh):
         height: float = 1.0,
         **kwargs: Any,
     ) -> None:
-        """Iniitalize the cylinder
+        """Initialize the cylinder
 
         Args:
           bottom_radius: Radius at the bottom of the cylinder

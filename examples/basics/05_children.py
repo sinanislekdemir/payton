@@ -1,5 +1,6 @@
-import os
 import math
+import os
+
 from payton.scene import Scene
 from payton.scene.geometry import Sphere
 from payton.scene.light import Light

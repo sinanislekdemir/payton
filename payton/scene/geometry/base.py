@@ -844,7 +844,6 @@ class Line(Object):
 
     def toggle_wireframe(self) -> None:
         """Toggle Wireframe overwrite to disable mode change"""
-        pass
 
     def add_material(self, name: str, material: Material) -> None:
         """@TODO Implement this later! Not urgent"""

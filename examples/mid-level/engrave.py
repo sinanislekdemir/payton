@@ -1,5 +1,7 @@
 import os
+
 from PIL import Image
+
 from payton.scene import Scene
 from payton.scene.geometry import Mesh
 

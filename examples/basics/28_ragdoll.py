@@ -1,13 +1,14 @@
 import math
+
 from payton.scene import Scene
 from payton.scene.geometry import RagDoll
 from payton.scene.geometry.ragdoll import (
     L_HIP,
+    L_KNEE,
     L_SHOULDER,
     R_HIP,
-    R_SHOULDER,
     R_KNEE,
-    L_KNEE,
+    R_SHOULDER,
 )
 
 scene = Scene()

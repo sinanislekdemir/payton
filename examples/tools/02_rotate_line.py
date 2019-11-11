@@ -1,9 +1,9 @@
 import math
 import os
+
 from payton.scene import Scene
 from payton.scene.geometry import Line
 from payton.tools.mesh import rotate_line
-
 
 line = Line(
     vertices=[

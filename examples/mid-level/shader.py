@@ -2,7 +2,6 @@ from payton.scene import Scene
 from payton.scene.geometry import Cube
 from payton.scene.shader import Shader
 
-
 fragment_shader = """
 #version 330 core
 out vec4 FragColor;

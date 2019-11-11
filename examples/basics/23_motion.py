@@ -1,10 +1,10 @@
-import sdl2
 import math
+
+import sdl2
 
 from payton.scene import Scene
 from payton.scene.controller import Controller
 from payton.scene.geometry import Cube
-
 
 scene = Scene()
 forward = 0

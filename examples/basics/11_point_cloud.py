@@ -1,7 +1,8 @@
 import random
+
 from payton.scene import Scene
-from payton.scene.gui import Hud, Text
 from payton.scene.geometry import PointCloud
+from payton.scene.gui import Hud, Text
 
 
 def generate(period, total):

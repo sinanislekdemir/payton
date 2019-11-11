@@ -1,8 +1,9 @@
 import random
+
 from payton.scene import Scene
 from payton.scene.geometry import Sphere
 from payton.scene.gui import Hud, Text
-from payton.scene.material import YELLOW, RED
+from payton.scene.material import RED, YELLOW
 
 sphere_count = 0
 score_board = 0

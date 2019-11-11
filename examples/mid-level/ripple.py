@@ -1,9 +1,10 @@
 import random
 from copy import deepcopy
 from itertools import product
+
 from payton.scene import Scene
 from payton.scene.geometry import MatrixPlane
-from payton.scene.material import POINTS, LIGHT_STEEL_BLUE
+from payton.scene.material import LIGHT_STEEL_BLUE, POINTS
 
 water_size = 60
 damp = 20

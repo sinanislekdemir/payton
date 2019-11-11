@@ -1,7 +1,6 @@
 from payton.scene import Scene
 from payton.scene.geometry import Line
 
-
 scene = Scene()
 
 line = Line(

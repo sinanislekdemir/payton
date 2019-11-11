@@ -1,11 +1,12 @@
 # NOTE! This example requires "requests" to be installed
 # You can it install via `pip install requests`
 import os
+
 import requests
+
 from payton.scene import Scene
 from payton.scene.geometry import Cube
 from payton.scene.gui import Hud, Text
-
 
 y = 0
 z = 0

@@ -1,7 +1,8 @@
 import os
+
 from payton.scene import Scene
-from payton.scene.geometry import Wavefront
 from payton.scene.collision import CollisionTest
+from payton.scene.geometry import Wavefront
 
 direction = 0
 

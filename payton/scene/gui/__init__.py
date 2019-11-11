@@ -5,9 +5,9 @@ from payton.scene.gui.base import Hud, Rectangle, Shape2D, Text
 from payton.scene.gui.window import (
     Button,
     Panel,
+    Theme,
     Window,
     WindowAlignment,
-    Theme,
 )
 
 __all__ = [

@@ -1,7 +1,8 @@
 import random
+
 from payton.scene import Scene
-from payton.scene.geometry import Sphere, Cube
 from payton.scene.collision import CollisionTest
+from payton.scene.geometry import Cube, Sphere
 
 
 def hit(collision, pairs):

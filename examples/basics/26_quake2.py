@@ -1,10 +1,11 @@
 """Quake 2 Model Test"""
 import os
-import sdl2
-from payton.scene import Scene
-from payton.scene.geometry import MD2
-from payton.scene.controller import Controller
 
+import sdl2
+
+from payton.scene import Scene
+from payton.scene.controller import Controller
+from payton.scene.geometry import MD2
 
 scene = Scene()
 object_file = os.path.join(os.path.dirname(__file__), "infantry", "tris.md2")
