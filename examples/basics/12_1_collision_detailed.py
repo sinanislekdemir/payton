@@ -81,8 +81,8 @@ spherical_collision.add_object(spherical_car_2)
 aabb_collision.add_object(aabb_car_1)
 aabb_collision.add_object(aabb_car_2)
 
-scene.add_collision_test(spherical_collision)
-scene.add_collision_test(aabb_collision)
+scene.add_collision_test("spherical", spherical_collision)
+scene.add_collision_test("collision", aabb_collision)
 
 scene.create_clock("motion", 0.01, motion)
 

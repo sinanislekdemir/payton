@@ -149,7 +149,7 @@ class Scene(Receiver):
         self._shift_down = False
         self._ctrl_down = False
         self._rotate = False
-        self._collision_detectors: List[CollisionTest] = []
+        self.collisions: Dict[str, CollisionTest] = {}
         self._click_planes: List[CPlane] = []
 
         self.on_select = on_select
@@ -223,7 +223,7 @@ class Scene(Receiver):
             self.huds[object].render(proj, view, self.lights)
         self._render_lock = False
 
-        for test in self._collision_detectors:
+        for test in self.collisions.values():
             test.check()
 
         self.__fps_counter += 1
@@ -235,7 +235,7 @@ class Scene(Receiver):
             self.fps = self.__fps_counter
             self.__fps_counter = 0
 
-    def add_collision_test(self, tester: CollisionTest) -> None:
+    def add_collision_test(self, name: str, tester: CollisionTest) -> None:
         """Add collision test to the scene
 
         See `payton.scene.collision` module for details on collision
@@ -247,7 +247,7 @@ class Scene(Receiver):
             logging.error("tester must be an instance of CollisionTest")
             return
 
-        self._collision_detectors.append(tester)
+        self.collisions["name"] = tester
 
     def add_object(self, name: str, obj: Object) -> bool:
         """

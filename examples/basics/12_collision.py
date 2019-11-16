@@ -32,5 +32,5 @@ for i in range(50):
         scene.add_object("c_{}".format(i), c)
         collision.add_object(c)
 
-scene.add_collision_test(collision)
+scene.add_collision_test("test", collision)
 scene.run()
