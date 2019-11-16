@@ -45,7 +45,6 @@ from payton.math.vector import (
     sub_vector,
     vector_transform,
 )
-from payton.scene.light import Light
 from payton.scene.material import (
     DEFAULT,
     NO_INDICE,
@@ -423,9 +422,8 @@ class Object(object):
 
     def render(
         self,
-        proj: np.ndarray,
-        view: np.ndarray,
-        lights: List[Light],
+        lit: bool,
+        shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
     ) -> None:
         """
@@ -455,7 +453,7 @@ class Object(object):
             # render children
             for child in self.children:
                 self.children[child].render(
-                    proj, view, lights, self._model_matrix
+                    lit, shader, self._model_matrix,
                 )
 
             return
@@ -466,7 +464,9 @@ class Object(object):
             mode = Shader.PER_VERTEX_COLOR
 
         for material in self.materials.values():
-            material.render(proj, view, self._model_matrix, lights, mode)
+            material.render(
+                self._model_matrix, lit, shader, mode,
+            )
 
             # Actual rendering
             if material._vao > NO_VERTEX_ARRAY and glIsVertexArray(
@@ -494,16 +494,13 @@ class Object(object):
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
                 glBindVertexArray(0)
 
-            # End using the shader program.
-            material.end()
-
         # Render motion path
         if self.track_motion:
-            self._motion_path_line.render(proj, view, lights, parent_matrix)
+            self._motion_path_line.render(lit, shader, parent_matrix)
 
         # render children
         for child in self.children:
-            self.children[child].render(proj, view, lights, self._model_matrix)
+            self.children[child].render(lit, shader, self._model_matrix)
 
     @property
     def position(self) -> List[float]:
@@ -754,13 +751,7 @@ class Object(object):
                 material._vao = glGenVertexArrays(1)
                 # We need 1 buffer for material as indices
                 material._vbos = [glGenBuffers(1)]
-                glBindVertexArray(material._vao)
-                # Material shader must be built when there is an active binding
-                # to vertex array
-                material.build_shader()
-            else:
-                # we already have vertex array object, just bind it to modify
-                glBindVertexArray(material._vao)
+            glBindVertexArray(material._vao)
 
             indices = np.array(material._indices, dtype=np.int32).flatten()
 

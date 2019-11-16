@@ -30,7 +30,7 @@ class Light(object):
             7.0,
             6.0,
         ] if position is None else position
-        self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color
+        self._color: List[float] = [0.2, 0.2, 0.2] if color is None else color
         self._position_np: np.ndarray = np.array(
             self._position, dtype=np.float32
         )

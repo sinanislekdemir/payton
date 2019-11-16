@@ -12,7 +12,6 @@ There are also predefined colors in this module.
   * Shader (`payton.scene.shader`)
 
 """
-import copy
 import os
 from typing import Any, Dict, List, Optional
 
@@ -47,7 +46,6 @@ from OpenGL.GL import (
 )
 from PIL import Image  # type: ignore
 
-from payton.scene.light import Light
 from payton.scene.shader import Shader
 from payton.scene.types import IList
 
@@ -80,8 +78,6 @@ LIGHT_GRAY = [0.8, 0.8, 0.8]  # type: List[float]
 DEFAULT = "default"
 NO_VERTEX_ARRAY = -1
 NO_INDICE = -2
-
-GLOBAL_SHADER: Optional[Shader] = None
 
 
 class Material(object):
@@ -137,22 +133,6 @@ class Material(object):
 
         self._vertex_count: int = 0
 
-        variables = [
-            "model",
-            "view",
-            "projection",
-            "material_mode",
-            "light_pos",
-            "light_color",
-            "LIGHT_COUNT",
-            "object_color",
-            "opacity",
-            "view_mode",
-        ]  # type: List[str]
-
-        self._shader: Shader = Shader(variables=variables)
-        self._explicit_shader: bool = False
-
         self._initialized: bool = False
         self._texture: Optional[int] = None
 
@@ -175,31 +155,12 @@ class Material(object):
         res._indices = d["indices"]
         return res
 
-    @property
-    def shader(self) -> Shader:
-        return self._shader
-
-    @shader.setter
-    def shader(self, sh: Shader) -> None:
-        self._shader = sh
-        self._explicit_shader = True
-
-    def build_shader(self) -> bool:
+    def build(self) -> bool:
         """Build material shaders
 
         Must be called at object build stage after generating vba.
         An active vba is required for building shader properly.
         """
-        global GLOBAL_SHADER
-        if GLOBAL_SHADER is None:
-            self._shader.build()
-            if not self._explicit_shader:
-                GLOBAL_SHADER = copy.deepcopy(self._shader)
-        else:
-            if not self._explicit_shader:
-                self._shader = GLOBAL_SHADER
-            else:
-                self._shader.build()
         self._initialized = True
         if os.path.isfile(self.texture):
             img = Image.open(self.texture)
@@ -246,10 +207,9 @@ class Material(object):
 
     def render(
         self,
-        proj: np.ndarray,
-        view: np.ndarray,
         model: np.ndarray,
-        lights: List[Light],
+        lit: bool,
+        shader: Shader,
         mode: Optional[int] = None,
     ) -> None:
         """Render material
@@ -257,67 +217,49 @@ class Material(object):
         This function must be called before rendering the actual object
 
         Args:
-          proj: Projection materix
-          view: View matrix
           model: Model matrix
-          lights: Light objects in the scene
+          shader: Shader to be used for rendering
+          lit: Is this a lit environment
           mode: Set explicit shader mode (optional - used for vertex colors)
         """
         if not self._initialized:
-            self.build_shader()
+            self.build()
+
+        _mode = Shader.LIGHT_COLOR
 
         if self.display == SOLID:
-            if self.lights and len(lights) > 0:
+            if lit:
                 if self._texture is not None:
-                    self._shader._mode = Shader.LIGHT_TEXTURE
+                    _mode = Shader.LIGHT_TEXTURE
                 else:
-                    self._shader._mode = Shader.LIGHT_COLOR
+                    _mode = Shader.LIGHT_COLOR
             else:
                 if self._texture is not None:
-                    self._shader._mode = Shader.NO_LIGHT_TEXTURE
+                    _mode = Shader.NO_LIGHT_TEXTURE
                 else:
-                    self._shader._mode = Shader.NO_LIGHT_COLOR
+                    _mode = Shader.NO_LIGHT_COLOR
         else:
-            self._shader._mode = Shader.NO_LIGHT_COLOR
+            _mode = Shader.NO_LIGHT_COLOR
 
         if mode is not None:
-            self._shader._mode = mode
+            _mode = mode
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        self._shader.use()
-        self._shader.set_int("material_mode", self._shader._mode)
-        self._shader.set_matrix4x4_np("model", model)
-        if view is None:
-            self._shader.set_int("view_mode", 1)
-        else:
-            self._shader.set_matrix4x4_np("view", view)
-            self._shader.set_int("view_mode", 0)
-        self._shader.set_matrix4x4_np("projection", proj)
-        self._shader.set_float("opacity", self.opacity)
+        shader.set_int("material_mode", _mode)
+
+        shader.set_matrix4x4_np("model", model)
+        shader.set_float("opacity", self.opacity)
 
         if self._texture is not None:
-            glActiveTexture(GL_TEXTURE0)
-            glBindTexture(GL_TEXTURE_2D, self._texture)
-            self._shader.set_int("tex_unit", 0)
+            check = shader.get_location("tex_unit")
+            if check > -1:
+                glActiveTexture(GL_TEXTURE0)
+                glBindTexture(GL_TEXTURE_2D, self._texture)
+                shader.set_int("tex_unit", 0)
 
-        light_array = [light.position for light in lights]
-        lcolor_array = [light.color for light in lights]
-        light_array = np.array(light_array, dtype=np.float32)
-        lcolor_array = np.array(lcolor_array, dtype=np.float32)
-        self._shader.set_vector3_array_np(
-            "light_pos", light_array, len(lights)
-        )
-        self._shader.set_vector3_array_np(
-            "light_color", lcolor_array, len(lights)
-        )
-        self._shader.set_int("LIGHT_COUNT", len(lights))
-
-        self._shader.set_vector3_np(
+        shader.set_vector3_np(
             "object_color", np.array(self.color, dtype=np.float32)
         )
-
-    def end(self) -> None:
-        self._shader.end()
         glDisable(GL_BLEND)

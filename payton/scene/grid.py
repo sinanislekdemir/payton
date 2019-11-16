@@ -36,8 +36,8 @@ from OpenGL.GL import (
 )
 
 from payton.scene.geometry.base import Line
-from payton.scene.light import Light
 from payton.scene.material import Material
+from payton.scene.shader import Shader
 
 
 class Grid(object):
@@ -131,7 +131,10 @@ class Grid(object):
         return True
 
     def render(
-        self, proj: np.ndarray, view: np.ndarray, _lights: List[Light]
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
     ) -> bool:
         """
         Virtual function for rendering the object.
@@ -148,7 +151,7 @@ class Grid(object):
             self.build()
 
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
-        self._material.render(proj, view, self._model_matrix, [])
+        self._material.render(self._model_matrix, False, shader)
 
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
@@ -161,9 +164,9 @@ class Grid(object):
             )
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
-        self._material.end()
+
         for l in self._lines:
-            l.render(proj, view, _lights, None)
+            l.render(False, shader, None)
         return True
 
     def resize(self, xres: int, yres: int, spacing: float = 1.0) -> None:
@@ -212,7 +215,6 @@ class Grid(object):
         vbos = glGenBuffers(2)
         glBindVertexArray(self._vao)
 
-        self._material.build_shader()
         vertices = np.array(self._vertices, dtype=np.float32)
         indices = np.array(self._indices, dtype=np.int32)
 

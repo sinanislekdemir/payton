@@ -13,7 +13,7 @@ import numpy as np  # type: ignore
 
 from payton.math.vector import plane_normal
 from payton.scene.geometry.mesh import Mesh
-from payton.scene.light import Light
+from payton.scene.shader import Shader
 
 _SIGNATURE = "IDP2"
 _VERSION = 8
@@ -160,9 +160,8 @@ class MD2(Mesh):
 
     def render(
         self,
-        proj: np.ndarray,
-        view: np.ndarray,
-        lights: List[Light],
+        lit: bool,
+        shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
     ) -> None:
         if not self._visible:
@@ -173,9 +172,7 @@ class MD2(Mesh):
 
         if self.animation == "":
             for child in self.children:
-                self.children[child].render(
-                    proj, view, lights, self._model_matrix
-                )
+                self.children[child].render(lit, shader, self._model_matrix)
                 return
 
         if self._time == 0:
@@ -200,9 +197,7 @@ class MD2(Mesh):
 
         frame_name = f"{self.animation}{self._active_frame}"
 
-        self.children[frame_name].render(
-            proj, view, lights, self._model_matrix
-        )
+        self.children[frame_name].render(lit, shader, self._model_matrix)
 
     def load_file(self, filename: str):
         if not os.path.exists(filename):

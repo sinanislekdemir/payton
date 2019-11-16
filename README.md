@@ -86,6 +86,8 @@ Click image below for Youtube example:
 
     $ pip install payton
 
+## Install SDL2 Library
+
 Then go ahead and create a `test.py`
 
     from payton.scene import Scene

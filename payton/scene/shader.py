@@ -23,6 +23,7 @@ import numpy as np  # type: ignore
 from OpenGL.GL import (
     GL_FALSE,
     GL_FRAGMENT_SHADER,
+    GL_GEOMETRY_SHADER,
     GL_PROGRAM_POINT_SIZE,
     GL_TRUE,
     GL_VERTEX_SHADER,
@@ -38,18 +39,72 @@ from OpenGL.GL import (
     shaders,
 )
 
+depth_fragment_shader = """
+#version 330 core
+in vec4 FragPos;
+
+uniform vec3 light_pos[100];
+
+void main()
+{
+    float far_plane = 100.0;
+    float lightDistance = length(FragPos.xyz - light_pos[0]);
+    lightDistance = lightDistance / far_plane;
+    gl_FragDepth = lightDistance;
+}
+"""
+
+depth_vertex_shader = """
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+uniform mat4 model;
+
+void main()
+{
+    gl_Position = model * vec4(aPos, 1.0);
+}
+"""
+
+depth_geometry_shader = """
+#version 330 core
+layout (triangles) in;
+layout (triangle_strip, max_vertices=18) out;
+
+uniform mat4 shadowMatrices[6];
+
+out vec4 FragPos; // FragPos from GS (output per emitvertex)
+
+void main()
+{
+    for(int face = 0; face < 6; ++face)
+    {
+        gl_Layer = face;
+        for(int i = 0; i < 3; ++i) // for each triangle's vertices
+        {
+            FragPos = gl_in[i].gl_Position;
+            gl_Position = shadowMatrices[face] * FragPos;
+            EmitVertex();
+        }
+        EndPrimitive();
+    }
+}
+"""
+
 default_fragment_shader = """
 #version 330 core
 out vec4 FragColor;
 
-in vec3 l_normal;
-in vec3 l_fragpos;
-
 in vec2 tex_coords;
 in vec3 frag_color;
 
+in vec3 l_fragpos;
+in vec3 l_normal;
+
 uniform vec3 light_pos[100]; // assume 100 lights max.
 uniform vec3 light_color[100];
+uniform vec3 camera_pos;
+
 uniform int LIGHT_COUNT;
 
 uniform vec3 object_color;
@@ -57,7 +112,40 @@ uniform int material_mode;
 uniform float opacity;
 
 uniform sampler2D tex_unit;
+uniform samplerCube depthMap;
 
+// array of offset direction for sampling
+vec3 gridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1),
+   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+
+float ShadowCalculation(vec3 fragPos)
+{
+    vec3 fragToLight = fragPos - light_pos[0];
+    float currentDepth = length(fragToLight);
+    float shadow = 0.0;
+    float bias = 0.15;
+    int samples = 20;
+
+    float viewDistance = length(camera_pos - fragPos);
+    float diskRadius = (1.0 + (viewDistance / 100.0)) / 25.0;
+
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = texture(depthMap, fragToLight +
+                                     gridSamplingDisk[i] * diskRadius).r;
+        closestDepth *= 100.0;
+        if(currentDepth - bias > closestDepth)
+             shadow += 1.0;
+    }
+
+    return shadow / float(samples);
+}
 
 void main()
 {
@@ -93,6 +181,9 @@ void main()
                               texture(tex_unit, tex_coords));
             }
         }
+        float shadowSub = ShadowCalculation(l_fragpos);
+        FragColor /= shadowSub;
+        FragColor[3] = opacity;
     }
     if (material_mode == 4) {
         // Lightless per vertex color
@@ -131,6 +222,7 @@ void main()
         gl_Position = (projection * (vec4(position, 1.0f)
                         + vec4(model[3].xyz, 0.0f)));
     }
+
     gl_PointSize = 5.0;
 
     tex_coords = texCoords;
@@ -190,11 +282,13 @@ class Shader(object):
     LIGHT_TEXTURE = 3  # type: int
     PER_VERTEX_COLOR = 4  # type:int
     HUD = 5  # type: int
+    DEPTH_CALC = 6  # type: int
 
     def __init__(
         self,
         fragment: str = default_fragment_shader,
         vertex: str = default_vertex_shader,
+        geometry: str = "",
         variables: Optional[List[str]] = None,
         **kwargs: Any,
     ):
@@ -206,15 +300,17 @@ class Shader(object):
           variables: List of in/out/uniform variable names.
         """
         self.fragment_shader_source = fragment
-        self.vertex_shader_source: str = vertex
+        self.vertex_shader_source = vertex
+        self.geometry_shader_source = geometry
 
         self.variables: List[str] = [] if variables is None else variables
         self._stack: Dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
 
         self.program: int = -1
+        self.depth_program: int = -1
 
-    def build(self, variables: Optional[List[str]] = None) -> int:
+    def build(self) -> int:
         """Build GLSL Shader
         Compile shaders and compile glsl program
         Args:
@@ -228,13 +324,20 @@ class Shader(object):
         fragment_shader = shaders.compileShader(
             self.fragment_shader_source, GL_FRAGMENT_SHADER
         )
-        self.program = shaders.compileProgram(vertex_shader, fragment_shader)
-        if variables:
-            self.variables = variables
+        geometry_shader = None
+        if self.geometry_shader_source != "":
+            geometry_shader = shaders.compileShader(
+                self.geometry_shader_source, GL_GEOMETRY_SHADER
+            )
 
-        for v in self.variables:
-            location = glGetUniformLocation(self.program, v)
-            self._stack[v] = location
+        if geometry_shader is not None:
+            self.program = shaders.compileProgram(
+                vertex_shader, fragment_shader, geometry_shader
+            )
+        else:
+            self.program = shaders.compileProgram(
+                vertex_shader, fragment_shader
+            )
 
         return self.program
 
@@ -288,8 +391,7 @@ class Shader(object):
         if variable in self._stack:
             return self._stack[variable]
         location = glGetUniformLocation(self.program, variable)
-        if location == -1:
-            logging.error(f"Variable not found in program [{variable}]")
+
         self._stack[variable] = location
         return location
 

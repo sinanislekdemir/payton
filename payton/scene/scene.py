@@ -14,26 +14,61 @@
     * Observer (`payton.scene.observer.Observer`)
 
 """
+import math
 import ctypes
 import logging
+import sys
 import time
 from typing import Any, Callable, Dict, List, Optional, TypeVar
 
 import numpy as np  # type: ignore
+import pyrr
 import sdl2
 from OpenGL.GL import (
+    GL_CLAMP_TO_EDGE,
     GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_ATTACHMENT,
     GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_COMPONENT,
     GL_DEPTH_TEST,
+    GL_FLOAT,
+    GL_FRAMEBUFFER,
     GL_LESS,
+    GL_NEAREST,
+    GL_NONE,
+    GL_TEXTURE1,
+    GL_TEXTURE_2D,
+    GL_TEXTURE_CUBE_MAP,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+    GL_TEXTURE_MAG_FILTER,
+    GL_TEXTURE_MIN_FILTER,
+    GL_TEXTURE_WRAP_R,
+    GL_TEXTURE_WRAP_S,
+    GL_TEXTURE_WRAP_T,
     GL_TRIANGLES,
+    glActiveTexture,
+    glBindFramebuffer,
+    glBindTexture,
     glBindVertexArray,
     glClear,
+    glClearColor,
     glDepthFunc,
     glDisable,
     glDrawArrays,
+    glDrawBuffer,
     glEnable,
+    glFramebufferTexture,
+    glGenFramebuffers,
+    glGenTextures,
     glGenVertexArrays,
+    glReadBuffer,
+    glTexImage2D,
+    glTexParameteri,
     glViewport,
 )
 
@@ -52,10 +87,19 @@ from payton.scene.shader import (
     Shader,
     background_fragment_shader,
     background_vertex_shader,
+    default_fragment_shader,
+    default_vertex_shader,
+    depth_fragment_shader,
+    depth_geometry_shader,
+    depth_vertex_shader,
 )
 from payton.scene.types import CPlane
 
 S = TypeVar("S", bound="Scene")
+
+
+def a2np(a: List[float]) -> np.ndarray:
+    return np.array(a, dtype=np.float32)
 
 
 class Scene(Receiver):
@@ -139,6 +183,16 @@ class Scene(Receiver):
         self.grid = Grid()
         self.controller = Controller()
         self.background = Background()
+        self.shaders: Dict[str, Shader] = {
+            "default": Shader(
+                fragment=default_fragment_shader, vertex=default_vertex_shader
+            ),
+            "depth": Shader(
+                fragment=depth_fragment_shader,
+                vertex=depth_vertex_shader,
+                geometry=depth_geometry_shader,
+            ),
+        }
 
         # SDL Related Stuff
         self.window = None
@@ -153,6 +207,8 @@ class Scene(Receiver):
         self._click_planes: List[CPlane] = []
 
         self.on_select = on_select
+        self.depth_map = 0
+        self.depth_map_fbo = 0
         # Main running state
         self.running = False
         self._render_lock = False
@@ -199,28 +255,144 @@ class Scene(Receiver):
                 continue
             click_plane[2](hit[:3])
 
+    def _render_3d_scene(self, shadow_round=False) -> None:
+        proj, view = self.active_observer.render()
+        shader = "depth" if shadow_round else "default"
+        _shader = self.shaders[shader]
+        _shader.set_vector3("camera_pos", self.active_observer.position)
+        if view is None:
+            _shader.set_int("view_mode", 1)
+        else:
+            _shader.set_matrix4x4_np("view", view)
+            _shader.set_int("view_mode", 0)
+
+        _shader.set_matrix4x4_np("projection", proj)
+        light_array = [light.position for light in self.lights]
+        lcolor_array = [light.color for light in self.lights]
+        light_array = np.array(light_array, dtype=np.float32)
+        lcolor_array = np.array(lcolor_array, dtype=np.float32)
+        _shader.set_vector3_array_np(
+            "light_pos", light_array, len(self.lights)
+        )
+        _shader.set_vector3_array_np(
+            "light_color", lcolor_array, len(self.lights)
+        )
+        _shader.set_int("LIGHT_COUNT", len(self.lights))
+        if shadow_round:
+            shadow_proj = pyrr.matrix44.create_perspective_projection(
+                90.0, 1.0, 0.01, 25.0, np.float32
+            )
+            lightpos = np.array(self.lights[0].position, dtype=np.float32)
+
+            nx = pyrr.matrix44.create_look_at(
+                lightpos,
+                np.array(lightpos + a2np([-1.0, 0, 0]), dtype=np.float32,),
+                a2np([0, -1.0, 0]),
+                dtype=np.float32,
+            )
+            px = pyrr.matrix44.create_look_at(
+                lightpos,
+                np.array(lightpos + a2np([1, 0, 0]), dtype=np.float32,),
+                a2np([0, -1.0, 0]),
+                dtype=np.float32,
+            )
+            ny = pyrr.matrix44.create_look_at(
+                lightpos,
+                np.array(lightpos + a2np([0, -1, 0]), dtype=np.float32,),
+                a2np([0, 0, -1.0]),
+                dtype=np.float32,
+            )
+            py = pyrr.matrix44.create_look_at(
+                lightpos,
+                np.array(lightpos + a2np([0, 1, 0]), dtype=np.float32,),
+                a2np([0, 0, 1.0]),
+                dtype=np.float32,
+            )
+            pz = pyrr.matrix44.create_look_at(
+                lightpos,
+                np.array(lightpos + a2np([0, 0, 1]), dtype=np.float32,),
+                a2np([0, -1.0, 0]),
+                dtype=np.float32,
+            )
+            nz = pyrr.matrix44.create_look_at(
+                lightpos,
+                np.array(lightpos + a2np([0, 0, -1]), dtype=np.float32,),
+                a2np([0, -1.0, 0]),
+                dtype=np.float32,
+            )
+
+            shadow_matrices = [
+                px.dot(shadow_proj),
+                nx.dot(shadow_proj),
+                py.dot(shadow_proj),
+                ny.dot(shadow_proj),
+                pz.dot(shadow_proj),
+                nz.dot(shadow_proj),
+            ]
+
+            # shadow_matrices = [
+            #     shadow_proj.dot(px),
+            #     shadow_proj.dot(nx),
+            #     shadow_proj.dot(py),
+            #     shadow_proj.dot(ny),
+            #     shadow_proj.dot(pz),
+            #     shadow_proj.dot(nz),
+            # ]
+
+            for i, mat in enumerate(shadow_matrices):
+                _shader.set_matrix4x4_np("shadowMatrices[{}]".format(i), mat)
+        else:
+            if self.depth_map > -1:
+                glActiveTexture(GL_TEXTURE1)
+                glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
+                _shader.set_int("depthMap", 1)
+
+        for object in self.objects:
+            if self.objects[object].material.display > 0 and shadow_round:
+                continue
+            self.objects[object].render(
+                len(self.lights) > 0, _shader,
+            )
+
     def _render(self) -> None:
         """
         Render the whole scene here. Note that, this is a private function and
         should not be overriden unless you really know what you are dealing
         with.
         """
-        # Disable Depth Test to draw background at the very back of the scene
+        self.shaders["default"].use()
+        self._render_lock = True
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LESS)
+
+        # For shadow, render scene into framebuffer from the lights perspective
+        glClearColor(0.1, 0.1, 0.1, 1.0)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
+
+        glViewport(0, 0, 1024, 1024)
+        glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
+        glClear(GL_DEPTH_BUFFER_BIT)
+        self.shaders["depth"].use()
+        self._render_3d_scene(True)
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+        self.shaders["depth"].end()
+
+        # Render background
+        glViewport(0, 0, self.window_width, self.window_height)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
         self.background.render()
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
 
-        proj, view = self.active_observer.render()
-
-        self.grid.render(proj, view, self.lights)
-
-        self._render_lock = True
-        for object in self.objects:
-            self.objects[object].render(proj, view, self.lights)
-
+        self.shaders["default"].use()
+        self._render_3d_scene(False)
+        self.grid.render(len(self.lights) > 0, self.shaders["default"])
         for object in self.huds:
-            self.huds[object].render(proj, view, self.lights)
+            self.huds[object].render(
+                len(self.lights) > 0, self.shaders["default"]
+            )
+        self.shaders["default"].end()
+
         self._render_lock = False
 
         for test in self.collisions.values():
@@ -421,13 +593,17 @@ class Scene(Receiver):
         )
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
+        # TODO Remove this little fucker hack
+        window_mode = sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE
+        if 'fixed' in sys.argv:
+            window_mode = sdl2.SDL_WINDOW_OPENGL
         self.window = sdl2.SDL_CreateWindow(
             b"Payton Scene",
             sdl2.SDL_WINDOWPOS_UNDEFINED,
             sdl2.SDL_WINDOWPOS_UNDEFINED,
             int(self.window_width),
             int(self.window_height),
-            sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE,
+            window_mode,
         )  # type: ignore
 
         if not self.window:
@@ -448,6 +624,53 @@ class Scene(Receiver):
 
         for clock in self.clocks:
             self.clocks[clock].start()
+
+        # if shadows
+        self.depth_map_fbo = glGenFramebuffers(1)
+        self.depth_map = glGenTextures(1)
+        side_map = [
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+        ]
+        glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
+        for i in side_map:
+            glTexImage2D(
+                i,
+                0,
+                GL_DEPTH_COMPONENT,
+                1024,
+                1024,
+                0,
+                GL_DEPTH_COMPONENT,
+                GL_FLOAT,
+                None,
+            )
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(
+            GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE
+        )
+        glTexParameteri(
+            GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE
+        )
+        glTexParameteri(
+            GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE
+        )
+
+        glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
+        glFramebufferTexture(
+            GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, self.depth_map, 0,
+        )
+        glDrawBuffer(GL_NONE)
+        glReadBuffer(GL_NONE)
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+        for shader in self.shaders.values():
+            shader.build()
 
         while self.running:
             while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
