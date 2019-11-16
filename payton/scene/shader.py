@@ -43,11 +43,11 @@ depth_fragment_shader = """
 #version 330 core
 in vec4 FragPos;
 
+uniform float far_plane;
 uniform vec3 light_pos[100];
 
 void main()
 {
-    float far_plane = 100.0;
     float lightDistance = length(FragPos.xyz - light_pos[0]);
     lightDistance = lightDistance / far_plane;
     gl_FragDepth = lightDistance;
@@ -104,12 +104,14 @@ in vec3 l_normal;
 uniform vec3 light_pos[100]; // assume 100 lights max.
 uniform vec3 light_color[100];
 uniform vec3 camera_pos;
+uniform bool shadow_enabled;
 
 uniform int LIGHT_COUNT;
 
 uniform vec3 object_color;
 uniform int material_mode;
 uniform float opacity;
+uniform float far_plane;
 
 uniform sampler2D tex_unit;
 uniform samplerCube depthMap;
@@ -133,7 +135,7 @@ float ShadowCalculation(vec3 fragPos)
     int samples = 20;
 
     float viewDistance = length(camera_pos - fragPos);
-    float diskRadius = (1.0 + (viewDistance / 100.0)) / 25.0;
+    float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
 
     for(int i = 0; i < samples; ++i)
     {
@@ -158,32 +160,32 @@ void main()
         FragColor = texture(tex_unit, tex_coords);
     }
     if (material_mode == 2 || material_mode == 3) {
-        // light material
-        FragColor = vec4(0, 0, 0, 0);
-        // ambient
-        float ambientStrength = 0.2;
+        vec3 color;
+        if (material_mode == 2) {
+            color = object_color;
+        } else {
+            color = texture(tex_unit, tex_coords).rgb;
+        }
+        vec3 norm = normalize(l_normal);
 
         for (int i = 0; i < LIGHT_COUNT; i++) {
-            vec3 ambient = ambientStrength * light_color[i];
+            vec3 ambient = 0.3 * light_color[i];
 
             // diffuse
             vec3 norm = normalize(l_normal);
-
             vec3 lightDir = normalize(light_pos[i] - l_fragpos);
             float diff = max(dot(norm, lightDir), 0.0);
             vec3 diffuse = diff * light_color[i];
-            if (material_mode == 2) {
-                // color material
-                FragColor += vec4((ambient + diffuse) * object_color, opacity);
-            }else{
-                // texture material
-                FragColor += (vec4(ambient + diffuse, 1.0) *
-                              texture(tex_unit, tex_coords));
-            }
+            float spec = 0.0;
+            vec3 halfwayDir = normalize(lightDir + camera_pos);
+            spec = pow(max(dot(norm, halfwayDir), 0.0), 64.0);
+
+            vec3 specular = spec * light_color[i];
+            float shadow = shadow_enabled ? ShadowCalculation(l_fragpos) : 0.0;
+            vec3 lighting = (ambient + (1.0 - shadow) *
+                             (diffuse + specular)) * color;
+            FragColor = vec4(lighting, opacity);
         }
-        float shadowSub = ShadowCalculation(l_fragpos);
-        FragColor /= shadowSub;
-        FragColor[3] = opacity;
     }
     if (material_mode == 4) {
         // Lightless per vertex color
@@ -306,9 +308,9 @@ class Shader(object):
         self.variables: List[str] = [] if variables is None else variables
         self._stack: Dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
+        self._depth_shader = False
 
         self.program: int = -1
-        self.depth_program: int = -1
 
     def build(self) -> int:
         """Build GLSL Shader

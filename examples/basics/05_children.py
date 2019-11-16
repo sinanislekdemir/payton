@@ -29,7 +29,7 @@ def motion(period, total):
 
 
 space = Scene()
-space.lights.append(Light())
+space.lights.append(Light(position=[12, 12, 12]))
 space.observers[0].position = [20, 20, 20]
 space.grid.resize(40, 40, 1)
 

@@ -27,7 +27,7 @@ scene = Scene()
 cube = Cube()
 cube2 = Cube()
 shader = Shader(fragment=fragment_shader)
-cube.material.shader = shader
+scene.shaders["default"] = shader
 scene.add_object("cube", cube)
 scene.add_object("cube2", cube2)
 

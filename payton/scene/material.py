@@ -36,7 +36,6 @@ from OpenGL.GL import (
     glActiveTexture,
     glBindTexture,
     glBlendFunc,
-    glDisable,
     glEnable,
     glGenerateMipmap,
     glGenTextures,
@@ -262,4 +261,3 @@ class Material(object):
         shader.set_vector3_np(
             "object_color", np.array(self.color, dtype=np.float32)
         )
-        glDisable(GL_BLEND)

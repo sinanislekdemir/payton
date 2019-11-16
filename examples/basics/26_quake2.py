@@ -5,9 +5,10 @@ import sdl2
 
 from payton.scene import Scene
 from payton.scene.controller import Controller
-from payton.scene.geometry import MD2
+from payton.scene.geometry import MD2, Plane
 
 scene = Scene()
+ground = Plane(width=20, height=20)
 object_file = os.path.join(os.path.dirname(__file__), "infantry", "tris.md2")
 model = MD2(filename=object_file)
 
@@ -30,7 +31,7 @@ Hit Keyboard Down to death animation
 """
 )
 
-
+scene.add_object("ground", ground)
 scene.add_object("infantry", model)
 scene.controller = CustomKeyboardControls()
 model.animate("walk", 2, 13)

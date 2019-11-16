@@ -2,7 +2,7 @@ import logging
 import math
 
 from payton.scene import Scene
-from payton.scene.geometry import Sphere
+from payton.scene.geometry import Sphere, Plane
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -63,6 +63,9 @@ scene.add_object("ball", ball)
 scene.active_observer.target_object = ball  # Track the ball
 
 scene.grid.resize(30, 30, 2)
+scene.shadow_far_plane = 60;
+ground = Plane(80, 80)
+scene.add_object("gr", ground)
 
 scene.create_clock("motion", 0.005, projectile_motion)
 scene.create_clock("logger", 0.05, logger)

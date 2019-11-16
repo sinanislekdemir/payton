@@ -20,6 +20,20 @@
 Also, `payton.scene.scene` contents are accessible through `payton.scene` main
 module
 """
-from payton.scene.scene import Background, Scene
+from payton.scene.scene import (
+    SHADOW_HIGH,
+    SHADOW_LOW,
+    SHADOW_MID,
+    SHADOW_NONE,
+    Background,
+    Scene,
+)
 
-__all__ = ["Scene", "Background"]
+__all__ = [
+    "Scene",
+    "Background",
+    "SHADOW_HIGH",
+    "SHADOW_LOW",
+    "SHADOW_MID",
+    "SHADOW_NONE",
+]

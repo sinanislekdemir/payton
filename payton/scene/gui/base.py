@@ -74,6 +74,14 @@ class Shape2D(Mesh):
         """Placeholder for draw text function"""
         pass
 
+    def render(
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+    ):
+        super().render(False, shader, parent_matrix)
+
     @property
     def font(self) -> None:
         """Font of the shape"""

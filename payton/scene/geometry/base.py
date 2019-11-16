@@ -464,6 +464,8 @@ class Object(object):
             mode = Shader.PER_VERTEX_COLOR
 
         for material in self.materials.values():
+            if not material.display == SOLID and shader._depth_shader:
+                continue
             material.render(
                 self._model_matrix, lit, shader, mode,
             )

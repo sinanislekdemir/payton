@@ -14,7 +14,6 @@
     * Observer (`payton.scene.observer.Observer`)
 
 """
-import math
 import ctypes
 import logging
 import sys
@@ -22,7 +21,6 @@ import time
 from typing import Any, Callable, Dict, List, Optional, TypeVar
 
 import numpy as np  # type: ignore
-import pyrr
 import sdl2
 from OpenGL.GL import (
     GL_CLAMP_TO_EDGE,
@@ -37,14 +35,13 @@ from OpenGL.GL import (
     GL_NEAREST,
     GL_NONE,
     GL_TEXTURE1,
-    GL_TEXTURE_2D,
     GL_TEXTURE_CUBE_MAP,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
     GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
     GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
     GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
     GL_TEXTURE_MAG_FILTER,
     GL_TEXTURE_MIN_FILTER,
     GL_TEXTURE_WRAP_R,
@@ -73,6 +70,7 @@ from OpenGL.GL import (
 )
 
 from payton.math.geometry import raycast_plane_intersect
+from payton.math.matrix import cubemap_projection_matrices
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
 from payton.scene.controller import Controller
@@ -96,10 +94,11 @@ from payton.scene.shader import (
 from payton.scene.types import CPlane
 
 S = TypeVar("S", bound="Scene")
-
-
-def a2np(a: List[float]) -> np.ndarray:
-    return np.array(a, dtype=np.float32)
+# Shadow Qualities
+SHADOW_NONE = 0
+SHADOW_LOW = 512
+SHADOW_MID = 1024
+SHADOW_HIGH = 2048
 
 
 class Scene(Receiver):
@@ -193,6 +192,7 @@ class Scene(Receiver):
                 geometry=depth_geometry_shader,
             ),
         }
+        self.shaders["depth"]._depth_shader = True
 
         # SDL Related Stuff
         self.window = None
@@ -212,6 +212,34 @@ class Scene(Receiver):
         # Main running state
         self.running = False
         self._render_lock = False
+        self._shadow_quality = SHADOW_MID
+        self._shadow_far_plane = 100.0
+
+    @property
+    def shadow_quality(self):
+        return self._shadow_quality
+
+    @shadow_quality.setter
+    def shadow_quality(self, quality: int):
+        """Set shadow quality
+
+        You can use a pre-defined constant like
+        SHADOW_NONE, SHADOW_LOW, SHADOW_MID, SHADOW_HIGH
+
+        or you can set it to a custom integer. Shadow quality is the size
+        of shadow casting viewport.
+        """
+        self._shadow_quality = quality
+
+    @property
+    def shadow_far_plane(self):
+        return self._shadow_far_plane
+
+    @shadow_far_plane.setter
+    def shadow_far_plane(self, plane_distance: float):
+        """Shadow far plane defines the furthest shadows can be cast from the
+        initial light source"""
+        self._shadow_far_plane = plane_distance
 
     def add_click_plane(
         self,
@@ -266,6 +294,7 @@ class Scene(Receiver):
             _shader.set_matrix4x4_np("view", view)
             _shader.set_int("view_mode", 0)
 
+        _shader.set_float("far_plane", self._shadow_far_plane)
         _shader.set_matrix4x4_np("projection", proj)
         light_array = [light.position for light in self.lights]
         lcolor_array = [light.color for light in self.lights]
@@ -278,67 +307,12 @@ class Scene(Receiver):
             "light_color", lcolor_array, len(self.lights)
         )
         _shader.set_int("LIGHT_COUNT", len(self.lights))
+        if self.shadow_quality > 0:
+            _shader.set_int("shadow_enabled", 1)
         if shadow_round:
-            shadow_proj = pyrr.matrix44.create_perspective_projection(
-                90.0, 1.0, 0.01, 25.0, np.float32
+            shadow_matrices = cubemap_projection_matrices(
+                self.lights[0].position, self._shadow_far_plane
             )
-            lightpos = np.array(self.lights[0].position, dtype=np.float32)
-
-            nx = pyrr.matrix44.create_look_at(
-                lightpos,
-                np.array(lightpos + a2np([-1.0, 0, 0]), dtype=np.float32,),
-                a2np([0, -1.0, 0]),
-                dtype=np.float32,
-            )
-            px = pyrr.matrix44.create_look_at(
-                lightpos,
-                np.array(lightpos + a2np([1, 0, 0]), dtype=np.float32,),
-                a2np([0, -1.0, 0]),
-                dtype=np.float32,
-            )
-            ny = pyrr.matrix44.create_look_at(
-                lightpos,
-                np.array(lightpos + a2np([0, -1, 0]), dtype=np.float32,),
-                a2np([0, 0, -1.0]),
-                dtype=np.float32,
-            )
-            py = pyrr.matrix44.create_look_at(
-                lightpos,
-                np.array(lightpos + a2np([0, 1, 0]), dtype=np.float32,),
-                a2np([0, 0, 1.0]),
-                dtype=np.float32,
-            )
-            pz = pyrr.matrix44.create_look_at(
-                lightpos,
-                np.array(lightpos + a2np([0, 0, 1]), dtype=np.float32,),
-                a2np([0, -1.0, 0]),
-                dtype=np.float32,
-            )
-            nz = pyrr.matrix44.create_look_at(
-                lightpos,
-                np.array(lightpos + a2np([0, 0, -1]), dtype=np.float32,),
-                a2np([0, -1.0, 0]),
-                dtype=np.float32,
-            )
-
-            shadow_matrices = [
-                px.dot(shadow_proj),
-                nx.dot(shadow_proj),
-                py.dot(shadow_proj),
-                ny.dot(shadow_proj),
-                pz.dot(shadow_proj),
-                nz.dot(shadow_proj),
-            ]
-
-            # shadow_matrices = [
-            #     shadow_proj.dot(px),
-            #     shadow_proj.dot(nx),
-            #     shadow_proj.dot(py),
-            #     shadow_proj.dot(ny),
-            #     shadow_proj.dot(pz),
-            #     shadow_proj.dot(nz),
-            # ]
-
             for i, mat in enumerate(shadow_matrices):
                 _shader.set_matrix4x4_np("shadowMatrices[{}]".format(i), mat)
         else:
@@ -350,6 +324,7 @@ class Scene(Receiver):
         for object in self.objects:
             if self.objects[object].material.display > 0 and shadow_round:
                 continue
+
             self.objects[object].render(
                 len(self.lights) > 0, _shader,
             )
@@ -369,13 +344,14 @@ class Scene(Receiver):
         glClearColor(0.1, 0.1, 0.1, 1.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-        glViewport(0, 0, 1024, 1024)
-        glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
-        glClear(GL_DEPTH_BUFFER_BIT)
-        self.shaders["depth"].use()
-        self._render_3d_scene(True)
-        glBindFramebuffer(GL_FRAMEBUFFER, 0)
-        self.shaders["depth"].end()
+        if self.shadow_quality > 0:
+            glViewport(0, 0, self._shadow_quality, self._shadow_quality)
+            glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
+            glClear(GL_DEPTH_BUFFER_BIT)
+            self.shaders["depth"].use()
+            self._render_3d_scene(True)
+            glBindFramebuffer(GL_FRAMEBUFFER, 0)
+            self.shaders["depth"].end()
 
         # Render background
         glViewport(0, 0, self.window_width, self.window_height)
@@ -642,8 +618,8 @@ class Scene(Receiver):
                 i,
                 0,
                 GL_DEPTH_COMPONENT,
-                1024,
-                1024,
+                self.shadow_quality,
+                self.shadow_quality,
                 0,
                 GL_DEPTH_COMPONENT,
                 GL_FLOAT,
