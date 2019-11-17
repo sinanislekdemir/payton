@@ -10,6 +10,7 @@ Example code:
 
 """
 import math
+import os
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 import numpy as np  # type: ignore
@@ -19,7 +20,7 @@ from PIL import Image, ImageDraw, ImageFont  # type: ignore
 from payton.math.matrix import ortho
 from payton.scene.geometry.base import Object
 from payton.scene.geometry.mesh import Mesh
-from payton.scene.light import Light
+from payton.scene.shader import Shader
 
 S2 = TypeVar("S2", bound="Shape2D")
 
@@ -73,6 +74,14 @@ class Shape2D(Mesh):
     def draw_text(self):
         """Placeholder for draw text function"""
         pass
+
+    def render(
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+    ):
+        super().render(False, shader, parent_matrix)
 
     @property
     def font(self) -> None:
@@ -238,9 +247,8 @@ class Text(Rectangle):
 
     def render(
         self,
-        proj: np.ndarray,
-        view: np.ndarray,
-        lights: List[Light],
+        lit: bool,
+        shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
     ) -> None:
         """Render the Text
@@ -249,10 +257,10 @@ class Text(Rectangle):
         `payton.scene.geometry.base.Object.render` then renders the text on top
         of the rectangle.
         """
-        super().render(proj, view, lights, parent_matrix)
         if not self._init_text:
             self.draw_text()
             self._init_text = True
+        super().render(lit, shader, parent_matrix)
 
     @property
     def text_size(self) -> Tuple[int, int]:
@@ -323,6 +331,15 @@ class Hud(Object):
             self.set_font(self._fontname, self._font_size)
         self._font: ImageFont = None
         self._projection_matrix: Optional[np.ndarray] = None
+        try:
+            self.set_font(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "monofonto.ttf"
+                )
+            )
+        except OSError:
+            # font not found but pillow has better than nothinf font
+            pass
 
     @property
     def font(self) -> ImageFont:
@@ -348,7 +365,7 @@ class Hud(Object):
         obj.parent = self
         return res
 
-    def render(self, *_args: Any) -> None:
+    def render(self, lit: bool, shader: Shader, *_args: Any) -> None:
         """Render HUD
 
         Disables depth test and renders child primitives
@@ -359,8 +376,10 @@ class Hud(Object):
         if self._projection_matrix is None:
             self._projection_matrix = ortho(0, self.width, self.height, 0)
 
+        shader.set_int("view_mode", 1)
+        shader.set_matrix4x4_np("projection", self._projection_matrix)
         for child in self.children:
-            self.children[child].render(self._projection_matrix, None, [])
+            self.children[child].render(lit, shader, None)
         glEnable(GL_DEPTH_TEST)
 
     def set_size(self, w: int, h: int):

@@ -1,10 +1,10 @@
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import numpy as np
 
 from payton.scene.gui.base import Shape2D, Text
-from payton.scene.light import Light
+from payton.scene.shader import Shader
 
 
 class Theme:
@@ -77,9 +77,8 @@ class WindowElement(Shape2D):
 
     def render(
         self,
-        proj: np.ndarray,
-        view: np.ndarray,
-        lights: List[Light],
+        lit: bool,
+        shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
     ) -> None:
         """Render the Text
@@ -91,7 +90,7 @@ class WindowElement(Shape2D):
         if not self._init:
             self.draw()
 
-        super().render(proj, view, lights, parent_matrix)
+        super().render(lit, shader, parent_matrix)
 
     def add_child(self, name, obj: Shape2D) -> bool:  # type: ignore
         if obj.position[0] > self.size[0]:
@@ -283,7 +282,7 @@ class Button(Panel):
         y = (self.size[1] / 2.0) - (size[1] / 2) - 4
         self.text.label = self._label
         self.text.position = [x, y]
-        self.text.size = (size[0], size[1])
+        self.text.size = (size[0], size[1] + 4)
 
     @property
     def label(self) -> str:

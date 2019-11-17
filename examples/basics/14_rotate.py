@@ -2,7 +2,8 @@ import math
 import os
 
 from payton.scene import Scene
-from payton.scene.geometry import Cube
+from payton.scene.geometry import Cube, Plane
+from payton.scene.gui import info_box
 
 
 def rotate(period, total):
@@ -17,11 +18,25 @@ def rotate(period, total):
 
 scene = Scene()
 cube = Cube()
+ground = Plane(10, 10)
+cube.position = [0, 0, 1.0]
 texture_file = os.path.join(os.path.dirname(__file__), "cube.png")
 
-scene.observers[0].distance_to_target(3)
+scene.observers[0].distance_to_target(5)
 cube.material.texture = texture_file
 scene.add_object("cube", cube)
+scene.add_object("ground", ground)
 
 scene.create_clock("rotate", 0.01, rotate)
+scene.add_object(
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        width=220,
+        height=100,
+        label="Hit SPACE\nto start animation",
+    ),
+)
+
 scene.run()

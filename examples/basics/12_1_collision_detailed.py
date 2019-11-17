@@ -3,6 +3,7 @@ import os
 from payton.scene import Scene
 from payton.scene.collision import CollisionTest
 from payton.scene.geometry import Wavefront
+from payton.scene.gui import info_box
 
 direction = 0
 
@@ -81,9 +82,20 @@ spherical_collision.add_object(spherical_car_2)
 aabb_collision.add_object(aabb_car_1)
 aabb_collision.add_object(aabb_car_2)
 
-scene.add_collision_test("spherical", spherical_collision)
-scene.add_collision_test("collision", aabb_collision)
+scene.add_collision_test("spherical_collision", spherical_collision)
+scene.add_collision_test("aabb_collision", aabb_collision)
 
 scene.create_clock("motion", 0.01, motion)
+
+scene.add_object(
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        width=220,
+        height=100,
+        label="Hit SPACE\nto start animation",
+    ),
+)
 
 scene.run()

@@ -1,7 +1,7 @@
 import math
 
 from payton.scene import Scene
-from payton.scene.geometry import RagDoll
+from payton.scene.geometry import Plane, RagDoll
 from payton.scene.geometry.ragdoll import (
     L_HIP,
     L_KNEE,
@@ -10,6 +10,7 @@ from payton.scene.geometry.ragdoll import (
     R_KNEE,
     R_SHOULDER,
 )
+from payton.scene.gui import info_box
 
 scene = Scene()
 ragdoll = RagDoll()
@@ -38,9 +39,21 @@ def walk(period, total):
 
 scene.add_object("ragdoll", ragdoll)
 scene.create_clock("walk", 0.01, walk)
+scene.add_object("ground", Plane(20, 20))
 
 ragdoll.joints[R_SHOULDER].rotate_around_y(math.radians(50))
 ragdoll.joints[L_SHOULDER].rotate_around_y(math.radians(-50))
 ragdoll.joints[R_KNEE].rotate_around_x(math.radians(-20))
 ragdoll.joints[L_KNEE].rotate_around_x(math.radians(-20))
+scene.add_object(
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        width=220,
+        height=100,
+        label="Hit SPACE\nto start animation",
+    ),
+)
+
 scene.run()

@@ -1,8 +1,9 @@
 import logging
 import math
 
-from payton.scene import Scene
-from payton.scene.geometry import Sphere
+from payton.scene import SHADOW_HIGH, Scene
+from payton.scene.geometry import Plane, Sphere
+from payton.scene.gui import info_box
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -55,6 +56,7 @@ def logger(period, total):
 
 #  Definitions
 scene = Scene()
+scene.shadow_quality = SHADOW_HIGH
 
 ball = Sphere(radius=1, track_motion=True)
 
@@ -63,8 +65,21 @@ scene.add_object("ball", ball)
 scene.active_observer.target_object = ball  # Track the ball
 
 scene.grid.resize(30, 30, 2)
+ground = Plane(80, 80)
+scene.add_object("gr", ground)
 
 scene.create_clock("motion", 0.005, projectile_motion)
 scene.create_clock("logger", 0.05, logger)
+
+scene.add_object(
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        width=220,
+        height=100,
+        label="Hit SPACE\nto start animation",
+    ),
+)
 
 scene.run()

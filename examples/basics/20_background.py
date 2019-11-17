@@ -1,4 +1,5 @@
 from payton.scene import Scene
+from payton.scene.gui import info_box
 
 target = [124 / 255, 185 / 255, 232 / 255]
 initial = [0, 0.1, 0.2, 1.0]
@@ -32,6 +33,16 @@ def change_background(period, total):
 
 scene = Scene()
 scene.create_clock("sun", 0.1, change_background)
-scene.huds["_help"].show()
+
+scene.add_object(
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        width=220,
+        height=100,
+        label="Hit SPACE\nto start animation",
+    ),
+)
 
 scene.run()

@@ -4,6 +4,7 @@ from itertools import product
 
 from payton.scene import Scene
 from payton.scene.geometry import MatrixPlane
+from payton.scene.gui import info_box
 from payton.scene.material import LIGHT_STEEL_BLUE, POINTS
 
 water_size = 60
@@ -83,7 +84,6 @@ scene.background.bottom_color = [0, 0, 0, 1]
 
 scene.add_click_plane([0, 0, 0], [0, 0, 1], ripple_pos)
 scene.grid.visible = False
-scene.lights[0].position = [100, 100, 2]
 
 plane = MatrixPlane(width=20, height=20, x=water_size, y=water_size)
 water = deepcopy(plane.grid)
@@ -95,5 +95,15 @@ scene.create_clock("ripple", 0.025, calc_water)
 scene.create_clock("drop", 5, drop)
 scene.add_object("plane", plane)
 scene.active_observer.distance_to_target(20)
+scene.add_object(
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        width=220,
+        height=100,
+        label="Hit SPACE\nto start animation",
+    ),
+)
 
 scene.run()

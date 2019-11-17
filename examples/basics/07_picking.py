@@ -2,6 +2,7 @@ import random
 
 from payton.scene import Scene
 from payton.scene.geometry import Cube
+from payton.scene.gui import info_box
 
 
 def select(list):
@@ -22,6 +23,12 @@ for i in range(10):
     cube.position = [x, y, z]
     scene.add_object("cube_{}".format(i), cube)
 
-print("Try clicking on objects")
+scene.add_object(
+    "info",
+    info_box(
+        left=10, top=10, width=220, height=100, label="Try clicking cubes"
+    ),
+)
+
 
 scene.run()

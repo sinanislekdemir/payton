@@ -1,3 +1,4 @@
+from payton.scene.gui.base import Hud
 from payton.scene.gui.window import Button, Window, WindowAlignment
 
 
@@ -26,3 +27,30 @@ F2: Previous Observer F3: Next Observer
         "text", Button(width=400, height=400, left=10, top=40, label=text)
     )
     return help_window
+
+
+def info_box(left: int, top: int, width: int, height: int, label: str) -> Hud:
+    hud = Hud()
+    window = Window(
+        "Info", width=width, height=height + 60, left=left, top=top
+    )
+
+    window.add_child(
+        "label",
+        Button(
+            label=label, width=width - 20, height=height - 40, top=40, left=10
+        ),
+    )
+    window.add_child(
+        "close",
+        Button(
+            label="CLOSE",
+            left=int(width / 2) - 10,
+            top=height + 10,
+            width=int(width / 2),
+            height=40,
+            on_click=window.hide,
+        ),
+    )
+    hud.add_child("window", window)
+    return hud

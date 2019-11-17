@@ -84,6 +84,8 @@ Click image below for Youtube example:
 
 ## Install and kick-start
 
+Please not that, Payton requires `libsdl2` and `imagemagick` to be installed on your system.
+
     $ pip install payton
 
 Then go ahead and create a `test.py`
@@ -92,7 +94,6 @@ Then go ahead and create a `test.py`
     
     a = Scene()
     a.run()
-    
 
 ### Default key mapping:
 

@@ -13,6 +13,7 @@ import math
 
 from payton.scene import Scene
 from payton.scene.geometry import Cube
+from payton.scene.gui import info_box
 
 
 class Application(Scene):
@@ -21,6 +22,16 @@ class Application(Scene):
         cube = Cube()
         self.add_object("cube", cube)
         self.create_clock("rotator", 0.01, self.timer)
+        self.add_object(
+            "info",
+            info_box(
+                left=10,
+                top=10,
+                width=220,
+                height=100,
+                label="Hit SPACE\nto start animation",
+            ),
+        )
 
     def timer(self, period, total):
         self.objects["cube"].rotate_around_z(math.radians(1))
