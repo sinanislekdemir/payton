@@ -65,6 +65,8 @@ text = Text(
     label="Instagram Photos", color=(1, 1, 1), position=(0, 0), size=(800, 600)
 )
 hud.add_child("info", text)
+scene.background.top_color = [0, 0, 0, 1]
+scene.background.bottom_color = [0, 0, 0, 1]
 
 scene.add_object("hud", hud)
 

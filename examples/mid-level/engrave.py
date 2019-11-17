@@ -4,6 +4,7 @@ from PIL import Image
 
 from payton.scene import Scene
 from payton.scene.geometry import Mesh
+from payton.scene.gui import info_box
 
 scene = Scene()
 mesh = Mesh()
@@ -20,6 +21,7 @@ pixel_size_y = 5 / (img.size[1] * aspect)
 
 print("Building the engraving")
 x, y = img.size
+count = 0
 for j in range(y - 1):
     for i in range(x - 1):
         v_1 = pix[i, j][0] / 255
@@ -52,9 +54,13 @@ for j in range(y - 1):
                 [i / img.size[0], (j + 1) / img.size[1]],
             ],
         )
+        count += 6
 
 print("Done, now loading the scene")
 mesh.material.texture = texture
 mesh.position = [-2.5, -3, 0]
 scene.add_object("mesh", mesh)
+
+info = "{} vertices loaded".format(count)
+scene.add_object("info", info_box(10, 10, 220, 100, info))
 scene.run()

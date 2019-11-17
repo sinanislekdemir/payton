@@ -1,8 +1,9 @@
 import math
 import os
 
-from payton.scene import Scene
+from payton.scene import SHADOW_NONE, Scene
 from payton.scene.geometry import Sphere
+from payton.scene.gui import info_box
 from payton.scene.light import Light
 
 
@@ -11,14 +12,12 @@ def motion(period, total):
     angle = (total * 10) % 360
     px = math.cos(math.radians(angle)) * 8
     py = math.sin(math.radians(angle)) * 8
-    space.objects["nucleus"].children["particle"].position = [px, py, 0]
-    space.objects["nucleus"].rotate_around_z(math.radians(1.0))
+    space.objects["earth"].children["moon"].position = [px, py, 0]
+    space.objects["earth"].rotate_around_z(math.radians(1.0))
 
     sx = math.cos(math.radians(angle * 10)) * 2  # 10 times faster
     sy = math.sin(math.radians(angle * 10)) * 2
-    space.objects["nucleus"].children["particle"].children[
-        "sub_particle"
-    ].position = [
+    space.objects["earth"].children["moon"].children["moon_moon"].position = [
         sx,
         sy,
         0,
@@ -29,25 +28,36 @@ def motion(period, total):
 
 
 space = Scene()
+space.shadow_quality = SHADOW_NONE
 space.lights.append(Light(position=[12, 12, 12]))
 space.observers[0].position = [20, 20, 20]
 space.grid.resize(40, 40, 1)
 
 texture_file = os.path.join(os.path.dirname(__file__), "map.png")
 
-nucleus = Sphere(radius=5, parallels=36, meridians=36)
-nucleus.material.texture = texture_file
-particle = Sphere()
-particle.position = [8, 0, 0]
+earth = Sphere(radius=5, parallels=36, meridians=36)
+earth.material.texture = texture_file
+moon = Sphere()
+moon.position = [8, 0, 0]
 
-sub_particle = Sphere(radius=0.5)
-sub_particle.position = [0, 2, 0]
+moon_moon = Sphere(radius=0.5)
+moon_moon.position = [0, 2, 0]
 
-nucleus.add_child("particle", particle)
-particle.add_child("sub_particle", sub_particle)
+earth.add_child("moon", moon)
+moon.add_child("moon_moon", moon_moon)
 
-space.add_object("nucleus", nucleus)
+space.add_object("earth", earth)
 
 space.create_clock("motion", 0.01, motion)
-print("Hit SPACE to continue animation")
+space.add_object(
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        width=220,
+        height=100,
+        label="Hit SPACE\nto start animation",
+    ),
+)
+
 space.run()

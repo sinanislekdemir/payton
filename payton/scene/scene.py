@@ -310,6 +310,8 @@ class Scene(Receiver):
         if self.shadow_quality > 0:
             _shader.set_int("shadow_enabled", 1)
         if shadow_round:
+            if len(self.lights) == 0:
+                return
             shadow_matrices = cubemap_projection_matrices(
                 self.lights[0].position, self._shadow_far_plane
             )
@@ -395,7 +397,7 @@ class Scene(Receiver):
             logging.error("tester must be an instance of CollisionTest")
             return
 
-        self.collisions["name"] = tester
+        self.collisions[name] = tester
 
     def add_object(self, name: str, obj: Object) -> bool:
         """

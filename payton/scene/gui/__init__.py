@@ -2,6 +2,7 @@
 """#Payton GUI Module
 """
 from payton.scene.gui.base import Hud, Rectangle, Shape2D, Text
+from payton.scene.gui.help import info_box
 from payton.scene.gui.window import (
     Button,
     Panel,
@@ -20,4 +21,5 @@ __all__ = [
     "Panel",
     "Button",
     "Theme",
+    "info_box",
 ]

@@ -10,6 +10,7 @@ Example code:
 
 """
 import math
+import os
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 import numpy as np  # type: ignore
@@ -330,6 +331,15 @@ class Hud(Object):
             self.set_font(self._fontname, self._font_size)
         self._font: ImageFont = None
         self._projection_matrix: Optional[np.ndarray] = None
+        try:
+            self.set_font(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "monofonto.ttf"
+                )
+            )
+        except OSError:
+            # font not found but pillow has better than nothinf font
+            pass
 
     @property
     def font(self) -> ImageFont:

@@ -93,7 +93,9 @@ def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
     return np.array(result, dtype=np.float32)
 
 
-def cubemap_projection_matrices(from_point: List[float], far_plane: float) -> List[np.ndarray]:
+def cubemap_projection_matrices(
+    from_point: List[float], far_plane: float
+) -> List[np.ndarray]:
     def a2np(a: List[float]) -> np.ndarray:
         return np.array(a, dtype=np.float32)
 

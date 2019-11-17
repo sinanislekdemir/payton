@@ -282,7 +282,7 @@ class Button(Panel):
         y = (self.size[1] / 2.0) - (size[1] / 2) - 4
         self.text.label = self._label
         self.text.position = [x, y]
-        self.text.size = (size[0], size[1])
+        self.text.size = (size[0], size[1] + 4)
 
     @property
     def label(self) -> str:
