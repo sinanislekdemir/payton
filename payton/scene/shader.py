@@ -161,10 +161,12 @@ void main()
     }
     if (material_mode == 2 || material_mode == 3) {
         vec3 color;
+        float tex_opacity = 1.0;
         if (material_mode == 2) {
             color = object_color;
         } else {
             color = texture(tex_unit, tex_coords).rgb;
+            tex_opacity = texture(tex_unit, tex_coords).a;
         }
         vec3 norm = normalize(l_normal);
 
@@ -184,7 +186,11 @@ void main()
             float shadow = shadow_enabled ? ShadowCalculation(l_fragpos) : 0.0;
             vec3 lighting = (ambient + (1.0 - shadow) *
                              (diffuse + specular)) * color;
-            FragColor = vec4(lighting, opacity);
+            if (tex_opacity < 1.0) {
+                FragColor = vec4(lighting, tex_opacity);
+            }else {
+                FragColor = vec4(lighting, opacity);
+            }
         }
     }
     if (material_mode == 4) {

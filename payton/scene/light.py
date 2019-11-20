@@ -7,6 +7,8 @@ from typing import Any, List, Optional
 
 import numpy as np  # type: ignore
 
+from payton.math.matrix import cubemap_projection_matrices
+
 
 class Light(object):
     """Main Light object
@@ -35,6 +37,8 @@ class Light(object):
             self._position, dtype=np.float32
         )
         self._color_np: np.ndarray = np.array(self._color, dtype=np.float32)
+        self._shadow_matrices: List[np.ndarray] = []
+        self._shadow_far_plane = 100.0
 
         self.active: bool = True
 
@@ -46,6 +50,25 @@ class Light(object):
     def position(self, position: List[float]) -> None:
         self._position = position
         self._position_np = np.array(self.position, dtype=np.float32)
+        self._shadow_matrices = []
+
+    @property
+    def shadow_matrices(self):
+        if len(self._shadow_matrices) > 0:
+            return self._shadow_matrices
+        self._shadow_matrices = cubemap_projection_matrices(
+            self.position, self._shadow_far_plane
+        )
+        return self._shadow_matrices
+
+    @property
+    def shadow_far_plane(self):
+        return self._shadow_far_plane
+
+    @shadow_far_plane.setter
+    def shadow_far_plane(self, val: float):
+        self._shadow_far_plane = val
+        self._shadow_matrices = []
 
     @property
     def color(self) -> List[float]:

@@ -68,10 +68,11 @@ class Wavefront(Mesh):
                 ]
 
             if parts[0] == "map_Kd":
-                if parts[1][0] == "/":
-                    material.texture = parts[1]
+                rest = ' '.join(parts[1:])
+                if rest == "/":
+                    material.texture = rest
                 else:
-                    material.texture = f"{self.path}/{parts[1]}"
+                    material.texture = f"{self.path}/{rest}"
 
         self.add_material(material_name, material)
 

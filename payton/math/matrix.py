@@ -71,6 +71,14 @@ def create_rotation_matrix(axis: GArray, angle: float) -> np.ndarray:
     return np.array(result, dtype=np.float32)
 
 
+def scale_matrix(x: float, y: float, z: float) -> np.ndarray:
+    result = deepcopy(IDENTITY_MATRIX)
+    result[0][0] = x
+    result[1][1] = y
+    result[2][2] = z
+    return np.array(result, dtype=np.float32)
+
+
 @lru_cache(maxsize=512)
 def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
     """Create orthographic projection matrix

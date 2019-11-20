@@ -77,6 +77,7 @@ LIGHT_GRAY = [0.8, 0.8, 0.8]  # type: List[float]
 DEFAULT = "default"
 NO_VERTEX_ARRAY = -1
 NO_INDICE = -2
+EMPTY_VERTEX_ARRAY = -3
 
 
 class Material(object):

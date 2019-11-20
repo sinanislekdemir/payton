@@ -3,7 +3,6 @@
 import os
 
 import requests
-
 from payton.scene import Scene
 from payton.scene.geometry import Cube
 from payton.scene.gui import Hud, Text

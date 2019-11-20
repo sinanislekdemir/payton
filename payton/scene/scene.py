@@ -70,7 +70,6 @@ from OpenGL.GL import (
 )
 
 from payton.math.geometry import raycast_plane_intersect
-from payton.math.matrix import cubemap_projection_matrices
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
 from payton.scene.controller import Controller
@@ -213,7 +212,6 @@ class Scene(Receiver):
         self.running = False
         self._render_lock = False
         self._shadow_quality = SHADOW_MID
-        self._shadow_far_plane = 100.0
 
     @property
     def shadow_quality(self):
@@ -230,16 +228,6 @@ class Scene(Receiver):
         of shadow casting viewport.
         """
         self._shadow_quality = quality
-
-    @property
-    def shadow_far_plane(self):
-        return self._shadow_far_plane
-
-    @shadow_far_plane.setter
-    def shadow_far_plane(self, plane_distance: float):
-        """Shadow far plane defines the furthest shadows can be cast from the
-        initial light source"""
-        self._shadow_far_plane = plane_distance
 
     def add_click_plane(
         self,
@@ -294,7 +282,7 @@ class Scene(Receiver):
             _shader.set_matrix4x4_np("view", view)
             _shader.set_int("view_mode", 0)
 
-        _shader.set_float("far_plane", self._shadow_far_plane)
+        _shader.set_float("far_plane", self.lights[0].shadow_far_plane)
         _shader.set_matrix4x4_np("projection", proj)
         light_array = [light.position for light in self.lights]
         lcolor_array = [light.color for light in self.lights]
@@ -312,9 +300,7 @@ class Scene(Receiver):
         if shadow_round:
             if len(self.lights) == 0:
                 return
-            shadow_matrices = cubemap_projection_matrices(
-                self.lights[0].position, self._shadow_far_plane
-            )
+            shadow_matrices = self.lights[0].shadow_matrices
             for i, mat in enumerate(shadow_matrices):
                 _shader.set_matrix4x4_np("shadowMatrices[{}]".format(i), mat)
         else:
@@ -323,11 +309,11 @@ class Scene(Receiver):
                 glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
                 _shader.set_int("depthMap", 1)
 
-        for object in self.objects:
-            if self.objects[object].material.display > 0 and shadow_round:
+        for object in self.objects.values():
+            if object.material.display > 0 and shadow_round:
                 continue
 
-            self.objects[object].render(
+            object.render(
                 len(self.lights) > 0, _shader,
             )
 
@@ -728,6 +714,58 @@ class Background(object):
         )
         self._vao = None
         self.visible = True
+
+    def set_time(self, hour: int, minute: int):
+        hour = hour % 24
+        minute = minute % 60
+        color_scheme = {
+            (0, 3): [
+                [24 / 255, 24 / 255, 48 / 255, 1.0],
+                [24 / 255, 48 / 255, 72 / 255, 1.0],
+            ],
+            (3, 9): [
+                [24 / 255, 48 / 255, 72 / 255, 1.0],
+                [96 / 255, 168 / 255, 192 / 255, 1.0],
+            ],
+            (9, 15): [
+                [96 / 255, 168 / 255, 192 / 255, 1.0],
+                [144 / 255, 192 / 255, 240 / 255, 1.0],
+            ],
+            (15, 21): [
+                [144 / 255, 192 / 255, 240 / 255, 1.0],
+                [48 / 255, 72 / 255, 120 / 255, 1.0],
+            ],
+            (21, 24): [
+                [48 / 255, 72 / 255, 120 / 255, 1.0],
+                [24 / 255, 24 / 255, 48 / 255, 1.0],
+            ],
+        }
+        for color in color_scheme:
+            if hour >= color[0] and hour < color[1]:
+                hours = color[1] - color[0]
+                minutes = hours * 60
+                minute = ((hour - color[0]) * 60) + minute
+                xdist = (
+                    (color_scheme[color][1][0] - color_scheme[color][0][0])
+                    / minutes
+                ) * minute
+                ydist = (
+                    (color_scheme[color][1][1] - color_scheme[color][0][1])
+                    / minutes
+                ) * minute
+                zdist = (
+                    (color_scheme[color][1][2] - color_scheme[color][0][2])
+                    / minutes
+                ) * minute
+
+                self.bottom_color = color_scheme[color][0]
+                self.top_color = [
+                    color_scheme[color][0][0] + xdist,
+                    color_scheme[color][0][1] + ydist,
+                    color_scheme[color][0][2] + zdist,
+                    1.0,
+                ]
+                return
 
     def render(self) -> None:
         """Render background of the scene"""

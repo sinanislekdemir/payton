@@ -35,7 +35,7 @@ from OpenGL.GL import (
 )
 
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import create_rotation_matrix
+from payton.math.matrix import create_rotation_matrix, scale_matrix
 from payton.math.vector import (
     add_vectors,
     cross_product,
@@ -274,6 +274,18 @@ class Object(object):
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
 
+    def scale(self, x: float, y: float, z: float) -> None:
+        sm = scale_matrix(x, y, z)
+        local_matrix = np.array(self.matrix, dtype=np.float32)
+        local_matrix = sm.dot(local_matrix)
+        self.matrix = local_matrix.tolist()
+
+    def scale_texture(self, x: float, y: float) -> None:
+        self._texcoords = [
+            [coord[0] * x, coord[1] * y] for coord in self._texcoords
+        ]
+        self.refresh()
+
     def select(self, start: np.ndarray, vector: np.ndarray) -> bool:
         """Select test for object using bounding Sphere.
 
@@ -415,7 +427,7 @@ class Object(object):
     def has_missing_vao(self) -> bool:
         return any(
             [
-                material._vao == NO_VERTEX_ARRAY
+                material._vao == NO_VERTEX_ARRAY and len(material._indices) > 0
                 for material in self.materials.values()
             ]
         )
