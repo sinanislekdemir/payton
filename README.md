@@ -50,13 +50,13 @@ a newbie can kick-start it just by following the tutorials.
   * Point Cloud
   * Sphere
   * Dynamic Grid
-* Clean default scene
+* Clean default scene.
 * Pre-defined keyboard-mouse and camera controls
 * Pre-defined environment
 * Clock system for parallel tasks and time based operations
 * Simple collision detection
 * Extendable controllers
-* Pre-defined lighting
+* Pre-defined lighting with shadows.
 * Material support
 * Clickable objects and virtual planes
 * Shader support
@@ -73,20 +73,24 @@ a newbie can kick-start it just by following the tutorials.
 * Extensive examples for every feature and more.
 
 
-Also checkout the examples from [https://github.com/sinanislekdemir/payton/tree/master/examples](https://github.com/sinanislekdemir/payton/tree/master/examples)
+## Examples:
+
+Examples can be found at [https://github.com/sinanislekdemir/payton/tree/master/examples](https://github.com/sinanislekdemir/payton/tree/master/examples)
 
 More information can be found in documents.
 
-Click image below for Youtube example:
-
-[![Payton ripple example](http://img.youtube.com/vi/mMorei0MXvU/0.jpg)](http://www.youtube.com/watch?v=mMorei0MXvU)
-
-
 ## Install and kick-start
 
-Please not that, Payton requires `libsdl2` and `imagemagick` to be installed on your system.
+### Requirements:
 
-    $ pip install payton
+- LibSDL2 `sudo apt install libsdl2-dev` for debian/ubuntu based linux distros. For other platforms, you can see your favourite package manager.
+- imagemagick `sudo apt install imagemagick` for debian/ubuntu based linux distros. For other platforms, you can see your favourite package manager.
+- Python 3.7+
+- A Graphics card that supports OpenGL 3.3+
+
+### Install:
+
+    $ pip3 install payton
 
 Then go ahead and create a `test.py`
 
@@ -94,6 +98,60 @@ Then go ahead and create a `test.py`
     
     a = Scene()
     a.run()
+
+This will bring up a default scene. You can press **h** from keyboard to show help window.  
+For a more complex example you can try this:
+
+    import math
+
+    from payton.scene import Scene
+    from payton.scene.geometry import Cube, Plane
+
+    scene = Scene()
+
+
+    def move(period, total):
+        """Move function gets called by clock tick and handles our light movements"""
+        angle = (total * 60) % 360
+        px = math.cos(math.radians(angle)) * 8
+        py = math.sin(math.radians(angle)) * 8
+        scene.lights[0].position = [px, py, 4.0]
+
+
+    # Create a cube for the scene
+    cube = Cube()
+    # Set it to a position
+    cube.position = [2, 1, 0.5]
+
+    # Create the ground plane 30x30 in size
+    ground = Plane(width=30, height=30)
+    # We need a wall to project our shadows
+    wall1 = Plane(width=30, height=10)
+    # Wall is on the ground, so lets rotate it around X axis to stand perpendicular
+    wall1.rotate_around_x(math.radians(90))
+    # And lets give it a position.
+    wall1.position = [0, -10, 5]
+
+    # There is already a pre-defined light in the scene, so we are modifying its location.
+    scene.lights[0].position = [5.0, 5.0, 6.0]
+    # Create another Cube, but this time instead of giving it size, we are using two points
+    # in space and construct a cube by joining two points.
+    cube_by_corners = Cube(from_corner=[-3, -3, 1], to_corner=[-1, -1, 3])
+    # Create a clock in the scene to move the light
+    scene.create_clock('mm', 0.001, move)
+
+    # Now add all objects to scene
+    scene.add_object("wall", wall1)
+    scene.add_object("cube", cube)
+    scene.add_object("cube_by_corners", cube_by_corners)
+    scene.add_object("ground", ground)
+
+    # Scene comes with a default Grid, so lets hide it for this example.
+    scene.grid.visible = False
+
+    # It's alive!
+    scene.run()
+
 
 ### Default key mapping:
 
@@ -119,15 +177,7 @@ Some notes on Python3:
 Currently Payton is in pre-alpha, or it is just some dust cloud in the space.
 If you want to contribue, here is what you can do:
 
-You can generate the API documentation using:
-
-    $ make docs
-
-It should generate the documentations and open it automatically in browser.
-If it fails to open up the browser, you'll find the docs in `docs/payton`
-directory
-
-I encourage you to create a virtualenv for Payton (with Python 3.5+)
+I encourage you to create a virtualenv for Payton (with Python 3.7+)
 
 `virtualenv -p <path-to-python3> payton` should do the trick. If you don't have
 `virtualenv` in your path, google it!
@@ -135,6 +185,9 @@ I encourage you to create a virtualenv for Payton (with Python 3.5+)
 To start fiddling with it, `python setup.py develop` will install all
 requirements and will add `payton` to site-packages. But changes to code will
 immediately take effect, as opposed to `install` command.
+
+Be sure to check your code with `flake8` + `flake8-isort` + `mypy` before sending.  
+To format your code, you can use `black`.
 
 To kick start, after `python setup.py develop` run `python examples/04_clock.py`
 
