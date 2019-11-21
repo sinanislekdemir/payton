@@ -212,6 +212,17 @@ class Scene(Receiver):
         self.running = False
         self._render_lock = False
         self._shadow_quality = SHADOW_MID
+        self._shadow_samples = 20
+
+    @property
+    def shadow_samples(self):
+        return self._shadow_samples
+
+    @shadow_samples.setter
+    def shadow_samples(self, samples: int):
+        self._shadow_samples = samples % 21
+        if self._shadow_samples == 0:
+            self._shadow_samples = 1
 
     @property
     def shadow_quality(self):
@@ -295,6 +306,7 @@ class Scene(Receiver):
             "light_color", lcolor_array, len(self.lights)
         )
         _shader.set_int("LIGHT_COUNT", len(self.lights))
+        _shader.set_int("samples", self._shadow_samples)
         if self.shadow_quality > 0:
             _shader.set_int("shadow_enabled", 1)
         if shadow_round:

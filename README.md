@@ -79,6 +79,13 @@ Examples can be found at [https://github.com/sinanislekdemir/payton/tree/master/
 
 More information can be found in documents.
 
+## Some Limitations:
+
+- Currently, only the initial light source (`scene.lights[0]`) cast shadows. This is primarily for performance reasons and hardcoded.
+- There can be upto 100 lights in the scene.
+- Even-though there is not restriction on number of objects in the scene, it can effect the initial load time. Once it gets loaded, it should work fine as graphics card and shader program does the heavy-lifting.
+- There are only two collision detection algorithms. Axis Aligned Bounding Box (AABB) is the default algorithm. Also you can reduce it to Spherical collision detection as well, which is simpler and works faster but it just checks for the bounding spheres of objects thus makes a pretty rough assumption.
+
 ## Install and kick-start
 
 ### Requirements:

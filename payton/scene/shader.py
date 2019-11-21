@@ -105,6 +105,7 @@ uniform vec3 light_pos[100]; // assume 100 lights max.
 uniform vec3 light_color[100];
 uniform vec3 camera_pos;
 uniform bool shadow_enabled;
+uniform int samples;
 
 uniform int LIGHT_COUNT;
 
@@ -132,7 +133,6 @@ float ShadowCalculation(vec3 fragPos)
     float currentDepth = length(fragToLight);
     float shadow = 0.0;
     float bias = 0.15;
-    int samples = 20;
 
     float viewDistance = length(camera_pos - fragPos);
     float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
