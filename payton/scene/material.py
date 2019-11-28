@@ -228,7 +228,7 @@ class Material(object):
         _mode = Shader.LIGHT_COLOR
 
         if self.display == SOLID:
-            if lit:
+            if lit and self.lights:
                 if self._texture is not None:
                     _mode = Shader.LIGHT_TEXTURE
                 else:

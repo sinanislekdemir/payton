@@ -230,10 +230,10 @@ class Object(object):
         self.matrix[1][2] = v[2]
         left = cross_product(self.matrix[1], self.matrix[2])
         left += [0]
-        self.matrix[0] = left
+        self.matrix[0] = normalize_vector(left)
         up = cross_product(self.matrix[0], self.matrix[1])
         up += [0]
-        self.matrix[2] = up
+        self.matrix[2] = normalize_vector(up)
 
     def direct_to(self, v: List[float]):
         """Direct the objects forward towards given point vector"""
