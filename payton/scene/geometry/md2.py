@@ -170,6 +170,7 @@ class MD2(Mesh):
         if self.has_missing_vao or self._needs_update:
             self.build()
 
+        self.update_matrix(parent_matrix=parent_matrix)
         if self.animation == "":
             for child in self.children:
                 self.children[child].render(lit, shader, self._model_matrix)
@@ -192,7 +193,6 @@ class MD2(Mesh):
 
             self._time = time.time()
 
-        self.update_matrix(parent_matrix=parent_matrix)
         self.track()
 
         frame_name = f"{self.animation}{self._active_frame}"
