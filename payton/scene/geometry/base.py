@@ -427,7 +427,7 @@ class Object(object):
     def has_missing_vao(self) -> bool:
         return any(
             [
-                material._vao == NO_VERTEX_ARRAY and len(material._indices) > 0
+                material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1
                 for material in self.materials.values()
             ]
         )
@@ -765,6 +765,7 @@ class Object(object):
                 material._vao = glGenVertexArrays(1)
                 # We need 1 buffer for material as indices
                 material._vbos = [glGenBuffers(1)]
+
             glBindVertexArray(material._vao)
 
             indices = np.array(material._indices, dtype=np.int32).flatten()
@@ -865,13 +866,14 @@ class Line(Object):
         self._vertices += vertices
 
         self._texcoords += [[0, 0]] * diff
-        self._normals += [[0, 0, 0]] * diff
+        self._normals += [[0, 0, 1]] * diff
         self._vertex_count = len(self._vertices)
+        self.material._vertex_count = self._vertex_count
 
         indices = list(map(lambda x: x + last_index, range(diff)))
-
         self.material._indices.extend([indices])
         self._indices = self.material._indices
+
         if self.material._vao > NO_VERTEX_ARRAY:
             self._needs_update = True
 
@@ -889,7 +891,7 @@ class Line(Object):
         if color is not None:
             self.material.color = color
         self._vertex_count = len(self._vertices)
-        self.material._vertex_count = len(self._vertices)
+        self.material._vertex_count = self._vertex_count
 
         for i in range(self._vertex_count - 1):
             self.material._indices.append([i, i + 1])
@@ -899,7 +901,7 @@ class Line(Object):
             self._normals.append([0, 0, 0])
             self._texcoords.append([0, 0])
 
-        if not self.has_missing_vao:
+        if self.material._vao > -1:
             # This is a dynamic object, destroying the object is not a good
             # idea so we just update the buffer here.
             self.build()
