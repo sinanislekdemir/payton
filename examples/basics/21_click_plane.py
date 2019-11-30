@@ -11,6 +11,7 @@ def draw(hit):
 scene = Scene()
 scene.add_click_plane([0, 0, 0.5], [0, 0, 1], draw)
 scene.add_object("line", Line())
+scene.objects["line"].material.color = [1.0, 0.0, 0.0]
 
 ground = Plane(30, 30)
 ground.position = [0, 0, 0.48]
