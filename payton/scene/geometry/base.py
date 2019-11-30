@@ -874,8 +874,7 @@ class Line(Object):
         self.material._indices.extend([indices])
         self._indices = self.material._indices
 
-        if self.material._vao > NO_VERTEX_ARRAY:
-            self._needs_update = True
+        self._needs_update = True
 
     def build_lines(
         self,
