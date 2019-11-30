@@ -109,8 +109,8 @@ class MatrixPlane(Mesh):
                 right = (self.x * i) + (j + 1)
                 top_left = (self.x * (i + 1)) + j
                 top_right = (self.x * (i + 1)) + (j + 1)
-                self._indices.append([left, right, top_right])
-                self._indices.append([top_right, top_left, left])
+                self._indices.append([top_right, right, left])
+                self._indices.append([left, top_left, top_right])
 
         self.material._indices = self._indices
         self.fix_normals()

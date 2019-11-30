@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Any, Dict, Optional, cast
 
-from payton.math.vector import plane_normal, vector_angle
+from payton.math.vector import invert_vector, plane_normal, vector_angle
 from payton.scene.geometry.base import Object
 from payton.scene.material import DEFAULT, Material
 from payton.scene.types import VList
@@ -83,7 +83,7 @@ class Mesh(Object):
         data = json.loads(jstr)
         return cls.from_dict(data)
 
-    def fix_normals(self) -> None:
+    def fix_normals(self, reverse=False) -> None:
         """Try to re-calculate Mesh normals, if your object has already perfect
         normals, do not call this method"""
         self._normals = [[0, 0, 1.0]] * len(self._vertices)
@@ -95,6 +95,8 @@ class Mesh(Object):
                 self._vertices[face[2]],
             )
             normal = plane_normal(v1, v2, v3)
+            if reverse:
+                normal = invert_vector(normal)
             self._normals[face[0]] = normal
             self._normals[face[1]] = normal
             self._normals[face[2]] = normal
