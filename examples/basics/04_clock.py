@@ -17,9 +17,6 @@ def projectile_motion(period, total):
     # projectile motion.
     # y = v0 * t * cos(a)
     # z = v0 * t * sin(a) - 1/2 * g * t^2
-    global LAUNCH_ANGLE
-    global GRAVITY
-    global INITIAL_VELOCITY
     global scene
     position = scene.objects["ball"].position
     if position[2] < 0:
