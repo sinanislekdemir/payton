@@ -180,18 +180,6 @@ class Mesh(Object):
                 self._texcoords.extend([[t1, s1], [t2, s2], [t3, s3]])
         self._texcoords = [[t[0] * u, t[1] * v] for t in self._texcoords]
 
-    def scale(self, x: float, y: float, z: float) -> None:
-        """Scale Mesh by given factors
-
-        This does not create a scale matrix and multiply existing matrix
-        with it. Instead, it will scale the vertices by given factors.
-        """
-        self._vertices = list(
-            map(lambda v: [v[0] * x, v[1] * y, v[2] * z], self._vertices)
-        )
-        self.fix_normals()
-        self.refresh()
-
     def add_triangle(
         self,
         vertices: VList,

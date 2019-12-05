@@ -4,7 +4,6 @@ from payton.scene import Scene
 from payton.scene.collision import CollisionTest
 from payton.scene.geometry import Cube, Sphere
 
-
 scene = Scene()
 direction = 0
 
