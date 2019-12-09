@@ -113,6 +113,7 @@ uniform vec3 object_color;
 uniform int material_mode;
 uniform float opacity;
 uniform float far_plane;
+uniform int lit;
 
 uniform sampler2D tex_unit;
 uniform samplerCube depthMap;
@@ -151,25 +152,25 @@ float ShadowCalculation(vec3 fragPos)
 
 void main()
 {
-    if (material_mode == 0) {
-        // lightless material with color
-        FragColor = vec4(object_color, opacity);
+    vec3 color;
+    float alpha;
+    if (material_mode == 0 || material_mode == 2) {
+        color = object_color;
+        alpha = opacity;
     }
-    if (material_mode == 1) {
-        // lightless material with texture
-        FragColor = texture(tex_unit, tex_coords);
+    if (material_mode == 1 || material_mode == 3) {
+        color = texture(tex_unit, tex_coords).rgb;
+        alpha = texture(tex_unit, tex_coords).a;
     }
-    if (material_mode == 2 || material_mode == 3) {
-        vec3 color;
-        float tex_opacity = 1.0;
-        if (material_mode == 2) {
-            color = object_color;
-        } else {
-            color = texture(tex_unit, tex_coords).rgb;
-            tex_opacity = texture(tex_unit, tex_coords).a;
-        }
-        vec3 norm = normalize(l_normal);
+    if (material_mode == 4) {
+        color = frag_color;
+        alpha = opacity;
+    }
 
+    if (lit == 0) {
+        FragColor = vec4(color, alpha);
+    } else {
+        vec3 norm = normalize(l_normal);
         for (int i = 0; i < LIGHT_COUNT; i++) {
             vec3 ambient = 0.3 * light_color[i];
 
@@ -186,16 +187,9 @@ void main()
             float shadow = shadow_enabled ? ShadowCalculation(l_fragpos) : 0.0;
             vec3 lighting = (ambient + (1.0 - shadow) *
                              (diffuse + specular)) * color;
-            if (tex_opacity < 1.0) {
-                FragColor = vec4(lighting, tex_opacity);
-            }else {
-                FragColor = vec4(lighting, opacity);
-            }
+
+            FragColor = vec4(lighting, alpha);
         }
-    }
-    if (material_mode == 4) {
-        // Lightless per vertex color
-        FragColor = vec4(frag_color, opacity);
     }
 }"""  # type: str
 

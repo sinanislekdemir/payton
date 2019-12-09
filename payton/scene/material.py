@@ -248,6 +248,9 @@ class Material(object):
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         shader.set_int("material_mode", _mode)
+        shader.set_int("lit", 1 if lit else 0)
+        if not self.lights:
+            shader.set_int("lit", 0)
 
         shader.set_matrix4x4_np("model", model)
         shader.set_float("opacity", self.opacity)

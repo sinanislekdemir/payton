@@ -2,7 +2,7 @@ import math
 import os
 
 from payton.scene import Scene
-from payton.scene.geometry import Sphere, Wavefront
+from payton.scene.geometry import Wavefront
 
 scene = Scene()
 scene.background.top_color = [0, 0, 0, 1]
@@ -22,7 +22,6 @@ def swing(period, total):
         amount = 0.5
     light_pos = scene.objects["lamp"].to_absolute([0, 0, -3.4])
     scene.lights[0].position = light_pos
-    # scene.objects["sphere"].position = light_pos
 
 
 table_file = os.path.join(os.path.dirname(__file__), "scene", "table.obj")
@@ -30,10 +29,9 @@ lamp_file = os.path.join(os.path.dirname(__file__), "scene", "lamp.obj")
 
 table = Wavefront(table_file)
 lamp = Wavefront(lamp_file)
+lamp.fix_normals(reverse=True)
 lamp.position = [0, 0, 12]
-sphere = Sphere(radius=0.1)
 
-scene.add_object("sphere", sphere)
 scene.create_clock("swing", 0.01, swing)
 scene.active_observer.position = [
     8.261520800759284,

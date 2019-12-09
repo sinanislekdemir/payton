@@ -15,7 +15,6 @@ monkey.children["cube"].children["sphere"].position = [1, 0, 0]
 export_json(monkey, "test.json")
 new = import_json("test.json")
 
-breakpoint()
 scene = Scene()
 scene.add_object("monkey", new)
 scene.run()

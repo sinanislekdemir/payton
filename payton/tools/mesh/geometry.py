@@ -94,7 +94,7 @@ def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
                 tc = mid_point(t1, t2)
 
                 texcoords_1 = [t1, tc, t3]
-                texcoords_2 = [tc, t2, t3]
+                texcoords_2 = [t3, tc, t2]
 
             new.add_triangle(
                 vertices=[a, vc, c],

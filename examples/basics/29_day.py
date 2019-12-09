@@ -15,6 +15,11 @@ def change_date(period, total):
     if angle == 180:
         angle = 0
 
+    if angle < 30 or angle > 150:
+        scene.lights[0].color = [1, 0.7, 0]
+    else:
+        scene.lights[0].color = [1, 1, 1]
+
     total_minutes = angle * 4
     minute = total_minutes % 60
     hour = math.floor(total_minutes / 60) + 7

@@ -10,7 +10,6 @@ texture_file = os.path.join(os.path.dirname(__file__), "../basics/cube.png")
 cube = Cube()
 cube = subdivide(cube, 4)
 cube.material.texture = texture_file
-
 cube.material.display = WIREFRAME
 
 normal_cube = Cube()

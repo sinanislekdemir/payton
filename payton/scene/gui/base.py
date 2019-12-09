@@ -372,6 +372,7 @@ class Hud(Object):
         """
         if not self.visible:
             return
+        lit = False
         glDisable(GL_DEPTH_TEST)
         if self._projection_matrix is None:
             self._projection_matrix = ortho(0, self.width, self.height, 0)

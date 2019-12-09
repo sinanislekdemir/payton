@@ -2,7 +2,7 @@ from itertools import product
 from typing import Any, List
 
 from payton.scene.geometry.mesh import Mesh
-from payton.scene.material import SOLID
+from payton.scene.material import SOLID, WHITE
 
 
 class Plane(Mesh):
@@ -77,11 +77,19 @@ class MatrixPlane(Mesh):
         if self.y < 2:
             self.y = 2
         self.grid: List[List[float]] = []
+        # List of List for X, Y and List[float] for color.
+        self.color_grid: List[List[List[float]]] = []
         self.populate_grid()
 
     def update_grid(self) -> None:
         for i, j in product(range(self.x), range(self.y)):
             self._vertices[(self.x * i) + j][2] = self.grid[i][j]
+            if (
+                len(self.color_grid) == len(self.grid)
+                and len(self.color_grid[i]) == len(self.grid[i])
+                and len(self.color_grid[i][j]) == 3
+            ):
+                self._vertex_colors[(self.x * i) + j] = self.color_grid[i][j]
         if self.material.display == SOLID:
             self.fix_normals()
         self.refresh()
@@ -91,6 +99,7 @@ class MatrixPlane(Mesh):
         self.clear_triangles()
 
         self.grid = [[0.0] * self.y for _i in range(self.x)]
+        self.color_grid = [[WHITE] * self.y for _i in range(self.x)]
 
         step_x = self.width / (self.x - 1)
         step_y = self.height / (self.y - 1)
@@ -104,6 +113,8 @@ class MatrixPlane(Mesh):
                 [(i * step_x) - c_x, (j * step_y) - c_y, self.grid[i][j]]
             )
             self._texcoords.append([i * step_u, j * step_v])
+            self._vertex_colors.append(WHITE)
+
             if i < self.x - 1 and j < self.y - 1:
                 left = (self.x * i) + j
                 right = (self.x * i) + (j + 1)

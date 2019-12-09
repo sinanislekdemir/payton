@@ -846,6 +846,7 @@ class Line(Object):
 
         self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
+        self.material.lights = False
         self.build_lines()
 
     def toggle_wireframe(self) -> None:
@@ -900,8 +901,3 @@ class Line(Object):
             self._normals.append([0, 0, 0])
             self._texcoords.append([0, 0])
         self._needs_update = True
-
-        if self.has_missing_vao:
-            # This is a dynamic object, destroying the object is not a good
-            # idea so we just update the buffer here.
-            self.build()
