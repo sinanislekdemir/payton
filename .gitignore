@@ -8,3 +8,9 @@ payton/.Python
 payton/bin/
 payton/include/
 payton/lib/
+build/
+dist/
+fur.jpg
+output.mtl
+output.obj
+test.json
