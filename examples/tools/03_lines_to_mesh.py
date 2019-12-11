@@ -5,13 +5,13 @@ from payton.scene.geometry import Line
 from payton.tools.mesh import lines_to_mesh
 
 wall_line1 = Line(
-    vertices=[[0, 0, 0], [5, 0, 0], [5, 0, 4], [0, 0, 4], [0, 0, 0]]
+    vertices=[[0, 2, 0], [5, 2, 0], [5, 2, 4], [0, 2, 4], [0, 2, 0]]
 )
 wall_line2 = Line(
-    vertices=[[2, 0, 2], [3, 0, 2], [3, 0, 3], [2, 0, 3], [2, 0, 2]]
+    vertices=[[2, 2, 2], [3, 2, 2], [3, 2, 3], [2, 2, 3], [2, 2, 2]]
 )
 
-wall = lines_to_mesh([wall_line1, wall_line2])
+wall = lines_to_mesh([wall_line2, wall_line1])
 
 texture_file = os.path.join(os.path.dirname(__file__), "wall.jpg")
 wall.material.texture = texture_file

@@ -25,12 +25,15 @@ import sdl2
 from OpenGL.GL import (
     GL_CLAMP_TO_EDGE,
     GL_COLOR_BUFFER_BIT,
+    GL_CULL_FACE,
+    GL_CW,
     GL_DEPTH_ATTACHMENT,
     GL_DEPTH_BUFFER_BIT,
     GL_DEPTH_COMPONENT,
     GL_DEPTH_TEST,
     GL_FLOAT,
     GL_FRAMEBUFFER,
+    GL_FRONT,
     GL_LESS,
     GL_NEAREST,
     GL_NONE,
@@ -54,12 +57,14 @@ from OpenGL.GL import (
     glBindVertexArray,
     glClear,
     glClearColor,
+    glCullFace,
     glDepthFunc,
     glDisable,
     glDrawArrays,
     glDrawBuffer,
     glEnable,
     glFramebufferTexture,
+    glFrontFace,
     glGenFramebuffers,
     glGenTextures,
     glGenVertexArrays,
@@ -283,6 +288,13 @@ class Scene(Receiver):
             click_plane[2](hit[:3])
 
     def _render_3d_scene(self, shadow_round=False) -> None:
+        if not shadow_round:
+            glEnable(GL_CULL_FACE)
+            glFrontFace(GL_CW)
+            glCullFace(GL_FRONT)
+        else:
+            glDisable(GL_CULL_FACE)
+
         proj, view = self.active_observer.render()
         shader = "depth" if shadow_round else "default"
         _shader = self.shaders[shader]

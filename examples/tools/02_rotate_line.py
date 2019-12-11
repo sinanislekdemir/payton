@@ -18,7 +18,7 @@ line = Line(
     ]
 )
 
-mesh = rotate_line(line, [0, 0, 1], math.radians(270))
+mesh = rotate_line(line, [0, 0, 1], math.radians(360), steps=20)
 
 texture_file = os.path.join(os.path.dirname(__file__), "green.jpg")
 mesh.material.texture = texture_file

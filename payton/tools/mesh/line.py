@@ -55,7 +55,7 @@ def rotate_line(
     step_v = 1.0 / len(vertices)
     mesh = Mesh()
 
-    for i in range(steps - 1):
+    for i in range(steps):
         matrix = create_rotation_matrix_raw(axis, step_angle)
         mirror_vertices = [vector_transform(v, matrix) for v in vertices]
         for j in range(len(vertices) - 1):
