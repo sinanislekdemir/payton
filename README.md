@@ -4,11 +4,11 @@
 
 [![Python DEMO](https://www.islekdemir.com/NSL7nCZrnF4.png)](https://youtu.be/NSL7nCZrnF4)
 
-Payton is a general purpose 3D programming toolkit. It is designed with the
-theory that us, humans, we understand better by seeing things.
+Payton is a general purpose 3D programming toolkit. Simply, a 3D Programming Playground!
 
+[![RippleVideo](https://27x2.com/screenshot2.png)](https://www.youtube.com/watch?v=tMK2bS_He2c)
 
-* Payton is a prototyping tool. Kickstart any idea fast and easy, grow it.
+* Payton is a playground. Kickstart any idea fast and easy, grow it.
 * Create tools for the next step. Create map editors, small animations, small
   algorithms or artificial intelligence for your game. Whenever you need to
   try a new idea, don't bother to create a new application with all the
@@ -67,7 +67,7 @@ a newbie can kick-start it just by following the tutorials.
   * Quake 2 MD2 with Animations
 * Mesh Generation Tools
   * Extrude Line in 3D
-  * Rotate Line around an exis in 3D
+  * Rotate Line around an axis in 3D
   * Fill between lines
 * Mesh modifiers:
   * Merge Mesh
