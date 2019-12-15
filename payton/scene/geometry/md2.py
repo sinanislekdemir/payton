@@ -11,7 +11,6 @@ from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional
 
 import numpy as np  # type: ignore
 
-from payton.math.vector import plane_normal
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.shader import Shader
 
@@ -101,7 +100,9 @@ class MD2(Mesh):
         .. include:: ../../../examples/basics/26_quake2.py
     """
 
-    def __init__(self, filename: str = "", **kwargs: Any):
+    def __init__(
+        self, filename: str = "", texture_filename: str = "", **kwargs: Any
+    ):
         """Initialize the MD2 Object
 
         Args:
@@ -111,6 +112,7 @@ class MD2(Mesh):
         self.header: MD2Header = MD2Header()
         self.triangle_layout = MD2TriangleLayout()
         self.skins: List[str] = []
+        self.texture_filename = texture_filename
         self.frames: List[MD2Frame] = []
         self.animation: str = ""
         self.animations: Dict[str, List] = {}
@@ -167,9 +169,6 @@ class MD2(Mesh):
         if not self._visible:
             return
 
-        if self.has_missing_vao or self._needs_update:
-            self.build()
-
         self.update_matrix(parent_matrix=parent_matrix)
         if self.animation == "":
             for child in self.children:
@@ -196,7 +195,6 @@ class MD2(Mesh):
         self.track()
 
         frame_name = f"{self.animation}{self._active_frame}"
-
         self.children[frame_name].render(lit, shader, self._model_matrix)
 
     def load_file(self, filename: str):
@@ -240,22 +238,31 @@ class MD2(Mesh):
     def build_frame(self, frame_information: MD2Frame, name: str):
         mesh = Mesh()
         for i, tri in enumerate(self.triangle_layout.vertex_indices):
-            v3 = frame_information.vertices[tri[0]].tolist()
-            v2 = frame_information.vertices[tri[1]].tolist()
+            v3 = frame_information.vertices[tri[1]].tolist()
+            v2 = frame_information.vertices[tri[0]].tolist()
             v1 = frame_information.vertices[tri[2]].tolist()
-            t3 = self._texcoords[self.triangle_layout.tc_indices[i][0]]
-            t2 = self._texcoords[self.triangle_layout.tc_indices[i][1]]
+            v1[0], v1[1] = v1[1], v1[0]
+            v2[0], v2[1] = v2[1], v2[0]
+            v3[0], v3[1] = v3[1], v3[0]
+
+            t3 = self._texcoords[self.triangle_layout.tc_indices[i][1]]
+            t2 = self._texcoords[self.triangle_layout.tc_indices[i][0]]
             t1 = self._texcoords[self.triangle_layout.tc_indices[i][2]]
-            normal = plane_normal(v1, v2, v3)
+
             mesh.add_triangle(
-                vertices=[v1, v2, v3],
-                normals=[normal, normal, normal],
-                texcoords=[t1, t2, t3],
+                vertices=[v1, v2, v3], texcoords=[t1, t2, t3],
             )
 
-        mesh.material.texture = os.path.join(
-            self._path, os.path.basename(self.skins[0])
-        )
+        mesh.fix_normals(False)
+        if self.texture_filename != "":
+            mesh.material.texture = os.path.join(
+                self._path, os.path.basename(self.texture_filename)
+            )
+        elif len(self.skins) > 0:
+            mesh.material.texture = os.path.join(
+                self._path, os.path.basename(self.skins[0])
+            )
+
         self.add_child(name, mesh)
 
     def read_header(self, f: BinaryIO):
@@ -283,6 +290,7 @@ class MD2(Mesh):
         tcs.shape = (-1, 2)
         tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
         self._texcoords = tcs
+        print(len(self._texcoords))
 
     def load_frames(self, f: BinaryIO):
         f.seek(self.header.offset_frames, os.SEEK_SET)
@@ -296,7 +304,7 @@ class MD2(Mesh):
         translation = frame_translations[1]
 
         name = read_block(f, "< 16s", 1)[0][0]
-        name = name.decode("ascii").strip("\x00").replace("\x00", "")
+        name = str(name).split("\x00")[0].split("\\")[0].replace("b'", "")
 
         frame_vertex_data = np.array(
             read_block(f, "<4B", self.header.num_vertices), dtype=np.uint8

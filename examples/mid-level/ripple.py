@@ -7,7 +7,7 @@ from payton.scene.geometry import MatrixPlane
 from payton.scene.gui import info_box
 from payton.scene.material import LIGHT_STEEL_BLUE, POINTS
 
-water_size = 60
+water_size = 120
 damp = 20
 
 

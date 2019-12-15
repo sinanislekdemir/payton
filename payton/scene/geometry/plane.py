@@ -84,12 +84,7 @@ class MatrixPlane(Mesh):
     def update_grid(self) -> None:
         for i, j in product(range(self.x), range(self.y)):
             self._vertices[(self.x * i) + j][2] = self.grid[i][j]
-            if (
-                len(self.color_grid) == len(self.grid)
-                and len(self.color_grid[i]) == len(self.grid[i])
-                and len(self.color_grid[i][j]) == 3
-            ):
-                self._vertex_colors[(self.x * i) + j] = self.color_grid[i][j]
+            self._vertex_colors[(self.x * i) + j] = self.color_grid[i][j]
         if self.material.display == SOLID:
             self.fix_normals()
         self.refresh()

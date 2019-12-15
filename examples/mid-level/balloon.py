@@ -11,7 +11,7 @@ game = Scene()
 
 
 def create_balloon(period, total):
-    global sphere_count, game
+    global sphere_count
     x = random.randint(-5, 5)
     y = random.randint(-5, 5)
     sphere = Sphere()
@@ -22,7 +22,6 @@ def create_balloon(period, total):
 
 
 def move_balloons(period, total):
-    global sphere_count, game
     for k in range(sphere_count):
         sphere_name = f"sphere_{k}"
         if sphere_name in game.objects:
@@ -51,7 +50,6 @@ def move_balloons(period, total):
 
 
 def select(list):
-    global game
     global score_board
     for obj in list:
         if not obj.visible:
