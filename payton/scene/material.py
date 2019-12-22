@@ -128,7 +128,7 @@ class Material(object):
         self.opacity: float = opacity
         self._image: Optional[Image] = None
         self._indices: IList = []
-        self._vao: int = -1
+        self._vao: int = NO_VERTEX_ARRAY
         self._vbos: List[int] = []
 
         self._vertex_count: int = 0

@@ -1,0 +1,20 @@
+9-30-98
+
+================================================================
+
+Model Name              : The Forgotten One2
+
+installation directory  : quake2/baseq2/players/ForgottenOne2
+
+Author                  : Brian "EvilBastard" Collins
+
+Email Address           : brian@zono.com
+
+Website Address         : http://www.deviousassassins.com/EvilBastard/
+
+Model description       : 
+
+	This is the forgotten One without wings. Make sure to use the ForgottenOne2 directory if you don't want to overwrite the winged version.
+
+
+

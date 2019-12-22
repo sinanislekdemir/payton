@@ -36,7 +36,6 @@ class PointCloud(Object):
         self._vertex_colors: VList = [] if colors is None else colors
         self._vertex_history: VList = []
         self.material.display = POINTS
-        self.static: bool = False
 
     def toggle_wireframe(self) -> None:
         """Toggle wireframe overwrite to disable mode change"""

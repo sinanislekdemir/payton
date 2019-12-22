@@ -35,6 +35,10 @@ from typing import Any, Callable
 SAFE_ASSUMPTION = 0.01
 
 
+class ClockException(Exception):
+    pass
+
+
 class Clock(threading.Thread):
     """
     Each clock in Scene is actually a thread which has a
@@ -59,6 +63,7 @@ class Clock(threading.Thread):
         self.callback = callback
         self._kill = False
         self._pause = True
+        self._hold = False
 
     def kill(self) -> None:
         """
@@ -84,6 +89,8 @@ class Clock(threading.Thread):
         Return:
           bool
         """
+        if self._kill:
+            raise ClockException("This clock is already killed")
         while True:
             if self._kill:
                 return False
@@ -92,6 +99,7 @@ class Clock(threading.Thread):
                 # sleep a safe time to avoid excessive cpu usage
                 time.sleep(SAFE_ASSUMPTION)
                 continue
+
             self.callback(self.period, self._total_time)
 
             time.sleep(self.period)

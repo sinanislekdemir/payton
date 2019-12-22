@@ -12,11 +12,17 @@ class App(Scene):
         ground = Plane(20, 20)
         self.lights[0].position = [10.0, 10.0, 10]
         model_file = os.path.join(
-            os.path.dirname(__file__), "knight", "tris.md2"
+            os.path.dirname(__file__), "forgottenone2", "tris.md2"
+        )
+        weapon_file = os.path.join(
+            os.path.dirname(__file__), "forgottenone2", "weapon.md2"
         )
 
-        model = MD2(model_file, "knight.pcx")
+        model = MD2(model_file, "ForgottenOne.pcx")
+        weapon = MD2(weapon_file, "weapon.pcx")
+        model.add_child("weapon", weapon)
         print(model.animations)
+        print(weapon.animations)
 
         self.add_object("warrior", model)
         self.add_object("ground", ground)

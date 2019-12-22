@@ -7,7 +7,7 @@ import logging
 import os
 import struct
 import time
-from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional
+from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional, cast
 
 import numpy as np  # type: ignore
 
@@ -114,6 +114,7 @@ class MD2(Mesh):
         self.skins: List[str] = []
         self.texture_filename = texture_filename
         self.frames: List[MD2Frame] = []
+        self._frame_children: Dict[str, Mesh] = {}
         self.animation: str = ""
         self.animations: Dict[str, List] = {}
 
@@ -127,6 +128,9 @@ class MD2(Mesh):
 
         if os.path.exists(filename):
             self.load_file(filename)
+
+    def add_frame_child(self, name: str, mesh: Mesh) -> None:
+        self._frame_children[name] = mesh
 
     def animate(
         self,
@@ -159,6 +163,9 @@ class MD2(Mesh):
         self._from_frame = from_frame
         self._to_frame = to_frame
         self.animation = animation_name
+        for child in self.children:
+            child_obj = cast(MD2, self.children[child])
+            child_obj.animate(animation_name, from_frame, to_frame, loop)
 
     def render(
         self,
@@ -171,9 +178,15 @@ class MD2(Mesh):
 
         self.update_matrix(parent_matrix=parent_matrix)
         if self.animation == "":
+            for child in self._frame_children:
+                self._frame_children[child].render(
+                    lit, shader, self._model_matrix
+                )
+                break
+                # render children
             for child in self.children:
                 self.children[child].render(lit, shader, self._model_matrix)
-                return
+            return
 
         if self._time == 0:
             self._time = time.time()
@@ -195,7 +208,11 @@ class MD2(Mesh):
         self.track()
 
         frame_name = f"{self.animation}{self._active_frame}"
-        self.children[frame_name].render(lit, shader, self._model_matrix)
+        self._frame_children[frame_name].render(
+            lit, shader, self._model_matrix
+        )
+        for child in self.children:
+            self.children[child].render(lit, shader, self._model_matrix)
 
     def load_file(self, filename: str):
         if not os.path.exists(filename):
@@ -263,7 +280,7 @@ class MD2(Mesh):
                 self._path, os.path.basename(self.skins[0])
             )
 
-        self.add_child(name, mesh)
+        self.add_frame_child(name, mesh)
 
     def read_header(self, f: BinaryIO):
         self.header = MD2Header._make(read_block(f, "< 4s16l", 1)[0])
@@ -290,7 +307,6 @@ class MD2(Mesh):
         tcs.shape = (-1, 2)
         tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
         self._texcoords = tcs
-        print(len(self._texcoords))
 
     def load_frames(self, f: BinaryIO):
         f.seek(self.header.offset_frames, os.SEEK_SET)
@@ -321,3 +337,8 @@ class MD2(Mesh):
         vertices /= 20.0
 
         return MD2Frame(name=name, vertices=vertices)
+
+    def set_texture(self, texture_filename: str):
+        for m in self.children.values():
+            m.material.texture = texture_filename
+            m.material.refresh()

@@ -28,7 +28,6 @@ class Mesh(Object):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.static = False
 
     def clear_triangles(self) -> None:
         """Clear all triangles inside the Mesh"""

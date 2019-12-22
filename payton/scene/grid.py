@@ -128,6 +128,9 @@ class Grid(object):
         """
         if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
+            self._vao = -1
+        for l in self._lines:
+            l.destroy()
         return True
 
     def render(
@@ -235,8 +238,3 @@ class Grid(object):
         # glDisableVertexAttribArray(0)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
         glDeleteBuffers(2, vbos)
-
-        if self.static:
-            # we can clear this data to free some more memory
-            self._vertices = []
-            self._indices = []

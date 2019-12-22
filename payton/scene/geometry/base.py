@@ -16,14 +16,12 @@ from OpenGL.GL import (
     GL_LINE_STRIP,
     GL_POINT,
     GL_POINTS,
-    GL_STATIC_DRAW,
     GL_TRIANGLES,
     GL_UNSIGNED_INT,
     glBindBuffer,
     glBindVertexArray,
     glBufferData,
     glBufferSubData,
-    glDeleteBuffers,
     glDeleteVertexArrays,
     glDrawElements,
     glEnableVertexAttribArray,
@@ -76,7 +74,6 @@ class Object(object):
 
     def __init__(
         self,
-        static=True,
         name="",
         visible=True,
         track_motion=False,
@@ -101,10 +98,6 @@ class Object(object):
                         is time independent. It just saves the object matrix
                         for every change. Uses matrix position for drawing the
                         motion path.
-          static: (Default `True`) Indicates if object geometry is expected
-                  to be changed in the future. If object is not static, then
-                  its' vertex buffer object references and vertex informations
-                  will not be deleted to be used for future reference.
           name: Name of the object (optional, default '') Note that, when
                 object gets added to a Scene with a name, Scene will assign
                 that name to the object, overwriting any existing name of the
@@ -121,7 +114,6 @@ class Object(object):
         self._vao: int = NO_VERTEX_ARRAY
         self._vbos: List[int] = []
 
-        self.static = static
         self.name = name
         self._visible = visible
         self.matrix: VList = [
@@ -325,10 +317,17 @@ class Object(object):
             if material._vao > NO_VERTEX_ARRAY:
                 glDeleteVertexArrays(1, [self._vao])
                 material._vao = NO_VERTEX_ARRAY
+                material._initialized = False
 
+        self._buffer_size_changed = True
+        self._t_buffer_size_changed = True
         if self._vao > NO_VERTEX_ARRAY:
             glDeleteVertexArrays(1, [self._vao])
             self._vao = NO_VERTEX_ARRAY
+
+        for child in self.children.values():
+            child.destroy()
+
         return True
 
     def step_back(self, steps: int = 1) -> bool:
@@ -659,12 +658,6 @@ class Object(object):
         automatically effected. So, in every geometry or display mode
         change, a `build` call is necessary.
 
-        If `self.static` is `True`, then the system assumes that another update
-        call is not expected, thus frees `_normals`, `_textcoords`,
-        `_vertices` and `_indices` lists to free memory.
-        So in this case, calling `build` function twice will result in
-        an invisible object (will not be drawn).
-
         Additionally, this method goes through each material mapping and
         build their indices as well. Each material map has its own
         Vertex Array Object and gets rendered by separate glDrawElements
@@ -697,13 +690,7 @@ class Object(object):
 
         self._calc_bounds()
 
-        # OpenGL allocates buffers in different mechanisms between
-        # STATIC and DYNAMIC draw modes. If you select STATIC, then OpenGL
-        # will assume that object buffer will not change and allocate it in a
-        # more suitable way.
-        draw = GL_STATIC_DRAW
-        if not self.static:
-            draw = GL_DYNAMIC_DRAW
+        draw = GL_DYNAMIC_DRAW
 
         # Buffer overflow, we need more space.
         if self._buffer_size < vertices.nbytes:
@@ -808,11 +795,6 @@ class Object(object):
             glBindVertexArray(0)
             glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-        if self.static:
-            # we can clear this data to free some more memory
-            glDeleteBuffers(4, self._vbos)
-            self._vbos = []
-
         self._needs_update = False
         return True
 
@@ -844,7 +826,6 @@ class Line(Object):
         self._vertices: VList = [] if vertices is None else vertices
         self.material.color = [1.0, 1.0, 1.0] if color is None else color
 
-        self.static: bool = False  # Do not clear the vertices each time.
         self.material.display = WIREFRAME
         self.material.lights = False
         self.build_lines()

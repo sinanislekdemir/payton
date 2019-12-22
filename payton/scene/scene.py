@@ -16,7 +16,6 @@
 """
 import ctypes
 import logging
-import sys
 import time
 from typing import Any, Callable, Dict, List, Optional, TypeVar
 
@@ -552,6 +551,26 @@ class Scene(Receiver):
         c = Clock(period, callback)
         self.clocks[name] = c
 
+    def _clear_context(self):
+        for shader in self.shaders.values():
+            shader.program = -1
+        self.background._shader.program = -1
+        self.background._vao = None
+        self.grid.destroy()
+        for hud in self.huds.values():
+            hud.destroy()
+        # As Payton clocks are basically threads,
+        # best practice is to create new threads as Python does not let
+        # a thread to be started twice by design.
+        new_clocks = {}
+        for clock_name in self.clocks:
+            clock = self.clocks[clock_name]
+            new_clock = Clock(clock.period, clock.callback)
+            new_clock._total_time = clock._total_time
+            new_clocks[clock_name] = new_clock
+
+        self.clocks = new_clocks
+
     def run(self) -> int:
         """
         Run scene.
@@ -581,17 +600,14 @@ class Scene(Receiver):
         )
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
-        # TODO Remove this little fucker hack
-        window_mode = sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE
-        if 'fixed' in sys.argv:
-            window_mode = sdl2.SDL_WINDOW_OPENGL
+
         self.window = sdl2.SDL_CreateWindow(
             b"Payton Scene",
             sdl2.SDL_WINDOWPOS_UNDEFINED,
             sdl2.SDL_WINDOWPOS_UNDEFINED,
             int(self.window_width),
             int(self.window_height),
-            window_mode,
+            sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE,
         )  # type: ignore
 
         if not self.window:
@@ -690,11 +706,13 @@ class Scene(Receiver):
             self.objects[obj].destroy()
         for clock in self.clocks:
             self.clocks[clock].kill()
+            self.clocks[clock]._hold = True
 
         sdl2.SDL_GL_DeleteContext(self._context)
         sdl2.SDL_DestroyWindow(self.window)
         self.window = None
         sdl2.SDL_Quit()
+        self._clear_context()
         return 0
 
 
