@@ -13,6 +13,7 @@ from OpenGL.GL import (
     GL_FLOAT,
     GL_FRONT_AND_BACK,
     GL_LINE,
+    GL_LINE_STRIP,
     GL_POINT,
     GL_POINTS,
     GL_TRIANGLES,
@@ -421,6 +422,9 @@ class Object(object):
     def hide(self) -> None:
         self._visible = False
 
+    def clone(self) -> 'Object':
+        return deepcopy(self)
+
     @property
     def has_missing_vao(self) -> bool:
         return any(
@@ -435,6 +439,7 @@ class Object(object):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         """
         Virtual function for rendering the object. Some objects can overwrite
@@ -493,6 +498,8 @@ class Object(object):
                 if material.display == POINTS:
                     pmode = GL_POINT
                     primitive = GL_POINTS
+                if _primitive is not None:
+                    primitive = _primitive
                 glPolygonMode(GL_FRONT_AND_BACK, pmode)
 
                 glDrawElements(
@@ -595,15 +602,13 @@ class Object(object):
 
     def toggle_wireframe(self) -> None:
         """Toggle wireframe view of the Object"""
-        d = self.material.display
-        d += 1
-        d = d % 3
+        d = (self.material.display + 1) % 3
 
         for mat in self.materials.values():
             mat.display = d
 
-        for n in self.children:
-            self.children[n].toggle_wireframe()
+        for child in self.children.values():
+            child.toggle_wireframe()
 
     def _calc_bounds(self) -> float:
         """Calculate the bounding sphere radius
@@ -840,6 +845,15 @@ class Line(Object):
     def add_material(self, name: str, material: Material) -> None:
         """@TODO Implement this later! Not urgent"""
         logging.error("Can't add materials to Line object")
+
+    def render(
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
+    ) -> None:
+        super().render(lit, shader, parent_matrix, GL_LINE_STRIP)
 
     def append(self, vertices: VList, material: str = DEFAULT) -> None:
         """Append vertex or vertices to line.

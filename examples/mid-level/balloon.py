@@ -8,17 +8,19 @@ from payton.scene.material import RED, YELLOW
 sphere_count = 0
 score_board = 0
 game = Scene()
+base_sphere = Sphere()
 
 
-def create_balloon(period, total):
+def create_balloons():
     global sphere_count
-    x = random.randint(-5, 5)
-    y = random.randint(-5, 5)
-    sphere = Sphere()
-    sphere.material.color = [1, 1, 1]
-    sphere.position = [x, y, 10]
-    game.add_object(f"sphere_{sphere_count}", sphere)
-    sphere_count += 1
+    for i in range(4):
+        x = random.randint(-5, 5)
+        y = random.randint(-5, 5)
+        z = random.randint(10, 20)
+        proxy = base_sphere.clone()
+        proxy.position = [x, y, z]
+        game.add_object(f"sphere_{sphere_count}", proxy)
+        sphere_count += 1
 
 
 def move_balloons(period, total):
@@ -28,7 +30,7 @@ def move_balloons(period, total):
             if not game.objects[sphere_name].visible:
                 continue
             pos = game.objects[sphere_name].position
-            pos[2] -= 0.1
+            pos[2] -= 0.05
             game.objects[sphere_name].position = pos
             if pos[2] < 0:
                 game.add_object(
@@ -41,7 +43,6 @@ def move_balloons(period, total):
                         label="Game Over!",
                     ),
                 )
-                game.clocks["balloon-creator"].pause()
                 game.clocks["move-balloons"].pause()
             if pos[2] < 6:
                 game.objects[sphere_name].material.color = YELLOW
@@ -50,17 +51,19 @@ def move_balloons(period, total):
 
 
 def select(list):
+    # Re-use the existing objects
     global score_board
     for obj in list:
-        if not obj.visible:
-            continue
-        obj.hide()
+        x = random.randint(-5, 5)
+        y = random.randint(-5, 5)
+        z = random.randint(10, 20)
+        obj.position = [x, y, z]
         score_board += 1
 
 
-game.create_clock("balloon-creator", 1, create_balloon)
-game.create_clock("move-balloons", 0.05, move_balloons)
+game.create_clock("move-balloons", 0.02, move_balloons)
 game.on_select = select
+create_balloons()
 
 game.add_object(
     "info",

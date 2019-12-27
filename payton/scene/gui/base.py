@@ -80,6 +80,7 @@ class Shape2D(Mesh):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ):
         super().render(False, shader, parent_matrix)
 
@@ -250,6 +251,7 @@ class Text(Rectangle):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         """Render the Text
 

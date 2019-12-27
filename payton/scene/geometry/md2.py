@@ -172,6 +172,7 @@ class MD2(Mesh):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         if not self._visible:
             return
@@ -342,3 +343,13 @@ class MD2(Mesh):
         for m in self.children.values():
             m.material.texture = texture_filename
             m.material.refresh()
+
+    def toggle_wireframe(self) -> None:
+        """Toggle wireframe view of the Object"""
+        d = (self.material.display + 1) % 3
+
+        for mat in self.materials.values():
+            mat.display = d
+
+        for frame in self._frame_children.values():
+            frame.toggle_wireframe()

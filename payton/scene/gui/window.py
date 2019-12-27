@@ -80,6 +80,7 @@ class WindowElement(Shape2D):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         """Render the Text
 
