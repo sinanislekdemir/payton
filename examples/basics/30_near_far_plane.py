@@ -36,7 +36,6 @@ def change_near_plane(period, total):
         scene.active_observer.far += 0.1
         if scene.active_observer.far > 20:
             direction = 0
-    print(direction)
 
 
 scene.active_observer.far = 20

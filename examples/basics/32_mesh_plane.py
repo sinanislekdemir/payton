@@ -2,7 +2,6 @@ import math
 
 from payton.scene import Scene
 from payton.scene.geometry import MatrixPlane
-from payton.scene.gui import info_box
 
 
 class App(Scene):
@@ -14,16 +13,7 @@ class App(Scene):
         self.add_object("matrix", self.matrix_plane)
         self.background.top_color = [0, 0, 0, 1]
         self.background.bottom_color = [0, 0, 0, 1]
-        self.add_object(
-            "info",
-            info_box(
-                left=10,
-                top=10,
-                width=220,
-                height=100,
-                label="Start clicking \non the Plane!",
-            ),
-        )
+
         ranges = [
             [1, 1, 1],  # 0
             [1, 0, 0],  # 1
