@@ -13,7 +13,6 @@ from OpenGL.GL import (
     GL_FLOAT,
     GL_FRONT_AND_BACK,
     GL_LINE,
-    GL_LINE_STRIP,
     GL_POINT,
     GL_POINTS,
     GL_TRIANGLES,
@@ -487,7 +486,7 @@ class Object(object):
             ):
                 glBindVertexArray(material._vao)
                 pmode = GL_LINE
-                primitive = GL_LINE_STRIP
+                primitive = GL_TRIANGLES
                 if material.display == SOLID:
                     pmode = GL_FILL
                     primitive = GL_TRIANGLES
