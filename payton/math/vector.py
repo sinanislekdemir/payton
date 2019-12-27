@@ -131,10 +131,9 @@ def plane_normal(
     Returns:
       vector
     """
-    t1 = sub_vector(v2, v1)
-    t2 = sub_vector(v3, v1)
-    r = cross_product(t1, t2)
-    return normalize_vector(r)
+    return normalize_vector(
+        cross_product(sub_vector(v2, v1), sub_vector(v3, v1))
+    )
 
 
 def vector_transform(v: List[float], matrix: List[List[float]]) -> List[float]:

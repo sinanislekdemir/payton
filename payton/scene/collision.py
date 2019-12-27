@@ -125,10 +125,10 @@ class CollisionTest(object):
 
         See: https://en.wikipedia.org/wiki/Minimum_bounding_box
         """
-        bb1_min = obj1.to_absolute(obj1._bounding_box[0])
-        bb1_max = obj1.to_absolute(obj1._bounding_box[1])
-        bb2_min = obj2.to_absolute(obj2._bounding_box[0])
-        bb2_max = obj2.to_absolute(obj2._bounding_box[1])
+        bb1_min = obj1.to_absolute(obj1.bounding_box[0])
+        bb1_max = obj1.to_absolute(obj1.bounding_box[1])
+        bb2_min = obj2.to_absolute(obj2.bounding_box[0])
+        bb2_max = obj2.to_absolute(obj2.bounding_box[1])
 
         if (bb1_max[0] < bb2_min[0]) or (bb2_max[0] < bb1_min[0]):
             return False

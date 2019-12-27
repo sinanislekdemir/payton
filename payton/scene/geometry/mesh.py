@@ -82,30 +82,36 @@ class Mesh(Object):
         data = json.loads(jstr)
         return cls.from_dict(data)
 
+    def _calc_normal(self, i1: int, i2: int, i3: int, reverse: bool) -> bool:
+        v1, v2, v3 = (
+            self._vertices[i1],
+            self._vertices[i2],
+            self._vertices[i3],
+        )
+        normal = plane_normal(v1, v2, v3)
+        if reverse:
+            normal = invert_vector(normal)
+        self._normals[i1] = normal
+        self._normals[i2] = normal
+        self._normals[i3] = normal
+        return True
+
     def fix_normals(self, reverse=False) -> None:
         """Try to re-calculate Mesh normals, if your object has already perfect
         normals, do not call this method"""
         self._normals = [[0, 0, 1.0]] * len(self._vertices)
 
-        for face in self._indices:
-            v1, v2, v3 = (
-                self._vertices[face[0]],
-                self._vertices[face[1]],
-                self._vertices[face[2]],
-            )
-            normal = plane_normal(v1, v2, v3)
-            if reverse:
-                normal = invert_vector(normal)
-            self._normals[face[0]] = normal
-            self._normals[face[1]] = normal
-            self._normals[face[2]] = normal
+        [
+            self._calc_normal(face[0], face[1], face[2], reverse)
+            for face in self._indices
+        ]
 
     def fix_texcoords(self, u: int = 1, v: int = 1) -> None:
         """Try to recalculate mesh texture coordinates by cube projection
         """
         self._texcoords = []
         self._calc_bounds()
-        bbox = self._bounding_box
+        bbox = self.bounding_box
         vmin, vmax = bbox[0], bbox[1]
         width = vmax[0] - vmin[0]
         depth = vmax[1] - vmin[1]

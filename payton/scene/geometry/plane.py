@@ -82,6 +82,7 @@ class MatrixPlane(Mesh):
         self.populate_grid()
 
     def update_grid(self) -> None:
+        # TODO This method needs some optimization
         for i, j in product(range(self.x), range(self.y)):
             self._vertices[(self.x * i) + j][2] = self.grid[i][j]
             self._vertex_colors[(self.x * i) + j] = self.color_grid[i][j]

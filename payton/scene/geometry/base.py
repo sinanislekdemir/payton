@@ -296,7 +296,7 @@ class Object(object):
             start,
             vector,
             np.array(self.matrix[3], dtype=np.float32),
-            self._bounding_radius,
+            self.bounding_radius,
         )
 
         for obj in self.children:
@@ -648,6 +648,13 @@ class Object(object):
             return self._bounding_radius
         return self._calc_bounds()
 
+    @property
+    def bounding_box(self) -> VList:
+        if len(self._bounding_box) > 0:
+            return self._bounding_box
+        self._calc_bounds()
+        return self._bounding_box
+
     def build(self) -> bool:
         """
         Build OpenGL Vertex Array for the object
@@ -687,8 +694,6 @@ class Object(object):
         # We need 4 buffers (vertex, normal, texcoord, color)
 
         glBindVertexArray(self._vao)
-
-        self._calc_bounds()
 
         draw = GL_DYNAMIC_DRAW
 
