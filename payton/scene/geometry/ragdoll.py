@@ -77,10 +77,6 @@ class Bone(Line):
         self.end.add_child(joint.name, joint)
 
 
-class Animation:
-    pass
-
-
 class RagDoll(Bone):
     def __init__(self, **kwargs: Any) -> None:
         kwargs["root_joint_name"] = "lower_spine"

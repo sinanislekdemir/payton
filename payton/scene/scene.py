@@ -333,9 +333,6 @@ class Scene(Receiver):
                 _shader.set_int("depthMap", 1)
 
         for object in self.objects.values():
-            if object.material.display > 0 and shadow_round:
-                continue
-
             object.render(
                 len(self.lights) > 0, _shader,
             )
