@@ -14,12 +14,16 @@ class App(Scene):
         model_file = os.path.join(
             os.path.dirname(__file__), "forgottenone2", "tris.md2"
         )
+
         weapon_file = os.path.join(
             os.path.dirname(__file__), "forgottenone2", "weapon.md2"
         )
 
         model = MD2(model_file, "ForgottenOne.pcx")
         weapon = MD2(weapon_file, "weapon.pcx")
+        model.bake_animation("run", 0, 5, 3)
+        weapon.bake_animation("run", 0, 5, 3)
+
         model.add_child("weapon", weapon)
         print(model.animations)
         print(weapon.animations)
@@ -32,8 +36,8 @@ class App(Scene):
 
     def walk(self, period, total):
         if self.objects["warrior"].animation == "":
-            self.objects["warrior"].animate('run', 0, 5)
-        self.objects["warrior"].forward(0.03)
+            self.objects["warrior"].animate('run', 0, 24)
+        self.objects["warrior"].forward(0.04)
         if distance(self.target, self.objects["warrior"].position) < 0.5:
             self.target = [
                 float(random.randint(-10, 10)),
@@ -45,5 +49,5 @@ class App(Scene):
             self.objects["warrior"].position = [-10, 0, 0]
 
 
-app = App(width=1600, height=900)
+app = App()
 app.run()

@@ -7,6 +7,7 @@ import logging
 import os
 import struct
 import time
+from copy import deepcopy
 from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional, cast
 
 import numpy as np  # type: ignore
@@ -16,6 +17,61 @@ from payton.scene.shader import Shader
 
 _SIGNATURE = "IDP2"
 _VERSION = 8
+
+
+class MeshException(Exception):
+    pass
+
+
+def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> List[Mesh]:
+    """Interpolate two alike meshes
+
+    This is suitable to fill the blank frames of an animated object
+    This function makes the assumption that same indices will be forming
+    the same triangle.
+
+    This function returns at least 3 meshes;
+    [mesh_1, interpolated mesh, mesh_2]
+    """
+    if len(mesh_1._vertices) != len(mesh_2._vertices):
+        raise MeshException("Mesh 1 and Mesh 2 vertex counts do not match")
+    if len(mesh_1.children) > 0:
+        raise MeshException("Mesh 1 has children")
+    if len(mesh_2.children) > 0:
+        raise MeshException("Mesh 2 has children")
+
+    # Generate meshes
+    results: List[Mesh] = [mesh_1]
+
+    # Calculate vertex distances;
+    distances = []
+    for v_i, vertex in enumerate(mesh_1._vertices):
+        dist = [0.0, 0.0, 0.0]
+        dist[0] = (mesh_2._vertices[v_i][0] - vertex[0]) / (steps + 1)
+        dist[1] = (mesh_2._vertices[v_i][1] - vertex[1]) / (steps + 1)
+        dist[2] = (mesh_2._vertices[v_i][2] - vertex[2]) / (steps + 1)
+        distances.append(dist)
+
+    for i in range(1, steps + 1):
+        mesh = Mesh()
+        mesh.materials = deepcopy(results[i - 1].materials)
+        mesh._texcoords = deepcopy(results[i - 1]._texcoords)
+        mesh._indices = deepcopy(results[i - 1]._indices)
+        mesh.destroy()  # Destroy references to previous objects opengl
+        for v_i, vertex in enumerate(results[i - 1]._vertices):
+            mesh._vertices.append(
+                [
+                    vertex[0] + distances[v_i][0],
+                    vertex[1] + distances[v_i][1],
+                    vertex[2] + distances[v_i][2],
+                ]
+            )
+        mesh.fix_normals()
+        results.append(mesh)
+
+    results.append(mesh_2)
+
+    return results
 
 
 class MD2Header(NamedTuple):
@@ -132,6 +188,52 @@ class MD2(Mesh):
     def add_frame_child(self, name: str, mesh: Mesh) -> None:
         self._frame_children[name] = mesh
 
+    def bake_animation(
+        self,
+        animation_name: str,
+        from_frame: int,
+        to_frame: int,
+        steps: int = 1,
+    ) -> None:
+        """Original MD2 Format does not include all frames in an animation.
+
+        Instead, there are "key frames". There are gaps between the key-frames
+        so you need to fill-in the empty frames by calculating the motion
+        between key-frames. Bake Animation method simply fills these gaps by
+        calculating the N steps between key-frames. This gives you a smooth
+        animation.
+        """
+        if animation_name not in self.animations:
+            logging.error(f"Animation {animation_name} not found in object")
+            return
+        anim = self.animations[animation_name]
+        if from_frame < anim[0] or from_frame > anim[1]:
+            logging.error(f"from_frame out of bounds")
+            return
+        if to_frame < anim[0] or to_frame > anim[1]:
+            logging.error(f"to_frame out of bounds")
+            return
+
+        frames = []
+        for i in range(from_frame, to_frame):
+            frame_name = f"{animation_name}{i}"
+            frame = self._frame_children[frame_name]
+            nf = i + 1
+            next_name = f"{animation_name}{nf}"
+            next_frame = self._frame_children[next_name]
+
+            interpolated_frames = _interpolate(frame, next_frame, steps)
+            frames.extend(interpolated_frames[0:-1])
+        last_frame = self._frame_children[f"{animation_name}{to_frame}"]
+        first_frame = self._frame_children[f"{animation_name}{from_frame}"]
+        join_frames = _interpolate(last_frame, first_frame, steps)
+        frames.extend(join_frames)
+
+        for i in range(len(frames)):
+            frame_name = f"{animation_name}{i}"
+            self._frame_children[frame_name] = frames[i]
+        self.animations[animation_name] = [0, len(frames) - 1]
+
     def animate(
         self,
         animation_name: str,
@@ -163,6 +265,7 @@ class MD2(Mesh):
         self._from_frame = from_frame
         self._to_frame = to_frame
         self.animation = animation_name
+        self._frame_rate = 0
         for child in self.children:
             child_obj = cast(MD2, self.children[child])
             child_obj.animate(animation_name, from_frame, to_frame, loop)
@@ -209,6 +312,7 @@ class MD2(Mesh):
         self.track()
 
         frame_name = f"{self.animation}{self._active_frame}"
+
         self._frame_children[frame_name].render(
             lit, shader, self._model_matrix
         )

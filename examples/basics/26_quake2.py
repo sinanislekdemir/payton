@@ -37,5 +37,7 @@ scene.add_object(
 scene.add_object("ground", ground)
 scene.add_object("infantry", model)
 scene.controller = CustomKeyboardControls()
-model.animate("walk", 2, 13)
+model.bake_animation("walk", 2, 14, 3)
+print(model.animations)
+model.animate("walk", 0, 52)
 scene.run()
