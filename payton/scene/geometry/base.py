@@ -113,6 +113,7 @@ class Object(object):
 
         self._vao: int = NO_VERTEX_ARRAY
         self._vbos: List[int] = []
+        self._no_missing_vao = False
 
         self.name = name
         self._visible = visible
@@ -392,6 +393,7 @@ class Object(object):
         """
         if not self.track_motion:
             return False
+
         if self._previous_matrix == self.matrix[3]:
             return True
 
@@ -427,12 +429,17 @@ class Object(object):
 
     @property
     def has_missing_vao(self) -> bool:
-        return any(
+        if self._no_missing_vao:
+            return False
+        result = any(
             [
                 material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1
                 for material in self.materials.values()
             ]
         )
+        if not result:
+            self._no_missing_vao = True
+        return result
 
     def render(
         self,
@@ -478,11 +485,14 @@ class Object(object):
         if self._has_vertex_colors:
             mode = Shader.PER_VERTEX_COLOR
 
+        shader.set_matrix4x4_np("model", self._model_matrix)
+        indice_0 = ctypes.c_void_p(0)
         for material in self.materials.values():
             if not material.display == SOLID and shader._depth_shader:
                 continue
+
             material.render(
-                self._model_matrix, lit, shader, mode,
+                lit, shader, mode,
             )
 
             # Actual rendering
@@ -506,7 +516,7 @@ class Object(object):
                     primitive,
                     material._vertex_count,
                     GL_UNSIGNED_INT,
-                    ctypes.c_void_p(0),
+                    indice_0,
                 )
 
                 if pmode != GL_FILL:

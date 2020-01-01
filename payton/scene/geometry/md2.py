@@ -281,6 +281,12 @@ class MD2(Mesh):
             return
 
         self.update_matrix(parent_matrix=parent_matrix)
+        self.track()
+
+        # Render motion path
+        if self.track_motion:
+            self._motion_path_line.render(lit, shader, parent_matrix)
+
         if self.animation == "":
             for child in self._frame_children:
                 self._frame_children[child].render(
@@ -308,8 +314,6 @@ class MD2(Mesh):
                     self._active_frame -= 1
 
             self._time = time.time()
-
-        self.track()
 
         frame_name = f"{self.animation}{self._active_frame}"
 

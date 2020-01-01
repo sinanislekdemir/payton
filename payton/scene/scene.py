@@ -299,10 +299,12 @@ class Scene(Receiver):
         _shader = self.shaders[shader]
         _shader.set_vector3("camera_pos", self.active_observer.position)
         if view is None:
-            _shader.set_int("view_mode", 1)
+            if not shadow_round:
+                _shader.set_int("view_mode", 1)
         else:
             _shader.set_matrix4x4_np("view", view)
-            _shader.set_int("view_mode", 0)
+            if not shadow_round:
+                _shader.set_int("view_mode", 0)
 
         _shader.set_float("far_plane", self.lights[0].shadow_far_plane)
         _shader.set_matrix4x4_np("projection", proj)
@@ -313,12 +315,14 @@ class Scene(Receiver):
         _shader.set_vector3_array_np(
             "light_pos", light_array, len(self.lights)
         )
-        _shader.set_vector3_array_np(
-            "light_color", lcolor_array, len(self.lights)
-        )
-        _shader.set_int("LIGHT_COUNT", len(self.lights))
-        _shader.set_int("samples", self._shadow_samples)
-        if self.shadow_quality > 0:
+
+        if not shadow_round:
+            _shader.set_int("LIGHT_COUNT", len(self.lights))
+            _shader.set_int("samples", self._shadow_samples)
+            _shader.set_vector3_array_np(
+                "light_color", lcolor_array, len(self.lights)
+            )
+        if self.shadow_quality > 0 and not shadow_round:
             _shader.set_int("shadow_enabled", 1)
         if shadow_round:
             if len(self.lights) == 0:
@@ -332,9 +336,10 @@ class Scene(Receiver):
                 glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
                 _shader.set_int("depthMap", 1)
 
+        lit = len(self.lights) > 0
         for object in self.objects.values():
             object.render(
-                len(self.lights) > 0, _shader,
+                lit, _shader,
             )
 
     def _render(self) -> None:

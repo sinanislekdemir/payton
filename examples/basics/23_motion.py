@@ -25,9 +25,9 @@ class CustomKeyboardControls(Controller):
         if event.type == sdl2.SDL_KEYDOWN:
             key = event.key.keysym.sym
             if key == sdl2.SDLK_UP:
-                forward = 0.01
+                forward = 0.02
             if key == sdl2.SDLK_DOWN:
-                forward = -0.01
+                forward = -0.02
             if key == sdl2.SDLK_LEFT:
                 rotate = -1
             if key == sdl2.SDLK_RIGHT:
@@ -41,6 +41,7 @@ class CustomKeyboardControls(Controller):
 
 
 cube = Cube()
+cube.track_motion = True
 scene.controller = CustomKeyboardControls()
 scene.add_object("cube", cube)
 scene.create_clock("motion", 0.01, motion)

@@ -121,7 +121,8 @@ class Material(object):
           opacity: Opacity of the material (0 fully transparent, 1 opaque)
         """
 
-        self.color: List[float] = [1.0, 1.0, 1.0] if color is None else color
+        self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color
+        self._color_np: np.ndarray = np.array(self._color, dtype=np.float32)
         self.display: int = display
         self.lights: bool = lights
         self.texture: str = texture
@@ -132,6 +133,7 @@ class Material(object):
         self._vbos: List[int] = []
 
         self._vertex_count: int = 0
+        self._index_count: int = 0
 
         self._initialized: bool = False
         self._texture: Optional[int] = None
@@ -144,6 +146,22 @@ class Material(object):
             "opacity": self.opacity,
             "indices": self._indices,
         }
+
+    @property
+    def index_count(self):
+        if self._index_count > 0:
+            return self._index_count
+        self._index_count = len(self._indices)
+        return self._index_count
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, color: List[float]) -> None:
+        self._color = color
+        self._color_np = np.array(self._color, dtype=np.float32)
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Material":
@@ -206,18 +224,13 @@ class Material(object):
         self._initialized = False
 
     def render(
-        self,
-        model: np.ndarray,
-        lit: bool,
-        shader: Shader,
-        mode: Optional[int] = None,
+        self, lit: bool, shader: Shader, mode: Optional[int] = None,
     ) -> None:
         """Render material
 
         This function must be called before rendering the actual object
 
         Args:
-          model: Model matrix
           shader: Shader to be used for rendering
           lit: Is this a lit environment
           mode: Set explicit shader mode (optional - used for vertex colors)
@@ -247,14 +260,6 @@ class Material(object):
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        shader.set_int("material_mode", _mode)
-        shader.set_int("lit", 1 if lit else 0)
-        if not self.lights:
-            shader.set_int("lit", 0)
-
-        shader.set_matrix4x4_np("model", model)
-        shader.set_float("opacity", self.opacity)
-
         if self._texture is not None:
             check = shader.get_location("tex_unit")
             if check > -1:
@@ -262,6 +267,10 @@ class Material(object):
                 glBindTexture(GL_TEXTURE_2D, self._texture)
                 shader.set_int("tex_unit", 0)
 
-        shader.set_vector3_np(
-            "object_color", np.array(self.color, dtype=np.float32)
-        )
+        if not shader._depth_shader:
+            shader.set_vector3_np("object_color", self._color_np)
+            shader.set_float("opacity", self.opacity)
+            shader.set_int("material_mode", _mode)
+            shader.set_int("lit", 1 if lit else 0)
+            if not self.lights:
+                shader.set_int("lit", 0)

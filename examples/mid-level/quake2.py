@@ -19,7 +19,9 @@ class App(Scene):
             os.path.dirname(__file__), "forgottenone2", "weapon.md2"
         )
 
-        model = MD2(model_file, "ForgottenOne.pcx")
+        model = MD2(model_file, "ForgottenOne.pcx", track_motion=True)
+        model.track_motion = True
+        model._motion_path_line.material.color = [1.0, 0.0, 0.0]
         weapon = MD2(weapon_file, "weapon.pcx")
         model.bake_animation("run", 0, 5, 3)
         weapon.bake_animation("run", 0, 5, 3)
@@ -30,6 +32,7 @@ class App(Scene):
 
         self.add_object("warrior", model)
         self.add_object("ground", ground)
+        ground.position = [0, 0, -0.01]
         self.create_clock("walk", 0.01, self.walk)
         self.target = [5, 0, 0]
         model.direct_to([5, 0, 0])

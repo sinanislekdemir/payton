@@ -20,9 +20,9 @@ class CustomKeyboardControls(Controller):
         if event.type == sdl2.SDL_KEYUP:
             key = event.key.keysym.sym
             if key == sdl2.SDLK_UP:
-                model.animate("walk", 2, 13)
+                model.animate("walk", 0, 52)
             if key == sdl2.SDLK_DOWN:
-                model.animate("death", 0, 19, False)
+                model.animate("death", 0, 76, False)
 
 
 label = """
@@ -38,6 +38,7 @@ scene.add_object("ground", ground)
 scene.add_object("infantry", model)
 scene.controller = CustomKeyboardControls()
 model.bake_animation("walk", 2, 14, 3)
+model.bake_animation("death", 0, 19, 3)
 print(model.animations)
 model.animate("walk", 0, 52)
 scene.run()

@@ -70,13 +70,14 @@ class Observer(object):
         self.target_object: Optional[Type[Object]] = target_object
         self.fov: float = fov
         self.aspect_ratio: float = aspect_ratio
-        self.near: float = near
-        self.far: float = far
+        self._near: float = near
+        self._far: float = far
 
         # zoom factor for Orthographic projection
-        self.zoom: float = zoom
+        self._zoom: float = zoom
         self.active: bool = active
         self.perspective: bool = perspective
+        self._use_cache = False
 
         # Store matrices for future reference.
         self._projection: Optional[np.ndarray] = None
@@ -94,6 +95,24 @@ class Observer(object):
         if res == 0:
             res = 0.001
         return res
+
+    @property
+    def near(self) -> float:
+        return self._near
+
+    @near.setter
+    def near(self, val: float) -> None:
+        self._near = val
+        self._use_cache = False
+
+    @property
+    def far(self) -> float:
+        return self._far
+
+    @far.setter
+    def far(self, val: float) -> None:
+        self._far = val
+        self._use_cache = False
 
     def rotate_around_target(self, phi: float, theta: float) -> None:
         """
@@ -121,6 +140,7 @@ class Observer(object):
         self.position[0] = x + self.target[0]
         self.position[1] = y + self.target[1]
         self.position[2] = z + self.target[2]
+        self._use_cache = False
 
     def pan(self, x: int, y: int, w: int, h: int) -> None:
         if self.target_object is not None:
@@ -146,6 +166,7 @@ class Observer(object):
             self.target[0] += diff[0]
             self.target[1] += diff[1]
             self.target[2] += diff[2]
+        self._use_cache = False
 
     def mouse(
         self,
@@ -194,6 +215,7 @@ class Observer(object):
             _theta
         ) * math.sin(_phi)
         self.position[2] = self.target[2] + distance * math.cos(_theta)
+        self._use_cache = False
 
     def render(self) -> Tuple[np.ndarray, np.ndarray]:
         """Render camera into two matrices.
@@ -201,6 +223,9 @@ class Observer(object):
         Return:
           (projection_matrix, view_matrix)
         """
+        if self._use_cache and self.target_object is None:
+            return self._projection, self._view
+
         if self.perspective:
             proj_matrix = pyrr.matrix44.create_perspective_projection(
                 self.fov,
@@ -237,6 +262,7 @@ class Observer(object):
         up = np.array(self.up, dtype=np.float32)
         view_matrix = pyrr.matrix44.create_look_at(eye, target, up)
         self._view = view_matrix
+        self._use_cache = True
         return proj_matrix, view_matrix
 
     def screen_to_world(

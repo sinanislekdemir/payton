@@ -154,7 +154,8 @@ class Grid(object):
             self.build()
 
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
-        self._material.render(self._model_matrix, False, shader)
+        shader.set_matrix4x4_np("model", self._model_matrix)
+        self._material.render(False, shader)
 
         if glIsVertexArray(self._vao):
             glBindVertexArray(self._vao)
