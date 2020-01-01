@@ -322,6 +322,7 @@ class Object(object):
 
         self._buffer_size_changed = True
         self._t_buffer_size_changed = True
+        self._no_missing_vao = False
         if self._vao > NO_VERTEX_ARRAY:
             glDeleteVertexArrays(1, [self._vao])
             self._vao = NO_VERTEX_ARRAY
