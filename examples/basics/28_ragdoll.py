@@ -4,14 +4,7 @@ import random
 from payton.math.vector import distance
 from payton.scene import Scene
 from payton.scene.geometry import Plane, RagDoll
-from payton.scene.geometry.ragdoll import (
-    L_HIP,
-    L_KNEE,
-    L_SHOULDER,
-    R_HIP,
-    R_KNEE,
-    R_SHOULDER,
-)
+from payton.scene.geometry.ragdoll import L_HIP, L_KNEE, L_SHOULDER, R_HIP, R_KNEE, R_SHOULDER
 from payton.scene.gui import info_box
 
 
