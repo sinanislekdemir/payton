@@ -5,17 +5,6 @@ from payton.scene.geometry.mesh import Mesh
 
 
 class Cylinder(Mesh):
-    """Cylinder Object
-
-    Beware of using high values for number of meridians. You might end up with
-    excessive number of vertices to render.
-
-    Example use case:
-
-        .. include:: ../../../examples/basics/18_cylinder.py
-
-    """
-
     def __init__(
         self,
         bottom_radius: float = 0.5,
@@ -24,14 +13,6 @@ class Cylinder(Mesh):
         height: float = 1.0,
         **kwargs: Any,
     ) -> None:
-        """Initialize the cylinder
-
-        Args:
-          bottom_radius: Radius at the bottom of the cylinder
-          top_radius: Radius at the top of the cylinder
-          meridians: Number of meridians/edges (as in geography)
-          height: Height of the cylinder
-        """
         super().__init__(**kwargs)
         self._bottom_radius: float = bottom_radius
         self._top_radius: float = top_radius
@@ -68,23 +49,19 @@ class Cylinder(Mesh):
             v4 = 0.0
 
             self.add_triangle(
-                [[x1, y1, -h_2], [x3, y3, -h_2], [x2, y2, h_2]],
-                texcoords=[[u1, v1], [u3, v3], [u2, v2]],
+                [[x1, y1, -h_2], [x3, y3, -h_2], [x2, y2, h_2]], texcoords=[[u1, v1], [u3, v3], [u2, v2]],
             )
 
             self.add_triangle(
-                [[x3, y3, -h_2], [x4, y4, h_2], [x2, y2, h_2]],
-                texcoords=[[u3, v3], [u4, v4], [u2, v2]],
+                [[x3, y3, -h_2], [x4, y4, h_2], [x2, y2, h_2]], texcoords=[[u3, v3], [u4, v4], [u2, v2]],
             )
 
             self.add_triangle(
-                [[x1, y1, -h_2], [0.0, 0.0, -h_2], [x3, y3, -h_2]],
-                texcoords=[[u1, v1], [0.0, 0.0], [u3, v3]],
+                [[x1, y1, -h_2], [0.0, 0.0, -h_2], [x3, y3, -h_2]], texcoords=[[u1, v1], [0.0, 0.0], [u3, v3]],
             )
 
             self.add_triangle(
-                [[x4, y4, h_2], [0.0, 0.0, h_2], [x2, y2, h_2]],
-                texcoords=[[u4, v4], [0.0, 0.0], [u2, v2]],
+                [[x4, y4, h_2], [0.0, 0.0, h_2], [x2, y2, h_2]], texcoords=[[u4, v4], [0.0, 0.0], [u2, v2]],
             )
 
         self.fix_normals()

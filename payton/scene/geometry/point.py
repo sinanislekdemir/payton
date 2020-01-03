@@ -7,28 +7,7 @@ from payton.scene.types import VList
 
 
 class PointCloud(Object):
-    """Point cloud
-
-    If you change the vertices, do not forget to do a `refresh` to take
-    effect.
-
-    Example use case:
-
-        .. include:: ../../../examples/basics/11_point_cloud.py
-    """
-
-    def __init__(
-        self,
-        vertices: Optional[VList] = None,
-        colors: Optional[VList] = None,
-        **kwargs: Any,
-    ) -> None:
-        """Initialize Point Cloud
-
-        Args:
-          vertices: List of point vertices
-          colors: List of colors per vertex, follows the same index as vertices
-        """
+    def __init__(self, vertices: Optional[VList] = None, colors: Optional[VList] = None, **kwargs: Any,) -> None:
         super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         # Expose vertices by reference for modification
@@ -38,29 +17,12 @@ class PointCloud(Object):
         self.material.display = POINTS
 
     def toggle_wireframe(self) -> None:
-        """Toggle wireframe overwrite to disable mode change"""
         pass
 
     def track(self) -> bool:
-        """Tracking point cloud is not possible at the moment
-
-        Returns:
-            bool: `False`. Tracking of point clouds not implemented.
-        """
         return False
 
-    def add(
-        self,
-        vertices: VList,
-        colors: Optional[VList] = None,
-        material: str = DEFAULT,
-    ) -> None:
-        """Add a point to the cloud
-
-        Args:
-          vertices: Vertices to add
-          colors: Colors of the vertices in the same order. (Optional)
-        """
+    def add(self, vertices: VList, colors: Optional[VList] = None, material: str = DEFAULT,) -> None:
         i = len(self._indices)
         for vertex in vertices:
             self._vertices.append(vertex)

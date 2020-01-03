@@ -18,19 +18,6 @@ IDENTITY_MATRIX = [
 
 
 def create_rotation_matrix_raw(axis: GArray, angle: float) -> np.ndarray:
-    """Create rotation matrix along Axis with given angle, return List
-    instead of Numpy Array
-
-    Rotates a matrix around Axis by given angle.
-    _(This function is ported from GLScene sources)_
-
-    Args:
-      axis: Object matrix
-      angle: Angle in radians
-      as_numpy: Return result as a numpy array.
-    Returns:
-      matrix
-    """
     sin = math.sin(angle)
     cos = math.cos(angle)
     m_cos = 1 - cos
@@ -55,18 +42,6 @@ def create_rotation_matrix_raw(axis: GArray, angle: float) -> np.ndarray:
 
 
 def create_rotation_matrix(axis: GArray, angle: float) -> np.ndarray:
-    """Create rotation matrix along Axis with given angle
-
-    Rotates a matrix around Axis by given angle.
-    _(This function is ported from GLScene sources)_
-
-    Args:
-      axis: Object matrix
-      angle: Angle in radians
-      as_numpy: Return result as a numpy array.
-    Returns:
-      matrix
-    """
     result = create_rotation_matrix_raw(axis, angle)
     return np.array(result, dtype=np.float32)
 
@@ -81,17 +56,6 @@ def scale_matrix(x: float, y: float, z: float) -> np.ndarray:
 
 @lru_cache(maxsize=512)
 def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
-    """Create orthographic projection matrix
-
-    Args:
-      left: Window (Viewport) left (default: 0)
-      right: Window (Viewport) right (default: Window Width)
-      bottom: Window (Viewport) bottom (default: Window Height)
-      top: Window (Viewport) top (default: 0)
-
-    Returns:
-      matrix
-    """
     result = deepcopy(IDENTITY_MATRIX)
     result[0][0] = 2 / (right - left)
     result[1][1] = 2 / (top - bottom)
@@ -101,52 +65,30 @@ def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
     return np.array(result, dtype=np.float32)
 
 
-def cubemap_projection_matrices(
-    from_point: List[float], far_plane: float
-) -> List[np.ndarray]:
+def cubemap_projection_matrices(from_point: List[float], far_plane: float) -> List[np.ndarray]:
     def a2np(a: List[float]) -> np.ndarray:
         return np.array(a, dtype=np.float32)
 
-    shadow_proj = pyrr.matrix44.create_perspective_projection(
-        90.0, 1.0, 0.01, far_plane, np.float32
-    )
+    shadow_proj = pyrr.matrix44.create_perspective_projection(90.0, 1.0, 0.01, far_plane, np.float32)
     lightpos = np.array(from_point, dtype=np.float32)
 
     nx = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(lightpos + a2np([-1.0, 0, 0]), dtype=np.float32,),
-        a2np([0, -1.0, 0]),
-        dtype=np.float32,
+        lightpos, np.array(lightpos + a2np([-1.0, 0, 0]), dtype=np.float32,), a2np([0, -1.0, 0]), dtype=np.float32,
     )
     px = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(lightpos + a2np([1, 0, 0]), dtype=np.float32,),
-        a2np([0, -1.0, 0]),
-        dtype=np.float32,
+        lightpos, np.array(lightpos + a2np([1, 0, 0]), dtype=np.float32,), a2np([0, -1.0, 0]), dtype=np.float32,
     )
     ny = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(lightpos + a2np([0, -1, 0]), dtype=np.float32,),
-        a2np([0, 0, -1.0]),
-        dtype=np.float32,
+        lightpos, np.array(lightpos + a2np([0, -1, 0]), dtype=np.float32,), a2np([0, 0, -1.0]), dtype=np.float32,
     )
     py = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(lightpos + a2np([0, 1, 0]), dtype=np.float32,),
-        a2np([0, 0, 1.0]),
-        dtype=np.float32,
+        lightpos, np.array(lightpos + a2np([0, 1, 0]), dtype=np.float32,), a2np([0, 0, 1.0]), dtype=np.float32,
     )
     pz = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(lightpos + a2np([0, 0, 1]), dtype=np.float32,),
-        a2np([0, -1.0, 0]),
-        dtype=np.float32,
+        lightpos, np.array(lightpos + a2np([0, 0, 1]), dtype=np.float32,), a2np([0, -1.0, 0]), dtype=np.float32,
     )
     nz = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(lightpos + a2np([0, 0, -1]), dtype=np.float32,),
-        a2np([0, -1.0, 0]),
-        dtype=np.float32,
+        lightpos, np.array(lightpos + a2np([0, 0, -1]), dtype=np.float32,), a2np([0, -1.0, 0]), dtype=np.float32,
     )
 
     return [

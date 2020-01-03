@@ -49,14 +49,10 @@ def hit_aabb(collision, pairs):
 
 
 scene = Scene(width=600, height=600)
-spherical_collision = CollisionTest(
-    callback=hit_sphere, level=CollisionTest.SPHERICAL
-)
+spherical_collision = CollisionTest(callback=hit_sphere, level=CollisionTest.SPHERICAL)
 aabb_collision = CollisionTest(callback=hit_aabb, level=CollisionTest.AABB)
 
-car_object_file = os.path.join(
-    os.path.dirname(__file__), "lib", "Low-Poly-Racing-Car.obj"
-)
+car_object_file = os.path.join(os.path.dirname(__file__), "lib", "Low-Poly-Racing-Car.obj")
 
 spherical_car_1 = Wavefront(filename=car_object_file)
 spherical_car_2 = Wavefront(filename=car_object_file)
@@ -88,14 +84,7 @@ scene.add_collision_test("aabb_collision", aabb_collision)
 scene.create_clock("motion", 0.01, motion)
 
 scene.add_object(
-    "info",
-    info_box(
-        left=10,
-        top=10,
-        width=220,
-        height=100,
-        label="Hit SPACE\nto start animation",
-    ),
+    "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
 )
 
 scene.run()

@@ -30,9 +30,7 @@ Hit Keyboard UP to walk
 Hit Keyboard Down to death animation
 """
 
-scene.add_object(
-    "info", info_box(left=10, top=10, width=320, height=100, label=label)
-)
+scene.add_object("info", info_box(left=10, top=10, width=320, height=100, label=label))
 
 scene.add_object("ground", ground)
 scene.add_object("infantry", model)

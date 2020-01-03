@@ -26,26 +26,17 @@ class App(Scene):
             self.vertex_velocities.append(v)
 
         self.add_object("line", self.line)
-        self.create_clock("clock", 0.1, self.animate)
+        self.create_clock("clock", 0.01, self.animate)
         self.background.top_color = BLACK
         self.background.bottom_color = BLACK
         self.add_object(
-            "info",
-            info_box(
-                left=10,
-                top=10,
-                width=220,
-                height=100,
-                label="Hit SPACE\nto start animation",
-            ),
+            "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
         )
 
     def animate(self, period, total):
         for i, vertex in enumerate(self.line._vertices):
             if distance([0, 0, 0], vertex) > 30:
-                self.vertex_velocities[i] = scale_vector(
-                    self.vertex_velocities[i], -1
-                )
+                self.vertex_velocities[i] = scale_vector(self.vertex_velocities[i], -1)
             vertex[0] += self.vertex_velocities[i][0]
             vertex[1] += self.vertex_velocities[i][1]
             vertex[2] += self.vertex_velocities[i][2]

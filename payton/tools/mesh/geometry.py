@@ -5,17 +5,6 @@ from payton.scene.geometry import Mesh
 
 
 def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
-    """Merge two mesh into a single mesh keeping their positions.
-
-    Note: This will not automatically merge children of meshes.
-
-    Args:
-      mesh1: First mesh
-      mesh2: Second mesh
-
-    Returns:
-      Mesh
-    """
     m1_vertices = list(mesh1.absolute_vertices())
     m2_vertices = list(mesh2.absolute_vertices())
     mesh = Mesh()
@@ -26,9 +15,7 @@ def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
     mesh._texcoords = mesh1._texcoords + mesh2._texcoords
     mesh._normals = mesh1._normals + mesh2._normals
     len_v = len(mesh1._vertices)
-    m2_indices = [
-        [i[0] + len_v, i[1] + len_v, i[2] + len_v] for i in mesh2._indices
-    ]
+    m2_indices = [[i[0] + len_v, i[1] + len_v, i[2] + len_v] for i in mesh2._indices]
     mesh._indices = mesh1._indices + m2_indices
     mesh.material._indices = mesh._indices
     mesh._calc_bounds()
@@ -37,17 +24,6 @@ def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
 
 
 def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
-    """Subdivide mesh into smaller triangles
-
-    Each triangle is split into two triangles by the longest edge.
-
-    Args:
-      mesh: Mesh to subdivide
-      rounds: Number of subdivisions to apply
-
-    Returns:
-      Mesh
-    """
     original = deepcopy(mesh)
     new = deepcopy(original)
     for i in range(rounds):
@@ -97,14 +73,10 @@ def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
                 texcoords_2 = [t3, tc, t2]
 
             new.add_triangle(
-                vertices=[a, vc, c],
-                normals=[n1, n1, n1],
-                texcoords=texcoords_1,
+                vertices=[a, vc, c], normals=[n1, n1, n1], texcoords=texcoords_1,
             )
             new.add_triangle(
-                vertices=[c, vc, b],
-                normals=[n1, n1, n1],
-                texcoords=texcoords_2,
+                vertices=[c, vc, b], normals=[n1, n1, n1], texcoords=texcoords_2,
             )
         original = deepcopy(new)
     return new

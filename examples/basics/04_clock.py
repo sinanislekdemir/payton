@@ -26,9 +26,7 @@ def projectile_motion(period, total):
 
     # Go towards -Y direction.
     position[1] = -(INITIAL_VELOCITY * total * math.cos(LAUNCH_ANGLE))
-    position[2] = INITIAL_VELOCITY * total * math.sin(
-        LAUNCH_ANGLE
-    ) - 0.5 * GRAVITY * (total ** 2)
+    position[2] = INITIAL_VELOCITY * total * math.sin(LAUNCH_ANGLE) - 0.5 * GRAVITY * (total ** 2)
     scene.objects["ball"].position = position
     return None
 
@@ -69,14 +67,7 @@ scene.create_clock("motion", 0.005, projectile_motion)
 scene.create_clock("logger", 0.05, logger)
 
 scene.add_object(
-    "info",
-    info_box(
-        left=10,
-        top=10,
-        width=220,
-        height=100,
-        label="Hit SPACE\nto start animation",
-    ),
+    "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
 )
 
 scene.run()

@@ -8,9 +8,6 @@ from payton.scene.shader import Shader
 
 
 class Theme:
-    """Main theme definitions for window elements
-    """
-
     def __init__(self):
         self.opacity = 0.9
 
@@ -25,12 +22,6 @@ class Theme:
 
 
 class WindowAlignment(Enum):
-    """Window alignment
-
-    Note that, in fixed cases (left, top, right, bottom) Width / Height
-    information will be over-ridden.
-    """
-
     FREE = "free"
     LEFT = "left"
     TOP = "top"
@@ -76,18 +67,8 @@ class WindowElement(Shape2D):
         self._reposition()
 
     def render(
-        self,
-        lit: bool,
-        shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
     ) -> None:
-        """Render the Text
-
-        This calls the render method of
-        `payton.scene.geometry.base.Object.render` then renders the text on top
-        of the rectangle.
-        """
         if not self._init:
             self.draw()
 
@@ -132,13 +113,7 @@ class Window(WindowElement):
                can not inherit from parent class.
         """
         super().__init__(
-            width=width,
-            height=height,
-            left=left,
-            top=top,
-            align=align,
-            theme=theme,
-            **kwargs,
+            width=width, height=height, left=left, top=top, align=align, theme=theme, **kwargs,
         )
         self.title = title
         self.add_child(
@@ -161,20 +136,12 @@ class Window(WindowElement):
             self.add_triangle(
                 [[0, 22, 1], [w, h, 1], [w, 22, 1]],
                 texcoords=[[0, 0], [1, 1], [1, 0]],
-                colors=[
-                    self.theme.background_color,
-                    self.theme.background_color,
-                    self.theme.background_color,
-                ],
+                colors=[self.theme.background_color, self.theme.background_color, self.theme.background_color],
             )
             self.add_triangle(
                 [[0, 22, 1], [0, h, 1], [w, h, 1]],
                 texcoords=[[0, 0], [0, 1], [1, 1]],
-                colors=[
-                    self.theme.background_color,
-                    self.theme.background_color,
-                    self.theme.background_color,
-                ],
+                colors=[self.theme.background_color, self.theme.background_color, self.theme.background_color],
             )
             self.add_triangle(
                 [[0, 0, 1], [w - 1, 22, 1], [w - 1, 0, 1]],
@@ -224,20 +191,12 @@ class Panel(WindowElement):
             self.add_triangle(
                 [[1, 1, 1], [w - 1, h - 1, 1], [w - 1, 1, 1]],
                 texcoords=[[0, 0], [1, 1], [1, 0]],
-                colors=[
-                    self.theme.background_color,
-                    self.theme.background_color,
-                    self.theme.background_color,
-                ],
+                colors=[self.theme.background_color, self.theme.background_color, self.theme.background_color],
             )
             self.add_triangle(
                 [[1, 1, 1], [1, h - 1, 1], [w - 1, h - 1, 1]],
                 texcoords=[[0, 0], [0, 1], [1, 1]],
-                colors=[
-                    self.theme.background_color,
-                    self.theme.background_color,
-                    self.theme.background_color,
-                ],
+                colors=[self.theme.background_color, self.theme.background_color, self.theme.background_color],
             )
 
             self._init = True
@@ -258,22 +217,11 @@ class Button(Panel):
     ):
         kwargs["on_click"] = on_click
         super().__init__(
-            width=width,
-            height=height,
-            left=left,
-            top=top,
-            align=align,
-            theme=theme,
-            **kwargs,
+            width=width, height=height, left=left, top=top, align=align, theme=theme, **kwargs,
         )
 
         self._label = label
-        self.text = Text(
-            position=(0, 0, 1),
-            size=(10, 10),
-            label=label,
-            color=self.theme.text_color,
-        )
+        self.text = Text(position=(0, 0, 1), size=(10, 10), label=label, color=self.theme.text_color,)
         self.add_child("label", self.text)
 
     def draw(self, **kwargs):

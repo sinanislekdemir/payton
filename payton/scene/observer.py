@@ -17,10 +17,6 @@ BUTTON_RIGHT = 2
 
 
 class Observer(object):
-    """
-    Observers are basically cameras in the scene.
-    """
-
     def __init__(
         self,
         position: Optional[List[float]] = None,
@@ -36,35 +32,8 @@ class Observer(object):
         perspective: bool = True,
         **kwargs: Any,
     ) -> None:
-        """
-        Initialize the defaults of an Observer.
-        Default observer is a perspective mode camera
-        standing at x:10 y:10 z:10 looking at the origin
-        and up direction is x:0 y:1 z:0
-
-        Args:
-          position: Position of the camera in absolute coordinates.
-                    [10., 10., 10.]
-          target: Target of the camera in absolute coordinates.
-                  [0., 0., 0.]
-          up: Up vector of the camera. [0., 0., 1.] Z-Up
-          target_object: Instead of a fixed coordinate, track an object. (None)
-          fov: Field of view of the camera [45.]
-          aspect_ratio: Aspect ratio of the camera. [4/3]
-          near: Near clipping plane, can't be negative. [0.1]
-          far: Far plane. Further objects will be invisible. [100.]
-          active: Is this the active camera in the scene? [False]
-        """
-        self.position: List[float] = [
-            10.0,
-            10.0,
-            5.0,
-        ] if position is None else position
-        self.target: List[float] = [
-            0.0,
-            0.0,
-            0.0,
-        ] if target is None else target
+        self.position: List[float] = [10.0, 10.0, 5.0] if position is None else position
+        self.target: List[float] = [0.0, 0.0, 0.0] if target is None else target
         self.up: List[float] = [0.0, 0.0, 1.0] if up is None else up
 
         self.target_object: Optional[Type[Object]] = target_object
@@ -115,13 +84,6 @@ class Observer(object):
         self._use_cache = False
 
     def rotate_around_target(self, phi: float, theta: float) -> None:
-        """
-        Rotates camera around a subject.
-
-        Args:
-          theta: horizontal
-          phi: vertical
-        """
         diff = sub_vector(self.position, self.target)
 
         r = self.distance()
@@ -169,16 +131,7 @@ class Observer(object):
         self._use_cache = False
 
     def mouse(
-        self,
-        button: int,
-        shift: bool,
-        ctrl: bool,
-        x: int,
-        y: int,
-        xrel: int,
-        yrel: int,
-        w: int,
-        h: int,
+        self, button: int, shift: bool, ctrl: bool, x: int, y: int, xrel: int, yrel: int, w: int, h: int,
     ) -> None:
         if shift and ctrl and button == BUTTON_LEFT:  # Panning
             self.pan(x, y, w, h)
@@ -196,11 +149,6 @@ class Observer(object):
                     self.distance_to_target(self.zoom + yrel)
 
     def distance_to_target(self, distance: float) -> None:
-        """Change distance to target
-
-        This function does not change the spherical angles but just
-        adjusts the distance to target coordinates
-        """
         if not self.perspective:
             self.zoom = distance
             return
@@ -208,31 +156,18 @@ class Observer(object):
         _theta = math.acos(diff[2] / self.distance())
         _phi = math.atan2(diff[1], diff[0])
 
-        self.position[0] = self.target[0] + distance * math.sin(
-            _theta
-        ) * math.cos(_phi)
-        self.position[1] = self.target[1] + distance * math.sin(
-            _theta
-        ) * math.sin(_phi)
+        self.position[0] = self.target[0] + distance * math.sin(_theta) * math.cos(_phi)
+        self.position[1] = self.target[1] + distance * math.sin(_theta) * math.sin(_phi)
         self.position[2] = self.target[2] + distance * math.cos(_theta)
         self._use_cache = False
 
     def render(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Render camera into two matrices.
-
-        Return:
-          (projection_matrix, view_matrix)
-        """
         if self._use_cache and self.target_object is None:
             return self._projection, self._view
 
         if self.perspective:
             proj_matrix = pyrr.matrix44.create_perspective_projection(
-                self.fov,
-                self.aspect_ratio,
-                self.near,
-                self.far,
-                dtype=np.float32,
+                self.fov, self.aspect_ratio, self.near, self.far, dtype=np.float32,
             )
         else:
             x = 70 * (self.aspect_ratio)
@@ -265,38 +200,17 @@ class Observer(object):
         self._use_cache = True
         return proj_matrix, view_matrix
 
-    def screen_to_world(
-        self, x: int, y: int, width: int, height: int
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """Convert screen coordinates to world coordinates
-
-        Unlike gluUnproject, this method returns a tuple of ray start
-        (eye position) and ray vector (look at direction)
-
-        Args:
-          x: X Coordinate
-          y: Y Coordinate
-          width: Screen width
-          height: Screen height
-
-        Returns:
-          (ray_start, ray_vector): Numpy arrays
-        """
+    def screen_to_world(self, x: int, y: int, width: int, height: int) -> Tuple[np.ndarray, np.ndarray]:
         x_f = (2.0 * x) / width - 1.0
         y_f = 1.0 - (2.0 * y) / height
 
-        eye = np.array(
-            [self.position[0], self.position[1], self.position[2], 1.0],
-            dtype=np.float32,
-        )
+        eye = np.array([self.position[0], self.position[1], self.position[2], 1.0], dtype=np.float32,)
 
         ray_start = np.array([x_f, y_f, 1.0, 1.0], dtype=np.float32)
         proj = self._projection
         inv_proj = pyrr.matrix44.inverse(proj)
         eye_coords_ray = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
-        eye_coords = np.array(
-            [eye_coords_ray[0], eye_coords_ray[1], -1.0, 0.0], dtype=np.float32
-        )
+        eye_coords = np.array([eye_coords_ray[0], eye_coords_ray[1], -1.0, 0.0], dtype=np.float32)
         view = self._view
         inv_view = pyrr.matrix44.inverse(view)
         ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
@@ -304,10 +218,7 @@ class Observer(object):
         if not self.perspective:
             ray_start = np.array([x_f, y_f, 1.0, 1.0], dtype=np.float32)
             eye_coords_ray = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
-            eye_coords = np.array(
-                [eye_coords_ray[0], eye_coords_ray[1], 0.0, 0.0],
-                dtype=np.float32,
-            )
+            eye_coords = np.array([eye_coords_ray[0], eye_coords_ray[1], 0.0, 0.0], dtype=np.float32,)
             eye = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
             ray = ray_end - eye
             ray_dir = pyrr.vector.normalize(ray[0:4])

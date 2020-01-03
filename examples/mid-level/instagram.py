@@ -11,9 +11,7 @@ y = 0
 z = 0
 
 scene = Scene()
-font_file = os.path.join(
-    os.path.dirname(__file__), "../static/arial_narrow_7.ttf"
-)
+font_file = os.path.join(os.path.dirname(__file__), "../static/arial_narrow_7.ttf")
 
 
 def fetch_instagram(period, total):
@@ -22,9 +20,7 @@ def fetch_instagram(period, total):
     scene.clocks["fetch_instagram"].pause()
     url = "https://www.instagram.com/nasa/?__a=1"
     data = requests.get(url)
-    images = data.json()["graphql"]["user"]["edge_owner_to_timeline_media"][
-        "edges"
-    ]
+    images = data.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"]
     for image in images:
         node = image["node"]
         for thum in node["thumbnail_resources"]:
@@ -42,9 +38,7 @@ def fetch_instagram(period, total):
                     y = 0
                     z += 1
                 cube.material.texture = f"/tmp/{node['id']}.jpg"
-                cube.info = node["edge_media_to_caption"]["edges"][0]["node"][
-                    "text"
-                ]
+                cube.info = node["edge_media_to_caption"]["edges"][0]["node"]["text"]
                 scene.add_object(node["id"], cube)
 
 
@@ -60,9 +54,7 @@ scene.create_clock("fetch_instagram", 0.1, fetch_instagram)
 hud = Hud()
 hud.set_font(font_file)
 
-text = Text(
-    label="Instagram Photos", color=(1, 1, 1), position=(0, 0), size=(800, 600)
-)
+text = Text(label="Instagram Photos", color=(1, 1, 1), position=(0, 0), size=(800, 600))
 hud.add_child("info", text)
 scene.background.top_color = [0, 0, 0, 1]
 scene.background.bottom_color = [0, 0, 0, 1]

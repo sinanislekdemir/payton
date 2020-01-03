@@ -9,11 +9,7 @@ DIFF = 0.0000001
 
 
 def point_project(p: GArray, origin: GArray, direction: GArray) -> float:
-    return (
-        direction[0] * (p[0] - origin[0])
-        + direction[1] * (p[1] - origin[1])
-        + direction[2] * (p[2] - origin[2])
-    )
+    return direction[0] * (p[0] - origin[0]) + direction[1] * (p[1] - origin[1]) + direction[2] * (p[2] - origin[2])
 
 
 def distance(v1: np.ndarray, v2: np.ndarray) -> float:
@@ -37,9 +33,7 @@ def combine(v1: GArray, v2: GArray, f1: float, f2: float) -> np.ndarray:
     return np.array([x, y, z], dtype=np.float32)
 
 
-def combine3(
-    v1: GArray, v2: GArray, v3: GArray, f1: float, f2: float, f3: float
-) -> np.ndarray:
+def combine3(v1: GArray, v2: GArray, v3: GArray, f1: float, f2: float, f3: float) -> np.ndarray:
     res = [
         (f1 * v1[0]) + (f2 * v2[0]) + (f3 * v3[0]),
         (f1 * v1[1]) + (f2 * v2[1]) + (f3 * v3[1]),
@@ -49,20 +43,7 @@ def combine3(
     return np.array(res, dtype=np.float32)
 
 
-def raycast_sphere_intersect(
-    start: GArray, vector: GArray, sphere_center: GArray, sphere_radius: float
-) -> bool:
-    """Raycast Sphere Intersect Test
-
-    Args:
-      start: Start of the ray
-      vector: Vector (direction) of the ray
-      sphere_center: Sphere center in global coordinates
-      sphere_radius: Sphere radius
-
-    Returns:
-      bool
-    """
+def raycast_sphere_intersect(start: GArray, vector: GArray, sphere_center: GArray, sphere_radius: float) -> bool:
     proj = point_project(sphere_center, start, vector)
     if proj < 0:
         proj = 0.0
@@ -74,17 +55,6 @@ def raycast_sphere_intersect(
 def raycast_plane_intersect(
     start: GArray, vector: GArray, plane_point: GArray, plane_normal: GArray
 ) -> typing.Optional[np.ndarray]:
-    """Raycast Plane Intersection Test
-
-    Args:
-      start: Start of the ray
-      vector: Vector (direction) of the ray
-      plane_point: Point on the plane
-      plane_normal: Normal of the plane
-
-    Returns:
-      intersection: Intersection point or None
-    """
     d = np.dot(vector, plane_normal)
     res = (d > DIFF) or (d < -DIFF)
     if not res:
@@ -99,22 +69,7 @@ def raycast_plane_intersect(
 
 def raycast_triangle_intersect(
     start: GArray, vector: GArray, p1: GArray, p2: GArray, p3: GArray
-) -> typing.Tuple[
-    typing.Union[np.ndarray, None], typing.Union[np.ndarray, None]
-]:
-    """Raycast Triangle Intersection Test
-
-    Args:
-      start: Start of the ray
-      vector: Vector (direction) of the ray
-      p1: P1 point of the triangle
-      p2: P2 point of the triangle
-      p3: P3 point of the triangle
-
-    Returns:
-      intersection, normal: Intersection point and intersection normal
-      None, None: if there is no intersection
-    """
+) -> typing.Tuple[typing.Union[np.ndarray, None], typing.Union[np.ndarray, None]]:
     v1 = np.subtract(p2, p1)
     v2 = np.subtract(p3, p1)
     pvec = np.cross(vector, v2)
@@ -141,22 +96,8 @@ def raycast_triangle_intersect(
 
 
 def line_triangle_intersect(
-    start: np.ndarray,
-    end: np.ndarray,
-    p1: np.ndarray,
-    p2: np.ndarray,
-    p3: np.ndarray,
+    start: np.ndarray, end: np.ndarray, p1: np.ndarray, p2: np.ndarray, p3: np.ndarray,
 ) -> bool:
-    """Check if line intersects a triangle in space
-
-    Args:
-      start: Staring position of the line
-      end: End position of the line
-      p1: Triangle corner coordinate 1
-      p2: Triangle corner coordinate 2
-      p3: Triangle corner coordinate 3
-    """
-
     direction = end - start
     norm = np.linalg.norm(direction)
     if norm == 0:

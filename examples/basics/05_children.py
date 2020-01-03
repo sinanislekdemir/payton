@@ -50,14 +50,7 @@ space.add_object("earth", earth)
 
 space.create_clock("motion", 0.01, motion)
 space.add_object(
-    "info",
-    info_box(
-        left=10,
-        top=10,
-        width=220,
-        height=100,
-        label="Hit SPACE\nto start animation",
-    ),
+    "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
 )
 
 space.run()

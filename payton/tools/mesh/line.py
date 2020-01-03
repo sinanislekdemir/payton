@@ -7,16 +7,6 @@ from payton.scene.geometry import Line, Mesh
 
 
 def extrude_line(line: Line, direction: List[float], distance: float) -> Mesh:
-    """ Construct a mesh by extruding a line
-
-    Args:
-      line: Line to extrude
-      direction: Direction vector to apply extrusion
-      distance: Distance to extrude
-
-    Returns:
-      Mesh
-    """
     vertices = line._vertices
     diff_vector = scale_vector(direction, distance)
     mirror_vertices = [add_vectors(v, diff_vector) for v in vertices]
@@ -24,31 +14,16 @@ def extrude_line(line: Line, direction: List[float], distance: float) -> Mesh:
     mesh = Mesh()
     for i in range(len(vertices) - 1):
         mesh.add_triangle(
-            vertices=[vertices[i], vertices[i + 1], mirror_vertices[i]],
-            texcoords=[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]],
+            vertices=[vertices[i], vertices[i + 1], mirror_vertices[i]], texcoords=[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]],
         )
         mesh.add_triangle(
-            vertices=[
-                vertices[i + 1],
-                mirror_vertices[i + 1],
-                mirror_vertices[i],
-            ],
+            vertices=[vertices[i + 1], mirror_vertices[i + 1], mirror_vertices[i]],
             texcoords=[[1.0, 0.0], [1.0, 1.0], [0.0, 1.0]],
         )
     return mesh
 
 
-def rotate_line(
-    line: Line, axis: List[float], angle: float, steps: int = 10
-) -> Mesh:
-    """Create a mesh by rotating a line around axis at given angle (rad)
-
-    Args:
-      line: Line object to rotate
-      axis: Axis to rotate line around (eg. [0, 0, 1.0])
-      angle: Rotation angle
-      steps: How many steps (resolution) to divide
-    """
+def rotate_line(line: Line, axis: List[float], angle: float, steps: int = 10) -> Mesh:
     step_angle = angle / steps
     vertices = line._vertices
     step_u = 1.0 / steps
@@ -61,18 +36,10 @@ def rotate_line(
         for j in range(len(vertices) - 1):
             mesh.add_triangle(
                 vertices=[vertices[j], vertices[j + 1], mirror_vertices[j]],
-                texcoords=[
-                    [step_u * i, step_v * j],
-                    [step_u * (i + 1), step_v * j],
-                    [step_u * i, step_v * (j + 1)],
-                ],
+                texcoords=[[step_u * i, step_v * j], [step_u * (i + 1), step_v * j], [step_u * i, step_v * (j + 1)]],
             )
             mesh.add_triangle(
-                vertices=[
-                    vertices[j + 1],
-                    mirror_vertices[j + 1],
-                    mirror_vertices[j],
-                ],
+                vertices=[vertices[j + 1], mirror_vertices[j + 1], mirror_vertices[j]],
                 texcoords=[
                     [step_u * (i + 1), step_v * j],
                     [step_u * (i + 1), step_v * (j + 1)],
@@ -85,17 +52,6 @@ def rotate_line(
 
 
 def lines_to_mesh(lines: List[Line]) -> Mesh:
-    """Fill the gap between line objects and construct a mesh
-
-    Note: Algorithm follows the order of lines in the array, not their
-          distances.
-
-    Args:
-      lines: List of line objects to use for construction.
-
-    Returns:
-      mesh
-    """
     lens = [len(l._vertices) for l in lines]
     lmin = min(lens)
     lmax = max(lens)
@@ -109,9 +65,7 @@ def lines_to_mesh(lines: List[Line]) -> Mesh:
         tvlist = lines[i + 1]._vertices
         for j in range(lmin - 1):
             mesh.add_triangle(vertices=[fvlist[j], fvlist[j + 1], tvlist[j]])
-            mesh.add_triangle(
-                vertices=[fvlist[j + 1], tvlist[j + 1], tvlist[j]]
-            )
+            mesh.add_triangle(vertices=[fvlist[j + 1], tvlist[j + 1], tvlist[j]])
     mesh.fix_normals()
     mesh.fix_texcoords()
     return mesh

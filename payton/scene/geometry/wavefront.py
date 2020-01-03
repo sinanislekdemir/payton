@@ -13,17 +13,7 @@ from payton.scene.types import IList, VList
 
 
 class Wavefront(Mesh):
-    """
-    Wavefront object file class.
-    Only supports ascii obj files in a limited way.
-    So do not depend so much on this class.
-    Only designed to accept your triangular geometries.
-    """
-
     def __init__(self, filename: str = "", **kwargs: Any) -> None:
-        """
-        Initialize Wavefront Object.
-        """
         super().__init__()
         self.filename: str = filename
         self.path: str = ""
@@ -31,9 +21,6 @@ class Wavefront(Mesh):
             self.load_file(self.filename)
 
     def load_file(self, filename: str) -> bool:
-        """
-        Load obj file.
-        """
         if not os.path.isfile(filename):
             logging.exception(f"File not found {filename}")
             return False
@@ -84,17 +71,6 @@ class Wavefront(Mesh):
         return self.load_material(data)
 
     def load(self, obj_string: str) -> None:
-        """
-        A bit of information on file format,
-        v -> x, y, z, (w)
-        vt -> u, [v, (w)]
-        vn -> x, y, z
-        f -> vertex_index/texcoord_index/normal_index ...
-
-        Also there are definitions of material and line and object name
-        but for now, the assumption is there will always be triangulated
-        wavefront object files and always a single object at a time.
-        """
         _vertices: VList = []
         _indices: List[IList] = []
         _indice_materials: List[str] = []
@@ -135,16 +111,8 @@ class Wavefront(Mesh):
                         continue
                     subs = parts[i].split("/")
                     vertex = int(subs[0]) - 1
-                    textcoord = (
-                        int(subs[1]) - 1
-                        if len(subs) > 1 and len(subs[1]) > 0
-                        else -1
-                    )
-                    normal = (
-                        int(subs[2]) - 1
-                        if len(subs) > 2 and len(subs[2]) > 0
-                        else -1
-                    )
+                    textcoord = int(subs[1]) - 1 if len(subs) > 1 and len(subs[1]) > 0 else -1
+                    normal = int(subs[2]) - 1 if len(subs) > 2 and len(subs[2]) > 0 else -1
                     face.append([vertex, textcoord, normal])
                 if len(face) > 3:
                     logging.error("Only triangular wavefronts are accepted")
@@ -182,23 +150,6 @@ class Wavefront(Mesh):
 
 
 def export(mesh: Mesh, filename: str, name: str = "object"):
-    """Export mesh as wavefront object string
-    @NOTE: Along with your object file, this function will create a separate
-           .mtl file for the object material.
-
-    Basic usage:
-
-        from payton.scene.geometry import Cube
-        from payton.scene.wavefront import export
-
-        cube = Cube()
-        export(cube, "cube.obj")
-
-    Args:
-      mesh: An instance of `payton.scene.geometry.mesh.Mesh`
-      filename: Filename to write output file.
-      name (optional): Name of the object, otherwise `object` will be used
-    """
     if not isinstance(mesh, Mesh):
         logging.exception("Object is not an instance of Mesh")
         return None
@@ -238,18 +189,12 @@ def export(mesh: Mesh, filename: str, name: str = "object"):
 
             t2 = str(f[2]) if len_texcoords > f[2] else ""
             n2 = str(f[2]) if len_normals > f[2] else ""
-            output.append(
-                f"f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}"
-            )
+            output.append(f"f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}")
         material_data.append(f"newmtl {name}")
-        material_data.append(
-            f"Kd {material.color[0]} {material.color[1]} {material.color[2]}"
-        )
+        material_data.append(f"Kd {material.color[0]} {material.color[1]} {material.color[2]}")
         if material.texture != "":
             base_name = os.path.basename(material.texture)
-            path = os.path.join(
-                os.path.abspath(os.path.dirname(filename)), base_name
-            )
+            path = os.path.join(os.path.abspath(os.path.dirname(filename)), base_name)
             copyfile(material.texture, path)
             material_data.append(f"map_Kd {base_name}")
 

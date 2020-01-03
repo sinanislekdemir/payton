@@ -1,12 +1,3 @@
-"""
-Grid module
-
-Grid is a basic layout *(virtual ground)* for the entire scene which centers
-the origin of the scene (0, 0, 0) and can not be moved.
-
-Grid size can be adjusted. Grid is a perfect way to visually see the movement
-and positions of objects in space.
-"""
 import ctypes
 from typing import Any, List, Optional
 
@@ -41,60 +32,14 @@ from payton.scene.shader import Shader
 
 
 class Grid(object):
-    """
-    Properties of Grid:
-
-    - `grid_size`: Default `10`
-    - `grid_spacing`: Default `1.0`
-    - `visible`: Default `True`
-
-    Example usage:
-
-        from payton.scene import Scene
-
-
-        my_scene = Scene()
-        my_scene.grid.grid_size = 20 #  we need more space
-        my_scene.run()
-    """
-
-    def __init__(
-        self,
-        xres: int = 20,
-        yres: int = 20,
-        color: Optional[List[float]] = None,
-        **kwargs: Any,
-    ) -> None:
-        """Initialize Grid
-
-        Args:
-          xres: Number of lines in X
-          yres: Number of lines in Y
-        """
+    def __init__(self, xres: int = 20, yres: int = 20, color: Optional[List[float]] = None, **kwargs: Any,) -> None:
         if color is None:
             self._color: List[float] = [0.4, 0.4, 0.4]
         else:
             self._color = color
 
         self.static: bool = True
-        self.matrix: List[float] = [
-            1.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-        ]
+        self.matrix: List[float] = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
         self._vertices: List[float] = []
         self._indices: List[int] = []
         self._vertex_count: int = 0
@@ -102,18 +47,9 @@ class Grid(object):
         self._material: Material = Material(display=1, lights=False)
         self._material.color = self._color
         self._lines: List[Line] = [
-            Line(
-                vertices=[[0.0, 0.0, 0.01], [xres / 2.0, 0.0, 0.01]],
-                color=[1.0, 0.0, 0.0],
-            ),
-            Line(
-                vertices=[[0.0, 0.0, 0.01], [0.0, yres / 2.0, 0.01]],
-                color=[0.0, 1.0, 0.0],
-            ),
-            Line(
-                vertices=[[0.0, 0.0, 0.01], [0.0, 0.0, yres / 2.0]],
-                color=[0.0, 0.0, 1.0],
-            ),
+            Line(vertices=[[0.0, 0.0, 0.01], [xres / 2.0, 0.0, 0.01]], color=[1.0, 0.0, 0.0],),
+            Line(vertices=[[0.0, 0.0, 0.01], [0.0, yres / 2.0, 0.01]], color=[0.0, 1.0, 0.0],),
+            Line(vertices=[[0.0, 0.0, 0.01], [0.0, 0.0, yres / 2.0]], color=[0.0, 0.0, 1.0],),
         ]
 
         # Vertex Array Object pointer
@@ -123,9 +59,6 @@ class Grid(object):
         self.resize(xres, yres)
 
     def destroy(self) -> bool:
-        """
-        Destroy objects self
-        """
         if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
             self._vao = -1
@@ -133,27 +66,13 @@ class Grid(object):
             l.destroy()
         return True
 
-    def render(
-        self,
-        lit: bool,
-        shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-    ) -> bool:
-        """
-        Virtual function for rendering the object.
-
-        Args:
-          proj: Camera projection matrix.
-          view: Camera location/view matrix.
-        """
-
+    def render(self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None,) -> bool:
         if not self.visible:
             return True
 
         if self._vao == -1:
             self.build()
 
-        self._model_matrix = np.array(self.matrix, dtype=np.float32)
         shader.set_matrix4x4_np("model", self._model_matrix)
         self._material.render(False, shader)
 
@@ -161,10 +80,7 @@ class Grid(object):
             glBindVertexArray(self._vao)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
             glDrawElements(
-                GL_LINES,
-                self._vertex_count,
-                GL_UNSIGNED_INT,
-                ctypes.c_void_p(0),
+                GL_LINES, self._vertex_count, GL_UNSIGNED_INT, ctypes.c_void_p(0),
             )
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
@@ -179,6 +95,7 @@ class Grid(object):
         self._vertex_count = 0
         ystart = -(yres * spacing / 2.0)
         xstart = -(xres * spacing / 2.0)
+        self._model_matrix = np.asfortranarray(np.array(self.matrix, dtype=np.float32), dtype=np.float32)
         for j in range(0, yres):
             y = ystart + (j * spacing)
             for i in range(0, xres):
@@ -225,14 +142,10 @@ class Grid(object):
         glBindBuffer(GL_ARRAY_BUFFER, vbos[0])
         glEnableVertexAttribArray(0)  # shader layout location
         glVertexAttribPointer(0, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        glBufferData(
-            GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW
-        )
+        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[1])
-        glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW
-        )
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
         self._vertex_count = len(indices)
 
         glBindVertexArray(0)

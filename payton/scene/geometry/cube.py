@@ -6,17 +6,6 @@ from payton.scene.material import DEFAULT
 
 
 class Cube(Mesh):
-    """
-    Cube object
-
-    This is a simple Cube object with width, height and depth.
-
-    Cube object use case:
-
-        .. include:: ../../../examples/basics/02_cube.py
-
-    """
-
     def __init__(
         self,
         width: float = 1.0,
@@ -26,21 +15,6 @@ class Cube(Mesh):
         to_corner: Optional[List[float]] = None,
         **kwargs: Any,
     ) -> None:
-        """Initialize Cube
-
-        There are two ways to initialize a cube. You can use width, depth,
-        height properties or you can specify two distant corners in space
-        as `from_corner` and `to_corner`.
-
-        Specifiying corners overwrites width, depth and height.
-
-        Args:
-          width: Width of the cube (size X)
-          depth: Depth of the cube (size Y)
-          height: Height of the cube (size Z)
-          from_corner: Starting point of the cube (Optional)
-          to_corner: End point of the cube (Optional)
-        """
         super().__init__(**kwargs)
         width *= 0.5
         depth *= 0.5

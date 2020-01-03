@@ -60,11 +60,7 @@ def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> List[Mesh]:
         mesh.destroy()  # Destroy references to previous objects opengl
         for v_i, vertex in enumerate(results[i - 1]._vertices):
             mesh._vertices.append(
-                [
-                    vertex[0] + distances[v_i][0],
-                    vertex[1] + distances[v_i][1],
-                    vertex[2] + distances[v_i][2],
-                ]
+                [vertex[0] + distances[v_i][0], vertex[1] + distances[v_i][1], vertex[2] + distances[v_i][2]]
             )
         mesh.fix_normals()
         results.append(mesh)
@@ -118,10 +114,7 @@ def read_block(b: BinaryIO, format_str: str, count: int):
     data = b.read(total_length)
     if len(data) < total_length:
         raise ValueError("MD2: Failed to read '%d' bytes" % (total_length))
-    return [
-        struct.unpack(format_str, chunk)
-        for chunk in chunks(data, struct_length)
-    ]
+    return [struct.unpack(format_str, chunk) for chunk in chunks(data, struct_length)]
 
 
 def fix_skin_name(name: bytes) -> str:
@@ -156,9 +149,7 @@ class MD2(Mesh):
         .. include:: ../../../examples/basics/26_quake2.py
     """
 
-    def __init__(
-        self, filename: str = "", texture_filename: str = "", **kwargs: Any
-    ):
+    def __init__(self, filename: str = "", texture_filename: str = "", **kwargs: Any):
         """Initialize the MD2 Object
 
         Args:
@@ -188,13 +179,7 @@ class MD2(Mesh):
     def add_frame_child(self, name: str, mesh: Mesh) -> None:
         self._frame_children[name] = mesh
 
-    def bake_animation(
-        self,
-        animation_name: str,
-        from_frame: int,
-        to_frame: int,
-        steps: int = 1,
-    ) -> None:
+    def bake_animation(self, animation_name: str, from_frame: int, to_frame: int, steps: int = 1,) -> None:
         """Original MD2 Format does not include all frames in an animation.
 
         Instead, there are "key frames". There are gaps between the key-frames
@@ -235,11 +220,7 @@ class MD2(Mesh):
         self.animations[animation_name] = [0, len(frames) - 1]
 
     def animate(
-        self,
-        animation_name: str,
-        from_frame: int,
-        to_frame: int,
-        loop: bool = True,
+        self, animation_name: str, from_frame: int, to_frame: int, loop: bool = True,
     ):
         """Set the model in motion
 
@@ -271,11 +252,7 @@ class MD2(Mesh):
             child_obj.animate(animation_name, from_frame, to_frame, loop)
 
     def render(
-        self,
-        lit: bool,
-        shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
     ) -> None:
         if not self._visible:
             return
@@ -289,9 +266,7 @@ class MD2(Mesh):
 
         if self.animation == "":
             for child in self._frame_children:
-                self._frame_children[child].render(
-                    lit, shader, self._model_matrix
-                )
+                self._frame_children[child].render(lit, shader, self._model_matrix)
                 break
                 # render children
             for child in self.children:
@@ -317,9 +292,7 @@ class MD2(Mesh):
 
         frame_name = f"{self.animation}{self._active_frame}"
 
-        self._frame_children[frame_name].render(
-            lit, shader, self._model_matrix
-        )
+        self._frame_children[frame_name].render(lit, shader, self._model_matrix)
         for child in self.children:
             self.children[child].render(lit, shader, self._model_matrix)
 
@@ -340,15 +313,11 @@ class MD2(Mesh):
 
     def read_triangles(self, f: BinaryIO):
         f.seek(self.header.offset_tris, os.SEEK_SET)
-        triangles = np.array(
-            read_block(f, "< 6H", self.header.num_tris), dtype=np.uint16
-        )
+        triangles = np.array(read_block(f, "< 6H", self.header.num_tris), dtype=np.uint16)
         triangles.shape = (-1, 6)
         vertex_indices = triangles[:, :3]
         tc_indices = triangles[:, 3:]
-        self.triangle_layout = MD2TriangleLayout(
-            vertex_indices=vertex_indices, tc_indices=tc_indices
-        )
+        self.triangle_layout = MD2TriangleLayout(vertex_indices=vertex_indices, tc_indices=tc_indices)
 
     def compile(self):
         self.animations = {}
@@ -381,13 +350,9 @@ class MD2(Mesh):
 
         mesh.fix_normals(False)
         if self.texture_filename != "":
-            mesh.material.texture = os.path.join(
-                self._path, os.path.basename(self.texture_filename)
-            )
+            mesh.material.texture = os.path.join(self._path, os.path.basename(self.texture_filename))
         elif len(self.skins) > 0:
-            mesh.material.texture = os.path.join(
-                self._path, os.path.basename(self.skins[0])
-            )
+            mesh.material.texture = os.path.join(self._path, os.path.basename(self.skins[0]))
 
         self.add_frame_child(name, mesh)
 
@@ -403,25 +368,18 @@ class MD2(Mesh):
         f.seek(self.header.offset_skins, os.SEEK_SET)
         skin_struct = struct.Struct("< %s" % ("64s" * self.header.num_skins))
 
-        self.skins = [
-            fix_skin_name(skin)
-            for skin in skin_struct.unpack(f.read(skin_struct.size))
-        ]
+        self.skins = [fix_skin_name(skin) for skin in skin_struct.unpack(f.read(skin_struct.size))]
 
     def read_tex_coords(self, f: BinaryIO):
         f.seek(self.header.offset_st, os.SEEK_SET)
-        tcs = np.array(
-            read_block(f, "< 2h", self.header.num_st), dtype=np.float
-        )
+        tcs = np.array(read_block(f, "< 2h", self.header.num_st), dtype=np.float)
         tcs.shape = (-1, 2)
         tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
         self._texcoords = tcs
 
     def load_frames(self, f: BinaryIO):
         f.seek(self.header.offset_frames, os.SEEK_SET)
-        self.frames = [
-            self.read_frame(f) for x in range(self.header.num_frames)
-        ]
+        self.frames = [self.read_frame(f) for x in range(self.header.num_frames)]
 
     def read_frame(self, f: BinaryIO):
         frame_translations = np.array(read_block(f, "< 3f", 2), dtype=np.float)
@@ -431,9 +389,7 @@ class MD2(Mesh):
         name = read_block(f, "< 16s", 1)[0][0]
         name = str(name).split("\x00")[0].split("\\")[0].replace("b'", "")
 
-        frame_vertex_data = np.array(
-            read_block(f, "<4B", self.header.num_vertices), dtype=np.uint8
-        )
+        frame_vertex_data = np.array(read_block(f, "<4B", self.header.num_vertices), dtype=np.uint8)
 
         frame_vertex_data.shape = (-1, 4)
 

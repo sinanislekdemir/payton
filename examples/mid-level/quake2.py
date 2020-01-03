@@ -11,13 +11,9 @@ class App(Scene):
         super().__init__(**kwargs)
         ground = Plane(20, 20)
         self.lights[0].position = [10.0, 10.0, 10]
-        model_file = os.path.join(
-            os.path.dirname(__file__), "forgottenone2", "tris.md2"
-        )
+        model_file = os.path.join(os.path.dirname(__file__), "forgottenone2", "tris.md2")
 
-        weapon_file = os.path.join(
-            os.path.dirname(__file__), "forgottenone2", "weapon.md2"
-        )
+        weapon_file = os.path.join(os.path.dirname(__file__), "forgottenone2", "weapon.md2")
 
         model = MD2(model_file, "ForgottenOne.pcx", track_motion=True)
         model.track_motion = True

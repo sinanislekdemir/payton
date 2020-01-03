@@ -1,17 +1,3 @@
-"""
-What is a material?
-
-Materials define how your scene entities look like. Their colors, shininess,
-or displaying them as solid objects or wireframes, all are defined inside
-object materials. This also effects if your object will respond to light
-sources or not.
-
-There are also predefined colors in this module.
-
-* Material
-  * Shader (`payton.scene.shader`)
-
-"""
 import os
 from typing import Any, Dict, List, Optional
 
@@ -81,10 +67,6 @@ EMPTY_VERTEX_ARRAY = -3
 
 
 class Material(object):
-    """
-    Material information holder.
-    """
-
     def __init__(
         self,
         color: Optional[List[float]] = None,
@@ -94,33 +76,6 @@ class Material(object):
         opacity: float = 1.0,
         **kwargs: Any,
     ):
-        """
-        Initialize Material
-
-        Color is constructed as a tuple of 3 floats. (Payton does not currently
-        support transparency at MVP.) [1.0, 1.0, 1.0] are [Red, Green, Blue]
-
-        Each element of color is a float between 0 and 1.
-        (0 - 255 respectively)
-        Also, there are predefined colors.
-
-        Display Mode has 2 modes. Solid and Wireframe. Wireframe is
-        often rendered in a faster way. Also good for debugging your
-        object.
-
-        Default variables:
-
-            {'color': [1.0, 1.0, 1.0, 1.0],
-             'display': SOLID}
-
-        Args:
-          color: Color of material
-          display: Display type of material, SOLID / WIREFRAME (Default SOLID)
-          lights: Effected by lights? (Default true)
-          texture: Texture file name
-          opacity: Opacity of the material (0 fully transparent, 1 opaque)
-        """
-
         self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color
         self._color_np: np.ndarray = np.array(self._color, dtype=np.float32)
         self.display: int = display
@@ -174,11 +129,6 @@ class Material(object):
         return res
 
     def build(self) -> bool:
-        """Build material shaders
-
-        Must be called at object build stage after generating vba.
-        An active vba is required for building shader properly.
-        """
         self._initialized = True
         if os.path.isfile(self.texture):
             img = Image.open(self.texture)
@@ -194,9 +144,7 @@ class Material(object):
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         glBindTexture(GL_TEXTURE_2D, self._texture)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameterf(
-            GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR
-        )
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
@@ -208,33 +156,14 @@ class Material(object):
             img_data = np.fromstring(img.tobytes(), np.uint8)
             mode = GL_RGB
         glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            mode,
-            width,
-            height,
-            0,
-            mode,
-            GL_UNSIGNED_BYTE,
-            img_data,
+            GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, img_data,
         )
         glGenerateMipmap(GL_TEXTURE_2D)
 
     def refresh(self) -> None:
         self._initialized = False
 
-    def render(
-        self, lit: bool, shader: Shader, mode: Optional[int] = None,
-    ) -> None:
-        """Render material
-
-        This function must be called before rendering the actual object
-
-        Args:
-          shader: Shader to be used for rendering
-          lit: Is this a lit environment
-          mode: Set explicit shader mode (optional - used for vertex colors)
-        """
+    def render(self, lit: bool, shader: Shader, mode: Optional[int] = None,) -> None:
         if not self._initialized:
             self.build()
 

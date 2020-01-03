@@ -1,8 +1,3 @@
-"""Payton Lights.
-
-Support for scene lights.
-"""
-
 from typing import Any, List, Optional
 
 import numpy as np  # type: ignore
@@ -11,31 +6,12 @@ from payton.math.matrix import cubemap_projection_matrices
 
 
 class Light(object):
-    """Main Light object
-    """
-
     def __init__(
-        self,
-        position: Optional[List[float]] = None,
-        color: Optional[List[float]] = None,
-        **kwargs: Any,
+        self, position: Optional[List[float]] = None, color: Optional[List[float]] = None, **kwargs: Any,
     ):
-        """Initialize Payton Light
-
-        Args:
-          position: Position of the light in global coordinates
-          default position is [10, 7, 6]
-          color: Color of the light source.
-        """
-        self._position: List[float] = [
-            10.0,
-            7.0,
-            6.0,
-        ] if position is None else position
+        self._position: List[float] = [10.0, 7.0, 6.0] if position is None else position
         self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color
-        self._position_np: np.ndarray = np.array(
-            self._position, dtype=np.float32
-        )
+        self._position_np: np.ndarray = np.array(self._position, dtype=np.float32)
         self._color_np: np.ndarray = np.array(self._color, dtype=np.float32)
         self._shadow_matrices: List[np.ndarray] = []
         self._shadow_far_plane = 100.0
@@ -56,9 +32,7 @@ class Light(object):
     def shadow_matrices(self):
         if len(self._shadow_matrices) > 0:
             return self._shadow_matrices
-        self._shadow_matrices = cubemap_projection_matrices(
-            self.position, self._shadow_far_plane
-        )
+        self._shadow_matrices = cubemap_projection_matrices(self.position, self._shadow_far_plane)
         return self._shadow_matrices
 
     @property

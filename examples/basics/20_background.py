@@ -16,14 +16,7 @@ scene = Scene()
 scene.create_clock("sun", 0.1, change_background)
 
 scene.add_object(
-    "info",
-    info_box(
-        left=10,
-        top=10,
-        width=220,
-        height=100,
-        label="Hit SPACE\nto start animation",
-    ),
+    "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
 )
 
 scene.run()

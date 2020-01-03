@@ -1,34 +1,4 @@
 # pylama:ignore=C901
-"""Scene controller module
-
-This module is mainly for private use.
-
-But if you want to create your own keyboard shortcuts or extended controls,
-you can extend this controller for your own needs.
-
-If you want to create your own keyboard keys or mouse behaviour:
-
-    .. include:: ../../examples/basics/16_keyboard.py
-
-
-### Default key mapping:
-
-- **Zoom In-Out**: Left Ctrl + Mouse Drag (up and down)
-- **Rotate**: Left Shift + Mouse Drag (left and right)
-- **ESC**: Quit Simulation
-- **C**: Change camera mode (Perspective / Orthographic)
-- **Space**: Pause scene (stop all Clocks)
-- **G**: Show/Hide Grid.
-- **W**: Display mode: Wireframe / Solid
-- **F2**: Previous observer
-- **F3**: Next observer
-
-### Mouse controls
-- L_CTRL + Mouse(Left) Drag: Zoom In-Out
-- L_SHIFT + Mouse(Left) Drag: Rotate around target
-- L_SHIFT + L_CTRL + Mouse(Left) Drag: Panning
-
-"""
 import logging
 from typing import Any
 
@@ -38,16 +8,7 @@ from payton.scene.observer import BUTTON_LEFT, BUTTON_RIGHT
 
 
 class Controller(object):
-    """SDL2 OpenGL controller."""
-
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> None:
-        """
-        Keyboard event handler.
-
-        Args:
-          event: SDL2 Event (by PullEvent)
-          scene: Main scene reference
-        """
         if event.type == sdl2.SDL_QUIT:
             logging.debug("Quit SDL Scene")
             scene.running = False
@@ -75,9 +36,7 @@ class Controller(object):
                 # below variable assignment is only for code style
                 p = scene.active_observer.perspective
                 scene.active_observer.perspective = not p
-                logging.debug(
-                    f"Observer Perspective={scene.active_observer.perspective}"
-                )
+                logging.debug(f"Observer Perspective={scene.active_observer.perspective}")
 
             if key == sdl2.SDLK_g:
                 scene.grid.visible = not scene.grid.visible
@@ -111,17 +70,11 @@ class Controller(object):
                     active = len(scene.observers) - 1
                 if active > len(scene.observers) - 1:
                     active = 0
-                scene._active_observer = active
+                scene.active_observer = scene.observers[active]
                 for i in range(len(scene.observers)):
                     scene.observers[i].active = i == active
 
     def mouse(self, event: sdl2.SDL_Event, scene: Any) -> None:
-        """Mouse handling function
-
-        Args:
-          event: SDL2 Event (by PullEvent)
-          scene: Main scene reference
-        """
         observer = scene.active_observer
         if event.type == sdl2.SDL_MOUSEBUTTONUP:
             observer._prev_intersection = None
@@ -135,9 +88,7 @@ class Controller(object):
                     if check:
                         return
 
-            eye, ray_dir = observer.screen_to_world(
-                mx, my, scene.window_width, scene.window_height
-            )
+            eye, ray_dir = observer.screen_to_world(mx, my, scene.window_width, scene.window_height)
 
             list = []
             if callable(scene.on_select):

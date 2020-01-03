@@ -47,13 +47,9 @@ class Mesh(Object):
             "normals": self._normals,
             "texcoords": self._texcoords,
             "matrix": self.matrix,
-            "materials": {
-                mat: self.materials[mat].to_dict() for mat in self.materials
-            },
+            "materials": {mat: self.materials[mat].to_dict() for mat in self.materials},
             "children": {
-                n: cast(Mesh, self.children[n]).to_dict()
-                for n in self.children
-                if isinstance(self.children[n], Mesh)
+                n: cast(Mesh, self.children[n]).to_dict() for n in self.children if isinstance(self.children[n], Mesh)
             },
         }
 
@@ -64,13 +60,9 @@ class Mesh(Object):
         res._normals = d["normals"]
         res._texcoords = d["texcoords"]
         res.matrix = d["matrix"]
-        res.materials = {
-            n: Material.from_dict(d["materials"][n]) for n in d["materials"]
-        }
+        res.materials = {n: Material.from_dict(d["materials"][n]) for n in d["materials"]}
 
-        res.children = {
-            n: cls.from_dict(d["children"][n]) for n in d["children"]
-        }
+        res.children = {n: cls.from_dict(d["children"][n]) for n in d["children"]}
 
         return res
 
@@ -101,10 +93,7 @@ class Mesh(Object):
         normals, do not call this method"""
         self._normals = [[0, 0, 1.0]] * len(self._vertices)
 
-        [
-            self._calc_normal(face[0], face[1], face[2], reverse)
-            for face in self._indices
-        ]
+        [self._calc_normal(face[0], face[1], face[2], reverse) for face in self._indices]
 
     def fix_texcoords(self, u: int = 1, v: int = 1) -> None:
         """Try to recalculate mesh texture coordinates by cube projection

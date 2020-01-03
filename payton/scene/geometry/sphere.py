@@ -8,40 +8,7 @@ from payton.scene.material import DEFAULT
 
 
 class Sphere(Mesh):
-    """
-    Sphere object.
-
-    This object is generated using basic Spherical coordinates.
-    Beware of using high values for parallels and meridians. You might end up
-    with excessive number of vertices to render and a performance trouble.
-
-    Parameters:
-
-    - `radius` default: `0.5`
-    - `parallels` default: `12`
-    - `meridians` default: `12`
-
-    Sphere object use case
-
-        .. include:: ../../../examples/basics/05_children.py
-
-    """
-
-    def __init__(
-        self,
-        radius: float = 0.5,
-        parallels: int = 12,
-        meridians: int = 12,
-        **kwargs: Any,
-    ) -> None:
-        """Initialize the sphere
-
-        Args:
-          radius: Radius of the sphere (default: 0.5, making it a unit sphere)
-          parallels: Number of parallels (as in geography). (default: 12, 30
-                     degrees of arcs)
-          meridians: Number of meridians (as in geography). (default: 12)
-        """
+    def __init__(self, radius: float = 0.5, parallels: int = 12, meridians: int = 12, **kwargs: Any,) -> None:
         super().__init__(**kwargs)
         self.radius: float = radius
         self.parallels: int = parallels
@@ -49,12 +16,6 @@ class Sphere(Mesh):
         self.build_sphere()
 
     def build_sphere(self) -> bool:
-        """
-        Generate the sphere
-
-        Returns:
-          bool: `True` on successful creation of a `Sphere` object.
-        """
         r = self.radius
         # step angle is the rotational angle to build the sphere
         step_angle = math.radians(360.0 / self.meridians)
@@ -78,16 +39,8 @@ class Sphere(Mesh):
             u2 = u_step * j
             v2 = v_step * (i + 1)
 
-            x3 = (
-                r
-                * math.sin(step_height * (i + 1))
-                * math.cos(step_angle * (j + 1))
-            )
-            y3 = (
-                r
-                * math.sin(step_height * (i + 1))
-                * math.sin(step_angle * (j + 1))
-            )
+            x3 = r * math.sin(step_height * (i + 1)) * math.cos(step_angle * (j + 1))
+            y3 = r * math.sin(step_height * (i + 1)) * math.sin(step_angle * (j + 1))
             z3 = r * math.cos(step_height * (i + 1))
             u3 = u_step * (j + 1)
             v3 = v_step * (i + 1)
@@ -113,11 +66,7 @@ class Sphere(Mesh):
             self._normals.append([normal[0], normal[1], normal[2]])
             self._indices.append([indices, indices + 1, indices + 2])
             self._indices.append([indices, indices + 2, indices + 3])
-            self.materials[DEFAULT]._indices.append(
-                [indices, indices + 1, indices + 2]
-            )
-            self.materials[DEFAULT]._indices.append(
-                [indices, indices + 2, indices + 3]
-            )
+            self.materials[DEFAULT]._indices.append([indices, indices + 1, indices + 2])
+            self.materials[DEFAULT]._indices.append([indices, indices + 2, indices + 3])
             indices += 4
         return True

@@ -88,6 +88,14 @@ More information can be found in documents.
 - Even-though there is not restriction on number of objects in the scene, it can effect the initial load time. Once it gets loaded, it should work fine as graphics card and shader program does the heavy-lifting.
 - There are only two collision detection algorithms. Axis Aligned Bounding Box (AABB) is the default algorithm. Also you can reduce it to Spherical collision detection as well, which is simpler and works faster but it just checks for the bounding spheres of objects thus makes a pretty rough assumption.
 
+## Some Performance Tips:
+
+- Using too many materials will reduce the performance.
+- If possible, merge non-moving objects and add them as a single object to the scene. Setting the object matrix is an expensive call for too-many objects.
+- Avoid using too many clocks. Instead of assiging a clock to each object motion, do them all at once in a single clock. For different parts of the animation (eg: move, hit, continue), you can use a state keeping variable instead of stopping and starting many individual clocks.
+- Avoid adding too many objects in the runtime if you need a smooth animation. Adding objects has an over-head.
+- Do not forget that, you are working with an interpeted language as Python. Not C.
+
 ## Install and kick-start
 
 ### Requirements:

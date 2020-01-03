@@ -20,25 +20,15 @@ def new_cube():
 
 
 def print_fps(period, total):
-    scene.huds["interface"].children["main_window"].children[
-        "fps_text"
-    ].label = f"FPS: {scene.fps}"
+    scene.huds["interface"].children["main_window"].children["fps_text"].label = f"FPS: {scene.fps}"
 
 
 theme = Theme()
 theme.text_color = [1.0, 0.0, 0.0]
 
 
-main_window = Window(
-    "GUI Example",
-    width=220,
-    height=600,
-    align=WindowAlignment.LEFT,
-    theme=theme,
-)
-create_cube = Button(
-    "New Cube", width=200, height=30, left=10, top=40, on_click=new_cube
-)
+main_window = Window("GUI Example", width=220, height=600, align=WindowAlignment.LEFT, theme=theme,)
+create_cube = Button("New Cube", width=200, height=30, left=10, top=40, on_click=new_cube)
 fps_text = Button("Hit Space for FPS", width=200, height=30, left=10, top=80)
 main_window.add_child("create_cube", create_cube)
 main_window.add_child("fps_text", fps_text)

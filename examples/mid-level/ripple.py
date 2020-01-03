@@ -19,9 +19,7 @@ class RippleApp(Scene):
         self.add_click_plane([0, 0, 0], [0, 0, 1], self.ripple_pos)
         self.grid.visible = False
 
-        self.plane = MatrixPlane(
-            width=20, height=20, x=water_size, y=water_size
-        )
+        self.plane = MatrixPlane(width=20, height=20, x=water_size, y=water_size)
         self.water = deepcopy(self.plane.grid)
 
         self.plane.material.display = POINTS
@@ -32,20 +30,13 @@ class RippleApp(Scene):
         self.add_object("plane", self.plane)
         self.active_observer.distance_to_target(20)
         self.add_object(
-            "info",
-            info_box(
-                left=10,
-                top=10,
-                width=220,
-                height=100,
-                label="Hit SPACE\nto start animation",
-            ),
+            "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
         )
 
     def drop(self, period, total):
-        self.water[random.randint(0, self.water_size - 1)][
-            random.randint(0, self.water_size - 1)
-        ] = random.randint(-5, 15)
+        self.water[random.randint(0, self.water_size - 1)][random.randint(0, self.water_size - 1)] = random.randint(
+            -5, 15
+        )
 
     def ripple_pos(self, hit):
         f = self.water_size / 20
@@ -62,59 +53,36 @@ class RippleApp(Scene):
         water_size = self.water_size
         damp = self.damp
 
-        for j, i in product(
-            range(1, self.water_size - 1), range(1, water_size - 1)
-        ):
-            n = (
-                self.water[i - 1][j]
-                + self.water[i + 1][j]
-                + self.water[i][j - 1]
-                + self.water[i][j + 1]
-            ) / 2.0
+        for j, i in product(range(1, self.water_size - 1), range(1, water_size - 1)):
+            n = (self.water[i - 1][j] + self.water[i + 1][j] + self.water[i][j - 1] + self.water[i][j + 1]) / 2.0
             n -= grid[i][j]
             n = n - (n / damp)
             grid[i][j] = n
 
         j = 0
         for i in range(1, water_size - 1):
-            n = (
-                self.water[i - 1][j]
-                + self.water[i + 1][j]
-                + self.water[i][j + 1]
-            ) / 2.0
+            n = (self.water[i - 1][j] + self.water[i + 1][j] + self.water[i][j + 1]) / 2.0
             n -= grid[i][j]
             n -= n / damp
             grid[i][j] = n
 
         i = 0
         for j in range(1, water_size - 1):
-            n = (
-                self.water[i + 1][j]
-                + self.water[i][j - 1]
-                + self.water[i][j + 1]
-            ) / 2.0
+            n = (self.water[i + 1][j] + self.water[i][j - 1] + self.water[i][j + 1]) / 2.0
             n -= grid[i][j]
             n -= n / damp
             grid[i][j] = n
 
         i = water_size - 1
         for j in range(1, water_size - 1):
-            n = (
-                self.water[i - 1][j]
-                + self.water[i][j - 1]
-                + self.water[i][j + 1]
-            ) / 2.0
+            n = (self.water[i - 1][j] + self.water[i][j - 1] + self.water[i][j + 1]) / 2.0
             n -= grid[i][j]
             n -= n / damp
             grid[i][j] = n
 
         j = water_size - 1
         for i in range(1, water_size - 1):
-            n = (
-                self.water[i - 1][j]
-                + self.water[i + 1][j]
-                + self.water[i][j - 1]
-            ) / 2.0
+            n = (self.water[i - 1][j] + self.water[i + 1][j] + self.water[i][j - 1]) / 2.0
             n -= grid[i][j]
             n -= n / damp
             grid[i][j] = n

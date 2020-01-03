@@ -43,69 +43,13 @@ from payton.math.vector import (
     sub_vector,
     vector_transform,
 )
-from payton.scene.material import (
-    DEFAULT,
-    NO_INDICE,
-    NO_VERTEX_ARRAY,
-    POINTS,
-    SOLID,
-    WIREFRAME,
-    Material,
-)
+from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
 from payton.scene.shader import Shader
 from payton.scene.types import IList, VList
 
 
 class Object(object):
-    """Main Payton Object.
-
-    This is an abstract class to define common properties and methods between
-    Mesh / Cube / Sphere/ Shape2D / PointCloud, etc.
-
-    Objects are not actually built as 3D vertex arrays until they are rendered.
-    Render function calls `build` function if needed. Build function creates
-    the OpenGL Vertex Array Object. VAO is static data so, once the object
-    is built, changing vertices or indices will not take effect at the scene.
-
-    You need to call `payton.scene.geometry.base.Object.build` function to
-    refresh Vertex Array Object.
-
-    """
-
-    def __init__(
-        self,
-        name="",
-        visible=True,
-        track_motion=False,
-        **kwargs: Dict[str, Any],
-    ) -> None:
-        """
-        Initialize the basic object properties.
-
-        Properties:
-          children: Children hash for object. Each child object follows parent
-                    object. They take their parent object as origin and their
-                    coordinate system is relative to their parent. This
-                    behaviour resembles stars, planets and their moons.
-          material: Material definitions of the object.
-          matrix: Matrix definition of the object. This is a 4x4 Uniform Matrix
-                  but data is set as an array for easier transformations. First
-                  4 decimals are "Left" vector, second 4 are "Direction", third
-                  4 are "Up" and last four decimals are "Position" vectors.
-
-        Args:
-          track_motion: Track object motion (default: false). Object tracking
-                        is time independent. It just saves the object matrix
-                        for every change. Uses matrix position for drawing the
-                        motion path.
-          name: Name of the object (optional, default '') Note that, when
-                object gets added to a Scene with a name, Scene will assign
-                that name to the object, overwriting any existing name of the
-                object.
-          visible: Is this object visible at the scene, default: `True`. To
-                   hide an object, you can call `object.hide()` and to show
-                   it again use: `object.show()`
-        """
+    def __init__(self, name="", visible=True, track_motion=False, **kwargs: Dict[str, Any],) -> None:
         self.children: Dict[str, Object] = {}
 
         # store diffeerent materials
@@ -132,15 +76,9 @@ class Object(object):
         # @NOTE: we have separate indices for materials but this base
         #        index list holds all indice definitions for fast access
         self._indices: IList = []  # Indices
-        self._normals: List[
-            List[float]
-        ] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
-        self._texcoords: List[
-            List[float]
-        ] = []  # Texture coordinates, 1 coordinate per Vertex
-        self._vertex_colors: List[
-            List[float]
-        ] = []  # per-vertex colors, optional.
+        self._normals: List[List[float]] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
+        self._texcoords: List[List[float]] = []  # Texture coordinates, 1 coordinate per Vertex
+        self._vertex_colors: List[List[float]] = []  # per-vertex colors, optional.
         self._has_vertex_colors: bool = False  # flag for using vertex colors
 
         # Vertices do not mean anything unless we define how to use them.
@@ -154,6 +92,7 @@ class Object(object):
         self._buffer_size: float = 500 * 12
         self._t_buffer_size: float = 500 * 8
         self._model_matrix: np.ndarray = []  # Model matrix.
+        self._model_matrix_fortran: np.ndarray = []  # Model matrix as fortran
         # Check if buffer size allocated for the object has changed.
         self._buffer_size_changed: bool = True
         self._t_buffer_size_changed: bool = True
@@ -179,10 +118,6 @@ class Object(object):
         self._hit: bool = False
 
     def refresh(self) -> None:
-        """Refresh object
-
-        Forces object to get built again
-        """
         self._needs_update = True
 
     @property
@@ -194,28 +129,16 @@ class Object(object):
         self.materials[DEFAULT] = mat
 
     def add_material(self, name: str, material: Material) -> None:
-        """Add a material to the object.
-
-        Keep in mind that, adding material does not refer to the material
-        but does it through deepcopy. Initially, material holds indice
-        and vertex buffer objectt references. In order to prevent user
-        from breaking the objects, we create the clone of the material.
-        """
         if name in self.materials:
             raise Exception(f"Name {name} already exists")
         self.materials[name] = deepcopy(material)
 
     @property
     def direction(self) -> List[float]:
-        """Get direction vector from Matrix"""
         return self.matrix[1][:3]
 
     @direction.setter
     def direction(self, v: List[float]):
-        """Set direction vector of Matrix
-
-        Attention! This needs to be a unit vector!
-        """
         if len(v) < 3:
             raise Exception("Direction needs 3 components (x,y,z)")
         self.matrix[1][0] = v[0]
@@ -229,39 +152,23 @@ class Object(object):
         self.matrix[2] = normalize_vector(up)
 
     def direct_to(self, v: List[float]):
-        """Direct the objects forward towards given point vector"""
         diff = sub_vector(v, self.position)
         diff = normalize_vector(diff)
         self.direction = diff
 
     def rotate_around_z(self, angle: float) -> None:
-        """Rotate around Z Axis
-
-        Args:
-          angle: Angle in radians
-        """
         rot_matrix = create_rotation_matrix([0, 0, 1], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
 
     def rotate_around_x(self, angle: float) -> None:
-        """Pitch - Rotate around X axis
-
-        Args:
-          angle: Angle in radians
-        """
         rot_matrix = create_rotation_matrix([1, 0, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
 
     def rotate_around_y(self, angle: float) -> None:
-        """Roll - Rotate around Y Axis (Direction)
-
-        Args:
-          angle: Angle in radians
-        """
         rot_matrix = create_rotation_matrix([0, 1, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
@@ -274,30 +181,12 @@ class Object(object):
         self.matrix = local_matrix.tolist()
 
     def scale_texture(self, x: float, y: float) -> None:
-        self._texcoords = [
-            [coord[0] * x, coord[1] * y] for coord in self._texcoords
-        ]
+        self._texcoords = [[coord[0] * x, coord[1] * y] for coord in self._texcoords]
         self.refresh()
 
     def select(self, start: np.ndarray, vector: np.ndarray) -> bool:
-        """Select test for object using bounding Sphere.
-
-        This method is not 100% accurate as it is based on a rough
-        assumption. Sphere area will be larger than actual object.
-
-        If you want to have a more accurate way to handle this, try
-        using raycast triangle intersect
-
-        Args:
-          start: Starting point of the ray (such as eye position)
-          vector: Ray direction. This is not the end point of a line!
-                  This is a unit vector showing the ray direction.
-        """
         self._selected = raycast_sphere_intersect(
-            start,
-            vector,
-            np.array(self.matrix[3], dtype=np.float32),
-            self.bounding_radius,
+            start, vector, np.array(self.matrix[3], dtype=np.float32), self.bounding_radius,
         )
 
         for obj in self.children:
@@ -308,12 +197,6 @@ class Object(object):
         return self._selected
 
     def destroy(self) -> bool:
-        """
-        Destroy objects self.
-
-        Returns:
-            bool: `True` on successful destroy of `self`.
-        """
         for material in self.materials.values():
             if material._vao > NO_VERTEX_ARRAY:
                 glDeleteVertexArrays(1, [self._vao])
@@ -333,18 +216,6 @@ class Object(object):
         return True
 
     def step_back(self, steps: int = 1) -> bool:
-        """Go back N step in time
-
-        This is suitable for solving collisions and getting a step back.
-        On the other hand, this function requires `track_motion` to be
-        True.
-
-        Args:
-          steps: Number of steps to go back. (Default = 1)
-
-        Returns:
-          bool: If step back is successful
-        """
         steps += 1
         if not self.track_motion:
             raise Exception("track_motion should be True")
@@ -356,27 +227,11 @@ class Object(object):
         return True
 
     def forward(self, distance: float) -> None:
-        """Move object forward
-
-        This method calculates to motion path according to direction
-        of the object's matrix. `self.matrix[1]` indicates the direction.
-
-        So matrix position gets updated according to direction * distance
-        """
         diff = scale_vector(self.matrix[1], distance)
         self.matrix[3] = add_vectors(self.matrix[3], diff)
         self.matrix[3][3] = 1.0
 
-    def update_matrix(
-        self, parent_matrix: Optional[np.ndarray] = None
-    ) -> None:
-        """Update matrix
-
-        Turn object matrix into numpy array.
-
-        Args:
-          parent_matrix: Parent objects matrix
-        """
+    def update_matrix(self, parent_matrix: Optional[np.ndarray] = None) -> None:
         # Turn matrix into numpy array. Numpy arrays are C Type arrays
         # suitable for OpenGL Pipeline
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
@@ -385,13 +240,10 @@ class Object(object):
         if parent_matrix is not None and len(parent_matrix) > 0:
             self._model_matrix = self._model_matrix.dot(parent_matrix)
 
-    def track(self) -> bool:
-        """
-        Track object motion
+        # Fortran array is used to push matrix to opengl context
+        self._model_matrix_fortran = np.asfortranarray(self._model_matrix, dtype=np.float32)
 
-        Returns:
-            bool: `True` on successful tracking of `self`.
-        """
+    def track(self) -> bool:
         if not self.track_motion:
             return False
 
@@ -402,9 +254,7 @@ class Object(object):
         self._motion_path.append(deepcopy(self.matrix))
         # Add the matrix position to motion math line for visualisation
         if self._motion_path_line is not None:
-            self._motion_path_line.append(
-                [[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]]
-            )
+            self._motion_path_line.append([[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]])
 
         # Python trick here! need to .copy or it will pass reference.
         self._previous_matrix = self.matrix[3].copy()
@@ -412,11 +262,6 @@ class Object(object):
 
     @property
     def visible(self) -> bool:
-        """Check if object is visible
-
-        Returns:
-          bool: `True` if visible.
-        """
         return self._visible
 
     def show(self) -> None:
@@ -433,35 +278,15 @@ class Object(object):
         if self._no_missing_vao:
             return False
         result = any(
-            [
-                material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1
-                for material in self.materials.values()
-            ]
+            [material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1 for material in self.materials.values()]
         )
         if not result:
             self._no_missing_vao = True
         return result
 
     def render(
-        self,
-        lit: bool,
-        shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
     ) -> None:
-        """
-        Virtual function for rendering the object. Some objects can overwrite
-        this function.
-
-        Args:
-          proj: Camera projection matrix.
-          view: Camera location/view matrix.
-          lights: Light objects in the scene
-          parent_matrix: Parent matrix is the matrix of the parent. Parent can
-                         be the scene itself or another object. In case of
-                         another object, object will position itself relative
-                         to its parent object.
-        """
         if not self._visible:
             return
 
@@ -486,7 +311,7 @@ class Object(object):
         if self._has_vertex_colors:
             mode = Shader.PER_VERTEX_COLOR
 
-        shader.set_matrix4x4_np("model", self._model_matrix)
+        shader.set_matrix4x4_np("model", self._model_matrix_fortran)
         indice_0 = ctypes.c_void_p(0)
         for material in self.materials.values():
             if not material.display == SOLID and shader._depth_shader:
@@ -497,9 +322,7 @@ class Object(object):
             )
 
             # Actual rendering
-            if material._vao > NO_VERTEX_ARRAY and glIsVertexArray(
-                material._vao
-            ):
+            if material._vao > NO_VERTEX_ARRAY and glIsVertexArray(material._vao):
                 glBindVertexArray(material._vao)
                 pmode = GL_LINE
                 primitive = GL_TRIANGLES
@@ -514,10 +337,7 @@ class Object(object):
                 glPolygonMode(GL_FRONT_AND_BACK, pmode)
 
                 glDrawElements(
-                    primitive,
-                    material._vertex_count,
-                    GL_UNSIGNED_INT,
-                    indice_0,
+                    primitive, material._vertex_count, GL_UNSIGNED_INT, indice_0,
                 )
 
                 if pmode != GL_FILL:
@@ -534,26 +354,10 @@ class Object(object):
 
     @property
     def position(self) -> List[float]:
-        """Get position of the Object.
-
-        Return matrix position list
-
-        Returns:
-          List[float]
-        """
         return self.matrix[3][:3]
 
     @position.setter
     def position(self, pos: List[float]) -> None:
-        """
-        Shortcut function for explicitly modifying matrix indices.
-
-        Basically just sets x, y, z of the matrix. Does not change its
-        direction or up vectors.
-
-        Args:
-          pos: Position list ([x, y, z])
-        """
         if len(pos) == 2:
             pos = [pos[0], pos[1], 0.0]
         self.matrix[3][0] = pos[0]
@@ -561,20 +365,6 @@ class Object(object):
         self.matrix[3][2] = pos[2]
 
     def add_child(self, name: str, obj: "Object") -> bool:
-        """Add child to this object.
-
-        In a basic example:
-
-            .. include:: ../../../examples/basics/05_children.py
-
-        Args:
-          name: Name of the object, must be unique within its siblings
-          obj: Object. Must be an instance of
-               `payton.scene.geometry.base.Object`
-
-        Returns:
-          bool: False in case of an error
-        """
         if name in self.children:
             logging.error(f"Name {name} exists in object children")
             return False
@@ -585,34 +375,12 @@ class Object(object):
         return True
 
     def to_absolute(self, coordinates: List[float]) -> List[float]:
-        """
-        Return local coordinates (tuple, list) into absolute coordinates in
-        space.
-
-        Args:
-          coordinates: List[float] (x, y, z)
-
-        Returns:
-          List[float] (x', y', z')
-        """
         return vector_transform(coordinates, self.matrix)
 
     def absolute_vertices(self) -> Iterator[List[float]]:
-        """Return a map of all local vertices as absolute coordinates.
-
-        Imagine that object B is a child of object A. In this case, B will
-        always stand (follow) relative to A. If you want to know the exact
-        world coordinates of all vertices in B, this method will return them.
-
-        **Important!** This is a costly operation so use with caution!
-
-        Returns:
-          map(List[List[float]])
-        """
         return map(lambda v: self.to_absolute(v), self._vertices)
 
     def toggle_wireframe(self) -> None:
-        """Toggle wireframe view of the Object"""
         d = (self.material.display + 1) % 3
 
         for mat in self.materials.values():
@@ -622,12 +390,6 @@ class Object(object):
             child.toggle_wireframe()
 
     def _calc_bounds(self) -> float:
-        """Calculate the bounding sphere radius
-
-        Returns:
-          float
-        """
-
         bmin: Optional[List[float]] = None
         bmax: Optional[List[float]] = None
         x = [v[0] for v in self._vertices]
@@ -648,17 +410,6 @@ class Object(object):
 
     @property
     def bounding_radius(self) -> float:
-        """Return bounding radius
-
-        This property function *WILL NOT* update the previously
-        calculated value. If you add vertices to the object, you must call
-        `payton.scene.geometry.base.Object.refresh` function to get radius
-        and the whole object updated.
-
-        Returns:
-          float
-        """
-
         if self._bounding_radius > 0:
             return self._bounding_radius
         return self._calc_bounds()
@@ -671,23 +422,6 @@ class Object(object):
         return self._bounding_box
 
     def build(self) -> bool:
-        """
-        Build OpenGL Vertex Array for the object
-
-        This function gets automatically called if material's `._vao` does not
-        exists in the first render cycle. Once the vba is built,
-        geometry changes or material display mode changes will not be
-        automatically effected. So, in every geometry or display mode
-        change, a `build` call is necessary.
-
-        Additionally, this method goes through each material mapping and
-        build their indices as well. Each material map has its own
-        Vertex Array Object and gets rendered by separate glDrawElements
-        call.
-
-        Returns:
-          bool
-        """
         self._vertex_count = 0
 
         # Turn python arrays into C type arrays using Numpy.
@@ -741,13 +475,9 @@ class Object(object):
         if len(self._texcoords) == len(self._vertices):
             glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
             if self._t_buffer_size_changed:
-                glBufferData(
-                    GL_ARRAY_BUFFER, self._t_buffer_size, texcoords, draw
-                )
+                glBufferData(GL_ARRAY_BUFFER, self._t_buffer_size, texcoords, draw)
             else:
-                glBufferSubData(
-                    GL_ARRAY_BUFFER, 0, texcoords.nbytes, texcoords
-                )
+                glBufferSubData(GL_ARRAY_BUFFER, 0, texcoords.nbytes, texcoords)
 
         # Bind Vertex Colors
         if len(self._vertex_colors) == len(self._vertices):
@@ -791,23 +521,17 @@ class Object(object):
             if len(self._texcoords) == len(self._vertices):
                 glBindBuffer(GL_ARRAY_BUFFER, self._vbos[2])
                 glEnableVertexAttribArray(2)  # shader layout location
-                glVertexAttribPointer(
-                    2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0)
-                )
+                glVertexAttribPointer(2, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
 
             # Bind Vertex Colors
             if len(self._vertex_colors) == len(self._vertices):
                 glBindBuffer(GL_ARRAY_BUFFER, self._vbos[4])
                 glEnableVertexAttribArray(3)  # shader layout location
-                glVertexAttribPointer(
-                    3, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0)
-                )
+                glVertexAttribPointer(3, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
 
             # Bind Indices
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, material._vbos[0])
-            glBufferData(
-                GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, draw
-            )
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, draw)
             i_len = len(indices)
             material._vertex_count = i_len
             self._vertex_count += i_len
@@ -820,28 +544,7 @@ class Object(object):
 
 
 class Line(Object):
-    """Line object
-
-    Exceptionally, due to hard reference for motion path feature, this class
-    is defined in base.py instead of line.py
-    """
-
-    def __init__(
-        self,
-        vertices: Optional[VList] = None,
-        color: Optional[List[float]] = None,
-        **kwargs: Any,
-    ) -> None:
-        """Iniitalize line
-
-        Args:
-          vertices: Vertices array for list of points.
-          color: Color of the line
-
-        Example use case:
-
-            .. include:: ../../../examples/basics/17_line.py
-        """
+    def __init__(self, vertices: Optional[VList] = None, color: Optional[List[float]] = None, **kwargs: Any,) -> None:
         super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         self.material.color = [1.0, 1.0, 1.0] if color is None else color
@@ -858,20 +561,11 @@ class Line(Object):
         logging.error("Can't add materials to Line object")
 
     def render(
-        self,
-        lit: bool,
-        shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
     ) -> None:
         super().render(lit, shader, parent_matrix, GL_LINE_STRIP)
 
     def append(self, vertices: VList, material: str = DEFAULT) -> None:
-        """Append vertex or vertices to line.
-
-        Args:
-          vertices: Vertex array of points.
-        """
         diff = len(vertices)  # Number of vertices added
         last_index = len(self._vertices)
         self._vertices += vertices
@@ -887,15 +581,7 @@ class Line(Object):
 
         self._needs_update = True
 
-    def build_lines(
-        self,
-        vertices: Optional[VList] = None,
-        color: Optional[List[float]] = None,
-    ) -> None:
-        """Build lines
-
-        Build line vertex array object.
-        """
+    def build_lines(self, vertices: Optional[VList] = None, color: Optional[List[float]] = None,) -> None:
         if vertices is not None:
             self._vertices = vertices
         if color is not None:
