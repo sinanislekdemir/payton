@@ -403,6 +403,17 @@ class MD2(Mesh):
 
         return MD2Frame(name=name, vertices=vertices)
 
+    def to_dict(self) -> Dict[str, Any]:
+        animation = self.animation
+        if animation == "":
+            animation = self.animations.keys()[0]
+
+        frame_name = f"{animation}{self._active_frame}"
+        result = self._frame_children[frame_name].to_json()
+        result["matrix"] = self.matrix
+        result["children"] = {name: self.children[name].to_dict() for name in self.children}
+        return result
+
     def set_texture(self, texture_filename: str):
         for m in self.children.values():
             m.material.texture = texture_filename

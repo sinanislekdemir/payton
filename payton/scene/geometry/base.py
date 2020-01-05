@@ -542,6 +542,16 @@ class Object(object):
         self._needs_update = False
         return True
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "vertices": self._vertices,
+            "normals": self._normals,
+            "texcoords": self._texcoords,
+            "matrix": self.matrix,
+            "materials": {mat: self.materials[mat].to_dict() for mat in self.materials},
+            "children": {n: self.children[n].to_dict() for n in self.children},
+        }
+
 
 class Line(Object):
     def __init__(self, vertices: Optional[VList] = None, color: Optional[List[float]] = None, **kwargs: Any,) -> None:

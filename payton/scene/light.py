@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np  # type: ignore
 
@@ -27,6 +27,13 @@ class Light(object):
         self._position = position
         self._position_np = np.array(self.position, dtype=np.float32)
         self._shadow_matrices = []
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'position': self.position,
+            'color': self.color,
+            'active': self.active,
+        }
 
     @property
     def shadow_matrices(self):

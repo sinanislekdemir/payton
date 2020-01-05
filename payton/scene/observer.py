@@ -3,7 +3,7 @@
 
 import logging
 import math
-from typing import Any, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import numpy as np  # type: ignore
 import pyrr
@@ -52,6 +52,19 @@ class Observer(object):
         self._projection: Optional[np.ndarray] = None
         self._view: Optional[np.ndarray] = None
         self._prev_intersection: Optional[np.ndarray] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'position': self.position,
+            'target': self.target,
+            'up': self.up,
+            'fov': self.fov,
+            'aspect_ratio': self.aspect_ratio,
+            'zoom': self._zoom,
+            'near': self._near,
+            'far': self._far,
+            'perspective': self.perspective,
+        }
 
     def distance(self) -> float:
         """

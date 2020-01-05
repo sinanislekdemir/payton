@@ -39,7 +39,24 @@ class Grid(object):
             self._color = color
 
         self.static: bool = True
-        self.matrix: List[float] = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+        self.matrix: List[float] = [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        ]
         self._vertices: List[float] = []
         self._indices: List[int] = []
         self._vertex_count: int = 0

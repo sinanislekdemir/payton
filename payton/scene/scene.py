@@ -282,7 +282,6 @@ class Scene(Receiver):
             self.__timer = time.time()
             self.fps = self.__fps_counter
             self.__fps_counter = 0
-            print(self.fps)
 
     def add_collision_test(self, name: str, tester: CollisionTest) -> None:
         if not isinstance(tester, CollisionTest):
@@ -364,6 +363,14 @@ class Scene(Receiver):
             new_clocks[clock_name] = new_clock
 
         self.clocks = new_clocks
+
+    def to_dict(self):
+        result = {
+            'objects': {name: self.objects[name].to_dict() for name in self.objects},
+            'lights': [light.to_dict() for light in self.lights],
+            'observers': [observer.to_dict() for observer in self.observers],
+        }
+        return result
 
     def run(self) -> int:
         if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:

@@ -1,7 +1,7 @@
 # pylama:ignore=C901
 import json
 import logging
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional
 
 from payton.math.vector import invert_vector, plane_normal, vector_angle
 from payton.scene.geometry.base import Object
@@ -40,18 +40,6 @@ class Mesh(Object):
             material._indices = []
 
         self.refresh()
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "vertices": self._vertices,
-            "normals": self._normals,
-            "texcoords": self._texcoords,
-            "matrix": self.matrix,
-            "materials": {mat: self.materials[mat].to_dict() for mat in self.materials},
-            "children": {
-                n: cast(Mesh, self.children[n]).to_dict() for n in self.children if isinstance(self.children[n], Mesh)
-            },
-        }
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Mesh":
