@@ -270,7 +270,7 @@ class Object(object):
     def hide(self) -> None:
         self._visible = False
 
-    def clone(self) -> 'Object':
+    def clone(self) -> "Object":
         return deepcopy(self)
 
     @property

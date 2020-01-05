@@ -366,9 +366,9 @@ class Scene(Receiver):
 
     def to_dict(self):
         result = {
-            'objects': {name: self.objects[name].to_dict() for name in self.objects},
-            'lights': [light.to_dict() for light in self.lights],
-            'observers': [observer.to_dict() for observer in self.observers],
+            "objects": {name: self.objects[name].to_dict() for name in self.objects},
+            "lights": [light.to_dict() for light in self.lights],
+            "observers": [observer.to_dict() for observer in self.observers],
         }
         return result
 

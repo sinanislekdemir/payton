@@ -55,7 +55,7 @@ class Wavefront(Mesh):
                 ]
 
             if parts[0] == "map_Kd":
-                rest = ' '.join(parts[1:])
+                rest = " ".join(parts[1:])
                 if rest == "/":
                     material.texture = rest
                 else:

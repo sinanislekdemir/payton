@@ -30,9 +30,9 @@ class Light(object):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            'position': self.position,
-            'color': self.color,
-            'active': self.active,
+            "position": self.position,
+            "color": self.color,
+            "active": self.active,
         }
 
     @property

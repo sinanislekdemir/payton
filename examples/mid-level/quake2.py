@@ -35,7 +35,7 @@ class App(Scene):
 
     def walk(self, period, total):
         if self.objects["warrior"].animation == "":
-            self.objects["warrior"].animate('run', 0, 24)
+            self.objects["warrior"].animate("run", 0, 24)
         self.objects["warrior"].forward(0.04)
         if distance(self.target, self.objects["warrior"].position) < 0.5:
             self.target = [

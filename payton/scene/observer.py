@@ -55,15 +55,15 @@ class Observer(object):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            'position': self.position,
-            'target': self.target,
-            'up': self.up,
-            'fov': self.fov,
-            'aspect_ratio': self.aspect_ratio,
-            'zoom': self._zoom,
-            'near': self._near,
-            'far': self._far,
-            'perspective': self.perspective,
+            "position": self.position,
+            "target": self.target,
+            "up": self.up,
+            "fov": self.fov,
+            "aspect_ratio": self.aspect_ratio,
+            "zoom": self._zoom,
+            "near": self._near,
+            "far": self._far,
+            "perspective": self.perspective,
         }
 
     def distance(self) -> float:

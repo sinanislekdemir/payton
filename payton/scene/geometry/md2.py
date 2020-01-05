@@ -340,9 +340,9 @@ class MD2(Mesh):
             v2[0], v2[1] = v2[1], v2[0]
             v3[0], v3[1] = v3[1], v3[0]
 
-            t3 = self._texcoords[self.triangle_layout.tc_indices[i][1]]
-            t2 = self._texcoords[self.triangle_layout.tc_indices[i][0]]
-            t1 = self._texcoords[self.triangle_layout.tc_indices[i][2]]
+            t3 = cast(np.ndarray, self._texcoords[self.triangle_layout.tc_indices[i][1]]).tolist()
+            t2 = cast(np.ndarray, self._texcoords[self.triangle_layout.tc_indices[i][0]]).tolist()
+            t1 = cast(np.ndarray, self._texcoords[self.triangle_layout.tc_indices[i][2]]).tolist()
 
             mesh.add_triangle(
                 vertices=[v1, v2, v3], texcoords=[t1, t2, t3],
@@ -406,10 +406,10 @@ class MD2(Mesh):
     def to_dict(self) -> Dict[str, Any]:
         animation = self.animation
         if animation == "":
-            animation = self.animations.keys()[0]
+            animation = list(self.animations.keys())[0]
 
         frame_name = f"{animation}{self._active_frame}"
-        result = self._frame_children[frame_name].to_json()
+        result = self._frame_children[frame_name].to_dict()
         result["matrix"] = self.matrix
         result["children"] = {name: self.children[name].to_dict() for name in self.children}
         return result

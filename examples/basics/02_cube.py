@@ -25,7 +25,7 @@ wall1.position = [0, -10, 5]
 
 scene.lights[0].position = [5.0, 5.0, 6.0]
 cube_by_corners = Cube(from_corner=[-3, -3, 1], to_corner=[-1, -1, 3])
-scene.create_clock('mm', 0.001, move)
+scene.create_clock("mm", 0.001, move)
 
 texture_file = os.path.join(os.path.dirname(__file__), "barrel.jpg")
 cube_by_corners.material.texture = texture_file
