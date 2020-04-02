@@ -45,7 +45,7 @@ class Observer(object):
         # zoom factor for Orthographic projection
         self._zoom: float = zoom
         self.active: bool = active
-        self.perspective: bool = perspective
+        self._perspective: bool = perspective
         self._use_cache = False
 
         # Store matrices for future reference.
@@ -77,6 +77,24 @@ class Observer(object):
         if res == 0:
             res = 0.001
         return res
+
+    @property
+    def perspective(self) -> bool:
+        return self._perspective
+
+    @perspective.setter
+    def perspective(self, b: bool) -> None:
+        self._perspective = b
+        self._use_cache = False
+
+    @property
+    def zoom(self) -> float:
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self, f: float) -> None:
+        self._zoom = f
+        self._use_cache = False
 
     @property
     def near(self) -> float:
