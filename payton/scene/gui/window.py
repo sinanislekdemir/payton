@@ -227,10 +227,26 @@ class Button(Panel):
     def draw(self, **kwargs):
         super().draw()
         size = self.text.text_size
-        x = (self.size[0] / 2) - (size[0] / 2)
-        y = (self.size[1] / 2.0) - (size[1] / 2) - 4
+        x = (self.size[0] - size[0]) / 2
+        y = (self.size[1] - size[1]) / 2
+        if x < 0:
+            x = 0
+        if y < 0:
+            y = 0
+        y -= 4
         self.text.label = self._label
         self.text.position = [x, y]
+        crop = [0, 0, size[0], size[1]]
+        if size[0] > self.size[0]:
+            crop[0] = (size[0] - self.size[0]) / 2.0
+            crop[2] = size[0] - crop[0]
+            diff = int(crop[2] - crop[0])
+            size = (diff, size[1])
+        if size[1] > self.size[1]:
+            crop[1] = (size[1] - self.size[1]) / 2.0
+            crop[3] = size[1] - crop[1]
+            size = (size[0], self.size[1])
+        self.text.crop = crop
         self.text.size = (size[0], size[1] + 4)
 
     @property

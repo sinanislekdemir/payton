@@ -141,7 +141,7 @@ class Text(Rectangle):
                 math.floor(color[2] * 255),
             ]
 
-        self.draw_text()
+        self.crop = [0, 0, 0, 0]
         self._init_text: bool = False
 
     @property
@@ -151,14 +151,13 @@ class Text(Rectangle):
     @label.setter
     def label(self, label: str) -> None:
         self.__label = label
-        self.draw_text()
+        self._init_text = False
 
     def render(
         self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
     ) -> None:
         if not self._init_text:
             self.draw_text()
-            self._init_text = True
         super().render(lit, shader, parent_matrix)
 
     @property
@@ -171,7 +170,12 @@ class Text(Rectangle):
         return d.textsize(self.label, font=self.font)
 
     def draw_text(self) -> None:
-        img = Image.new("RGBA", self.size, color=tuple(self.bgcolor))
+        if self._init_text:
+            return
+        size = self.size
+        if self.text_size[0] > size[0] or self.text_size[1] > size[1]:
+            size = self.text_size
+        img = Image.new("RGBA", size, color=tuple(self.bgcolor))
         d = ImageDraw.Draw(img)
 
         if self.font is not None:
@@ -179,8 +183,12 @@ class Text(Rectangle):
         else:
             d.text((1, 1), self.label, fill=tuple(self.color))
 
+        if any(self.crop):
+            print(f"{self.label} {self.size}")
+            img = img.crop(self.crop)
         self.material._image = img
         self.material.refresh()
+        self._init_text = True
 
 
 class Hud(Object):
