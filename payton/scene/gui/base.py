@@ -184,7 +184,6 @@ class Text(Rectangle):
             d.text((1, 1), self.label, fill=tuple(self.color))
 
         if any(self.crop):
-            print(f"{self.label} {self.size}")
             img = img.crop(self.crop)
         self.material._image = img
         self.material.refresh()
