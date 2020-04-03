@@ -236,7 +236,7 @@ class Button(Panel):
         y -= 4
         self.text.label = self._label
         self.text.position = [x, y]
-        crop = [0, 0, size[0], size[1]]
+        crop = [0, 0, size[0], size[1] + 4]
         if size[0] > self.size[0]:
             crop[0] = (size[0] - self.size[0]) / 2.0
             crop[2] = size[0] - crop[0]
