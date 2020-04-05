@@ -75,21 +75,21 @@ class Shape2D(Mesh):
         for child in self.children.values():
             cast("Shape2D", child).set_parent_size(self.size[0], self.size[1])
 
-    def click(self, x: int, y: int) -> bool:
+    def click(self, x: int, y: int) -> Optional[Mesh]:
         if not callable(self.on_click):
             for child in self.children:
-                c = cast("Shape2D", self.children[child]).click(x, y)  # type: bool
+                c = cast(Mesh, self.children[child]).click(x, y)
                 if c:
-                    return True
-            return False
+                    return cast(Mesh, self.children[child])
+            return None
 
         if self._model_matrix is None:
-            return False
+            return None
         mm = self._model_matrix[3]
         if x > mm[0] and x < mm[0] + self.size[0] and y > mm[1] and y < mm[1] + self.size[1]:
             self.on_click()
-            return True
-        return False
+            return self
+        return None
 
 
 class Rectangle(Shape2D):
@@ -162,20 +162,24 @@ class Text(Rectangle):
 
     @property
     def text_size(self) -> Tuple[int, int]:
+        res = (0, 0)
         timg = Image.new("RGBA", (1, 1))
         d = ImageDraw.Draw(timg)
         if self.font is None:
-            return d.textsize(self.label)
+            res = d.textsize(self.label)
 
-        return d.textsize(self.label, font=self.font)
+        res = d.textsize(self.label, font=self.font)
+        lres = list(res)
+        if lres[0] < self.size[0]:
+            lres[0] = self.size[0]
+        if lres[1] < self.size[1]:
+            lres[1] = self.size[1]
+        return lres[0], lres[1]
 
     def draw_text(self) -> None:
         if self._init_text:
             return
-        size = self.size
-        if self.text_size[0] > size[0] or self.text_size[1] > size[1]:
-            size = self.text_size
-        img = Image.new("RGBA", size, color=tuple(self.bgcolor))
+        img = Image.new("RGBA", self.text_size, color=tuple(self.bgcolor))
         d = ImageDraw.Draw(img)
 
         if self.font is not None:
@@ -185,6 +189,7 @@ class Text(Rectangle):
 
         if any(self.crop):
             img = img.crop(self.crop)
+
         self.material._image = img
         self.material.refresh()
         self._init_text = True

@@ -214,3 +214,6 @@ class Mesh(Object):
         for t in texcoords:
             self._texcoords.append(t)
         self.refresh()
+
+    def click(self, x: int, y: int) -> Optional["Mesh"]:
+        pass

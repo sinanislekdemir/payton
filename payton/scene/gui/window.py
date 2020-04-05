@@ -20,6 +20,10 @@ class Theme:
         ]
         self.title_text_color: Tuple[float, float, float] = [0.0, 0.0, 0.0]
 
+    def secondary(self):
+        self.background_color, self.text_color = self.title_background_color, self.title_text_color
+        self.title_background_color, self.title_text_color = self.background_color, self.text_color
+
 
 class WindowAlignment(Enum):
     FREE = "free"
@@ -226,9 +230,9 @@ class Button(Panel):
 
     def draw(self, **kwargs):
         super().draw()
-        size = self.text.text_size
-        x = (self.size[0] - size[0]) / 2
-        y = (self.size[1] - size[1]) / 2
+        text_size = self.text.text_size
+        x = (self.size[0] - text_size[0]) / 2
+        y = (self.size[1] - text_size[1]) / 2
         if x < 0:
             x = 0
         if y < 0:
@@ -236,18 +240,18 @@ class Button(Panel):
         y -= 4
         self.text.label = self._label
         self.text.position = [x, y]
-        crop = [0, 0, size[0], size[1] + 4]
-        if size[0] > self.size[0]:
-            crop[0] = (size[0] - self.size[0]) / 2.0
-            crop[2] = size[0] - crop[0]
+        crop = [0, 0, text_size[0], text_size[1] + 4]
+        if text_size[0] > self.size[0]:
+            crop[0] = (text_size[0] - self.size[0]) / 2.0
+            crop[2] = text_size[0] - crop[0]
             diff = int(crop[2] - crop[0])
-            size = (diff, size[1])
-        if size[1] > self.size[1]:
-            crop[1] = (size[1] - self.size[1]) / 2.0
-            crop[3] = size[1] - crop[1]
-            size = (size[0], self.size[1])
+            text_size = (diff, text_size[1])
+        if text_size[1] > self.size[1]:
+            crop[1] = (text_size[1] - self.size[1]) / 2.0
+            crop[3] = text_size[1] - crop[1]
+            text_size = (text_size[0], self.size[1])
         self.text.crop = crop
-        self.text.size = (size[0], size[1] + 4)
+        self.text.size = (text_size[0], text_size[1] + 4)
 
     @property
     def label(self) -> str:
@@ -257,3 +261,77 @@ class Button(Panel):
     def label(self, text: str):
         self._label = text
         self.text.label = self._label
+
+
+class EditBox(Panel):
+    def __init__(
+        self,
+        value: str,
+        width: int = 400,
+        height: int = 300,
+        left: int = 10,
+        top: int = 10,
+        align: WindowAlignment = WindowAlignment.FREE,
+        theme: Optional[Theme] = None,
+        on_change: Optional[Callable] = None,
+        **kwargs: Any,
+    ):
+        kwargs["on_click"] = self._focus
+        super().__init__(
+            width=width, height=height, left=left, top=top, align=align, theme=theme, **kwargs,
+        )
+        self.theme.secondary()
+        self.on_change = on_change
+        self._value = value
+        self.text = Text(position=(0, 0, 1), size=(width, height), label=self._value, color=self.theme.text_color,)
+        self.add_child("label", self.text)
+
+    def _on_keypress(self, instr: str):
+        self.value = self.value + instr
+
+    def _focus(self):
+        # Dummy holder to pass on_click test
+        pass
+
+    def _exit(self):
+        if callable(self.on_change):
+            self.on_change(self._value)
+
+    def draw(self, **kwargs):
+        super().draw()
+        self.text.label = self._value
+        text_size = list(self.text.text_size)
+        x = 1
+        y = (self.size[1] - text_size[1]) / 2
+        if y < 0:
+            y = 0
+        y += 4
+        self.text.position = [x, y]
+        crop = [0, 0, text_size[0], text_size[1] + 4]
+        if text_size[0] > self.size[0]:
+            crop[0] = text_size[0] - self.size[0]
+            crop[2] = text_size[0]
+            diff = int(crop[2] - crop[0])
+            text_size[0] = diff
+        if text_size[1] > self.size[1]:
+            crop[1] = text_size[1] - self.size[1]
+            crop[3] = text_size[1] - crop[1]
+            text_size[1] = self.size[1]
+        if text_size[0] < self.size[0]:
+            text_size[0] = self.size[0]
+        if text_size[1] < self.size[1]:
+            text_size[1] = self.size[1]
+        self.text.crop = crop
+        self.text._init = False
+        self.text._init_text = False
+
+    @property
+    def value(self) -> str:
+        return self._value
+
+    @value.setter
+    def value(self, text: str):
+        self._value = text
+        self.text.label = self._value
+        self.refresh()
+        self._init = False

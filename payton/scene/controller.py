@@ -1,13 +1,18 @@
 # pylama:ignore=C901
 import logging
-from typing import Any
+from typing import Any, Optional
 
 import sdl2
 
+from payton.scene.gui import EditBox
 from payton.scene.observer import BUTTON_LEFT, BUTTON_RIGHT
 
 
 class Controller(object):
+    def __init__(self):
+        super().__init__()
+        self._active_object: Optional[EditBox] = None
+
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> None:
         if event.type == sdl2.SDL_QUIT:
             logging.debug("Quit SDL Scene")
@@ -25,8 +30,23 @@ class Controller(object):
             if key == sdl2.SDLK_LCTRL:
                 scene._ctrl_down = True
 
+        if event.type == sdl2.SDL_TEXTINPUT:
+            if self._active_object is not None:
+                self._active_object._on_keypress(event.text.text.decode('utf-8'))
+
         if event.type == sdl2.SDL_KEYUP:
             key = event.key.keysym.sym
+
+            if self._active_object is not None:
+                if key == sdl2.SDLK_ESCAPE or key == sdl2.SDLK_RETURN:
+                    self._active_object._exit()
+                    self._active_object = None
+                    sdl2.SDL_ShowCursor(True)
+                    sdl2.SDL_StopTextInput()
+                if key == sdl2.SDLK_BACKSPACE and self._active_object is not None:
+                    self._active_object.value = self._active_object.value[:-1]
+                return
+
             if key == sdl2.SDLK_LSHIFT:
                 scene._shift_down = False
             if key == sdl2.SDLK_LCTRL:
@@ -84,8 +104,17 @@ class Controller(object):
             for hud in scene.huds:
                 h = scene.huds[hud]
                 for shape in h.children:
-                    check = h.children[shape].click(mx, my)
-                    if check:
+                    focus_element = h.children[shape].click(mx, my)
+                    if focus_element:
+                        if self._active_object is not None and self._active_object != focus_element:
+                            self._active_object._exit()
+                            self._active_object = None
+                            sdl2.SDL_ShowCursor(True)
+                            sdl2.SDL_StopTextInput()
+                        if hasattr(focus_element, "_on_keypress"):
+                            self._active_object = focus_element
+                            sdl2.SDL_ShowCursor(False)
+                            sdl2.SDL_StartTextInput()
                         return
 
             eye, ray_dir = observer.screen_to_world(mx, my, scene.window_width, scene.window_height)
