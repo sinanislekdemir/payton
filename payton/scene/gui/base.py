@@ -20,7 +20,7 @@ class Shape2D(Mesh):
         position: Tuple[int, int, int],
         size: Tuple[int, int],
         on_click: Optional[Callable] = None,
-        opacity: float = 0.5,
+        opacity: float = 0.1,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -165,8 +165,6 @@ class Text(Rectangle):
         res = (0, 0)
         timg = Image.new("RGBA", (1, 1))
         d = ImageDraw.Draw(timg)
-        if self.font is None:
-            res = d.textsize(self.label)
 
         res = d.textsize(self.label, font=self.font)
         lres = list(res)
@@ -175,6 +173,23 @@ class Text(Rectangle):
         if lres[1] < self.size[1]:
             lres[1] = self.size[1]
         return lres[0], lres[1]
+
+    def wrap(self, width_in_pixels: int):
+        dummy = ""
+        original = self.label
+        self.label = ""
+        for char in original:
+            dummy += char
+            res = (0, 0)
+            timg = Image.new("RGBA", (1, 1))
+            d = ImageDraw.Draw(timg)
+            res = d.textsize(dummy, font=self.font)
+            if res[0] < width_in_pixels:
+                self.label += char
+            else:
+                self.label += "\n" + char
+                dummy = ""
+        self._init_text = False
 
     def draw_text(self) -> None:
         if self._init_text:

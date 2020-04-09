@@ -37,14 +37,21 @@ class Controller(object):
         if event.type == sdl2.SDL_KEYUP:
             key = event.key.keysym.sym
 
+            # GUI Related Controls, move to another place when you have time
             if self._active_object is not None:
-                if key == sdl2.SDLK_ESCAPE or key == sdl2.SDLK_RETURN:
+                if key == sdl2.SDLK_ESCAPE or (key == sdl2.SDLK_RETURN and not self._active_object.multiline):
                     self._active_object._exit()
                     self._active_object = None
                     sdl2.SDL_ShowCursor(True)
                     sdl2.SDL_StopTextInput()
                 if key == sdl2.SDLK_BACKSPACE and self._active_object is not None:
-                    self._active_object.value = self._active_object.value[:-1]
+                    self._active_object.backspace()
+                if key == sdl2.SDLK_RETURN and self._active_object is not None and self._active_object.multiline:
+                    self._active_object._on_keypress("\n")
+                if self._active_object and key == sdl2.SDLK_LEFT:
+                    self._active_object.cursor_left()
+                if self._active_object and key == sdl2.SDLK_RIGHT:
+                    self._active_object.cursor_right()
                 return
 
             if key == sdl2.SDLK_LSHIFT:

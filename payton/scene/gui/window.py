@@ -89,7 +89,7 @@ class WindowElement(Shape2D):
         if obj.position[1] > self.size[1]:
             obj.position[1] = self.size[1] - 1
         total_v = obj.position[1] + obj.size[1]
-        exceed = int(total_v - self.size[0])
+        exceed = int(total_v - self.size[1])
         if exceed > 0:
             obj.size = (obj.size[0], obj.size[1] - exceed)
 
@@ -223,6 +223,8 @@ class Button(Panel):
         super().__init__(
             width=width, height=height, left=left, top=top, align=align, theme=theme, **kwargs,
         )
+        if height < 30:
+            height = 30
 
         self._label = label
         self.text = Text(position=(0, 0, 1), size=(10, 10), label=label, color=self.theme.text_color,)
@@ -274,32 +276,69 @@ class EditBox(Panel):
         align: WindowAlignment = WindowAlignment.FREE,
         theme: Optional[Theme] = None,
         on_change: Optional[Callable] = None,
+        multiline: bool = False,
         **kwargs: Any,
     ):
         kwargs["on_click"] = self._focus
+        if height < 30:
+            height = 30
+
         super().__init__(
             width=width, height=height, left=left, top=top, align=align, theme=theme, **kwargs,
         )
+
+        self.multiline = multiline
         self.theme.secondary()
         self.on_change = on_change
         self._value = value
         self.text = Text(position=(0, 0, 1), size=(width, height), label=self._value, color=self.theme.text_color,)
         self.add_child("label", self.text)
+        self._cursor = -1
 
     def _on_keypress(self, instr: str):
-        self.value = self.value + instr
+        new = self.value[0 : self._cursor] + instr + self.value[self._cursor :]
+        self._cursor = len(self.value[0 : self._cursor] + instr)
+        self.value = new
 
     def _focus(self):
+        self._cursor = len(self.value)
+        self._init = False
         # Dummy holder to pass on_click test
         pass
 
+    def cursor_left(self):
+        self._cursor -= 1
+        if self._cursor < 0:
+            self._cursor = 0
+        self._init = False
+
+    def cursor_right(self):
+        self._cursor += 1
+        if self._cursor > len(self.value):
+            self._cursor = len(self.value)
+        self._init = False
+
+    def backspace(self):
+        if self._cursor == 0:
+            return
+        self.value = self.value[0 : self._cursor - 1] + self.value[self._cursor :]
+        self.cursor_left()
+
     def _exit(self):
+        self._cursor = -1
         if callable(self.on_change):
             self.on_change(self._value)
+        self._init = False
 
     def draw(self, **kwargs):
         super().draw()
-        self.text.label = self._value
+        if self._cursor > -1:
+            label = self._value[0 : self._cursor] + "|" + self._value[self._cursor :]
+        else:
+            label = self._value
+        self.text.label = label
+        if self.multiline:
+            self.text.wrap(self.size[0])
         text_size = list(self.text.text_size)
         x = 1
         y = (self.size[1] - text_size[1]) / 2
@@ -311,16 +350,11 @@ class EditBox(Panel):
         if text_size[0] > self.size[0]:
             crop[0] = text_size[0] - self.size[0]
             crop[2] = text_size[0]
-            diff = int(crop[2] - crop[0])
-            text_size[0] = diff
+
         if text_size[1] > self.size[1]:
             crop[1] = text_size[1] - self.size[1]
-            crop[3] = text_size[1] - crop[1]
-            text_size[1] = self.size[1]
-        if text_size[0] < self.size[0]:
-            text_size[0] = self.size[0]
-        if text_size[1] < self.size[1]:
-            text_size[1] = self.size[1]
+            crop[3] = self.text.text_size[1]
+
         self.text.crop = crop
         self.text._init = False
         self.text._init_text = False
@@ -333,5 +367,7 @@ class EditBox(Panel):
     def value(self, text: str):
         self._value = text
         self.text.label = self._value
+        if self.text.text_size[0] > self.size[0] and self.multiline:
+            self.text.wrap(self.size[0])
         self.refresh()
         self._init = False
