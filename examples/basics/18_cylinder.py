@@ -24,7 +24,7 @@ cyl.material.texture = texture_file
 
 scene.add_object("cylinder", cyl)
 scene.add_object(
-    "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
+    "info", info_box(left=10, top=10, label="Hit SPACE to start animation",),
 )
 scene.add_object("ground", ground)
 

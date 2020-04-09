@@ -62,5 +62,5 @@ mesh.position = [-2.5, -3, 0]
 scene.add_object("mesh", mesh)
 
 info = "{} vertices loaded".format(count)
-scene.add_object("info", info_box(10, 10, 220, 100, info))
+scene.add_object("info", info_box(10, 10, info))
 scene.run()

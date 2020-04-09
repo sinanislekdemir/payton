@@ -54,6 +54,6 @@ Key Left = turn left
 Key Right = turn right
 """
 
-scene.add_object("info", info_box(left=10, top=10, width=220, height=200, label=label))
+scene.add_object("info", info_box(left=10, top=10, label=label))
 
 scene.run()

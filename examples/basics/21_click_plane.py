@@ -17,7 +17,7 @@ ground = Plane(30, 30)
 ground.position = [0, 0, 0.48]
 scene.add_object("ground", ground)
 scene.add_object(
-    "info", info_box(left=10, top=10, width=220, height=100, label="Start Clicking \nto draw lines",),
+    "info", info_box(left=10, top=10, label="Start clicking to draw lines",),
 )
 
 scene.run()

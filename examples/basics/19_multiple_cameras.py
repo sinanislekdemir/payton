@@ -22,7 +22,7 @@ inside_box = Observer(position=[-1.7898840267533351, 2.210322695165203, 1.400984
 scene.add_observer(inside_box)
 
 scene.add_object(
-    "info", info_box(left=10, top=10, width=220, height=100, label="Hit F2/F3 to\nswitch between cameras",),
+    "info", info_box(left=10, top=10, label="Hit F2/F3 to switch between cameras",),
 )
 
 scene.run()

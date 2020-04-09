@@ -23,7 +23,7 @@ class Application(Scene):
         self.add_object("cube", cube)
         self.create_clock("rotator", 0.01, self.timer)
         self.add_object(
-            "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
+            "info", info_box(left=10, top=10, label="Hit SPACE to start animation",),
         )
 
     def timer(self, period, total):

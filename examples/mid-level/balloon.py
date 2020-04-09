@@ -34,7 +34,7 @@ def move_balloons(period, total):
             game.objects[sphere_name].position = pos
             if pos[2] < 0:
                 game.add_object(
-                    "game", info_box(left=10, top=300, width=220, height=100, label="Game Over!",),
+                    "game", info_box(left=10, top=300, label="Game Over!",),
                 )
                 game.clocks["move-balloons"].pause()
             if pos[2] < 6:
@@ -59,7 +59,7 @@ game.on_select = select
 create_balloons()
 
 game.add_object(
-    "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE to\nstart popping!",),
+    "info", info_box(left=10, top=10, label="Hit SPACE to start popping!",),
 )
 
 game.run()

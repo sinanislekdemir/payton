@@ -30,7 +30,7 @@ class RippleApp(Scene):
         self.add_object("plane", self.plane)
         self.active_observer.distance_to_target(20)
         self.add_object(
-            "info", info_box(left=10, top=10, width=220, height=100, label="Hit SPACE\nto start animation",),
+            "info", info_box(left=10, top=10, label="Hit SPACE to start animation",),
         )
 
     def drop(self, period, total):
