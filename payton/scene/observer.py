@@ -14,6 +14,7 @@ from payton.scene.geometry.base import Object
 
 BUTTON_LEFT = 1
 BUTTON_RIGHT = 2
+BUTTON_MIDDLE = 3
 
 
 class Observer(object):
@@ -161,23 +162,20 @@ class Observer(object):
             self.target[2] += diff[2]
         self._use_cache = False
 
-    def mouse(
+    def mouse_move(
         self, button: int, shift: bool, ctrl: bool, x: int, y: int, xrel: int, yrel: int, w: int, h: int,
     ) -> None:
-        if shift and ctrl and button == BUTTON_LEFT:  # Panning
+        if button == BUTTON_RIGHT:
+            self.rotate_around_target(-xrel, -yrel)
+
+        if button == BUTTON_MIDDLE:
             self.pan(x, y, w, h)
-            return
 
-        if shift:
-            if button == BUTTON_LEFT:
-                self.rotate_around_target(xrel, -yrel)
-
-        if ctrl:
-            if button == BUTTON_LEFT:
-                if self.perspective:
-                    self.distance_to_target(self.distance() + yrel)
-                else:
-                    self.distance_to_target(self.zoom + yrel)
+    def mouse_wheel(self, yrel: int):
+        if self.perspective:
+            self.distance_to_target(self.distance() + yrel)
+        else:
+            self.distance_to_target(self.zoom + yrel)
 
     def distance_to_target(self, distance: float) -> None:
         if not self.perspective:

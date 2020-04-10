@@ -8,8 +8,9 @@ def help_win():
     text = """Payton Shortcuts and Mouse Controls:
 
 MOUSE:
-Zoom In-Out: Left CTRL + Mouse Drag (Up - Down)
-Rotate: Left SHIFT + Mouse Drag (Left - Right)
+Zoom In-Out: Mouse Wheel
+Rotate: Right Click and Drag
+Pan: Middle Click and Drag
 KEYBOARD:
 ESC: Quit
 H: Show/Hide Help
@@ -19,8 +20,8 @@ G: Show/Hide Grid
 W: Display mode (wireframe/solid)
 F2: Previous Observer F3: Next Observer
     """
-    help_window = Window(align=WindowAlignment.RIGHT, title="How to use Payton Scene", height=100, width=400,)
-    help_window.add_child("text", Button(width=400, height=400, left=10, top=40, label=text))
+    help_window = Window(align=WindowAlignment.RIGHT, title="How to use Payton Scene", height=10000, width=520,)
+    help_window.add_child("text", Button(width=500, height=400, left=10, top=40, label=text))
     return help_window
 
 

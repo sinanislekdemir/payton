@@ -5,7 +5,7 @@ from typing import Any, Optional
 import sdl2
 
 from payton.scene.gui import EditBox
-from payton.scene.observer import BUTTON_LEFT, BUTTON_RIGHT
+from payton.scene.observer import BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 
 
 class Controller(object):
@@ -138,13 +138,19 @@ class Controller(object):
             if not (scene._shift_down or scene._ctrl_down):
                 scene._check_click_plane(eye, ray_dir)
 
+        if event.type == sdl2.SDL_MOUSEWHEEL:
+            yrel = event.wheel.y
+            observer.mouse_wheel(yrel)
+
         if event.type == sdl2.SDL_MOUSEMOTION:
             button = -1
             if event.motion.state == sdl2.SDL_BUTTON_LMASK:
                 button = BUTTON_LEFT
             if event.motion.state == sdl2.SDL_BUTTON_RMASK:
                 button = BUTTON_RIGHT
-            observer.mouse(
+            if event.motion.state == sdl2.SDL_BUTTON_MIDDLE:
+                button = BUTTON_MIDDLE
+            observer.mouse_move(
                 button,
                 scene._shift_down,
                 scene._ctrl_down,

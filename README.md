@@ -62,6 +62,11 @@ a newbie can kick-start it just by following the tutorials.
 * Material support
 * Clickable objects and virtual planes
 * Shader support
+* Basic GUI Support
+  * Window
+  * Panel
+  * Button
+  * EditBox (Multi-line support)
 * 3D File formats:
   * Wavefront OBJ
   * Quake 2 MD2 with Animations
@@ -172,8 +177,9 @@ For a more complex example you can try this:
 
 ### Default key mapping:
 
-- **Zoom In-Out**: Left Ctrl + Mouse Drag (up and down)
-- **Rotate**: Left Shift + Mouse Drag (left and right)
+- **Zoom In-Out**: Mouse Wheel
+- **Rotate**: Right Click and Drag
+- **Panning**: Middle Click and Drag
 - **ESC**: Quit Simulation
 - **C**: Change camera mode (Perspective / Orthographic)
 - **Space**: Pause scene (stop all Clocks)
@@ -181,11 +187,6 @@ For a more complex example you can try this:
 - **W**: Display mode: Wireframe / Solid
 - **F2**: Previous observer
 - **F3**: Next observer
-
-### Mouse controls
-- L_CTRL + Mouse(Left) Drag: Zoom In-Out
-- L_SHIFT + Mouse(Left) Drag: Rotate around target
-- L_SHIFT + L_CTRL + Mouse(Left) Drag: Panning
 
 ## Development
 
