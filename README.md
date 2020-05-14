@@ -1,44 +1,52 @@
-# Payton
+# Payton 3D SDK
 
-## What is Payton?
-
-[![Python DEMO](https://www.islekdemir.com/NSL7nCZrnF4.png)](https://youtu.be/NSL7nCZrnF4)
-
-Payton is a general purpose 3D programming toolkit. Simply, a 3D Programming Playground!
-
-[![RippleVideo](https://27x2.com/screenshot2.png)](https://www.youtube.com/watch?v=tMK2bS_He2c)
+Payton is a general-purpose 3D Software Development Kit. Simply, a 3D Programming Playground!
 
 * Payton is a playground. Kickstart any idea fast and easy, grow it.
 * Create tools for the next step. Create map editors, small animations, small
-  algorithms or artificial intelligence for your game. Whenever you need to
-  try a new idea, don't bother to create a new application with all the
-  details. Payton comes with all the necessary defaults and that is what makes
-  it unique. Almost everything has a pre-set.
+  algorithms or artificial intelligence for your game. Whenever you need to try a new idea, don't bother to create a new application with all the details. Payton comes with all the necessary defaults and that is what makes it unique. Almost everything has a pre-set.
 * Game engines and other libraries are way too complex and it takes a long time
   to start the initial playground.
 * Payton never intends to take place as a game engine or a full-featured 3D
-  environment. There are already plenty of stuff for that purpose.
+  environment. There is already plenty of stuff for that purpose.
 * Tools programming is easy.
-* Easy to visualise what you want to achive or do what you want to do.
+* Easy to visualize what you want to achieve or do what you want to do.
 * You can move forward from Payton to any other place if you like.
 
 
 We draw 2D graphs and charts in reports and we generally understand much more
-easily when we visualise the data. But in some cases, visualising exceeds 2
-dimensions. We require to have third and even forth dimensions. (And on top of
-those, definition of forth dimension as time can get foggy in terms of
+easily when we visualize the data. But in some cases, visualizing exceeds 2
+dimensions. We require to have third and even fourth dimensions. (And on top of
+those, the definition of the fourth dimension as time can get foggy in terms of
 relativity.)
 
 Payton gives you the ability to extend your graphics into 4 dimensions. It is not
 software but a software development toolkit/library built with Python.
-This will give users ability to read real time data from sensors, cameras or
-any other data sources in realtime and visualise them in real time. Data source
+This will give users the ability to read real-time data from sensors, cameras or
+any other data sources in realtime and visualize them in real-time. The data source
 can be a thermometer, a random number generator, a toy car connected to a speed
-sensor, a map, a vehicle port or anything that generates time based 3D data.
-Furthermore, it can be a time based formula. As this can get too complex,
+sensor, a map, a vehicle port or anything that generates time-based 3D data.
+Furthermore, it can be a time-based formula. As this can get too complex,
 software with that complexity will probably be too hard to use and understand
 where Payton is designed to be as simple as it can be. So easy to program that
 a newbie can kick-start it just by following the tutorials.
+
+## Contents of this Document:
+
+- [Payton 3D SDK](#payton-3d-sdk)
+  - [Contents of this Document:](#contents-of-this-document)
+  - [Features:](#features)
+  - [Install](#install)
+    - [Requirements:](#requirements)
+    - [Install using Pip:](#install-using-pip)
+    - [Upgrade to the latest version:](#upgrade-to-the-latest-version)
+  - [Getting Started](#getting-started)
+    - [Your first code](#your-first-code)
+  - [Controls](#controls)
+  - [Examples](#examples)
+  - [Example Index](#example-index)
+  - [Screenshots and Videos](#screenshots-and-videos)
+
 
 ## Features:
 
@@ -77,31 +85,10 @@ a newbie can kick-start it just by following the tutorials.
 * Mesh modifiers:
   * Merge Mesh
   * Subdivide Mesh
-* Extensive examples for every feature and more.
+* Extensive examples for every feature
 
 
-## Examples:
-
-Examples can be found at [https://github.com/sinanislekdemir/payton/tree/master/examples](https://github.com/sinanislekdemir/payton/tree/master/examples)
-
-More information can be found in documents.
-
-## Some Limitations:
-
-- Currently, only the initial light source (`scene.lights[0]`) cast shadows. This is primarily for performance reasons and hardcoded.
-- There can be upto 100 lights in the scene.
-- Even-though there is not restriction on number of objects in the scene, it can effect the initial load time. Once it gets loaded, it should work fine as graphics card and shader program does the heavy-lifting.
-- There are only two collision detection algorithms. Axis Aligned Bounding Box (AABB) is the default algorithm. Also you can reduce it to Spherical collision detection as well, which is simpler and works faster but it just checks for the bounding spheres of objects thus makes a pretty rough assumption.
-
-## Some Performance Tips:
-
-- Using too many materials will reduce the performance.
-- If possible, merge non-moving objects and add them as a single object to the scene. Setting the object matrix is an expensive call for too-many objects.
-- Avoid using too many clocks. Instead of assiging a clock to each object motion, do them all at once in a single clock. For different parts of the animation (eg: move, hit, continue), you can use a state keeping variable instead of stopping and starting many individual clocks.
-- Avoid adding too many objects in the runtime if you need a smooth animation. Adding objects has an over-head.
-- Do not forget that, you are working with an interpeted language as Python. Not C.
-
-## Install and kick-start
+## Install
 
 ### Requirements:
 
@@ -110,106 +97,119 @@ More information can be found in documents.
 - Python 3.7+
 - A Graphics card that supports OpenGL 3.3+
 
-### Install:
+### Install using Pip:
 
-    $ pip3 install payton
+From a bash terminal:
+```bash
+pip3 install payton
+```
 
-Then go ahead and create a `test.py`
+This should install all dependencies. If you get any permission errors, you are probably installing the library to system-global so missing some permissions. If you do not want to use pipenv or virtualenv, then you might want to run above command as `sudo pip3 install payton`
 
-    from payton.scene import Scene
+### Upgrade to the latest version:
+
+Payton is under active maintenance. This means I am spending some time to fix the bugs or make it better. So you might want to upgrade it occasionally.
+
+    pip3 install payton --upgrade
     
-    a = Scene()
-    a.run()
+should do the trick!
 
-This will bring up a default scene. You can press **h** from keyboard to show help window.  
-For a more complex example you can try this:
+## Getting Started
 
-    import math
+### Your first code
 
-    from payton.scene import Scene
-    from payton.scene.geometry import Cube, Plane
+```python
+from payton.scene import Scene
 
-    scene = Scene()
+scene = Scene()
+scene.run()
+```
 
+This will create your first empty scene and show it inside an SDL window.
 
-    def move(period, total):
-        """Move function gets called by clock tick and handles our light movements"""
-        angle = (total * 60) % 360
-        px = math.cos(math.radians(angle)) * 8
-        py = math.sin(math.radians(angle)) * 8
-        scene.lights[0].position = [px, py, 4.0]
+## Controls
 
+| Key / Action | Description |
+| --- | --- |
+| Mouse Wheel | Zoom In - Zoom Out|
+| Right Mouse Button Drag | Rotate Scene |
+| Middle Mouse Button Drag | Pan Scene |
+| Escape | Quit Simulation |
+| C | Change Camera Mode (Perspective / Orthographic) |
+| Space | UnPause / Pause Scene Clocks |
+| G | Show / Hide Grid |
+| W | Change Display Mode (Solid / Wireframe / Points) |
+| F2 | Previous Observer |
+| F3 | Next Observer |
+| H | Open / Close Help Window |
 
-    # Create a cube for the scene
-    cube = Cube()
-    # Set it to a position
-    cube.position = [2, 1, 0.5]
+## Examples
 
-    # Create the ground plane 30x30 in size
-    ground = Plane(width=30, height=30)
-    # We need a wall to project our shadows
-    wall1 = Plane(width=30, height=10)
-    # Wall is on the ground, so lets rotate it around X axis to stand perpendicular
-    wall1.rotate_around_x(math.radians(90))
-    # And lets give it a position.
-    wall1.position = [0, -10, 5]
+Personally, I don’t really read the long descriptive documentation unless necessary. I like things simple and self-explaining. Therefore, instead of writing long documentations, I write simple examples to use each feature of Payton without digging much into the internals.
 
-    # There is already a pre-defined light in the scene, so we are modifying its location.
-    scene.lights[0].position = [5.0, 5.0, 6.0]
-    # Create another Cube, but this time instead of giving it size, we are using two points
-    # in space and construct a cube by joining two points.
-    cube_by_corners = Cube(from_corner=[-3, -3, 1], to_corner=[-1, -1, 3])
-    # Create a clock in the scene to move the light
-    scene.create_clock('mm', 0.001, move)
+Examples can be downloaded from [Payton Github Page](https://github.com/sinanislekdemir/payton/tree/master/examples).
 
-    # Now add all objects to scene
-    scene.add_object("wall", wall1)
-    scene.add_object("cube", cube)
-    scene.add_object("cube_by_corners", cube_by_corners)
-    scene.add_object("ground", ground)
-
-    # Scene comes with a default Grid, so lets hide it for this example.
-    scene.grid.visible = False
-
-    # It's alive!
-    scene.run()
+You can either download the whole repository [as a zip file](https://github.com/sinanislekdemir/payton/archive/master.zip) or you can just `git clone` it.
 
 
-### Default key mapping:
+## Example Index
 
-- **Zoom In-Out**: Mouse Wheel
-- **Rotate**: Right Click and Drag
-- **Panning**: Middle Click and Drag
-- **ESC**: Quit Simulation
-- **C**: Change camera mode (Perspective / Orthographic)
-- **Space**: Pause scene (stop all Clocks)
-- **G**: Show/Hide Grid.
-- **W**: Display mode: Wireframe / Solid
-- **F2**: Previous observer
-- **F3**: Next observer
+* Basic Examples
+  * [Scene](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/01_scene.py)
+  * Objects
+    * [Adding a cube](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/02_cube.py)
+    * [Adding multiple cubes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/03_cubes.py)
+    * [Object parent-child relations](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/05_children.py)
+    * [Cylinder object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/18_cylinder.py)
+    * [How to load complex triangular objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/06_monkey.py)
+    * [Complex meshes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/09_mesh.py)
+    * [Point cloud](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/11_point_cloud.py)
+    * [Plane Object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/13_plane.py)
+    * [Line object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/17_line.py)
+    * [Better Lines Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/33_better_lines.py)
+    * [Mesh plane](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/32_mesh_plane.py)
+    * [Quake 2 Objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/26_quake2.py)
+    * [Ragdoll Object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/28_ragdoll.py)
+  * [How to use "clock"](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/04_clock.py)
+  * [Object picking using mouse](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/07_picking.py)
+  * [Load textures](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/08_texture.py)
+  * [Vertex colors](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/10_vertex_colors.py)
+  * Collision Detection
+    * [Simple example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_collision.py)
+    * [Complex example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_1_collision_detailed.py)
+  * [Rotating Objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/14_rotate.py)
+  * [Graphical User Interface (GUI)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/15_gui.py)
+  * [Custom keyboard shortcuts](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/16_keyboard.py)
+  * [Using multiple cameras](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/19_multiple_cameras.py)
+  * [Changing background](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/20_background.py)
+  * [Click plane (get cursor location in world coordinates)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/21_click_plane.py)
+  * [Using object motion history](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/22_go_back.py)
+  * [Object Oriented Approach](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/24_object_oriented.py)
+  * [Materials](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/25_materials.py)
+  * [Exporting and importing your scene to json](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/27_json.py)
+  * [Changing time of day](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/29_day.py)
+  * [Near and Far Planes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/30_near_far_plane.py)
+  * [Spotlight Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/31_spotlight.py)
+* Mid Level
+  * [Popping the baloons game](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/balloon.py)
+  * [Build mesh using heightmap](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/engrave.py)
+  * [Fetch Instagram Images and build 3D Wall](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/instagram.py)
+  * [A bit more complex Quake Example](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/quake2.py)
+  * [Ripple Example (Mesh Grid)](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/ripple.py)
+  * [RPG-like Controls](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/rpg.py)
+  * [Custom Shader](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/shader.py)
+* High Level
+  * Multiplayer
+    * [Server backend for a multiplayer game](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/server.py)
+    * [3D Blocks building game multiplayer](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/client3D.py)
 
-## Development
 
-Some notes on Python3:
+## Screenshots and Videos
 
-Currently Payton is in pre-alpha, or it is just some dust cloud in the space.
-If you want to contribue, here is what you can do:
-
-I encourage you to create a virtualenv for Payton (with Python 3.7+)
-
-`virtualenv -p <path-to-python3> payton` should do the trick. If you don't have
-`virtualenv` in your path, google it!
-
-To start fiddling with it, `python setup.py develop` will install all
-requirements and will add `payton` to site-packages. But changes to code will
-immediately take effect, as opposed to `install` command.
-
-Be sure to check your code with `flake8` + `flake8-isort` + `mypy` before sending.  
-To format your code, you can use `black`.
-
-To kick start, after `python setup.py develop` run `python examples/04_clock.py`
-
-And once you see the white ball on the screen, hit `SPACE` from keyboard to unpause
-the animation mode and see the projectile motion demo.
-
-Also, `payton` library sources uses typehints, please keep using them but `examples` are free from all kind of best practices. Keep in mind that, the aim of this library is to let inexperienced people to do things. Therefore, examples are created as simple as possible. You don't have to use any lambda functions or generators or so forth there. Readability matters most at examples. _But **performance** is what we need in the core payton source!_  
+|  |  |  |
+| --- | --- | --- |
+| [![](https://27x2.com/thumb-cube.png)](https://27x2.com/cube.png) | [![](https://27x2.com/thumb-clock.png)](https://27x2.com/clock.png) | [![](https://27x2.com/thumb-monkey.png)](https://27x2.com/monkey.png) |
+| [![](https://27x2.com/thumb-points.png)](https://27x2.com/points.png) | [![](https://27x2.com/thumb-mesh_plane.png)](https://27x2.com/mesh_plane.png) | [![](https://27x2.com/thumb-ripple.png)](https://27x2.com/ripple.png) |
+| [![](https://27x2.com/thumb-engrave.png)](https://27x2.com/engrave.png) | [![](https://27x2.com/thumb-spotlight.png)](https://27x2.com/spotlight.png) | [![](https://27x2.com/thumb-day.png)](https://27x2.com/day.png) |
+| [![](https://27x2.com/thumb-ragdoll.png)](https://27x2.com/ragdoll.png) | [![](https://27x2.com/thumb-quake.png)](https://27x2.com/quake.png) | [![](https://27x2.com/thumb-motion.png)](https://27x2.com/motion.png) |
+| [![](https://27x2.com/thumb-gui.png)](https://27x2.com/gui.png) | [![](https://27x2.com/thumb-collision.png)](https://27x2.com/collision.png) | |
