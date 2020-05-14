@@ -1,9 +1,10 @@
-import typing
+from typing import List, Optional, Tuple, Union
 
 import numpy as np  # type: ignore
 import pyrr
 
 from payton.math.types import GArray
+from payton.math.vector import distance as distance_native
 
 DIFF = 0.0000001
 
@@ -18,6 +19,8 @@ def distance(v1: np.ndarray, v2: np.ndarray) -> float:
 
 
 def distance2(v1: np.ndarray, v2: np.ndarray) -> float:
+    v1 = v1[:3]
+    v2 = v2[:3]
     v3 = v2 - v1
     return pyrr.vector3.length(v3) ** 2
 
@@ -52,9 +55,61 @@ def raycast_sphere_intersect(start: GArray, vector: GArray, sphere_center: GArra
     return dist < (sphere_radius ** 2)
 
 
+def raycast_box_intersect(start: GArray, vector: GArray, box_a: GArray, box_b: GArray) -> Optional[List[float]]:
+    result = True
+    plane = [0.0, 0.0, 0.0]
+    max_dist = [0.0, 0.0, 0.0]
+    res_afv = [0.0, 0.0, 0.0]
+    is_middle = [False, False, False]
+
+    for i in range(3):
+        if start[i] < box_a[i]:
+            plane[i] = box_a[i]
+            is_middle[i] = False
+            result = False
+        elif start[i] > box_b[i]:
+            plane[i] = box_b[i]
+            is_middle[i] = False
+            result = False
+        else:
+            is_middle[i] = True
+    if result:
+        return start
+
+    plane_id = 0
+    for i in range(3):
+        if is_middle[i] or vector[i] == 0.0:
+            max_dist[i] = -1
+        else:
+            max_dist[i] = (plane[i] - start[i]) / vector[i]
+            if max_dist[i] > 0.0:
+                if max_dist[plane_id] < max_dist[i]:
+                    plane_id = i
+                result = True
+
+    if result:
+        for i in range(3):
+            if plane_id == i:
+                res_afv[i] = plane[i]
+            else:
+                res_afv[i] = start[i] + max_dist[plane_id] * vector[i]
+                result = (res_afv[i] >= box_a[i]) and (res_afv[i] <= box_b[i])
+                if not result:
+                    return None
+        return res_afv
+    return None
+
+
+def point_on_line(point: List[float], start: List[float], end: List[float]):
+    ab = distance_native(end, start)
+    ap = distance_native(point, start)
+    bp = distance_native(end, point)
+    return abs(ap + bp - ab) < DIFF
+
+
 def raycast_plane_intersect(
     start: GArray, vector: GArray, plane_point: GArray, plane_normal: GArray
-) -> typing.Optional[np.ndarray]:
+) -> Optional[np.ndarray]:
     d = np.dot(vector, plane_normal)
     res = (d > DIFF) or (d < -DIFF)
     if not res:
@@ -69,7 +124,8 @@ def raycast_plane_intersect(
 
 def raycast_triangle_intersect(
     start: GArray, vector: GArray, p1: GArray, p2: GArray, p3: GArray
-) -> typing.Tuple[typing.Union[np.ndarray, None], typing.Union[np.ndarray, None]]:
+) -> Tuple[Union[np.ndarray, None], Union[np.ndarray, None]]:
+    """Returns intersection point, intersection normal"""
     v1 = np.subtract(p2, p1)
     v2 = np.subtract(p3, p1)
     pvec = np.cross(vector, v2)
@@ -112,3 +168,24 @@ def line_triangle_intersect(
     d3 = distance(start, end)
     diff = d3 - (d1 + d2)
     return diff < DIFF and diff > -DIFF
+
+
+def point_in_poly_2D(x: float, y: float, poly: List[List[float]]) -> bool:
+    # Originally copied from
+    # http://www.ariel.com.au/a/python-point-int-poly.html
+    n = len(poly)
+    inside = False
+
+    p1x, p1y = poly[0]
+    for i in range(n + 1):
+        p2x, p2y = poly[i % n]
+        if y > min(p1y, p2y):
+            if y <= max(p1y, p2y):
+                if x <= max(p1x, p2x):
+                    if p1y != p2y:
+                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                    if p1x == p2x or x <= xinters:
+                        inside = not inside
+        p1x, p1y = p2x, p2y
+
+    return inside

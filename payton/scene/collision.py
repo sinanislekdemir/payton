@@ -1,6 +1,6 @@
 import logging
 from itertools import combinations
-from typing import Any, Callable, List, Optional, Type
+from typing import Any, Callable, List, Optional, Set, Type
 
 from payton.math.geometry import distance
 from payton.scene.geometry.base import Object
@@ -29,7 +29,7 @@ class CollisionTest(object):
         self.objects: List[Type[Mesh]] = [] if objects is None else objects
         self.callback: Callable = callback
         self.level: int = level
-        self._pairs: List[List[Mesh]] = []
+        self._pairs: List[Set[Mesh]] = []
 
     def add_object(self, obj: Type[Mesh]) -> None:
         if not isinstance(obj, Mesh):
@@ -49,23 +49,22 @@ class CollisionTest(object):
 
     def _sphere_in_sphere_collision(self, obj1: Mesh, obj2: Mesh) -> bool:
         dist = self._dist(obj1, obj2)
-        if obj1.bounding_radius > dist + obj2.bounding_radius:  # type: ignore
+        if obj1.bounding_radius > dist + obj2.bounding_radius:
             return True
-        if obj2.bounding_radius > dist + obj1.bounding_radius:  # type: ignore
+        if obj2.bounding_radius > dist + obj1.bounding_radius:
             return True
         return False
 
     def _aabb_collision_test(self, obj1: Mesh, obj2: Mesh) -> bool:
-        bb1_min = obj1.to_absolute(obj1.bounding_box[0])
-        bb1_max = obj1.to_absolute(obj1.bounding_box[1])
-        bb2_min = obj2.to_absolute(obj2.bounding_box[0])
-        bb2_max = obj2.to_absolute(obj2.bounding_box[1])
-
-        if (bb1_max[0] < bb2_min[0]) or (bb2_max[0] < bb1_min[0]):
+        a_min = obj1.bounding_box[0]
+        a_max = obj1.bounding_box[1]
+        b_min = obj2.bounding_box[0]
+        b_max = obj2.bounding_box[1]
+        if a_min[0] >= b_max[0] or b_min[0] >= a_max[0]:
             return False
-        if (bb1_max[1] < bb2_min[1]) or (bb2_max[1] < bb1_min[1]):
+        if a_min[1] >= b_max[1] or b_min[1] >= a_max[1]:
             return False
-        if (bb1_max[2] < bb2_min[2]) or (bb2_max[2] < bb1_min[2]):
+        if a_min[2] >= b_max[2] or b_min[2] >= a_max[2]:
             return False
         return True
 
@@ -73,35 +72,27 @@ class CollisionTest(object):
         bs_test = self._bounding_sphere_collision(obj1, obj2)
         if not bs_test:
             return False
+        if self.level == self.SPHERICAL:
+            return True
         if isinstance(obj1, Sphere) and isinstance(obj2, Sphere):
             # If both objects are Spheres, this check is enough
             return True
-        # No faces are colliding but an object wraps other one
-        if self._sphere_in_sphere_collision(obj1, obj2):
-            return True
-
         if isinstance(obj1, Mesh) and isinstance(obj2, Mesh):
-            if self.level == self.SPHERICAL:
-                return True
             return self._aabb_collision_test(obj1, obj2)
         return False
 
     def resolve(self, obj1: Mesh, obj2: Mesh) -> None:
-        pair = [obj1, obj2]
-        pair2 = [obj2, obj1]
+        pair = set([obj1, obj2])
         if pair in self._pairs:
             self._pairs.remove(pair)
-        if pair2 in self._pairs:
-            self._pairs.remove(pair2)
 
     def check(self):
-        for obj1, obj2 in combinations(self.objects, 2):
-            pair = {}
-            pair = [obj1, obj2]
+        for pair_tuple in combinations(self.objects, 2):
+            pair = set(pair_tuple)
             if pair not in self._pairs:
-                res = self._test(obj1, obj2)
+                res = self._test(pair_tuple[0], pair_tuple[1])
                 if res:
                     self._pairs.append(pair)
 
         if len(self._pairs) > 0:
-            self.callback(self, self._pairs)
+            self.callback(self, [list(pair) for pair in self._pairs])

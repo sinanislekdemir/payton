@@ -119,3 +119,9 @@ def distance(v1: List[float], v2: List[float]) -> float:
     v2_c = _ensure_affine(v2)
     diff = sub_vector(v2_c, v1_c)
     return vector_norm(diff)
+
+
+def rotate_around_z(v: List[float], angle: float) -> List[float]:
+    s = math.sin(angle)
+    c = math.cos(angle)
+    return [v[0] * c + v[1] * s, v[1] * c - v[0] * s, v[2]]

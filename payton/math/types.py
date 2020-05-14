@@ -1,6 +1,6 @@
-import typing
+from typing import List, Union
 
 import numpy as np  # type: ignore
 
-GArray = typing.Union[typing.List[float], np.ndarray]
-GMatrix = typing.Union[typing.List[typing.List[float]], np.ndarray]
+GArray = Union[List[float], np.ndarray]
+GMatrix = Union[List[List[float]], np.ndarray]

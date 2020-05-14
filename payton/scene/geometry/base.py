@@ -1,8 +1,9 @@
 # pylama:ignore=C901
 import ctypes
 import logging
+import pickle
 from copy import deepcopy
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np  # type: ignore
 from OpenGL.GL import (
@@ -34,15 +35,7 @@ from OpenGL.GL import (
 
 from payton.math.geometry import raycast_sphere_intersect
 from payton.math.matrix import create_rotation_matrix, scale_matrix
-from payton.math.vector import (
-    add_vectors,
-    cross_product,
-    distance,
-    normalize_vector,
-    scale_vector,
-    sub_vector,
-    vector_transform,
-)
+from payton.math.vector import add_vectors, cross_product, normalize_vector, scale_vector, sub_vector, vector_transform
 from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
 from payton.scene.shader import Shader
 from payton.scene.types import IList, VList
@@ -97,6 +90,8 @@ class Object(object):
         self._buffer_size_changed: bool = True
         self._t_buffer_size_changed: bool = True
 
+        self._absolute_cache: Dict[bytes, List[float]] = {}
+
         # Track object motion
         self.track_motion = track_motion
         # Motion path, stores every matrix change.
@@ -116,6 +111,8 @@ class Object(object):
         # Vertex Array Object pointer
         self._needs_update: bool = False  # Object geometry has changed.
         self._hit: bool = False
+
+        self._absolute_vertices: Optional[List[List[float]]] = None
 
     def refresh(self) -> None:
         self._needs_update = True
@@ -150,6 +147,7 @@ class Object(object):
         up = cross_product(self.matrix[0], self.matrix[1])
         up += [0]
         self.matrix[2] = normalize_vector(up)
+        self._absolute_vertices = None
 
     def direct_to(self, v: List[float]):
         diff = sub_vector(v, self.position)
@@ -161,24 +159,28 @@ class Object(object):
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
+        self._absolute_vertices = None
 
     def rotate_around_x(self, angle: float) -> None:
         rot_matrix = create_rotation_matrix([1, 0, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
+        self._absolute_vertices = None
 
     def rotate_around_y(self, angle: float) -> None:
         rot_matrix = create_rotation_matrix([0, 1, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
+        self._absolute_vertices = None
 
     def scale(self, x: float, y: float, z: float) -> None:
         sm = scale_matrix(x, y, z)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = sm.dot(local_matrix)
         self.matrix = local_matrix.tolist()
+        self._absolute_vertices = None
 
     def scale_texture(self, x: float, y: float) -> None:
         self._texcoords = [[coord[0] * x, coord[1] * y] for coord in self._texcoords]
@@ -224,12 +226,14 @@ class Object(object):
 
         self.matrix = self._motion_path[-steps]
         del self._motion_path[-steps + 1 :]  # noqa
+        self._absolute_vertices = None
         return True
 
     def forward(self, distance: float) -> None:
         diff = scale_vector(self.matrix[1], distance)
         self.matrix[3] = add_vectors(self.matrix[3], diff)
         self.matrix[3][3] = 1.0
+        self._absolute_vertices = None
 
     def update_matrix(self, parent_matrix: Optional[np.ndarray] = None) -> None:
         # Turn matrix into numpy array. Numpy arrays are C Type arrays
@@ -242,6 +246,7 @@ class Object(object):
 
         # Fortran array is used to push matrix to opengl context
         self._model_matrix_fortran = np.asfortranarray(self._model_matrix, dtype=np.float32)
+        self._absolute_cache = {}
 
     def track(self) -> bool:
         if not self.track_motion:
@@ -363,6 +368,7 @@ class Object(object):
         self.matrix[3][0] = pos[0]
         self.matrix[3][1] = pos[1]
         self.matrix[3][2] = pos[2]
+        self._absolute_vertices = None
 
     def add_child(self, name: str, obj: "Object") -> bool:
         if name in self.children:
@@ -375,10 +381,18 @@ class Object(object):
         return True
 
     def to_absolute(self, coordinates: List[float]) -> List[float]:
-        return vector_transform(coordinates, self.matrix)
+        key = pickle.dumps(coordinates)
+        if key in self._absolute_cache:
+            return self._absolute_cache[key]
+        trans = vector_transform(coordinates, self.matrix)
+        self._absolute_cache[key] = trans
+        return trans
 
-    def absolute_vertices(self) -> Iterator[List[float]]:
-        return map(lambda v: self.to_absolute(v), self._vertices)
+    def absolute_vertices(self) -> List[List[float]]:
+        if self._absolute_vertices is None:
+            self._absolute_vertices = [self.to_absolute(v) for v in self._vertices]
+
+        return self._absolute_vertices
 
     def toggle_wireframe(self) -> None:
         d = (self.material.display + 1) % 3
@@ -392,9 +406,10 @@ class Object(object):
     def _calc_bounds(self) -> float:
         bmin: Optional[List[float]] = None
         bmax: Optional[List[float]] = None
-        x = [v[0] for v in self._vertices]
-        y = [v[1] for v in self._vertices]
-        z = [v[2] for v in self._vertices]
+        absolute_vertices = self.absolute_vertices()
+        x = [v[0] for v in absolute_vertices]
+        y = [v[1] for v in absolute_vertices]
+        z = [v[2] for v in absolute_vertices]
 
         if len(x) == 0 or len(y) == 0 or len(z) == 0:
             bmin = [0.0, 0.0, 0.0]
@@ -403,7 +418,10 @@ class Object(object):
             bmin = [min(x), min(y), min(z)]
             bmax = [max(x), max(y), max(z)]
 
-        self._bounding_radius = distance(bmax, bmin) / 2.0
+        a = (bmax[0] - bmin[0]) / 2.0
+        b = (bmax[1] - bmin[1]) / 2.0
+        c = (bmax[2] - bmin[2]) / 2.0
+        self._bounding_radius = max([a, b, c])
         self._bounding_box = [bmin, bmax]
 
         return self._bounding_radius
@@ -416,6 +434,8 @@ class Object(object):
 
     @property
     def bounding_box(self) -> VList:
+        if self._absolute_vertices is None:
+            self._calc_bounds()
         if len(self._bounding_box) > 0:
             return self._bounding_box
         self._calc_bounds()
@@ -591,7 +611,7 @@ class Line(Object):
 
         self._needs_update = True
 
-    def build_lines(self, vertices: Optional[VList] = None, color: Optional[List[float]] = None,) -> None:
+    def build_lines(self, vertices: Optional[VList] = None, color: Optional[List[float]] = None) -> None:
         if vertices is not None:
             self._vertices = vertices
         if color is not None:

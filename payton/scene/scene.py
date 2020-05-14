@@ -2,7 +2,7 @@
 import ctypes
 import logging
 import time
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
 import numpy as np  # type: ignore
 import sdl2
@@ -58,7 +58,12 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from payton.math.geometry import raycast_plane_intersect
+from payton.math.geometry import (
+    distance_native,
+    raycast_box_intersect,
+    raycast_plane_intersect,
+    raycast_triangle_intersect,
+)
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
 from payton.scene.controller import Controller
@@ -371,6 +376,43 @@ class Scene(Receiver):
             "observers": [observer.to_dict() for observer in self.observers],
         }
         return result
+
+    def raycast_intersect(
+        self,
+        start: List[float],
+        vector: List[float],
+        box_only: bool = True,
+        exempt_objects: Optional[List[Object]] = None,
+    ) -> Optional[Tuple[Object, List[float]]]:
+        shortest = [0.0, 0.0, 0.0]
+        dist_best = -1.0
+        hit_obj = None
+        for obj in self.objects.values():
+            if exempt_objects is not None:
+                if obj in exempt_objects:
+                    continue
+            box_hit = raycast_box_intersect(start, vector, obj.bounding_box[0], obj.bounding_box[1])
+            if box_hit is None:
+                continue
+            if box_only:
+                dist = distance_native(box_hit, start)
+                if dist_best == -1.0 or dist < dist_best:
+                    dist_best = dist
+                    shortest = box_hit
+                    hit_obj = obj
+                    continue
+            for p1, p2, p3 in zip(*[iter(obj.absolute_vertices())] * 3):
+                ip, _ = raycast_triangle_intersect(start, vector, p1, p2, p3)
+                if ip is None:
+                    continue
+                dist = distance_native(ip, start)
+                if dist_best == -1.0 or dist < dist_best:
+                    dist_best = dist
+                    shortest = ip
+                    hit_obj = obj
+        if hit_obj is None:
+            return None
+        return hit_obj, shortest
 
     def run(self) -> int:
         if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
