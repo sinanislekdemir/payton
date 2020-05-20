@@ -537,8 +537,8 @@ class Background(object):
         bottom_color: Optional[List[float]] = None,
         **kwargs: Dict[str, Any],
     ):
-        self.top_color = [0.6, 0.8, 1.0, 1.0] if top_color is None else top_color
-        self.bottom_color = [0.6275, 0.6275, 0.6275, 1.0] if bottom_color is None else bottom_color
+        self.top_color = [0.0, 0.0, 0.0, 1.0] if top_color is None else top_color
+        self.bottom_color = [0.0, 0.1, 0.2, 1.0] if bottom_color is None else bottom_color
         variables = ["top_color", "bot_color"]
         self._shader = Shader(
             fragment=background_fragment_shader, vertex=background_vertex_shader, variables=variables,

@@ -238,7 +238,7 @@ in vec2 v_uv;
 out vec4 frag_color;
 void main()
 {
-  frag_color = bot_color * (1 - v_uv.y) + top_color * v_uv.y;
+  frag_color = top_color * (1 - v_uv.y) + bot_color * v_uv.y;
 }
 """  # type: str
 
