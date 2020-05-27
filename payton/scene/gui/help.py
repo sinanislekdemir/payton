@@ -5,7 +5,7 @@ from payton.scene.gui.window import Button, Window, WindowAlignment
 
 
 def help_win():
-    text = """Payton Shortcuts and Mouse Controls:
+    text = f"""Payton Shortcuts and Mouse Controls:
 
 MOUSE:
 Zoom In-Out: Mouse Wheel

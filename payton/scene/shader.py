@@ -22,6 +22,10 @@ from OpenGL.GL import (
     shaders,
 )
 
+DEFAULT_SHADER = "default"
+PARTICLE_SHADER = "particle"
+SHADOW_SHADER = "depth"
+
 depth_fragment_shader = """
 #version 330 core
 in vec4 FragPos;
@@ -73,6 +77,89 @@ void main()
     }
 }
 """
+
+
+particle_geometry_shader = """
+#version 330 core
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+uniform int view_mode;
+uniform float particle_size;
+
+layout (points) in;
+layout (triangle_strip, max_vertices=4) out;
+
+out vec2 varTex;
+
+void main() {
+    vec4 center = view * model * gl_in[0].gl_Position;
+    varTex = vec2( 0, 0 );
+    gl_Position = projection * (center + vec4(particle_size, particle_size, 0, 0));
+    EmitVertex();
+
+    varTex = vec2( 1, 0  );
+    gl_Position = projection * (center + vec4(particle_size, -particle_size, 0, 0));
+    EmitVertex();
+
+    varTex = vec2( 0, 1 );
+    gl_Position = projection * (center + vec4(-particle_size, particle_size, 0, 0));
+    EmitVertex();
+
+    varTex = vec2( 1, 1 );
+    gl_Position = projection * (center + vec4(-particle_size, -particle_size, 0, 0));
+    EmitVertex();
+}
+
+"""
+
+
+particle_fragment_shader = """
+#version 330
+
+uniform sampler2D tex_unit;
+uniform vec3 object_color;
+uniform float opacity;
+
+in vec2 varTex;
+
+layout(location = 0) out vec4 outFragColor;
+
+void main()
+{
+    vec4 tex_color;
+    tex_color = texture( tex_unit, varTex );
+
+    outFragColor = tex_color * vec4(object_color, opacity);
+}
+"""
+
+
+particle_vertex_shader = """
+#version 330 core
+layout ( location = 0 ) in vec3 position;
+layout ( location = 1 ) in vec3 normal;
+layout ( location = 2 ) in vec2 texCoords;
+layout ( location = 3 ) in vec3 colors; // optional
+
+out vec2 tex_coords;
+out vec3 frag_color;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+uniform int view_mode;
+
+out vec3 l_fragpos;
+out vec3 l_normal;
+
+void main()
+{
+    gl_Position = vec4(position, 1.0f);
+}
+"""  # type: str
+
 
 default_fragment_shader = """
 #version 330 core

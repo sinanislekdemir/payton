@@ -13,7 +13,8 @@ from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional, cast
 import numpy as np  # type: ignore
 
 from payton.scene.geometry.mesh import Mesh
-from payton.scene.shader import Shader
+from payton.scene.material import POINTS
+from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 
 _SIGNATURE = "IDP2"
 _VERSION = 8
@@ -351,8 +352,10 @@ class MD2(Mesh):
         mesh.fix_normals(False)
         if self.texture_filename != "":
             mesh.material.texture = os.path.join(self._path, os.path.basename(self.texture_filename))
+            mesh.material.particle_size = 0.1
         elif len(self.skins) > 0:
             mesh.material.texture = os.path.join(self._path, os.path.basename(self.skins[0]))
+            mesh.material.particle_size = 0.1
 
         self.add_frame_child(name, mesh)
 
@@ -425,6 +428,14 @@ class MD2(Mesh):
 
         for mat in self.materials.values():
             mat.display = d
+            mat.particle_size = 0.01
+
+        if d == POINTS:
+            self.shader = PARTICLE_SHADER
+            self.refresh()
+        else:
+            self.shader = DEFAULT_SHADER
+            self.refresh()
 
         for frame in self._frame_children.values():
             frame.toggle_wireframe()

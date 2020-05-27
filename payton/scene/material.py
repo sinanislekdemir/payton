@@ -4,8 +4,10 @@ from typing import Any, Dict, List, Optional
 import numpy as np  # type: ignore
 from OpenGL.GL import (
     GL_BLEND,
+    GL_CULL_FACE,
     GL_LINEAR,
     GL_LINEAR_MIPMAP_LINEAR,
+    GL_ONE,
     GL_ONE_MINUS_SRC_ALPHA,
     GL_REPEAT,
     GL_RGB,
@@ -22,6 +24,7 @@ from OpenGL.GL import (
     glActiveTexture,
     glBindTexture,
     glBlendFunc,
+    glDisable,
     glEnable,
     glGenerateMipmap,
     glGenTextures,
@@ -65,6 +68,8 @@ NO_VERTEX_ARRAY = -1
 NO_INDICE = -2
 EMPTY_VERTEX_ARRAY = -3
 
+BASE_PARTICLE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "particle.png")
+
 
 class Material(object):
     def __init__(
@@ -81,7 +86,9 @@ class Material(object):
         self.display: int = display
         self.lights: bool = lights
         self.texture: str = texture
+        self.particle_texture: str = BASE_PARTICLE
         self.opacity: float = opacity
+        self.particle_size: float = 0.16
         self._image: Optional[Image] = None
         self._indices: IList = []
         self._vao: int = NO_VERTEX_ARRAY
@@ -92,6 +99,7 @@ class Material(object):
 
         self._initialized: bool = False
         self._texture: Optional[int] = None
+        self._particle_texture: Optional[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -135,14 +143,21 @@ class Material(object):
             self.load_texture(img)
         if self._image is not None:
             self.load_texture(self._image)
+        if os.path.isfile(self.particle_texture):
+            img = Image.open(self.particle_texture)
+            self.load_texture(img, particle=True)
         return True
 
-    def load_texture(self, img: Image) -> None:
+    def load_texture(self, img: Image, particle: bool = False) -> None:
         img_data = np.fromstring(img.tobytes(), np.uint8)
         width, height = img.size
-        self._texture = glGenTextures(1)
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-        glBindTexture(GL_TEXTURE_2D, self._texture)
+        if particle:
+            self._particle_texture = glGenTextures(1)
+            glBindTexture(GL_TEXTURE_2D, self._particle_texture)
+        else:
+            self._texture = glGenTextures(1)
+            glBindTexture(GL_TEXTURE_2D, self._texture)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
@@ -159,6 +174,7 @@ class Material(object):
             GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, img_data,
         )
         glGenerateMipmap(GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D, 0)
 
     def refresh(self) -> None:
         self._initialized = False
@@ -187,13 +203,25 @@ class Material(object):
             _mode = mode
 
         glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glDisable(GL_CULL_FACE)
+        blend = GL_ONE_MINUS_SRC_ALPHA
+        if self.display == POINTS:
+            blend = GL_ONE
+        glBlendFunc(GL_SRC_ALPHA, blend)
 
-        if self._texture is not None:
+        if self._texture is not None and self.display != POINTS:
             check = shader.get_location("tex_unit")
             if check > -1:
                 glActiveTexture(GL_TEXTURE0)
                 glBindTexture(GL_TEXTURE_2D, self._texture)
+                shader.set_int("tex_unit", 0)
+
+        if self._particle_texture is not None and self.display == POINTS:
+            check = shader.get_location("tex_unit")
+            shader.set_float("particle_size", self.particle_size)
+            if check > -1:
+                glActiveTexture(GL_TEXTURE0)
+                glBindTexture(GL_TEXTURE_2D, self._particle_texture)
                 shader.set_int("tex_unit", 0)
 
         if not shader._depth_shader:

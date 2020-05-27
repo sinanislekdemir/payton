@@ -4,8 +4,8 @@ from payton.scene.geometry.cube import Cube
 from payton.scene.geometry.cylinder import Cylinder
 from payton.scene.geometry.md2 import MD2
 from payton.scene.geometry.mesh import Mesh
+from payton.scene.geometry.particle import ParticleSystem
 from payton.scene.geometry.plane import MatrixPlane, Plane
-from payton.scene.geometry.point import PointCloud
 from payton.scene.geometry.ragdoll import Joint, RagDoll
 from payton.scene.geometry.sphere import Sphere
 from payton.scene.geometry.wavefront import Wavefront
@@ -19,7 +19,7 @@ __all__ = [
     "Plane",
     "MatrixPlane",
     "Sphere",
-    "PointCloud",
+    "ParticleSystem",
     "MD2",
     "Wavefront",
     "RagDoll",

@@ -9,15 +9,12 @@ import sdl2
 from OpenGL.GL import (
     GL_CLAMP_TO_EDGE,
     GL_COLOR_BUFFER_BIT,
-    GL_CULL_FACE,
-    GL_CW,
     GL_DEPTH_ATTACHMENT,
     GL_DEPTH_BUFFER_BIT,
     GL_DEPTH_COMPONENT,
     GL_DEPTH_TEST,
     GL_FLOAT,
     GL_FRAMEBUFFER,
-    GL_FRONT,
     GL_LESS,
     GL_NEAREST,
     GL_NONE,
@@ -41,14 +38,12 @@ from OpenGL.GL import (
     glBindVertexArray,
     glClear,
     glClearColor,
-    glCullFace,
     glDepthFunc,
     glDisable,
     glDrawArrays,
     glDrawBuffer,
     glEnable,
     glFramebufferTexture,
-    glFrontFace,
     glGenFramebuffers,
     glGenTextures,
     glGenVertexArrays,
@@ -75,6 +70,9 @@ from payton.scene.light import Light
 from payton.scene.observer import Observer
 from payton.scene.receiver import Receiver
 from payton.scene.shader import (
+    DEFAULT_SHADER,
+    PARTICLE_SHADER,
+    SHADOW_SHADER,
     Shader,
     background_fragment_shader,
     background_vertex_shader,
@@ -83,6 +81,9 @@ from payton.scene.shader import (
     depth_fragment_shader,
     depth_geometry_shader,
     depth_vertex_shader,
+    particle_fragment_shader,
+    particle_geometry_shader,
+    particle_vertex_shader,
 )
 from payton.scene.types import CPlane
 
@@ -98,15 +99,14 @@ class Scene(Receiver):
     def __init__(
         self, width: int = 800, height: int = 600, on_select: Optional[Callable] = None, **kwargs: Any,
     ) -> None:
+        self.__fps_counter = 0
+        self.fps = 0
         # All objects list
         self.objects: Dict[str, Object] = {}
         # All Huds (Heads Up Display)
         self.huds: Dict[str, Hud] = {"_help": Hud(width=width, height=height)}
         self.huds["_help"].add_child("help", help_win())
         self.huds["_help"].hide()
-
-        self.__fps_counter = 0
-        self.fps = 0
 
         self.__timer = -1.0
         self.observers: List[Observer] = []
@@ -124,8 +124,11 @@ class Scene(Receiver):
         self.controller = Controller()
         self.background = Background()
         self.shaders: Dict[str, Shader] = {
-            "default": Shader(fragment=default_fragment_shader, vertex=default_vertex_shader),
-            "depth": Shader(
+            DEFAULT_SHADER: Shader(fragment=default_fragment_shader, vertex=default_vertex_shader),
+            PARTICLE_SHADER: Shader(
+                fragment=particle_fragment_shader, vertex=particle_vertex_shader, geometry=particle_geometry_shader
+            ),
+            SHADOW_SHADER: Shader(
                 fragment=depth_fragment_shader, vertex=depth_vertex_shader, geometry=depth_geometry_shader,
             ),
         }
@@ -184,21 +187,13 @@ class Scene(Receiver):
                 continue
             click_plane[2](hit[:3])
 
-    def _render_3d_scene(self, shadow_round=False) -> None:
+    def _render_3d_scene(self, shadow_round=False, shader=DEFAULT_SHADER) -> None:
         light_count = len(self.lights)
         lit = light_count > 0
         if not lit:
             return
 
-        if not shadow_round:
-            glEnable(GL_CULL_FACE)
-            glFrontFace(GL_CW)
-            glCullFace(GL_FRONT)
-        else:
-            glDisable(GL_CULL_FACE)
-
         proj, view = self.active_observer.render()
-        shader = "depth" if shadow_round else "default"
         _shader = self.shaders[shader]
         _shader.set_vector3("camera_pos", self.active_observer.position)
         if view is None:
@@ -233,10 +228,12 @@ class Scene(Receiver):
                 glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
                 _shader.set_int("depthMap", 1)
 
+        if not shadow_round and shader == DEFAULT_SHADER:
+            self.grid.render(lit, self.shaders[DEFAULT_SHADER])
+
         for object in self.objects.values():
-            object.render(
-                lit, _shader,
-            )
+            if object.shader == shader or (shadow_round and object.shader != PARTICLE_SHADER):
+                object.render(lit, _shader)
 
     def _render(self) -> None:
         self.shaders["default"].use()
@@ -251,10 +248,10 @@ class Scene(Receiver):
             glViewport(0, 0, self._shadow_quality, self._shadow_quality)
             glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
             glClear(GL_DEPTH_BUFFER_BIT)
-            self.shaders["depth"].use()
-            self._render_3d_scene(True)
+            self.shaders[SHADOW_SHADER].use()
+            self._render_3d_scene(True, SHADOW_SHADER)
             glBindFramebuffer(GL_FRAMEBUFFER, 0)
-            self.shaders["depth"].end()
+            self.shaders[SHADOW_SHADER].end()
 
         # Render background
         glViewport(0, 0, self.window_width, self.window_height)
@@ -265,14 +262,17 @@ class Scene(Receiver):
 
         # Render scene
         lit = len(self.lights) > 0
-        self.shaders["default"].use()
-        self._render_3d_scene(False)
-        self.grid.render(lit, self.shaders["default"])
+        self.shaders[DEFAULT_SHADER].use()
+        self._render_3d_scene(False, DEFAULT_SHADER)
 
         # Render HUD
         for object in self.huds:
-            self.huds[object].render(lit, self.shaders["default"])
-        self.shaders["default"].end()
+            self.huds[object].render(lit, self.shaders[DEFAULT_SHADER])
+        self.shaders[DEFAULT_SHADER].end()
+
+        self.shaders[PARTICLE_SHADER].use()
+        self._render_3d_scene(False, PARTICLE_SHADER)
+        self.shaders[PARTICLE_SHADER].end()
 
         self._render_lock = False
 

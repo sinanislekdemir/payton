@@ -57,7 +57,7 @@ a newbie can kick-start it just by following the tutorials.
   * Triangular Mesh
   * Plane
   * Lines
-  * Point Cloud
+  * Particle System
   * Sphere
   * Dynamic Grid
 * Clean default scene.
@@ -164,6 +164,7 @@ You can either download the whole repository [as a zip file](https://github.com/
     * [How to load complex triangular objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/06_monkey.py)
     * [Complex meshes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/09_mesh.py)
     * [Point cloud](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/11_point_cloud.py)
+    * [Particle System](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/11_particle_system.py)
     * [Plane Object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/13_plane.py)
     * [Line object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/17_line.py)
     * [Better Lines Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/33_better_lines.py)

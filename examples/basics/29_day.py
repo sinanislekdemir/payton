@@ -33,6 +33,8 @@ def change_date(period, total):
 obj_file = os.path.join(os.path.dirname(__file__), "scene", "scene.obj")
 
 obj = Wavefront(obj_file)
+for m in obj.materials.values():
+    m.particle_size = 0.016
 # scene.active_observer.perspective = False
 
 scene.add_object("scene", obj)

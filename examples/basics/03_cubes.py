@@ -4,6 +4,7 @@ from payton.scene import Scene
 from payton.scene.geometry import Cube, Plane
 
 scene = Scene()
+scene.lights[0].position = [50, 50, 50]
 ground = Plane(20, 20)
 scene.add_object("ground", ground)
 

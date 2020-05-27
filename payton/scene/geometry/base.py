@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Union
 import numpy as np  # type: ignore
 from OpenGL.GL import (
     GL_ARRAY_BUFFER,
+    GL_DEPTH_TEST,
     GL_DYNAMIC_DRAW,
     GL_ELEMENT_ARRAY_BUFFER,
     GL_FILL,
@@ -15,7 +16,6 @@ from OpenGL.GL import (
     GL_FRONT_AND_BACK,
     GL_LINE,
     GL_LINE_STRIP,
-    GL_POINT,
     GL_POINTS,
     GL_TRIANGLES,
     GL_UNSIGNED_INT,
@@ -24,7 +24,9 @@ from OpenGL.GL import (
     glBufferData,
     glBufferSubData,
     glDeleteVertexArrays,
+    glDisable,
     glDrawElements,
+    glEnable,
     glEnableVertexAttribArray,
     glGenBuffers,
     glGenVertexArrays,
@@ -37,7 +39,7 @@ from payton.math.geometry import raycast_sphere_intersect
 from payton.math.matrix import create_rotation_matrix, scale_matrix
 from payton.math.vector import add_vectors, cross_product, normalize_vector, scale_vector, sub_vector, vector_transform
 from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
-from payton.scene.shader import Shader
+from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.scene.types import IList, VList
 
 
@@ -91,6 +93,7 @@ class Object(object):
         self._t_buffer_size_changed: bool = True
 
         self._absolute_cache: Dict[bytes, List[float]] = {}
+        self.shader = DEFAULT_SHADER
 
         # Track object motion
         self.track_motion = track_motion
@@ -318,6 +321,10 @@ class Object(object):
 
         shader.set_matrix4x4_np("model", self._model_matrix_fortran)
         indice_0 = ctypes.c_void_p(0)
+
+        if self.shader == PARTICLE_SHADER:
+            glDisable(GL_DEPTH_TEST)
+
         for material in self.materials.values():
             if not material.display == SOLID and shader._depth_shader:
                 continue
@@ -335,7 +342,7 @@ class Object(object):
                     pmode = GL_FILL
                     primitive = GL_TRIANGLES
                 if material.display == POINTS:
-                    pmode = GL_POINT
+                    pmode = GL_FILL
                     primitive = GL_POINTS
                 if _primitive is not None:
                     primitive = _primitive
@@ -348,6 +355,9 @@ class Object(object):
                 if pmode != GL_FILL:
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
                 glBindVertexArray(0)
+
+        if self.shader == PARTICLE_SHADER:
+            glEnable(GL_DEPTH_TEST)
 
         # Render motion path
         if self.track_motion:
@@ -399,6 +409,13 @@ class Object(object):
 
         for mat in self.materials.values():
             mat.display = d
+
+        if d == POINTS:
+            self.shader = PARTICLE_SHADER
+            self.refresh()
+        else:
+            self.shader = DEFAULT_SHADER
+            self.refresh()
 
         for child in self.children.values():
             child.toggle_wireframe()
