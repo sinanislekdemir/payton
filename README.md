@@ -151,6 +151,8 @@ Examples can be downloaded from [Payton Github Page](https://github.com/sinanisl
 
 You can either download the whole repository [as a zip file](https://github.com/sinanislekdemir/payton/archive/master.zip) or you can just `git clone` it.
 
+*Tested in Windows 10 Paperspace, seems to be working as expected*
+![https://user-images.githubusercontent.com/1842484/84317888-38767780-ab76-11ea-8337-a102d7c59275.png](https://user-images.githubusercontent.com/1842484/84317888-38767780-ab76-11ea-8337-a102d7c59275.png)
 
 ## Example Index
 
