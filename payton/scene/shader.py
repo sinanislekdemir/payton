@@ -366,9 +366,9 @@ class Shader(object):
             geometry_shader = shaders.compileShader(self.geometry_shader_source, GL_GEOMETRY_SHADER)
 
         if geometry_shader is not None:
-            self.program = shaders.compileProgram(vertex_shader, fragment_shader, geometry_shader)
+            self.program = shaders.compileProgram(vertex_shader, fragment_shader, geometry_shader, validate=False)
         else:
-            self.program = shaders.compileProgram(vertex_shader, fragment_shader)
+            self.program = shaders.compileProgram(vertex_shader, fragment_shader, validate=False)
 
         return self.program
 
