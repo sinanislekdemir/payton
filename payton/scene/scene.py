@@ -16,6 +16,8 @@ from OpenGL.GL import (
     GL_FLOAT,
     GL_FRAMEBUFFER,
     GL_LESS,
+    GL_MAJOR_VERSION,
+    GL_MINOR_VERSION,
     GL_NEAREST,
     GL_NONE,
     GL_TEXTURE1,
@@ -47,6 +49,7 @@ from OpenGL.GL import (
     glGenFramebuffers,
     glGenTextures,
     glGenVertexArrays,
+    glGetIntegerv,
     glReadBuffer,
     glTexImage2D,
     glTexParameteri,
@@ -439,6 +442,19 @@ class Scene(Receiver):
         sdl2.SDL_GL_SetSwapInterval(0)
         self.event = sdl2.SDL_Event()
         self.running = True
+        ogl_major = glGetIntegerv(GL_MAJOR_VERSION)
+        ogl_minor = glGetIntegerv(GL_MINOR_VERSION)
+        v = (ogl_major * 10) + ogl_minor
+        if v < 33:  # OpenGL 3.3
+            print(
+                """
+Sorry, Payton couldn't create an OpenGL 3.3 Context
+This can be related to an old graphics card / an old driver issue.
+
+Payton requires at least OpenGL 3.3 support and above."""
+            )
+            print(f"OpenGL Version installed: {ogl_major}.{ogl_minor}")
+            exit(16)
 
         # Fix aspect ratios of observers
         for observer in self.observers:
