@@ -117,7 +117,7 @@ pip install payton
 
 Is sufficient to install Payton and it's dependencies on Anaconda.
 
-Payton will be available to use with SciPy or JupyterLab on local.
+Payton will be available to use with Spyder or JupyterLab on local.
 
 ![](https://27x2.com/anaconda.png)
 
