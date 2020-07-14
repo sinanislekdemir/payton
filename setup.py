@@ -9,7 +9,7 @@ if sys.version_info < (3, 7):
 
 setup(
     name="Payton",
-    version="0.0.9",
+    version="0.0.10",
     author="Sinan ISLEKDEMIR",
     author_email="sinan@islekdemir.com",
     # Packages
@@ -32,6 +32,5 @@ setup(
         "PyOpenGL-accelerate==3.1.5",
         "pyrr==0.10.3",
         "PySDL2==0.9.7",
-        "read",
     ],
 )
