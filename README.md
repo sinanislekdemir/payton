@@ -39,6 +39,7 @@ a newbie can kick-start it just by following the tutorials.
   - [Install](#install)
     - [Requirements:](#requirements)
     - [Install using Pip:](#install-using-pip)
+      - [Using Payton with Anaconda](#using-payton-with-anaconda)
     - [Upgrade to the latest version:](#upgrade-to-the-latest-version)
   - [Getting Started](#getting-started)
     - [Your first code](#your-first-code)
@@ -105,6 +106,20 @@ pip3 install payton
 ```
 
 This should install all dependencies. If you get any permission errors, you are probably installing the library to system-global so missing some permissions. If you do not want to use pipenv or virtualenv, then you might want to run above command as `sudo pip3 install payton`
+
+#### Using Payton with Anaconda
+
+As of version `0.0.10`, Payton is installable on Anaconda. From Anaconda Prompt:
+
+```bash
+pip install payton
+```
+
+Is sufficient to install Payton and it's dependencies on Anaconda.
+
+Payton will be available to use with SciPy or JupyterLab on local.
+
+![](https://27x2.com/anaconda.png)
 
 ### Upgrade to the latest version:
 
