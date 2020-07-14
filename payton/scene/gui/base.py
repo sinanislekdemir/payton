@@ -143,6 +143,7 @@ class Text(Rectangle):
 
         self.crop = [0, 0, 0, 0]
         self._init_text: bool = False
+        self._max_char_width = 0.0
 
     @property
     def label(self) -> str:
@@ -175,20 +176,16 @@ class Text(Rectangle):
         return lres[0], lres[1]
 
     def wrap(self, width_in_pixels: int):
-        dummy = ""
         original = self.label
         self.label = ""
-        for char in original:
-            dummy += char
-            res = (0, 0)
-            timg = Image.new("RGBA", (1, 1))
-            d = ImageDraw.Draw(timg)
-            res = d.textsize(dummy, font=self.font)
-            if res[0] < width_in_pixels:
-                self.label += char
-            else:
-                self.label += "\n" + char
-                dummy = ""
+        if self.font is None:
+            return
+        if self._max_char_width == 0.0:
+            self._max_char_width = self.font.getsize('_')[0]
+        split_length = int(math.floor(width_in_pixels / self._max_char_width)) - 1
+        parts = [original[i : i + split_length] for i in range(0, len(original), split_length)]
+        self.__label = "\n".join(parts)
+
         self._init_text = False
 
     def draw_text(self) -> None:

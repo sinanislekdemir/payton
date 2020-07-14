@@ -47,7 +47,14 @@ create_cube = Button("Create New Cube", width=200, height=30, left=10, top=40, o
 cube_size = EditBox("1, 1, 1", width=200, height=30, left=10, top=80, on_change=set_size)
 fps_text = Button("Hit Space for FPS", width=200, height=30, left=10, top=120)
 
-free_text = EditBox("Hello world", width=200, height=200, left=10, top=160, multiline=True)
+free_text = EditBox(
+    "Choice is an illusion created between those with power and those without.",
+    width=200,
+    height=200,
+    left=10,
+    top=160,
+    multiline=True,
+)
 main_window.add_child("create_cube", create_cube)
 main_window.add_child("cube_size", cube_size)
 main_window.add_child("fps_text", fps_text)
