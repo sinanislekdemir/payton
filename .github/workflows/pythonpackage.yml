@@ -24,7 +24,6 @@ jobs:
     - name: Lint with flake8
       run: |
         pip install flake8==3.7.9
-        pip install flake8-isort==2.8.0
         flake8 . --count --statistics --show-source
     - name: Test with mypy
       run: |
