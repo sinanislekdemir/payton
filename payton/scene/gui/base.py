@@ -1,5 +1,6 @@
 import math
 import os
+from textwrap import wrap
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 import numpy as np  # type: ignore
@@ -183,7 +184,7 @@ class Text(Rectangle):
         if self._max_char_width == 0.0:
             self._max_char_width = self.font.getsize('_')[0]
         split_length = int(math.floor(width_in_pixels / self._max_char_width)) - 1
-        parts = [original[i : i + split_length] for i in range(0, len(original), split_length)]
+        parts = wrap(original, split_length)
         self.__label = "\n".join(parts)
 
         self._init_text = False
