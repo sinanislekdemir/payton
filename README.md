@@ -221,6 +221,13 @@ You can either download the whole repository [as a zip file](https://github.com/
     * [Server backend for a multiplayer game](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/server.py)
     * [3D Blocks building game multiplayer](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/client3D.py)
 
+## Contribution
+
+* Please keep using type hints in the main library.
+* Type hinting can be ignored for examples.
+* Example codes should be plain and simple.
+* Every new features should include sensible defaults.
+  * Nothing should be too verbose to use.
 
 ## Screenshots and Videos
 
