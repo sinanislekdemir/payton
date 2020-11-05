@@ -260,3 +260,7 @@ class Observer(object):
 
         ray_dir = pyrr.vector.normalize(ray_end[0:4])
         return (eye, ray_dir)
+
+
+class FPS(Observer):
+    

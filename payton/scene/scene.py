@@ -540,6 +540,13 @@ Payton requires at least OpenGL 3.3 support and above."""
         self._clear_context()
         return 0
 
+    def terminate(self):
+        self.running = False
+        for clock in self.clocks:
+            logging.debug(f"Kill clock [{clock}]")
+            self.clocks[clock].kill()
+            self.clocks[clock].join()
+
 
 class Background(object):
     """

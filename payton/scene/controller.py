@@ -8,43 +8,28 @@ from payton.scene.gui import EditBox
 from payton.scene.observer import BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 
 
-class Controller(object):
-    def __init__(self):
-        super().__init__()
+class GUIController(object):
+    """
+    Define GUI related controller actions in this class
+    to reduce complexity inside Controller.
+    """
+    def __init__(self) -> None:
         self._active_object: Optional[EditBox] = None
 
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> None:
-        if event.type == sdl2.SDL_QUIT:
-            logging.debug("Quit SDL Scene")
-            scene.running = False
-            for clock in scene.clocks:
-                c = scene.clocks[clock]
-                logging.debug(f"Kill clock [{clock}]")
-                c.kill()
-                c.join()
-
-        if event.type == sdl2.SDL_KEYDOWN:
-            key = event.key.keysym.sym
-            if key == sdl2.SDLK_LSHIFT:
-                scene._shift_down = True
-            if key == sdl2.SDLK_LCTRL:
-                scene._ctrl_down = True
-
         if event.type == sdl2.SDL_TEXTINPUT:
             if self._active_object is not None:
                 self._active_object._on_keypress(event.text.text.decode('utf-8'))
 
         if event.type == sdl2.SDL_KEYUP:
             key = event.key.keysym.sym
-
-            # GUI Related Controls, move to another place when you have time
             if self._active_object is not None:
                 if key == sdl2.SDLK_ESCAPE or (key == sdl2.SDLK_RETURN and not self._active_object.multiline):
                     self._active_object._exit()
                     self._active_object = None
                     sdl2.SDL_ShowCursor(True)
                     sdl2.SDL_StopTextInput()
-                if key == sdl2.SDLK_BACKSPACE and self._active_object is not None:
+                if key == sdl2.SDLK_BACKSPACE:
                     self._active_object.backspace()
                 if key == sdl2.SDLK_RETURN and self._active_object is not None and self._active_object.multiline:
                     self._active_object._on_keypress("\n")
@@ -53,6 +38,26 @@ class Controller(object):
                 if self._active_object and key == sdl2.SDLK_RIGHT:
                     self._active_object.cursor_right()
                 return
+
+
+class Controller(object):
+    def __init__(self):
+        super().__init__()
+
+    def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> None:
+        if event.type == sdl2.SDL_QUIT:
+            logging.debug("Quit SDL Scene")
+            scene.terminate()
+
+        if event.type == sdl2.SDL_KEYDOWN:
+            key = event.key.keysym.sym
+            if key == sdl2.SDLK_LSHIFT:
+                scene._shift_down = True
+            if key == sdl2.SDLK_LCTRL:
+                scene._ctrl_down = True
+
+        if event.type == sdl2.SDL_KEYUP:
+            key = event.key.keysym.sym
 
             if key == sdl2.SDLK_LSHIFT:
                 scene._shift_down = False
