@@ -64,7 +64,7 @@ from payton.math.geometry import (
 )
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
-from payton.scene.controller import Controller
+from payton.scene.controller import Controller, GUIController, SceneController
 from payton.scene.geometry.base import Object
 from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
@@ -100,7 +100,11 @@ SHADOW_HIGH = 2048
 
 class Scene(Receiver):
     def __init__(
-        self, width: int = 800, height: int = 600, on_select: Optional[Callable] = None, **kwargs: Any,
+        self,
+        width: int = 800,
+        height: int = 600,
+        on_select: Optional[Callable] = None,
+        **kwargs: Any,
     ) -> None:
         self.__fps_counter = 0
         self.fps = 0
@@ -115,7 +119,12 @@ class Scene(Receiver):
         self.observers: List[Observer] = []
         self.observers.append(Observer(active=True))
 
-        self.hudcam = Observer(active=True, position=[0, 0, 1.0], up=[0, 1.0, 0], perspective=False,)
+        self.hudcam = Observer(
+            active=True,
+            position=[0, 0, 1.0],
+            up=[0, 1.0, 0],
+            perspective=False,
+        )
 
         self.active_observer = self.observers[0]
 
@@ -125,6 +134,8 @@ class Scene(Receiver):
         self.clocks: Dict[str, Clock] = {}
         self.grid = Grid()
         self.controller = Controller()
+        self.controller.add_controller(GUIController())
+        self.controller.add_controller(SceneController())
         self.background = Background()
         self.shaders: Dict[str, Shader] = {
             DEFAULT_SHADER: Shader(fragment=default_fragment_shader, vertex=default_vertex_shader),
@@ -132,7 +143,9 @@ class Scene(Receiver):
                 fragment=particle_fragment_shader, vertex=particle_vertex_shader, geometry=particle_geometry_shader
             ),
             SHADOW_SHADER: Shader(
-                fragment=depth_fragment_shader, vertex=depth_vertex_shader, geometry=depth_geometry_shader,
+                fragment=depth_fragment_shader,
+                vertex=depth_vertex_shader,
+                geometry=depth_geometry_shader,
             ),
         }
         self.shaders["depth"]._depth_shader = True
@@ -177,7 +190,10 @@ class Scene(Receiver):
         self._shadow_quality = quality
 
     def add_click_plane(
-        self, plane_point: List[float], plane_normal: List[float], callback: Callable[[List[float]], Any],
+        self,
+        plane_point: List[float],
+        plane_normal: List[float],
+        callback: Callable[[List[float]], Any],
     ):
         pn = plane_normal.copy() + [0.0]
         pp = plane_point.copy() + [1.0]
@@ -344,7 +360,12 @@ class Scene(Receiver):
     def create_observer(self) -> None:
         self.observers.append(Observer())
 
-    def create_clock(self, name: str, period: float, callback: Callable[[float, float], None],) -> None:
+    def create_clock(
+        self,
+        name: str,
+        period: float,
+        callback: Callable[[float, float], None],
+    ) -> None:
         if name in self.clocks:
             logging.error(f"A clock named {name} already exists")
             return
@@ -499,7 +520,10 @@ Payton requires at least OpenGL 3.3 support and above."""
 
         glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
         glFramebufferTexture(
-            GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, self.depth_map, 0,
+            GL_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT,
+            self.depth_map,
+            0,
         )
         glDrawBuffer(GL_NONE)
         glReadBuffer(GL_NONE)
@@ -564,7 +588,9 @@ class Background(object):
         self.bottom_color = [0.0, 0.1, 0.2, 1.0] if bottom_color is None else bottom_color
         variables = ["top_color", "bot_color"]
         self._shader = Shader(
-            fragment=background_fragment_shader, vertex=background_vertex_shader, variables=variables,
+            fragment=background_fragment_shader,
+            vertex=background_vertex_shader,
+            variables=variables,
         )
         self._vao = None
         self.visible = True

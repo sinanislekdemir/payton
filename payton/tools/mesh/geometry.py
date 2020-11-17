@@ -73,10 +73,14 @@ def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
                 texcoords_2 = [t3, tc, t2]
 
             new.add_triangle(
-                vertices=[a, vc, c], normals=[n1, n1, n1], texcoords=texcoords_1,
+                vertices=[a, vc, c],
+                normals=[n1, n1, n1],
+                texcoords=texcoords_1,
             )
             new.add_triangle(
-                vertices=[c, vc, b], normals=[n1, n1, n1], texcoords=texcoords_2,
+                vertices=[c, vc, b],
+                normals=[n1, n1, n1],
+                texcoords=texcoords_2,
             )
         original = deepcopy(new)
     return new

@@ -30,7 +30,12 @@ class App(Scene):
         self.background.top_color = BLACK
         self.background.bottom_color = BLACK
         self.add_object(
-            "info", info_box(left=10, top=10, label="Hit SPACE to start animation",),
+            "info",
+            info_box(
+                left=10,
+                top=10,
+                label="Hit SPACE to start animation",
+            ),
         )
 
     def animate(self, period, total):

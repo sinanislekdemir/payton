@@ -26,7 +26,12 @@ class RagdollApp(Scene):
         self.ragdoll.joints[R_KNEE].rotate_around_x(math.radians(-20))
         self.ragdoll.joints[L_KNEE].rotate_around_x(math.radians(-20))
         self.add_object(
-            "info", info_box(left=10, top=10, label="Hit SPACE to start animation",),
+            "info",
+            info_box(
+                left=10,
+                top=10,
+                label="Hit SPACE to start animation",
+            ),
         )
 
     def walk(self, period, total):

@@ -51,7 +51,11 @@ class Shape2D(Mesh):
         pass
 
     def render(
-        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ):
         super().render(False, shader, parent_matrix)
 
@@ -95,7 +99,10 @@ class Shape2D(Mesh):
 
 class Rectangle(Shape2D):
     def __init__(
-        self, position: Tuple[int, int, int], size: Tuple[int, int], **kwargs: Any,
+        self,
+        position: Tuple[int, int, int],
+        size: Tuple[int, int],
+        **kwargs: Any,
     ):
         super().__init__(position=position, size=size, **kwargs)
         self._init: bool = False
@@ -106,10 +113,12 @@ class Rectangle(Shape2D):
         self.clear_triangles()
         if not self._init:
             self.add_triangle(
-                [[0, 0, 1], [w, h, 1], [w, 0, 1]], texcoords=[[0, 0], [1, 1], [1, 0]],
+                [[0, 0, 1], [w, h, 1], [w, 0, 1]],
+                texcoords=[[0, 0], [1, 1], [1, 0]],
             )
             self.add_triangle(
-                [[0, 0, 1], [0, h, 1], [w, h, 1]], texcoords=[[0, 0], [0, 1], [1, 1]],
+                [[0, 0, 1], [0, h, 1], [w, h, 1]],
+                texcoords=[[0, 0], [0, 1], [1, 1]],
             )
             self._init = True
 
@@ -156,7 +165,11 @@ class Text(Rectangle):
         self._init_text = False
 
     def render(
-        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         if not self._init_text:
             self.draw_text()
@@ -210,7 +223,12 @@ class Text(Rectangle):
 
 class Hud(Object):
     def __init__(
-        self, width: int = 800, height: int = 600, font: str = "", font_size: int = 15, **kwargs: Any,
+        self,
+        width: int = 800,
+        height: int = 600,
+        font: str = "",
+        font_size: int = 15,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         self.width: int = width

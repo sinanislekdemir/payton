@@ -1,6 +1,7 @@
 __pycache__/
 .mypy_cache/
 .py[cod]
+.vscode
 *.pyc
 *.egg-info
 html/

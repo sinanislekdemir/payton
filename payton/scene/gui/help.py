@@ -5,7 +5,7 @@ from payton.scene.gui.window import Button, Window, WindowAlignment
 
 
 def help_win():
-    text = f"""Payton Shortcuts and Mouse Controls:
+    text = """Payton Shortcuts and Mouse Controls:
 
 MOUSE:
 Zoom In-Out: Mouse Wheel
@@ -20,7 +20,12 @@ G: Show/Hide Grid
 W: Display mode (wireframe/solid)
 F2: Previous Observer F3: Next Observer
     """
-    help_window = Window(align=WindowAlignment.RIGHT, title="How to use Payton Scene", height=10000, width=520,)
+    help_window = Window(
+        align=WindowAlignment.RIGHT,
+        title="How to use Payton Scene",
+        height=10000,
+        width=520,
+    )
     help_window.add_child("text", Button(width=500, height=400, left=10, top=40, label=text))
     return help_window
 
@@ -36,7 +41,8 @@ def info_box(left: int, top: int, label: str) -> Hud:
     window = Window("Info", width=width, height=height + 60, left=left, top=top)
 
     window.add_child(
-        "label", Button(label=label, width=width - 20, height=height - 40, top=40, left=10),
+        "label",
+        Button(label=label, width=width - 20, height=height - 40, top=40, left=10),
     )
     window.add_child(
         "close",

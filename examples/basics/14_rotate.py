@@ -29,7 +29,12 @@ scene.add_object("ground", ground)
 
 scene.create_clock("rotate", 0.01, rotate)
 scene.add_object(
-    "info", info_box(left=10, top=10, label="Hit SPACE to start animation",),
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        label="Hit SPACE to start animation",
+    ),
 )
 
 scene.run()

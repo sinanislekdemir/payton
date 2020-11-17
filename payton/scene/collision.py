@@ -24,7 +24,11 @@ class CollisionTest(object):
     AABB = 1
 
     def __init__(
-        self, callback: Callable, level: int = AABB, objects: Optional[List[Type[Mesh]]] = None, **kwargs: Any,
+        self,
+        callback: Callable,
+        level: int = AABB,
+        objects: Optional[List[Type[Mesh]]] = None,
+        **kwargs: Any,
     ) -> None:
         self.objects: List[Type[Mesh]] = [] if objects is None else objects
         self.callback: Callable = callback

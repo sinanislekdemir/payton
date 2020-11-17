@@ -23,7 +23,14 @@ class Plane(Mesh):
 
 
 class MatrixPlane(Mesh):
-    def __init__(self, width: float = 1.0, height: float = 1.0, x: int = 2, y: int = 2, **kwargs: Any,) -> None:
+    def __init__(
+        self,
+        width: float = 1.0,
+        height: float = 1.0,
+        x: int = 2,
+        y: int = 2,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
         self.width = width
         self.height = height

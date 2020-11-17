@@ -34,7 +34,7 @@ scene.add_object("info", info_box(left=10, top=10, label=label))
 
 scene.add_object("ground", ground)
 scene.add_object("infantry", model)
-scene.controller = CustomKeyboardControls()
+scene.controller.add_controller(CustomKeyboardControls())
 model.bake_animation("walk", 2, 14, 3)
 model.bake_animation("death", 0, 19, 3)
 print(model.animations)

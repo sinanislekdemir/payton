@@ -27,7 +27,12 @@ scene.create_clock("forward", 0.2, move_forward)
 scene.create_clock("back", 0.2, step_back_history)
 
 scene.add_object(
-    "info", info_box(left=10, top=10, label="Hit SPACE to start animation",),
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        label="Hit SPACE to start animation",
+    ),
 )
 
 scene.run()

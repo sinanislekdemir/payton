@@ -16,10 +16,16 @@ class ParticleDemo(Scene):
         self.add_object("ps", self.ps)
 
         self.add_object(
-            "info", info_box(left=10, top=10, label="Hit SPACE to start animation\n10000 Particles"),
+            "info",
+            info_box(left=10, top=10, label="Hit SPACE to start animation\n10000 Particles"),
         )
         hud = Hud()
-        text = Text(label="FPS:", position=(5, 205), size=(200, 35), color=(1, 1, 1),)
+        text = Text(
+            label="FPS:",
+            position=(5, 205),
+            size=(200, 35),
+            color=(1, 1, 1),
+        )
 
         hud.add_child("text", text)
         self.add_object("hud", hud)

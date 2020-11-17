@@ -84,8 +84,7 @@ class Mesh(Object):
         [self._calc_normal(face[0], face[1], face[2], reverse) for face in self._indices]
 
     def fix_texcoords(self, u: int = 1, v: int = 1) -> None:
-        """Try to recalculate mesh texture coordinates by cube projection
-        """
+        """Try to recalculate mesh texture coordinates by cube projection"""
         self._texcoords = []
         self._calc_bounds()
         bbox = self.bounding_box

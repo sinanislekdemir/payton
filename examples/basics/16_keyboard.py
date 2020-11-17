@@ -15,6 +15,6 @@ class CustomKeyboardControls(Controller):
 
 
 scene = Scene()
-scene.controller = CustomKeyboardControls()
+scene.controller.add_controller(CustomKeyboardControls())
 
 scene.run()

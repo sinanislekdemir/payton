@@ -24,7 +24,8 @@ for i in range(10):
     scene.add_object("cube_{}".format(i), cube)
 
 scene.add_object(
-    "info", info_box(left=10, top=10, label="Try clicking cubes"),
+    "info",
+    info_box(left=10, top=10, label="Try clicking cubes"),
 )
 
 
