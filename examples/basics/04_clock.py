@@ -67,7 +67,8 @@ scene.create_clock("motion", 0.005, projectile_motion)
 scene.create_clock("logger", 0.05, logger)
 
 scene.add_object(
-    "info", info_box(left=10, top=10, label="Hit SPACE to start animation"),
+    "info",
+    info_box(left=10, top=10, label="Hit SPACE to start animation"),
 )
 
 scene.run()

@@ -32,7 +32,13 @@ from payton.scene.shader import Shader
 
 
 class Grid(object):
-    def __init__(self, xres: int = 20, yres: int = 20, color: Optional[List[float]] = None, **kwargs: Any,) -> None:
+    def __init__(
+        self,
+        xres: int = 20,
+        yres: int = 20,
+        color: Optional[List[float]] = None,
+        **kwargs: Any,
+    ) -> None:
         if color is None:
             self._color: List[float] = [0.4, 0.4, 0.4]
         else:
@@ -64,9 +70,18 @@ class Grid(object):
         self._material: Material = Material(display=1, lights=False)
         self._material.color = self._color
         self._lines: List[Line] = [
-            Line(vertices=[[0.0, 0.0, 0.01], [xres / 2.0, 0.0, 0.01]], color=[1.0, 0.0, 0.0],),
-            Line(vertices=[[0.0, 0.0, 0.01], [0.0, yres / 2.0, 0.01]], color=[0.0, 1.0, 0.0],),
-            Line(vertices=[[0.0, 0.0, 0.01], [0.0, 0.0, yres / 2.0]], color=[0.0, 0.0, 1.0],),
+            Line(
+                vertices=[[0.0, 0.0, 0.01], [xres / 2.0, 0.0, 0.01]],
+                color=[1.0, 0.0, 0.0],
+            ),
+            Line(
+                vertices=[[0.0, 0.0, 0.01], [0.0, yres / 2.0, 0.01]],
+                color=[0.0, 1.0, 0.0],
+            ),
+            Line(
+                vertices=[[0.0, 0.0, 0.01], [0.0, 0.0, yres / 2.0]],
+                color=[0.0, 0.0, 1.0],
+            ),
         ]
 
         # Vertex Array Object pointer
@@ -79,11 +94,16 @@ class Grid(object):
         if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
             self._vao = -1
-        for l in self._lines:
-            l.destroy()
+        for line in self._lines:
+            line.destroy()
         return True
 
-    def render(self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None,) -> bool:
+    def render(
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+    ) -> bool:
         if not self.visible:
             return True
 
@@ -97,13 +117,16 @@ class Grid(object):
             glBindVertexArray(self._vao)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
             glDrawElements(
-                GL_LINES, self._vertex_count, GL_UNSIGNED_INT, ctypes.c_void_p(0),
+                GL_LINES,
+                self._vertex_count,
+                GL_UNSIGNED_INT,
+                ctypes.c_void_p(0),
             )
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
 
-        for l in self._lines:
-            l.render(False, shader, None)
+        for line in self._lines:
+            line.render(False, shader, None)
         return True
 
     def resize(self, xres: int, yres: int, spacing: float = 1.0) -> None:

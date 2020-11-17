@@ -17,12 +17,21 @@ cube.material.texture = texture_file
 
 scene.add_object("cube", cube)
 
-inside_box = Observer(position=[-1.7898840267533351, 2.210322695165203, 1.400984730396208], target=[0, 0, 1], fov=110,)
+inside_box = Observer(
+    position=[-1.7898840267533351, 2.210322695165203, 1.400984730396208],
+    target=[0, 0, 1],
+    fov=110,
+)
 
 scene.add_observer(inside_box)
 
 scene.add_object(
-    "info", info_box(left=10, top=10, label="Hit F2/F3 to switch between cameras",),
+    "info",
+    info_box(
+        left=10,
+        top=10,
+        label="Hit F2/F3 to switch between cameras",
+    ),
 )
 
 scene.run()

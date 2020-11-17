@@ -163,7 +163,16 @@ class Observer(object):
         self._use_cache = False
 
     def mouse_move(
-        self, button: int, shift: bool, ctrl: bool, x: int, y: int, xrel: int, yrel: int, w: int, h: int,
+        self,
+        button: int,
+        shift: bool,
+        ctrl: bool,
+        x: int,
+        y: int,
+        xrel: int,
+        yrel: int,
+        w: int,
+        h: int,
     ) -> None:
         if button == BUTTON_RIGHT:
             self.rotate_around_target(-xrel, -yrel)
@@ -196,7 +205,11 @@ class Observer(object):
 
         if self.perspective:
             proj_matrix = pyrr.matrix44.create_perspective_projection(
-                self.fov, self.aspect_ratio, self.near, self.far, dtype=np.float32,
+                self.fov,
+                self.aspect_ratio,
+                self.near,
+                self.far,
+                dtype=np.float32,
             )
         else:
             x = 70 * (self.aspect_ratio)
@@ -233,7 +246,10 @@ class Observer(object):
         x_f = (2.0 * x) / width - 1.0
         y_f = 1.0 - (2.0 * y) / height
 
-        eye = np.array([self.position[0], self.position[1], self.position[2], 1.0], dtype=np.float32,)
+        eye = np.array(
+            [self.position[0], self.position[1], self.position[2], 1.0],
+            dtype=np.float32,
+        )
 
         ray_start = np.array([x_f, y_f, 1.0, 1.0], dtype=np.float32)
         proj = self._projection
@@ -247,7 +263,10 @@ class Observer(object):
         if not self.perspective:
             ray_start = np.array([x_f, y_f, 1.0, 1.0], dtype=np.float32)
             eye_coords_ray = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
-            eye_coords = np.array([eye_coords_ray[0], eye_coords_ray[1], 0.0, 0.0], dtype=np.float32,)
+            eye_coords = np.array(
+                [eye_coords_ray[0], eye_coords_ray[1], 0.0, 0.0],
+                dtype=np.float32,
+            )
             eye = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)
             ray = ray_end - eye
             ray_dir = pyrr.vector.normalize(ray[0:4])

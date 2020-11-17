@@ -15,7 +15,9 @@ mesh.add_triangle([[0, 0, 0], [2, 0, 0], [2, 2, 0]], texcoords=[[0, 0], [1, 0], 
 
 # Explicit material definition
 mesh.add_triangle(
-    [[0, 0, 0], [2, 2, 0], [0, 2, 0]], texcoords=[[0, 0], [1, 1], [0, 1]], material="yellow",
+    [[0, 0, 0], [2, 2, 0], [0, 2, 0]],
+    texcoords=[[0, 0], [1, 1], [0, 1]],
+    material="yellow",
 )
 
 texture_file = os.path.join(os.path.dirname(__file__), "cube.png")

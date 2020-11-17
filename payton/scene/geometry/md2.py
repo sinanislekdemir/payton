@@ -180,7 +180,13 @@ class MD2(Mesh):
     def add_frame_child(self, name: str, mesh: Mesh) -> None:
         self._frame_children[name] = mesh
 
-    def bake_animation(self, animation_name: str, from_frame: int, to_frame: int, steps: int = 1,) -> None:
+    def bake_animation(
+        self,
+        animation_name: str,
+        from_frame: int,
+        to_frame: int,
+        steps: int = 1,
+    ) -> None:
         """Original MD2 Format does not include all frames in an animation.
 
         Instead, there are "key frames". There are gaps between the key-frames
@@ -194,10 +200,10 @@ class MD2(Mesh):
             return
         anim = self.animations[animation_name]
         if from_frame < anim[0] or from_frame > anim[1]:
-            logging.error(f"from_frame out of bounds")
+            logging.error("from_frame out of bounds")
             return
         if to_frame < anim[0] or to_frame > anim[1]:
-            logging.error(f"to_frame out of bounds")
+            logging.error("to_frame out of bounds")
             return
 
         frames = []
@@ -221,7 +227,11 @@ class MD2(Mesh):
         self.animations[animation_name] = [0, len(frames) - 1]
 
     def animate(
-        self, animation_name: str, from_frame: int, to_frame: int, loop: bool = True,
+        self,
+        animation_name: str,
+        from_frame: int,
+        to_frame: int,
+        loop: bool = True,
     ):
         """Set the model in motion
 
@@ -237,10 +247,10 @@ class MD2(Mesh):
             return
         anim = self.animations[animation_name]
         if from_frame < anim[0] or from_frame > anim[1]:
-            logging.error(f"from_frame out of bounds")
+            logging.error("from_frame out of bounds")
             return
         if to_frame < anim[0] or to_frame > anim[1]:
-            logging.error(f"to_frame out of bounds")
+            logging.error("to_frame out of bounds")
             return
         self._loop = loop
         self._active_frame = from_frame
@@ -253,7 +263,11 @@ class MD2(Mesh):
             child_obj.animate(animation_name, from_frame, to_frame, loop)
 
     def render(
-        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         if not self._visible:
             return
@@ -346,7 +360,8 @@ class MD2(Mesh):
             t1 = cast(np.ndarray, self._texcoords[self.triangle_layout.tc_indices[i][2]]).tolist()
 
             mesh.add_triangle(
-                vertices=[v1, v2, v3], texcoords=[t1, t2, t3],
+                vertices=[v1, v2, v3],
+                texcoords=[t1, t2, t3],
             )
 
         mesh.fix_normals(False)

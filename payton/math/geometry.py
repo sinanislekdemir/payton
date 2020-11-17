@@ -152,7 +152,11 @@ def raycast_triangle_intersect(
 
 
 def line_triangle_intersect(
-    start: np.ndarray, end: np.ndarray, p1: np.ndarray, p2: np.ndarray, p3: np.ndarray,
+    start: np.ndarray,
+    end: np.ndarray,
+    p1: np.ndarray,
+    p2: np.ndarray,
+    p3: np.ndarray,
 ) -> bool:
     direction = end - start
     norm = np.linalg.norm(direction)

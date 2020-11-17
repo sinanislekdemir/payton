@@ -73,22 +73,58 @@ def cubemap_projection_matrices(from_point: List[float], far_plane: float) -> Li
     lightpos = np.array(from_point, dtype=np.float32)
 
     nx = pyrr.matrix44.create_look_at(
-        lightpos, np.array(lightpos + a2np([-1.0, 0, 0]), dtype=np.float32,), a2np([0, -1.0, 0]), dtype=np.float32,
+        lightpos,
+        np.array(
+            lightpos + a2np([-1.0, 0, 0]),
+            dtype=np.float32,
+        ),
+        a2np([0, -1.0, 0]),
+        dtype=np.float32,
     )
     px = pyrr.matrix44.create_look_at(
-        lightpos, np.array(lightpos + a2np([1, 0, 0]), dtype=np.float32,), a2np([0, -1.0, 0]), dtype=np.float32,
+        lightpos,
+        np.array(
+            lightpos + a2np([1, 0, 0]),
+            dtype=np.float32,
+        ),
+        a2np([0, -1.0, 0]),
+        dtype=np.float32,
     )
     ny = pyrr.matrix44.create_look_at(
-        lightpos, np.array(lightpos + a2np([0, -1, 0]), dtype=np.float32,), a2np([0, 0, -1.0]), dtype=np.float32,
+        lightpos,
+        np.array(
+            lightpos + a2np([0, -1, 0]),
+            dtype=np.float32,
+        ),
+        a2np([0, 0, -1.0]),
+        dtype=np.float32,
     )
     py = pyrr.matrix44.create_look_at(
-        lightpos, np.array(lightpos + a2np([0, 1, 0]), dtype=np.float32,), a2np([0, 0, 1.0]), dtype=np.float32,
+        lightpos,
+        np.array(
+            lightpos + a2np([0, 1, 0]),
+            dtype=np.float32,
+        ),
+        a2np([0, 0, 1.0]),
+        dtype=np.float32,
     )
     pz = pyrr.matrix44.create_look_at(
-        lightpos, np.array(lightpos + a2np([0, 0, 1]), dtype=np.float32,), a2np([0, -1.0, 0]), dtype=np.float32,
+        lightpos,
+        np.array(
+            lightpos + a2np([0, 0, 1]),
+            dtype=np.float32,
+        ),
+        a2np([0, -1.0, 0]),
+        dtype=np.float32,
     )
     nz = pyrr.matrix44.create_look_at(
-        lightpos, np.array(lightpos + a2np([0, 0, -1]), dtype=np.float32,), a2np([0, -1.0, 0]), dtype=np.float32,
+        lightpos,
+        np.array(
+            lightpos + a2np([0, 0, -1]),
+            dtype=np.float32,
+        ),
+        a2np([0, -1.0, 0]),
+        dtype=np.float32,
     )
 
     return [

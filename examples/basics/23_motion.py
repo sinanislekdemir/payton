@@ -42,7 +42,7 @@ class CustomKeyboardControls(Controller):
 
 cube = Cube()
 cube.track_motion = True
-scene.controller = CustomKeyboardControls()
+scene.controller.add_controller(CustomKeyboardControls())
 scene.add_object("cube", cube)
 scene.create_clock("motion", 0.01, motion)
 

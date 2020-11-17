@@ -44,7 +44,13 @@ from payton.scene.types import IList, VList
 
 
 class Object(object):
-    def __init__(self, name="", visible=True, track_motion=False, **kwargs: Dict[str, Any],) -> None:
+    def __init__(
+        self,
+        name="",
+        visible=True,
+        track_motion=False,
+        **kwargs: Dict[str, Any],
+    ) -> None:
         self.children: Dict[str, Object] = {}
 
         # store diffeerent materials
@@ -191,7 +197,10 @@ class Object(object):
 
     def select(self, start: np.ndarray, vector: np.ndarray) -> bool:
         self._selected = raycast_sphere_intersect(
-            start, vector, np.array(self.matrix[3], dtype=np.float32), self.bounding_radius,
+            start,
+            vector,
+            np.array(self.matrix[3], dtype=np.float32),
+            self.bounding_radius,
         )
 
         for obj in self.children:
@@ -293,7 +302,11 @@ class Object(object):
         return result
 
     def render(
-        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         if not self._visible:
             return
@@ -309,7 +322,9 @@ class Object(object):
             # render children
             for child in self.children:
                 self.children[child].render(
-                    lit, shader, self._model_matrix,
+                    lit,
+                    shader,
+                    self._model_matrix,
                 )
 
             return
@@ -330,7 +345,9 @@ class Object(object):
                 continue
 
             material.render(
-                lit, shader, mode,
+                lit,
+                shader,
+                mode,
             )
 
             # Actual rendering
@@ -349,7 +366,10 @@ class Object(object):
                 glPolygonMode(GL_FRONT_AND_BACK, pmode)
 
                 glDrawElements(
-                    primitive, material._vertex_count, GL_UNSIGNED_INT, indice_0,
+                    primitive,
+                    material._vertex_count,
+                    GL_UNSIGNED_INT,
+                    indice_0,
                 )
 
                 if pmode != GL_FILL:
@@ -591,7 +611,12 @@ class Object(object):
 
 
 class Line(Object):
-    def __init__(self, vertices: Optional[VList] = None, color: Optional[List[float]] = None, **kwargs: Any,) -> None:
+    def __init__(
+        self,
+        vertices: Optional[VList] = None,
+        color: Optional[List[float]] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         self.material.color = [1.0, 1.0, 1.0] if color is None else color
@@ -608,7 +633,11 @@ class Line(Object):
         logging.error("Can't add materials to Line object")
 
     def render(
-        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         super().render(lit, shader, parent_matrix, GL_LINE_STRIP)
 

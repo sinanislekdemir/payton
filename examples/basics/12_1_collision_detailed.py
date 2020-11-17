@@ -84,7 +84,8 @@ scene.add_collision_test("aabb_collision", aabb_collision)
 scene.create_clock("motion", 0.01, motion)
 
 scene.add_object(
-    "info", info_box(left=10, top=10, label="Hit SPACE to start animation"),
+    "info",
+    info_box(left=10, top=10, label="Hit SPACE to start animation"),
 )
 
 scene.run()

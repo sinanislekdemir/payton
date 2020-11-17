@@ -42,7 +42,13 @@ theme = Theme()
 theme.text_color = [1.0, 0.0, 0.0]
 
 
-main_window = Window("GUI Example", width=220, height=600, align=WindowAlignment.LEFT, theme=theme,)
+main_window = Window(
+    "GUI Example",
+    width=220,
+    height=600,
+    align=WindowAlignment.LEFT,
+    theme=theme,
+)
 create_cube = Button("Create New Cube", width=200, height=30, left=10, top=40, on_click=new_cube)
 cube_size = EditBox("1, 1, 1", width=200, height=30, left=10, top=80, on_change=set_size)
 fps_text = Button("Hit Space for FPS", width=200, height=30, left=10, top=120)

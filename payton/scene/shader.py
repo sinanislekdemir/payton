@@ -391,7 +391,10 @@ class Shader(object):
             return False
 
         glUniformMatrix4fv(
-            location, 1, g_transpose, value,
+            location,
+            1,
+            g_transpose,
+            value,
         )
         return True
 

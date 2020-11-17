@@ -7,7 +7,10 @@ from payton.math.matrix import cubemap_projection_matrices
 
 class Light(object):
     def __init__(
-        self, position: Optional[List[float]] = None, color: Optional[List[float]] = None, **kwargs: Any,
+        self,
+        position: Optional[List[float]] = None,
+        color: Optional[List[float]] = None,
+        **kwargs: Any,
     ):
         self._position: List[float] = [10.0, 7.0, 6.0] if position is None else position
         self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color

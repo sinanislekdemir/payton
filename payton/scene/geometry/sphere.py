@@ -8,7 +8,13 @@ from payton.scene.material import DEFAULT
 
 
 class Sphere(Mesh):
-    def __init__(self, radius: float = 0.5, parallels: int = 12, meridians: int = 12, **kwargs: Any,) -> None:
+    def __init__(
+        self,
+        radius: float = 0.5,
+        parallels: int = 12,
+        meridians: int = 12,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
         self.radius: float = radius
         self.parallels: int = parallels

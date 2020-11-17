@@ -42,7 +42,11 @@ class Joint(Sphere):
 
 class Bone(Line):
     def __init__(
-        self, root_joint_name: str, end_joint_name: str, length: float, **kwargs,
+        self,
+        root_joint_name: str,
+        end_joint_name: str,
+        length: float,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         root_joint = Joint(name=root_joint_name)
@@ -73,55 +77,72 @@ class RagDoll(Bone):
 
     def setup_geometry(self):
         self.joints[HEAD].add_child(
-            "mesh", Cube(from_corner=[-0.2, -0.2, 0], to_corner=[0.2, 0.2, 0.4]),
+            "mesh",
+            Cube(from_corner=[-0.2, -0.2, 0], to_corner=[0.2, 0.2, 0.4]),
         )
         self.joints[NECK].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.2]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.2]),
         )
         self.joints[R_COLLAR].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.5]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.5]),
         )
         self.joints[L_COLLAR].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.5]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.5]),
         )
         self.joints[R_SHOULDER].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.5]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.5]),
         )
         self.joints[L_SHOULDER].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.5]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 0.5]),
         )
         self.joints[R_ELBOW].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.08, 0.08, 0.5]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.08, 0.08, 0.5]),
         )
         self.joints[L_ELBOW].add_child(
-            "mesh", Cube(from_corner=[-0.08, -0.08, 0], to_corner=[0.08, 0.08, 0.5]),
+            "mesh",
+            Cube(from_corner=[-0.08, -0.08, 0], to_corner=[0.08, 0.08, 0.5]),
         )
         self.joints[R_WRIST].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.01, 0], to_corner=[0.1, 0.01, 0.2]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.01, 0], to_corner=[0.1, 0.01, 0.2]),
         )
         self.joints[L_WRIST].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.01, 0], to_corner=[0.1, 0.01, 0.2]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.01, 0], to_corner=[0.1, 0.01, 0.2]),
         )
         self.root.add_child(
-            "mesh", Cube(from_corner=[-0.3, -0.2, 0], to_corner=[0.3, 0.2, 1.0]),
+            "mesh",
+            Cube(from_corner=[-0.3, -0.2, 0], to_corner=[0.3, 0.2, 1.0]),
         )
         self.joints[R_HIP].add_child(
-            "mesh", Cube(from_corner=[-0.15, -0.15, 0], to_corner=[0.15, 0.15, 1.0]),
+            "mesh",
+            Cube(from_corner=[-0.15, -0.15, 0], to_corner=[0.15, 0.15, 1.0]),
         )
         self.joints[L_HIP].add_child(
-            "mesh", Cube(from_corner=[-0.15, -0.15, 0], to_corner=[0.15, 0.15, 1.0]),
+            "mesh",
+            Cube(from_corner=[-0.15, -0.15, 0], to_corner=[0.15, 0.15, 1.0]),
         )
         self.joints[R_KNEE].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 1.0]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 1.0]),
         )
         self.joints[L_KNEE].add_child(
-            "mesh", Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 1.0]),
+            "mesh",
+            Cube(from_corner=[-0.1, -0.1, 0], to_corner=[0.1, 0.1, 1.0]),
         )
         self.joints[R_FOOT].add_child(
-            "mesh", Cube(from_corner=[-0.05, -0.05, 0], to_corner=[0.05, 0.05, 0.3]),
+            "mesh",
+            Cube(from_corner=[-0.05, -0.05, 0], to_corner=[0.05, 0.05, 0.3]),
         )
         self.joints[L_FOOT].add_child(
-            "mesh", Cube(from_corner=[-0.08, -0.08, 0], to_corner=[0.08, 0.08, 0.3]),
+            "mesh",
+            Cube(from_corner=[-0.08, -0.08, 0], to_corner=[0.08, 0.08, 0.3]),
         )
 
     def setup_joints(self):
@@ -129,10 +150,18 @@ class RagDoll(Bone):
         self.connect_to_end(neck.root)
         head = Bone(root_joint_name="head", end_joint_name="head_top", length=0.4)
         neck.connect_to_end(head.root)
-        left_collar = Bone(root_joint_name="l_collar_joint", end_joint_name="l_shoulder", length=0.5,)
+        left_collar = Bone(
+            root_joint_name="l_collar_joint",
+            end_joint_name="l_shoulder",
+            length=0.5,
+        )
         self.connect_to_end(left_collar.root)
 
-        right_collar = Bone(root_joint_name="r_collar_joint", end_joint_name="r_shoulder", length=0.5,)
+        right_collar = Bone(
+            root_joint_name="r_collar_joint",
+            end_joint_name="r_shoulder",
+            length=0.5,
+        )
         self.connect_to_end(right_collar.root)
 
         right_collar.root.rotate_around_y(math.radians(100))

@@ -14,7 +14,8 @@ def extrude_line(line: Line, direction: List[float], distance: float) -> Mesh:
     mesh = Mesh()
     for i in range(len(vertices) - 1):
         mesh.add_triangle(
-            vertices=[vertices[i], vertices[i + 1], mirror_vertices[i]], texcoords=[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]],
+            vertices=[vertices[i], vertices[i + 1], mirror_vertices[i]],
+            texcoords=[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]],
         )
         mesh.add_triangle(
             vertices=[vertices[i + 1], mirror_vertices[i + 1], mirror_vertices[i]],
@@ -52,7 +53,7 @@ def rotate_line(line: Line, axis: List[float], angle: float, steps: int = 10) ->
 
 
 def lines_to_mesh(lines: List[Line]) -> Mesh:
-    lens = [len(l._vertices) for l in lines]
+    lens = [len(line._vertices) for line in lines]
     lmin = min(lens)
     lmax = max(lens)
     mesh = Mesh()

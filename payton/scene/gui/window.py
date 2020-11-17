@@ -71,7 +71,11 @@ class WindowElement(Shape2D):
         self._reposition()
 
     def render(
-        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None,
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
     ) -> None:
         if not self._init:
             self.draw()
@@ -117,7 +121,13 @@ class Window(WindowElement):
                can not inherit from parent class.
         """
         super().__init__(
-            width=width, height=height, left=left, top=top, align=align, theme=theme, **kwargs,
+            width=width,
+            height=height,
+            left=left,
+            top=top,
+            align=align,
+            theme=theme,
+            **kwargs,
         )
         self.title = title
         self.add_child(
@@ -221,13 +231,24 @@ class Button(Panel):
     ):
         kwargs["on_click"] = on_click
         super().__init__(
-            width=width, height=height, left=left, top=top, align=align, theme=theme, **kwargs,
+            width=width,
+            height=height,
+            left=left,
+            top=top,
+            align=align,
+            theme=theme,
+            **kwargs,
         )
         if height < 30:
             height = 30
 
         self._label = label
-        self.text = Text(position=(0, 0, 1), size=(10, 10), label=label, color=self.theme.text_color,)
+        self.text = Text(
+            position=(0, 0, 1),
+            size=(10, 10),
+            label=label,
+            color=self.theme.text_color,
+        )
         self.add_child("label", self.text)
 
     def draw(self, **kwargs):
@@ -284,14 +305,25 @@ class EditBox(Panel):
             height = 30
 
         super().__init__(
-            width=width, height=height, left=left, top=top, align=align, theme=theme, **kwargs,
+            width=width,
+            height=height,
+            left=left,
+            top=top,
+            align=align,
+            theme=theme,
+            **kwargs,
         )
 
         self.multiline = multiline
         self.theme.secondary()
         self.on_change = on_change
         self._value = value
-        self.text = Text(position=(0, 0, 1), size=(width, height), label=self._value, color=self.theme.text_color,)
+        self.text = Text(
+            position=(0, 0, 1),
+            size=(width, height),
+            label=self._value,
+            color=self.theme.text_color,
+        )
         self.add_child("label", self.text)
         self._cursor = -1
 

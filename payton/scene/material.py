@@ -171,7 +171,15 @@ class Material(object):
             img_data = np.fromstring(img.tobytes(), np.uint8)
             mode = GL_RGB
         glTexImage2D(
-            GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, img_data,
+            GL_TEXTURE_2D,
+            0,
+            mode,
+            width,
+            height,
+            0,
+            mode,
+            GL_UNSIGNED_BYTE,
+            img_data,
         )
         glGenerateMipmap(GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, 0)
@@ -179,7 +187,12 @@ class Material(object):
     def refresh(self) -> None:
         self._initialized = False
 
-    def render(self, lit: bool, shader: Shader, mode: Optional[int] = None,) -> None:
+    def render(
+        self,
+        lit: bool,
+        shader: Shader,
+        mode: Optional[int] = None,
+    ) -> None:
         if not self._initialized:
             self.build()
 
