@@ -18,7 +18,7 @@ check:
 	@echo "If mypy fails miserably, check your MYPYPATH to include SDL and stuff"
 	@mypy payton
 	@flake8 payton
-	@pylama payton
+	@pylama payton --options ./setup.cfg
 
 help:
 	@echo "Make Payton"

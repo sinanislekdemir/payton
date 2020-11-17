@@ -262,32 +262,8 @@ class MD2(Mesh):
             child_obj = cast(MD2, self.children[child])
             child_obj.animate(animation_name, from_frame, to_frame, loop)
 
-    def render(
-        self,
-        lit: bool,
-        shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
-    ) -> None:
-        if not self._visible:
-            return
-
-        self.update_matrix(parent_matrix=parent_matrix)
-        self.track()
-
-        # Render motion path
-        if self.track_motion:
-            self._motion_path_line.render(lit, shader, parent_matrix)
-
-        if self.animation == "":
-            for child in self._frame_children:
-                self._frame_children[child].render(lit, shader, self._model_matrix)
-                break
-                # render children
-            for child in self.children:
-                self.children[child].render(lit, shader, self._model_matrix)
-            return
-
+    @property
+    def frame(self) -> str:
         if self._time == 0:
             self._time = time.time()
 
@@ -306,8 +282,32 @@ class MD2(Mesh):
             self._time = time.time()
 
         frame_name = f"{self.animation}{self._active_frame}"
+        return frame_name
 
-        self._frame_children[frame_name].render(lit, shader, self._model_matrix)
+    def render(
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: int = None,
+    ) -> None:
+        if not self._visible:
+            return
+
+        self.update_matrix(parent_matrix=parent_matrix)
+        self.track()
+
+        # Render motion path
+        if self.track_motion:
+            self._motion_path_line.render(lit, shader, parent_matrix)
+
+        if self.animation == "":
+            next(iter(self._frame_children.values())).render(lit, shader, self._model_matrix)
+            for child in self.children:
+                self.children[child].render(lit, shader, self._model_matrix)
+            return
+
+        self._frame_children[self.frame].render(lit, shader, self._model_matrix)
         for child in self.children:
             self.children[child].render(lit, shader, self._model_matrix)
 

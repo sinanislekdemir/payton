@@ -187,6 +187,24 @@ class Material(object):
     def refresh(self) -> None:
         self._initialized = False
 
+    def material_mode(self, lit: bool) -> int:
+        mode = Shader.LIGHT_COLOR
+
+        if self.display == SOLID:
+            if lit and self.lights:
+                if self._texture is not None:
+                    mode = Shader.LIGHT_TEXTURE
+                else:
+                    mode = Shader.LIGHT_COLOR
+            else:
+                if self._texture is not None:
+                    mode = Shader.NO_LIGHT_TEXTURE
+                else:
+                    mode = Shader.NO_LIGHT_COLOR
+        else:
+            mode = Shader.NO_LIGHT_COLOR
+        return mode
+
     def render(
         self,
         lit: bool,
@@ -196,24 +214,7 @@ class Material(object):
         if not self._initialized:
             self.build()
 
-        _mode = Shader.LIGHT_COLOR
-
-        if self.display == SOLID:
-            if lit and self.lights:
-                if self._texture is not None:
-                    _mode = Shader.LIGHT_TEXTURE
-                else:
-                    _mode = Shader.LIGHT_COLOR
-            else:
-                if self._texture is not None:
-                    _mode = Shader.NO_LIGHT_TEXTURE
-                else:
-                    _mode = Shader.NO_LIGHT_COLOR
-        else:
-            _mode = Shader.NO_LIGHT_COLOR
-
-        if mode is not None:
-            _mode = mode
+        _mode = mode if mode else self.material_mode(lit)
 
         glEnable(GL_BLEND)
         glDisable(GL_CULL_FACE)

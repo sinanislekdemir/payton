@@ -55,13 +55,10 @@ def raycast_sphere_intersect(start: GArray, vector: GArray, sphere_center: GArra
     return dist < (sphere_radius ** 2)
 
 
-def raycast_box_intersect(start: GArray, vector: GArray, box_a: GArray, box_b: GArray) -> Optional[List[float]]:
-    result = True
-    plane = [0.0, 0.0, 0.0]
-    max_dist = [0.0, 0.0, 0.0]
-    res_afv = [0.0, 0.0, 0.0]
+def _find_box_mid_for_intersection(start: GArray, box_a: GArray, box_b: GArray) -> Tuple[List[bool], List[float], bool]:
     is_middle = [False, False, False]
-
+    plane = [0.0, 0.0, 0.0]
+    result = True
     for i in range(3):
         if start[i] < box_a[i]:
             plane[i] = box_a[i]
@@ -73,8 +70,14 @@ def raycast_box_intersect(start: GArray, vector: GArray, box_a: GArray, box_b: G
             result = False
         else:
             is_middle[i] = True
-    if result:
-        return start
+    return is_middle, plane, result
+
+
+def raycast_box_intersect(start: GArray, vector: GArray, box_a: GArray, box_b: GArray) -> Optional[List[float]]:
+    max_dist = [0.0, 0.0, 0.0]
+    res_afv = [0.0, 0.0, 0.0]
+
+    is_middle, plane, result = _find_box_mid_for_intersection(start, box_a, box_b)
 
     plane_id = 0
     for i in range(3):
