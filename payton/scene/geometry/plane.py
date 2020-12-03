@@ -7,6 +7,12 @@ from payton.scene.material import SOLID, WHITE
 
 class Plane(Mesh):
     def __init__(self, width: float = 1.0, height: float = 1.0, **kwargs: Any) -> None:
+        """Initialize a plane surface
+
+        Keyword arguments:
+        width -- Width of the plane
+        height -- Height of the plane
+        """
         super().__init__(**kwargs)
         width *= 0.5
         height *= 0.5
@@ -31,6 +37,17 @@ class MatrixPlane(Mesh):
         y: int = 2,
         **kwargs: Any,
     ) -> None:
+        """Define a Matrix Plane
+
+        Matrix plane is an MxN grid matrix where you can change the height / color
+        of each individual vertex in the matrix by ease
+
+        Keyword arguments:
+        width -- Width of the plane
+        height -- Height of the plane
+        x -- Number of points in X direction
+        y -- Number of points in Y direction
+        """
         super().__init__(**kwargs)
         self.width = width
         self.height = height
@@ -46,6 +63,7 @@ class MatrixPlane(Mesh):
         self.populate_grid()
 
     def update_grid(self) -> None:
+        """Update the grid for changes"""
         # TODO This method needs some optimization
         for i, j in product(range(self.x), range(self.y)):
             self._vertices[(self.x * i) + j][2] = self.grid[i][j]

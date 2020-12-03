@@ -14,6 +14,11 @@ from payton.scene.types import IList, VList
 
 class Wavefront(Mesh):
     def __init__(self, filename: str = "", **kwargs: Any) -> None:
+        """Initialize the Wavefront mesh
+
+        Keyword arguments:
+        filename -- Filename to the wavefront object file
+        """
         super().__init__()
         self.filename: str = filename
         self.path: str = ""
@@ -21,6 +26,10 @@ class Wavefront(Mesh):
             self.load_file(self.filename)
 
     def load_file(self, filename: str) -> bool:
+        """Load file into mesh
+
+        Keyword arguments:
+        filename -- filename to load"""
         if not os.path.isfile(filename):
             logging.exception(f"File not found {filename}")
             return False
@@ -34,6 +43,14 @@ class Wavefront(Mesh):
         return True
 
     def load_material(self, material_string: str):
+        """Load material from given material definition string
+
+        Please note that, material capabilities of Payton are limited
+        and not all material properties are supported.
+
+        Keyword arguments:
+        material_string -- Wavefront Material Syntax
+        """
         lines = material_string.splitlines()
         material = Material()
         material_name = DEFAULT
@@ -64,6 +81,11 @@ class Wavefront(Mesh):
         self.add_material(material_name, material)
 
     def load_material_file(self, filename: str) -> bool:
+        """Load wavefront material file (.mtl)
+
+        Keyword arguments:
+        filename -- Filename to load
+        """
         if not os.path.isfile(filename):
             logging.exception(f"File not found {filename}")
             return False
@@ -71,6 +93,11 @@ class Wavefront(Mesh):
         return self.load_material(data)
 
     def load(self, obj_string: str) -> None:
+        """Load wavefront object data
+
+        Keyword arguments:
+        obj_string -- Wavefront object definitions
+        """
         _vertices: VList = []
         _indices: List[IList] = []
         _indice_materials: List[str] = []
@@ -150,6 +177,12 @@ class Wavefront(Mesh):
 
 
 def export(mesh: Mesh, filename: str, name: str = "object"):
+    """Export given Mesh object as a Wavefront file with materials
+
+    Keyword arguments:
+    filename -- Filename / path to load
+    name -- Object name defined in exported file
+    """
     if not isinstance(mesh, Mesh):
         logging.exception("Object is not an instance of Mesh")
         return None

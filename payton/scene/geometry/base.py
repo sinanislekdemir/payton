@@ -1,9 +1,9 @@
 # pylama:ignore=C901
 import ctypes
 import logging
-import pickle
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Union
+from functools import lru_cache
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np  # type: ignore
 from OpenGL.GL import (
@@ -35,15 +35,26 @@ from OpenGL.GL import (
     glVertexAttribPointer,
 )
 
+from payton.math.functions import (
+    add_vectors,
+    create_rotation_matrix,
+    cross_product,
+    normalize_vector,
+    scale_matrix,
+    scale_vector,
+    sub_vector,
+    to_4,
+    vector_transform,
+)
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import create_rotation_matrix, scale_matrix
-from payton.math.vector import add_vectors, cross_product, normalize_vector, scale_vector, sub_vector, vector_transform
+from payton.math.matrix import Matrix, IDENTITY_MATRIX
+from payton.math.vector import Vector2D, Vector3D
 from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.scene.types import IList, VList
 
 
-class Object(object):
+class Object:
     def __init__(
         self,
         name="",
@@ -51,6 +62,17 @@ class Object(object):
         track_motion=False,
         **kwargs: Dict[str, Any],
     ) -> None:
+        """Initialize the object
+
+        This is the base Object of Payton and almost all scene objects as well
+        as HUD objects.
+
+        Keyword arguments:
+        name -- Name of the object
+        visible -- Set if the object is visible or not.
+        track_motion -- Set only if you really need to track the object's motion path.
+                        This comes with an over-head.
+        """
         self.children: Dict[str, Object] = {}
 
         # store diffeerent materials
@@ -62,24 +84,19 @@ class Object(object):
 
         self.name = name
         self._visible = visible
-        self.matrix: VList = [
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-            [0.0, 0.0, 0.0, 1.0],
-        ]
+        self.matrix = deepcopy(IDENTITY_MATRIX)
         # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
         #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
 
-        self._vertices: VList = []  # Object vertex list
+        self._vertices: List[Vector3D] = []  # Object vertex list
 
         # @NOTE: we have separate indices for materials but this base
         #        index list holds all indice definitions for fast access
         self._indices: IList = []  # Indices
-        self._normals: List[List[float]] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
-        self._texcoords: List[List[float]] = []  # Texture coordinates, 1 coordinate per Vertex
-        self._vertex_colors: List[List[float]] = []  # per-vertex colors, optional.
+        self._normals: List[Vector3D] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
+        self._texcoords: List[Vector2D] = []  # Texture coordinates, 1 coordinate per Vertex
+        self._vertex_colors: List[Vector3D] = []  # per-vertex colors, optional.
         self._has_vertex_colors: bool = False  # flag for using vertex colors
 
         # Vertices do not mean anything unless we define how to use them.
@@ -98,13 +115,12 @@ class Object(object):
         self._buffer_size_changed: bool = True
         self._t_buffer_size_changed: bool = True
 
-        self._absolute_cache: Dict[bytes, List[float]] = {}
         self.shader = DEFAULT_SHADER
 
         # Track object motion
         self.track_motion = track_motion
         # Motion path, stores every matrix change.
-        self._motion_path: List[VList] = []
+        self._motion_path: List[Matrix] = []
 
         if not isinstance(self, Line):
             # _motion_path_line is used to display the motion path in scene
@@ -121,81 +137,172 @@ class Object(object):
         self._needs_update: bool = False  # Object geometry has changed.
         self._hit: bool = False
 
-        self._absolute_vertices: Optional[List[List[float]]] = None
+        self._absolute_vertices: Optional[List[Vector3D]] = None
 
     def refresh(self) -> None:
+        """Refresh the object
+
+        Object has another memory area in the graphics card. So, for every
+        geometrical change in the objects, you need to refresh the object
+        so that it gets updated in the graphics card memory.
+        """
         self._needs_update = True
 
     @property
     def material(self) -> Material:
+        """Return the DEFAULT material of the object."""
         return self.materials[DEFAULT]
 
     @material.setter
     def material(self, mat: Material) -> None:
+        """Set the DEFAULT material of the object.
+
+        Note: This is a regular python pass-by-reference and doesn't deepcopy
+        the actual material properties.
+
+        Keyword arguments:
+        mat -- Material to set
+        """
         self.materials[DEFAULT] = mat
 
     def add_material(self, name: str, material: Material) -> None:
+        """Add a material to the object.
+
+        An object can have multiple materials for multiple polygons
+
+        Keyword arguments:
+        name -- Name of the new material
+        material -- Material to set
+        """
         if name in self.materials:
             raise Exception(f"Name {name} already exists")
         self.materials[name] = deepcopy(material)
 
     @property
-    def direction(self) -> List[float]:
+    def direction(self) -> Vector3D:
+        """Get the direction of the Object.
+
+        Ideally, this is the direction that you are facing as a human.
+        """
         return self.matrix[1][:3]
 
     @direction.setter
-    def direction(self, v: List[float]):
-        if len(v) < 3:
-            raise Exception("Direction needs 3 components (x,y,z)")
-        self.matrix[1][0] = v[0]
-        self.matrix[1][1] = v[1]
-        self.matrix[1][2] = v[2]
+    def direction(self, v: Vector3D):
+        """Set the direction towards a given vector.
+
+        Note: This is a unit vector and be sure to provide a unit vector!
+        Otherwise, please use `direct_to` method to point the object to an exact
+        position in space.
+
+        Keyword arguments:
+        v -- Unit vector to set
+        """
+        self.matrix = [self.matrix[0], to_4(v, 0), self.matrix[2], self.matrix[3]]
+
         left = cross_product(self.matrix[1], self.matrix[2])
-        left += [0]
-        self.matrix[0] = normalize_vector(left)
+
+        self.matrix = [to_4(normalize_vector(left), 0), self.matrix[1], self.matrix[2], self.matrix[3]]
+
         up = cross_product(self.matrix[0], self.matrix[1])
-        up += [0]
-        self.matrix[2] = normalize_vector(up)
+
+        self.matrix = [self.matrix[0], self.matrix[1], to_4(normalize_vector(up)), self.matrix[3]]
+        self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
-    def direct_to(self, v: List[float]):
+    def direct_to(self, v: Vector3D):
+        """Direct object to given coordinates in space.
+
+        Keyword arguments:
+        v -- A point in space. Not a unit vector
+        """
         diff = sub_vector(v, self.position)
         diff = normalize_vector(diff)
         self.direction = diff
 
     def rotate_around_z(self, angle: float) -> None:
+        """Rotate the object around Z axis in given angle in Radians
+
+        Keyword arguments:
+        angle -- Angle in radians
+        """
         rot_matrix = create_rotation_matrix([0, 0, 1], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
+        self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
     def rotate_around_x(self, angle: float) -> None:
+        """Rotate the object around X axis in given angle in Radians
+
+        Keyword arguments:
+        angle -- Angle in radians
+        """
         rot_matrix = create_rotation_matrix([1, 0, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
+        self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
     def rotate_around_y(self, angle: float) -> None:
+        """Rotate the object around Y axis in given angle in Radians
+
+        Keyword arguments:
+        angle -- Angle in radians
+        """
         rot_matrix = create_rotation_matrix([0, 1, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
         self.matrix = local_matrix.tolist()
+        self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
     def scale(self, x: float, y: float, z: float) -> None:
+        """Scale the look of the object in the scene.
+
+        This method just applies a scale matrix to the object in space.
+        Does not change it's internal coordinates / vertices.
+
+        Keyword arguments:
+        x -- Scale in X direction
+        y -- Scale in Y direction
+        z -- Scale in Z direction
+        """
         sm = scale_matrix(x, y, z)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = sm.dot(local_matrix)
         self.matrix = local_matrix.tolist()
+        self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
     def scale_texture(self, x: float, y: float) -> None:
+        """Scale texture coordinates of the object.
+
+        Assuming that the object has a stretched texture on it's surface.
+        By giving X and Y as > 1, you can repeat the texture on the surface.
+
+        Keyword arguments:
+        x -- Scale factor in X
+        y -- Scale factor in Y
+        """
         self._texcoords = [[coord[0] * x, coord[1] * y] for coord in self._texcoords]
         self.refresh()
 
     def select(self, start: np.ndarray, vector: np.ndarray) -> bool:
+        """Checks if the given ray manages to select the object. Returns boolean.
+
+        This method does a bounding-sphere intersection test as it's the fastest
+        intersection test. As a result, this method wouldn't be accurate
+        in some cases especially with long and thin objects.
+
+        This is by design and unless an equally fast and more accurate algorithm
+        comes to my mind, this will remain the same.
+
+        Keyword arguments:
+        start -- Starting position of the ray vector
+        vector -- Direction of the ray vector
+        """
         self._selected = raycast_sphere_intersect(
             start,
             vector,
@@ -211,6 +318,11 @@ class Object(object):
         return self._selected
 
     def destroy(self) -> bool:
+        """Destroy the object.
+
+        This method frees the graphics card memory/buffer used for the rendering.
+        And sets the virtual pointers to zero to make them re-usable again.
+        """
         for material in self.materials.values():
             if material._vao > NO_VERTEX_ARRAY:
                 glDeleteVertexArrays(1, [self._vao])
@@ -230,6 +342,13 @@ class Object(object):
         return True
 
     def step_back(self, steps: int = 1) -> bool:
+        """Step back in time if the object is in track_motion mode.
+
+        Note: this is not reversable.
+
+        Keyword arguments:
+        steps -- Number of steps to go back in time.
+        """
         steps += 1
         if not self.track_motion:
             raise Exception("track_motion should be True")
@@ -237,17 +356,39 @@ class Object(object):
             return False
 
         self.matrix = self._motion_path[-steps]
+        self._to_absolute.cache_clear()
         del self._motion_path[-steps + 1 :]  # noqa
         self._absolute_vertices = None
         return True
 
     def forward(self, distance: float) -> None:
+        """Move the object forward by given distance.
+
+        Forward is the object's direction.
+
+        Keyword arguments:
+        distance -- Distance to move forward.
+        """
         diff = scale_vector(self.matrix[1], distance)
-        self.matrix[3] = add_vectors(self.matrix[3], diff)
-        self.matrix[3][3] = 1.0
+        self.matrix = [self.matrix[0], self.matrix[1], self.matrix[2], to_4(add_vectors(self.matrix[3], diff))]
+        self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
     def update_matrix(self, parent_matrix: Optional[np.ndarray] = None) -> None:
+        """Update the objects matrix.
+
+        Object's matrix is stored as Python's native List[List[float]] but
+        that type is not suitable for the graphics card.
+
+        Graphics card works with a well-aligned packed byte array whereas Python lists
+        have extra bytes for stuff.
+
+        So we turn the python's list into Numpy array, which is compatible to use with
+        the graphics card.
+
+        Keyword arguments:
+        parent_matrix -- Parent matrix to multiply our initial matrix. (Optional)
+        """
         # Turn matrix into numpy array. Numpy arrays are C Type arrays
         # suitable for OpenGL Pipeline
         self._model_matrix = np.array(self.matrix, dtype=np.float32)
@@ -258,9 +399,9 @@ class Object(object):
 
         # Fortran array is used to push matrix to opengl context
         self._model_matrix_fortran = np.asfortranarray(self._model_matrix, dtype=np.float32)
-        self._absolute_cache = {}
 
     def track(self) -> bool:
+        """Track the object movement if it has changed from the previous frame"""
         if not self.track_motion:
             return False
 
@@ -271,27 +412,37 @@ class Object(object):
         self._motion_path.append(deepcopy(self.matrix))
         # Add the matrix position to motion math line for visualisation
         if self._motion_path_line is not None:
-            self._motion_path_line.append([[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]])
+            self._motion_path_line.append([[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2], 1.0]])
 
         # Python trick here! need to .copy or it will pass reference.
-        self._previous_matrix = self.matrix[3].copy()
+        self._previous_matrix = self.matrix[3]
         return True
 
     @property
     def visible(self) -> bool:
+        """Return if the object is visible"""
         return self._visible
 
     def show(self) -> None:
+        """Show the object (set visible = True)"""
         self._visible = True
 
     def hide(self) -> None:
+        """Hide the object (set visible = False)"""
         self._visible = False
 
     def clone(self) -> "Object":
+        """Create the clone of an object - deepcopy
+
+        Caution! This will copy literally everything, that includes the OpenGL buffer pointers
+        so changing one of the objects will result with changing the same memory area
+        in graphics card!
+        """
         return deepcopy(self)
 
     @property
     def has_missing_vao(self) -> bool:
+        """Check if the object is missing any Virtual Array Objects. Return boolean"""
         if self._no_missing_vao:
             return False
         result = any(
@@ -308,6 +459,14 @@ class Object(object):
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
     ) -> None:
+        """Main render cycle of the object.
+
+        Keyword arguments:
+        lit -- Is the object illuminated?
+        shader -- Shader to use while rendering the object
+        parent_matrix -- Parent object's matrix if this is a child object
+        _primitive -- override the scene wide primitive (rendering) mode. (Point, Wire, Solid)
+        """
         if not self._visible:
             return
 
@@ -387,20 +546,49 @@ class Object(object):
         for child in self.children:
             self.children[child].render(lit, shader, self._model_matrix)
 
+    def set_position(self, x: float, y: float, z: float):
+        """Set the position of the object
+
+        Keyword arguments:
+        x -- X Position of the object
+        y -- Y Position of the object
+        z -- Z Position of the object
+        """
+        self.matrix[3] = [x, y, z, 1.0]
+        self._to_absolute.cache_clear()
+
     @property
-    def position(self) -> List[float]:
+    def position(self) -> Vector3D:
+        """Return the object's position"""
         return self.matrix[3][:3]
 
     @position.setter
-    def position(self, pos: List[float]) -> None:
-        if len(pos) == 2:
-            pos = [pos[0], pos[1], 0.0]
-        self.matrix[3][0] = pos[0]
-        self.matrix[3][1] = pos[1]
-        self.matrix[3][2] = pos[2]
+    def position(self, pos: Union[Vector3D, list, tuple]) -> None:
+        """Set the position of the object by a given Vector
+
+        In this context, the definition of the position is extended to
+        support List[float] and Tuple as well to give some space to developers
+
+        Note: This position is relative to it's parent.
+
+        Keyword arguments:
+        pos -- Position to set
+        """
+        fpos = to_4(pos, 1.0)
+        self.matrix[3] = fpos
         self._absolute_vertices = None
+        self._to_absolute.cache_clear()
 
     def add_child(self, name: str, obj: "Object") -> bool:
+        """Add a child object to the object.
+
+        Child objects follow their parent's movements, visibility and etc.
+        Think of them as your arms and legs.
+
+        Keyword arguments:
+        name -- Name of the child object (must be unique within the same object)
+        obj -- Object to add
+        """
         if name in self.children:
             logging.error(f"Name {name} exists in object children")
             return False
@@ -410,21 +598,36 @@ class Object(object):
         self.children[name] = obj
         return True
 
-    def to_absolute(self, coordinates: List[float]) -> List[float]:
-        key = pickle.dumps(coordinates)
-        if key in self._absolute_cache:
-            return self._absolute_cache[key]
-        trans = vector_transform(coordinates, self.matrix)
-        self._absolute_cache[key] = trans
-        return trans
+    @lru_cache(maxsize=10240)
+    def _to_absolute(self, coordinate: Tuple) -> Vector3D:
+        return vector_transform(list(coordinate), self.matrix)
 
-    def absolute_vertices(self) -> List[List[float]]:
+    def to_absolute(self, coordinate: Vector3D) -> Vector3D:
+        """Convert the given coordinates to absolute space coordinates. Returns the converted vector.
+
+        Child object's coordinates are relative to it's parent.
+        You can use this method if you want to know the absoltue (root) coordinates of a local coordinate.
+
+        Keyword arguments:
+        coordinate -- Coordinate to convert"""
+
+        return self._to_absolute(tuple(coordinate))
+
+    def absolute_vertices(self) -> List[Vector3D]:
+        """Convert all object vertices into absolute vertices.
+
+        This is a cpu intesive operation and should be done with caution.
+        Detailed collision detection calls this method.
+
+        Sets `self._absolute_vertices` if None, else returns it as is.
+        """
         if self._absolute_vertices is None:
-            self._absolute_vertices = [self.to_absolute(v) for v in self._vertices]
+            self._absolute_vertices = [self._to_absolute(tuple(v)) for v in self._vertices]
 
         return self._absolute_vertices
 
     def toggle_wireframe(self) -> None:
+        """Toggle the material display type from Wireframe / Particle / Solid"""
         d = (self.material.display + 1) % 3
 
         for mat in self.materials.values():
@@ -441,17 +644,16 @@ class Object(object):
             child.toggle_wireframe()
 
     def _calc_bounds(self) -> float:
-        bmin: Optional[List[float]] = None
-        bmax: Optional[List[float]] = None
+        bmin: Optional[Vector3D] = None
+        bmax: Optional[Vector3D] = None
         absolute_vertices = self.absolute_vertices()
         x = [v[0] for v in absolute_vertices]
         y = [v[1] for v in absolute_vertices]
         z = [v[2] for v in absolute_vertices]
 
-        if len(x) == 0 or len(y) == 0 or len(z) == 0:
-            bmin = [0.0, 0.0, 0.0]
-            bmax = [0.0, 0.0, 0.0]
-        else:
+        bmin = [0.0, 0.0, 0.0]
+        bmax = [0.0, 0.0, 0.0]
+        if len(x) != 0 and len(y) != 0 and len(z) != 0:
             bmin = [min(x), min(y), min(z)]
             bmax = [max(x), max(y), max(z)]
 
@@ -465,12 +667,14 @@ class Object(object):
 
     @property
     def bounding_radius(self) -> float:
+        """Get the bounding sphere radius"""
         if self._bounding_radius > 0:
             return self._bounding_radius
         return self._calc_bounds()
 
     @property
     def bounding_box(self) -> VList:
+        """Get the bounding box (AABB) coordinates"""
         if self._absolute_vertices is None:
             self._calc_bounds()
         if len(self._bounding_box) > 0:
@@ -479,6 +683,13 @@ class Object(object):
         return self._bounding_box
 
     def build(self) -> bool:
+        """Build the object so that it can be rendered in pipeline.
+
+        Conver object vertices / normals / texture coordinates / vertex colors
+        into Numpy arrays. Generate the Vertex Arrays and Buffer for the object
+        in Graphics Pipeline. Load the data into graphics memory.
+        Set the relevant pointer informations.
+        """
         self._vertex_count = 0
 
         # Turn python arrays into C type arrays using Numpy.
@@ -600,6 +811,7 @@ class Object(object):
         return True
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert the object into a dictionary for export / debug"""
         return {
             "vertices": self._vertices,
             "normals": self._normals,
@@ -614,9 +826,15 @@ class Line(Object):
     def __init__(
         self,
         vertices: Optional[VList] = None,
-        color: Optional[List[float]] = None,
+        color: Optional[Vector3D] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize a Line object
+
+        Keyword arguments:
+        vertices -- Optional Vertices information for the line
+        color -- Optional color of the line material.
+        """
         super().__init__(**kwargs)
         self._vertices: VList = [] if vertices is None else vertices
         self.material.color = [1.0, 1.0, 1.0] if color is None else color
@@ -639,9 +857,15 @@ class Line(Object):
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
     ) -> None:
+        """Same as the Object Render but with explicitly defined OpenGL primitive type"""
         super().render(lit, shader, parent_matrix, GL_LINE_STRIP)
 
     def append(self, vertices: VList, material: str = DEFAULT) -> None:
+        """Append vertices to the line
+
+        Keyword arguments:
+        vertices -- List of vertices to append
+        material -- Material name to append lines into"""
         diff = len(vertices)  # Number of vertices added
         last_index = len(self._vertices)
         self._vertices += vertices
@@ -657,7 +881,13 @@ class Line(Object):
 
         self._needs_update = True
 
-    def build_lines(self, vertices: Optional[VList] = None, color: Optional[List[float]] = None) -> None:
+    def build_lines(self, vertices: Optional[VList] = None, color: Optional[Vector3D] = None) -> None:
+        """Build lines information
+
+        Keyword arguments:
+        vertices -- (Optional) if you want to reset the whole line vertices in one go.
+        color -- Color of the DEFAULT material
+        """
         if vertices is not None:
             self._vertices = vertices
         if color is not None:

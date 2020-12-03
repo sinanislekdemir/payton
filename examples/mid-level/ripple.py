@@ -28,7 +28,7 @@ class RippleApp(Scene):
         self.create_clock("ripple", 0.025, self.calc_water)
         self.create_clock("drop", 5, self.drop)
         self.add_object("plane", self.plane)
-        self.active_observer.distance_to_target(20)
+        self.active_camera.distance_to_target(20)
         self.add_object(
             "info",
             info_box(

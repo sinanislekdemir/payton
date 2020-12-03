@@ -22,6 +22,9 @@ from OpenGL.GL import (
     shaders,
 )
 
+from payton.math.matrix import Matrix
+from payton.math.vector import Vector3D
+
 DEFAULT_SHADER = "default"
 PARTICLE_SHADER = "particle"
 SHADOW_SHADER = "depth"
@@ -330,7 +333,7 @@ void main()
 """  # type: str
 
 
-class Shader(object):
+class Shader:
     NO_LIGHT_COLOR = 0  # type: int
     NO_LIGHT_TEXTURE = 1  # type: int
     LIGHT_COLOR = 2  # type: int
@@ -347,6 +350,14 @@ class Shader(object):
         variables: Optional[List[str]] = None,
         **kwargs: Any,
     ):
+        """Initialize the shader
+
+        Keyword arguments:
+        fragment -- Fragment shader code
+        vertex -- Vertex shader code
+        geometry -- Geometry shader code
+        variables -- Shader variables (Optional but defining them beforehand can increase the warm-up performance)
+        """
         self.fragment_shader_source = fragment
         self.vertex_shader_source = vertex
         self.geometry_shader_source = geometry
@@ -359,6 +370,10 @@ class Shader(object):
         self.program: int = -1
 
     def build(self) -> int:
+        """Build the shader
+
+        Compile the shader codes and compile the program
+        """
         vertex_shader = shaders.compileShader(self.vertex_shader_source, GL_VERTEX_SHADER)
         fragment_shader = shaders.compileShader(self.fragment_shader_source, GL_FRAGMENT_SHADER)
         geometry_shader = None
@@ -373,6 +388,7 @@ class Shader(object):
         return self.program
 
     def use(self) -> bool:
+        """Use the shader (activate it in the pipeline)"""
         if self.program == -1:
             logging.error("Shader not compiled")
             return False
@@ -381,10 +397,18 @@ class Shader(object):
         return True
 
     def end(self) -> None:
+        """End using the shader in the pipeline"""
         glUseProgram(0)
         glDisable(GL_PROGRAM_POINT_SIZE)
 
     def set_matrix4x4_np(self, variable: str, value: np.ndarray, transpose: bool = False) -> bool:
+        """Set 4x4 Matrix data in the shader as Numpy Array
+
+        Keyword arguments:
+        variable -- Variable name
+        value -- Numpy array as the value
+        transpose -- GL_TRANSPOSE variable if needed (glUniformMatrix4fv)
+        """
         g_transpose = GL_TRUE if transpose else GL_FALSE
         location = self.get_location(variable)
         if location == -1:
@@ -399,6 +423,11 @@ class Shader(object):
         return True
 
     def get_location(self, variable: str) -> int:
+        """Get the memory location of the given variable in the shader
+
+        Keyword arguments:
+        variable -- Variable name
+        """
         if variable in self._stack:
             return self._stack[variable]
         location = glGetUniformLocation(self.program, variable)
@@ -406,35 +435,73 @@ class Shader(object):
         self._stack[variable] = location
         return location
 
-    def set_matrix4x4(self, variable: str, value: List[List[float]], transpose: bool = False) -> None:
+    def set_matrix4x4(self, variable: str, value: Matrix, transpose: bool = False) -> None:
+        """Set 4x4 Matrix data in the shader
+
+        Keyword arguments:
+        variable -- Variable name
+        value -- Matrix value
+        transpose -- GL_TRANSPOSE variable if needed (glUniformMatrix4fv)
+        """
         self.set_matrix4x4_np(variable, np.array(value, np.float32), transpose)
 
     def set_vector3_array_np(self, variable: str, value: np.ndarray, count: int) -> bool:
+        """Set the given vectors as value in the shader
+
+        Keyword arguments:
+        variable -- Variable name
+        value -- Value as numpy array
+        count -- Number of elements
+        """
         value = value.flatten()
         location = self.get_location(variable)
         if location == -1:
             return False
-        glUniform3fv(location, count, value)
+        glUniform3fv(location, count, value[:3])
         return True
 
     def set_vector3_np(self, variable: str, value: np.ndarray) -> bool:
+        """Set the given vector value in the shader
+
+        Keyword arguments:
+        variable -- Variable name
+        value -- Numpy array value
+        """
         location = self.get_location(variable)
         if location == -1:
             return False
-        glUniform3fv(location, 1, value)
+        glUniform3fv(location, 1, value[:3])
         return True
 
     def set_vector4_np(self, variable: str, value: np.ndarray) -> bool:
+        """Set the given vector as 4 elements in the shader
+
+        Keyword arguments:
+        variable -- Variable name
+        value -- Numpy array value
+        """
         location = self.get_location(variable)
         if location == -1:
             return False
         glUniform4fv(location, 1, value)
         return True
 
-    def set_vector3(self, variable: str, value: List[float]) -> None:
-        self.set_vector3_np(variable, np.array(value, dtype=np.float32))
+    def set_vector3(self, variable: str, value: Vector3D) -> None:
+        """Set the given vector in the shader
+
+        Keyword arguments:
+        variable -- Variable name
+        value -- Value as Vector3D
+        """
+        self.set_vector3_np(variable, np.array(list(value), dtype=np.float32))
 
     def set_int(self, variable: str, value: int) -> bool:
+        """Set integer in the shader
+
+        Keyword arguments:
+        variable -- Variable name
+        value -- Value as integer
+        """
         location = self.get_location(variable)
         if location == -1:
             return False
@@ -443,6 +510,12 @@ class Shader(object):
         return True
 
     def set_float(self, variable: str, value: float) -> bool:
+        """Set float in the shader
+
+        Keyword arguments:
+        variable -- Variable name
+        value -- Value as float
+        """
         location = self.get_location(variable)
         if location == -1:
             return False

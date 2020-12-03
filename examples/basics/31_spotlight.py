@@ -33,7 +33,7 @@ lamp.fix_normals(reverse=True)
 lamp.position = [0, 0, 12]
 
 scene.create_clock("swing", 0.01, swing)
-scene.active_observer.position = [
+scene.active_camera.position = [
     8.261520800759284,
     8.259030103723475,
     17.54799562339614,

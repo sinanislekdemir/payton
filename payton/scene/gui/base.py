@@ -1,13 +1,14 @@
 import math
 import os
+from payton.math.vector import Vector3D
 from textwrap import wrap
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
+from typing import Any, Callable, Dict, Optional, List, Tuple, TypeVar, cast
 
 import numpy as np  # type: ignore
 from OpenGL.GL import GL_DEPTH_TEST, glDisable, glEnable
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
 
-from payton.math.matrix import ortho
+from payton.math.functions import ortho
 from payton.scene.geometry.base import Object
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.shader import Shader
@@ -18,17 +19,29 @@ S2 = TypeVar("S2", bound="Shape2D")
 class Shape2D(Mesh):
     def __init__(
         self,
-        position: Tuple[int, int, int],
-        size: Tuple[int, int],
+        position: List[int],
+        size: List[int],
         on_click: Optional[Callable] = None,
         opacity: float = 0.1,
         **kwargs: Any,
     ):
+        """Initialize 2D Shape
+
+        Keyword arguments:
+        position -- Position of the shape on the screen (x, y, and optionally Z as integer)
+        size -- Size of the shape (w, h as integer)
+        on_click -- On Click event callback (takes no arguments)
+        opacity -- Opacity of the shape
+        """
         super().__init__(**kwargs)
         self.material.opacity = opacity
-        self.__position: Tuple[int, int, int] = position
+        position = list(position)
+        if len(position) == 2:
+            position.append(0)
+        position[2] = -1
+        self.__position = position
         self.position = list([float(x) for x in self.__position])
-        self.size: Tuple[int, int] = size
+        self.size = size
         self.on_click: Optional[Callable] = on_click
         self._font: ImageFont = None
         self.parent: Any = None
@@ -36,6 +49,15 @@ class Shape2D(Mesh):
         self._scene_height: int = 0
 
     def add_child(self, name: str, obj: "Shape2D") -> bool:  # type: ignore
+        """Add a child shape to this shape object.
+
+        This method overrides the parent by arguments. Child object's position
+        follows the parent.
+
+        Keyword arguments:
+        name -- Name of the object to be added
+        obj -- Shape2D Object to add.
+        """
         res = super().add_child(name, obj)  # type: ignore
         if not res:
             return res
@@ -57,10 +79,17 @@ class Shape2D(Mesh):
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
     ):
+        """Render cycle for the Shape 2D
+
+        We override the `lit` parameter for the super.
+        This is not actually intended to be used publicly except if you want to
+        setup your own render cycle.
+        """
         super().render(False, shader, parent_matrix)
 
     @property
     def font(self) -> None:
+        """Return the fond of the shape"""
         if self._font is not None:
             return self._font
         if self.parent is not None:
@@ -69,18 +98,29 @@ class Shape2D(Mesh):
 
     @font.setter
     def font(self, font: ImageFont) -> None:
+        """Set the font of the Shape
+
+        Keyword arguments:
+        font -- ImageFont object
+        """
         self._font = font
         self.draw_text()
 
-    def set_parent_size(self, w: int, h: int):
+    def _set_parent_size(self, w: int, h: int):
         self._parent_width = w
         self._parent_height = h
         self._init = False
         self.draw()
         for child in self.children.values():
-            cast("Shape2D", child).set_parent_size(self.size[0], self.size[1])
+            cast("Shape2D", child)._set_parent_size(self.size[0], self.size[1])
 
     def click(self, x: int, y: int) -> Optional[Mesh]:
+        """Check for click event
+
+        Keyword arguments:
+        x -- Cursor X
+        y -- Cursor Y
+        """
         if not callable(self.on_click):
             for child in self.children:
                 c = cast(Mesh, self.children[child]).click(x, y)
@@ -100,15 +140,22 @@ class Shape2D(Mesh):
 class Rectangle(Shape2D):
     def __init__(
         self,
-        position: Tuple[int, int, int],
-        size: Tuple[int, int],
+        position: List[int],
+        size: List[int],
         **kwargs: Any,
     ):
+        """Initialize Rectangle
+
+        Keyword arguments:
+        position -- Tuple as [X, Y, Z] positions
+        size -- Size of the rectangle
+        """
         super().__init__(position=position, size=size, **kwargs)
         self._init: bool = False
         self.draw()
 
     def draw(self) -> None:
+        """Create the rectangle polygons"""
         w, h = self.size
         self.clear_triangles()
         if not self._init:
@@ -126,30 +173,30 @@ class Rectangle(Shape2D):
 class Text(Rectangle):
     def __init__(
         self,
-        position: Tuple[int, int, int],
-        size: Tuple[int, int],
+        position: List[int],
+        size: List[int],
         label: str = "lorem",
-        bgcolor: Optional[Tuple[float, float, float]] = None,
-        color: Optional[Tuple[float, float, float]] = None,
+        bgcolor: Optional[Vector3D] = None,
+        color: Optional[Vector3D] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize Text object (label)
+
+        Keyword arguments:
+        position -- Tuple as [X, Y, Z] positions on the screen
+        size -- Size of the text area
+        label -- Text / Label to be printed
+        bgcolor -- Background color of the text
+        color -- Color of the text"""
         super().__init__(position=position, size=size, **kwargs)
         self.__label: str = label
-        self.bgcolor: List[int] = [0, 0, 0, 0]
+        self.bgcolor: Vector3D = [0, 0, 0, 0]
         if bgcolor is not None:
-            self.bgcolor = [
-                math.floor(bgcolor[0] * 255),
-                math.floor(bgcolor[1] * 255),
-                math.floor(bgcolor[2] * 255),
-            ]
+            self.bgcolor = bgcolor
 
-        self.color: List[int] = [0, 0, 0]
+        self.color: Vector3D = [0, 0, 0]
         if color is not None:
-            self.color = [
-                math.floor(color[0] * 255),
-                math.floor(color[1] * 255),
-                math.floor(color[2] * 255),
-            ]
+            self.color = color
 
         self.crop = [0, 0, 0, 0]
         self._init_text: bool = False
@@ -157,10 +204,16 @@ class Text(Rectangle):
 
     @property
     def label(self) -> str:
+        """Get the label of the text"""
         return self.__label
 
     @label.setter
     def label(self, label: str) -> None:
+        """Set the label of the text
+
+        Keyword arguments:
+        label -- Label string
+        """
         self.__label = label
         self._init_text = False
 
@@ -171,12 +224,21 @@ class Text(Rectangle):
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
     ) -> None:
+        """Render the text object by initializing the text material if not initialized yet
+
+        Keyword arguments:
+        lit -- Is the object illuminated?
+        shader -- Shader to use while rendering the object
+        parent_matrix -- Parent object's matrix if this is a child object
+        _primitive -- override the scene wide primitive (rendering) mode. (Point, Wire, Solid)
+        """
         if not self._init_text:
             self.draw_text()
         super().render(lit, shader, parent_matrix)
 
     @property
     def text_size(self) -> Tuple[int, int]:
+        """Return the text size in pixels"""
         res = (0, 0)
         timg = Image.new("RGBA", (1, 1))
         d = ImageDraw.Draw(timg)
@@ -190,6 +252,11 @@ class Text(Rectangle):
         return lres[0], lres[1]
 
     def wrap(self, width_in_pixels: int):
+        """Word-wrap the text to fit into the given pixel size
+
+        Keyword arguments:
+        width_in_pixels -- Width size in pixels to fit the text into
+        """
         original = self.label
         self.label = ""
         if self.font is None:
@@ -203,20 +270,28 @@ class Text(Rectangle):
         self._init_text = False
 
     def draw_text(self) -> None:
+        """Create the text material and initialize the font if needed"""
         if self._init_text:
             return
-        img = Image.new("RGBA", self.text_size, color=tuple(self.bgcolor))
-        d = ImageDraw.Draw(img)
-
+        bgcolor = (
+            int(self.bgcolor[0] * 255),
+            int(self.bgcolor[1] * 255),
+            int(self.bgcolor[2] * 255),
+            int(self.bgcolor[3] * 255),
+        )
+        img = Image.new("RGBA", self.text_size, color=bgcolor)
+        d = ImageDraw.Draw(img, "RGBA")
+        color = (int(self.color[0] * 255), int(self.color[1] * 255), int(self.color[2] * 255), 255)
         if self.font is not None:
-            d.text((1, 1), self.label, fill=tuple(self.color), font=self.font)
+            d.text((1, 1), self.label, fill=color, font=self.font)
         else:
-            d.text((1, 1), self.label, fill=tuple(self.color))
-
+            d.text((1, 1), self.label, fill=color)
         if any(self.crop):
             img = img.crop(self.crop)
+        del d
 
         self.material._image = img
+        self.material.opacity = 1.0
         self.material.refresh()
         self._init_text = True
 
@@ -230,6 +305,16 @@ class Hud(Object):
         font_size: int = 15,
         **kwargs: Any,
     ) -> None:
+        """Initialize HUD Object to render HUD elements.
+
+        You need a HUD in a scene to render 2D shapes on top of your scene
+
+        Keyword arguments:
+        width -- Width of the HUD area
+        height -- Height of the HUD area
+        font -- Font name to use (default: monofonto provided by the package)
+        font_size -- Font size in pixels
+        """
         super().__init__(**kwargs)
         self.width: int = width
         self.height: int = height
@@ -248,9 +333,17 @@ class Hud(Object):
 
     @property
     def font(self) -> ImageFont:
+        """Return the HUD Image Font"""
         return self._font
 
     def add_child(self, name: str, obj: Shape2D) -> bool:  # type: ignore
+        """Add 2D Shape into Hud.
+
+        Note: this is a type ignore due to it's mismatch with Object add_child method
+
+        Keyword arguments:
+        name -- Name of the object
+        obj -- Shape2D object to add"""
         res = super().add_child(name, obj)
         obj._scene_height = self.height
         obj._scene_width = self.width
@@ -261,6 +354,10 @@ class Hud(Object):
         return res
 
     def render(self, lit: bool, shader: Shader, *_args: Any) -> None:
+        """Main render cycle for HUD
+
+        Disables the DEPTH test and draws the objects from parent to child
+        """
         if not self.visible:
             return
         lit = False
@@ -275,14 +372,26 @@ class Hud(Object):
         glEnable(GL_DEPTH_TEST)
 
     def set_size(self, w: int, h: int):
+        """Set HUD size
+
+        Keyword arguments:
+        w -- Width of the HUD
+        h -- Height of the HUD
+        """
         self.width = w
         self.height = h
         for child in self.children.values():
-            cast(Shape2D, child).set_parent_size(w, h)
+            cast(Shape2D, child)._set_parent_size(w, h)
             child._init = False
             child.draw()
 
         self._projection_matrix = None
 
     def set_font(self, font_name: str, font_size: int = 16) -> None:
+        """Set True Type font for the Hud
+
+        Keyword arguments:
+        font_name -- Name of the True Type font installed in the system
+        font_size -- Size of the font in pixels
+        """
         self._font = ImageFont.truetype(font_name, font_size)

@@ -1,31 +1,45 @@
+"""Basic Window and UI Elements Support
+
+This is a simple support but works without much hassle.
+I tried to make the whole mechanism as basic as possible.
+Anyone without any UI coding experience should be able to get started
+with the basic stuff"""
+
 from enum import Enum
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional
 
 import numpy as np
 
+from payton.math.vector import Vector3D
 from payton.scene.gui.base import Shape2D, Text
 from payton.scene.shader import Shader
 
 
 class Theme:
+    """User interface theme"""
+
     def __init__(self):
+        """Initialize the theme"""
         self.opacity = 0.9
 
-        self.background_color: Tuple[float, float, float] = [0.05, 0.05, 0.05]
-        self.text_color: Tuple[float, float, float] = [1.0, 1.0, 1.0]
-        self.title_background_color: Tuple[float, float, float] = [
+        self.background_color: Vector3D = [0.05, 0.05, 0.05]
+        self.text_color: Vector3D = [1.0, 1.0, 1.0]
+        self.title_background_color: Vector3D = [
             235 / 255,
             210 / 255,
             52 / 255,
         ]
-        self.title_text_color: Tuple[float, float, float] = [0.0, 0.0, 0.0]
+        self.title_text_color: Vector3D = [0.0, 0.0, 0.0]
 
     def secondary(self):
+        """Secondary colors for the theme"""
         self.background_color, self.text_color = self.title_background_color, self.title_text_color
         self.title_background_color, self.title_text_color = self.background_color, self.text_color
 
 
 class WindowAlignment(Enum):
+    """Window alignment on the HUD"""
+
     FREE = "free"
     LEFT = "left"
     TOP = "top"
@@ -34,6 +48,8 @@ class WindowAlignment(Enum):
 
 
 class WindowElement(Shape2D):
+    """Window Base Element"""
+
     def __init__(
         self,
         width: int = 400,
@@ -44,6 +60,16 @@ class WindowElement(Shape2D):
         theme: Optional[Theme] = None,
         **kwargs,
     ):
+        """Initialize the Window Element
+
+        Keyword arguments:
+        width -- Width of the window element
+        height -- Height of the window element
+        left -- Left position of the window element
+        top -- Top position of the window element
+        align -- Alignment of the element
+        theme -- Theme to be used
+        """
         kwargs["position"] = (left, top, 0)
         kwargs["size"] = (width, height)
         super().__init__(**kwargs)
@@ -82,26 +108,34 @@ class WindowElement(Shape2D):
 
         super().render(lit, shader, parent_matrix)
 
-    def add_child(self, name, obj: Shape2D) -> bool:  # type: ignore
+    def add_child(self, name: str, obj: Shape2D) -> bool:  # type: ignore
+        """Add a window element as a child
+
+        Keyword arguments:
+        name -- Name of the window element to be added
+        obj -- Object to add
+        """
         if obj.position[0] > self.size[0]:
             obj.position[0] = self.size[0] - 1
         total_v = obj.position[0] + obj.size[0]
         exceed = int(total_v - self.size[0])
         if exceed > 0:
-            obj.size = (obj.size[0] - exceed, obj.size[1])
+            obj.size = [obj.size[0] - exceed, obj.size[1]]
 
         if obj.position[1] > self.size[1]:
             obj.position[1] = self.size[1] - 1
         total_v = obj.position[1] + obj.size[1]
         exceed = int(total_v - self.size[1])
         if exceed > 0:
-            obj.size = (obj.size[0], obj.size[1] - exceed)
+            obj.size = [obj.size[0], obj.size[1] - exceed]
 
         super().add_child(name, obj)
-        obj.set_parent_size(self.size[0], self.size[1])
+        obj._set_parent_size(self.size[0], self.size[1])
 
 
 class Window(WindowElement):
+    """Main window frame"""
+
     def __init__(
         self,
         title: str = "",
@@ -113,12 +147,21 @@ class Window(WindowElement):
         theme: Optional[Theme] = None,
         **kwargs: Dict[str, Any],
     ):
-        """Initialize Window
+        """Initialize Window Frame
 
         @NOTE: I am aware that I could have just define "title" as other
                elemenets are already arguments of WindowElement but some
                code hinting and completion tools are a bit stupid. They
-               can not inherit from parent class.
+               can not inherit from parent class. So this is a ide-candy
+
+        Keyword arguments:
+        title -- Title of the window
+        width -- Width of the window
+        height -- Height of the window
+        left -- Left position of the window
+        top -- Top position of the window
+        align -- Alignment of the
+        theme -- Theme to be used
         """
         super().__init__(
             width=width,
@@ -133,8 +176,8 @@ class Window(WindowElement):
         self.add_child(
             "title",
             Text(
-                position=(0, 0, 0),
-                size=(self.size[0], 20),
+                position=[0, 0, 0],
+                size=[self.size[0], 20],
                 label=self.title,
                 # bgcolor=self.theme.title_background_color,
                 color=self.theme.title_text_color,
@@ -143,6 +186,7 @@ class Window(WindowElement):
         )
 
     def draw(self):
+        """Create the frame polygons"""
         super().draw()
         w, h = self.size[0], self.size[1]
         self.clear_triangles()
@@ -179,7 +223,10 @@ class Window(WindowElement):
 
 
 class Panel(WindowElement):
+    """Panel element"""
+
     def draw(self):
+        """Create the panel polygons"""
         super().draw()
         w, h = self.size[0], self.size[1]
         self.clear_triangles()
@@ -229,6 +276,17 @@ class Button(Panel):
         on_click: Optional[Callable] = None,
         **kwargs: Any,
     ):
+        """Initialize the Button element
+
+        label -- Label of the button
+        width -- Width of the button
+        height -- Height of the button
+        left -- Left position of the button
+        top -- Top position of the button
+        align -- Alignment of the button
+        theme -- Theme to be used
+        on_click -- On Click callback method
+        """
         kwargs["on_click"] = on_click
         super().__init__(
             width=width,
@@ -244,14 +302,15 @@ class Button(Panel):
 
         self._label = label
         self.text = Text(
-            position=(0, 0, 1),
-            size=(10, 10),
+            position=[0, 0, 1],
+            size=[10, 10],
             label=label,
             color=self.theme.text_color,
         )
         self.add_child("label", self.text)
 
     def draw(self, **kwargs):
+        """Create the button polygons"""
         super().draw()
         text_size = self.text.text_size
         x = (self.size[0] - text_size[0]) / 2
@@ -278,10 +337,16 @@ class Button(Panel):
 
     @property
     def label(self) -> str:
+        """Get the button label"""
         return self._label
 
     @label.setter
     def label(self, text: str):
+        """Set the button label
+
+        Keyword arguments:
+        text -- Text of the label
+        """
         self._label = text
         self.text.label = self._label
 
@@ -300,6 +365,17 @@ class EditBox(Panel):
         multiline: bool = False,
         **kwargs: Any,
     ):
+        """Initialize the edit box element
+
+        value -- Default value of the editbox
+        width -- Width of the editbox
+        height -- Height of the editbox
+        left -- Left position of the editbox
+        top -- Top position of the editbox
+        align -- Alignment of the editbox
+        theme -- Theme to be used
+        on_change -- On change callback method (expects a string argument) `def on_change(text: str)`
+        """
         kwargs["on_click"] = self._focus
         if height < 30:
             height = 30
@@ -319,8 +395,8 @@ class EditBox(Panel):
         self.on_change = on_change
         self._value = value
         self.text = Text(
-            position=(0, 0, 1),
-            size=(width, height),
+            position=[0, 0, 0],
+            size=[width, height],
             label=self._value,
             color=self.theme.text_color,
         )
@@ -339,18 +415,21 @@ class EditBox(Panel):
         pass
 
     def cursor_left(self):
+        """Move the cursor to the left"""
         self._cursor -= 1
         if self._cursor < 0:
             self._cursor = 0
         self._init = False
 
     def cursor_right(self):
+        """Move the cursor to the right"""
         self._cursor += 1
         if self._cursor > len(self.value):
             self._cursor = len(self.value)
         self._init = False
 
     def backspace(self):
+        """Delete the previous character"""
         if self._cursor == 0:
             return
         self.value = self.value[0 : self._cursor - 1] + self.value[self._cursor :]
@@ -363,6 +442,7 @@ class EditBox(Panel):
         self._init = False
 
     def draw(self, **kwargs):
+        """Create the editbox polygons and texture along with cropping"""
         super().draw()
         if self._cursor > -1:
             label = self._value[0 : self._cursor] + "|" + self._value[self._cursor :]
@@ -393,10 +473,16 @@ class EditBox(Panel):
 
     @property
     def value(self) -> str:
+        """Return the editbox value as a string"""
         return self._value
 
     @value.setter
     def value(self, text: str):
+        """Set the editbox value
+
+        Keyword arguments:
+        text -- Text value to set
+        """
         self._value = text
         self.text.label = self._value
         if self.text.text_size[0] > self.size[0] and self.multiline:

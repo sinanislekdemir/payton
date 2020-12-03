@@ -1,6 +1,6 @@
 import random
 
-from payton.math.vector import distance, normalize_vector, scale_vector
+from payton.math.functions import distance, normalize_vector, scale_vector
 from payton.scene import Scene
 from payton.scene.geometry import Line
 from payton.scene.gui import info_box

@@ -66,10 +66,10 @@ class App(Scene):
 
     def pick_cube(self, selection):
         self._add_on_existing = True
-        dist = distance(selection[0].position, self.active_observer.position)
+        dist = distance(selection[0].position, self.active_camera.position)
         nearest_pick = selection[0]
         for obj in selection:
-            if distance(obj.position, self.active_observer.position) < dist:
+            if distance(obj.position, self.active_camera.position) < dist:
                 nearest_pick = obj
         pos = [
             nearest_pick.position[0],

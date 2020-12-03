@@ -1,6 +1,8 @@
-from typing import List, Union
+from typing import Union
 
 import numpy as np  # type: ignore
+from payton.math.vector import Vector3D
+from payton.math.matrix import Matrix
 
-GArray = Union[List[float], np.ndarray]
-GMatrix = Union[List[List[float]], np.ndarray]
+GArray = Union[Vector3D, np.ndarray]
+GMatrix = Union[Matrix, np.ndarray]

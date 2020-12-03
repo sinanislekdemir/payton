@@ -22,7 +22,7 @@ ground = Plane(10, 10)
 cube.position = [0, 0, 1.0]
 texture_file = os.path.join(os.path.dirname(__file__), "cube.png")
 
-scene.observers[0].distance_to_target(5)
+scene.cameras[0].distance_to_target(5)
 cube.material.texture = texture_file
 scene.add_object("cube", cube)
 scene.add_object("ground", ground)

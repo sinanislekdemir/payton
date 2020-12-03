@@ -11,7 +11,7 @@
     * Clock (`payton.scene.clock`)
     * Lighting (`payton.scene.light`)
     * Collision Test (`payton.scene.collision`)
-    * Observer (`payton.scene.observer`)
+    * Camera (`payton.scene.camera`)
     * GUI (`payton.scene.gui`)
     * Material (`payton.scene.material`)
       * Shader (`payton.scene.shader`)

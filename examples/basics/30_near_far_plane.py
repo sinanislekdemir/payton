@@ -21,24 +21,24 @@ def hit(collision, pairs):
 def change_near_plane(period, total):
     global direction
     if direction == 0:
-        scene.active_observer.near += 0.1
-        if scene.active_observer.near > 15:
+        scene.active_camera.near += 0.1
+        if scene.active_camera.near > 15:
             direction = 1
     if direction == 1:
-        scene.active_observer.near -= 0.1
-        if scene.active_observer.near < 0.5:
+        scene.active_camera.near -= 0.1
+        if scene.active_camera.near < 0.5:
             direction = 2
     if direction == 2:
-        scene.active_observer.far -= 0.1
-        if scene.active_observer.far < 1:
+        scene.active_camera.far -= 0.1
+        if scene.active_camera.far < 1:
             direction = 3
     if direction == 3:
-        scene.active_observer.far += 0.1
-        if scene.active_observer.far > 20:
+        scene.active_camera.far += 0.1
+        if scene.active_camera.far > 20:
             direction = 0
 
 
-scene.active_observer.far = 20
+scene.active_camera.far = 20
 collision = CollisionTest(callback=hit)
 for i in range(50):
     x = random.randint(-5, 5)

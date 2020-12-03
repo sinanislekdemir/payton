@@ -12,7 +12,7 @@ def move(period, total):
     angle = (total * 60) % 360
     px = math.cos(math.radians(angle)) * 8
     py = math.sin(math.radians(angle)) * 8
-    scene.lights[0].position = [px, py, 4.0]
+    scene.lights[0].position = [px, py, 4.0, 1.0]
 
 
 cube = Cube()

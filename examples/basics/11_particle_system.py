@@ -22,7 +22,7 @@ class ParticleDemo(Scene):
         hud = Hud()
         text = Text(
             label="FPS:",
-            position=(5, 205),
+            position=(5, 205, 0),
             size=(200, 35),
             color=(1, 1, 1),
         )

@@ -26,21 +26,34 @@ from OpenGL.GL import (
     glVertexAttribPointer,
 )
 
+from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Line
 from payton.scene.material import Material
 from payton.scene.shader import Shader
 
 
-class Grid(object):
+class Grid:
+    """Grid is an exceptional object in Payton, which is not extended from
+    Object. Instead, it has a simpler structure designed only for the grid
+    inside the scene.
+    """
+
     def __init__(
         self,
         xres: int = 20,
         yres: int = 20,
-        color: Optional[List[float]] = None,
+        color: Optional[Vector3D] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize the Grid
+
+        Keyword arguments:
+        xres -- Number of steps in X direction
+        yres -- Number of steps in Y direction
+        color -- Color of the grid.
+        """
         if color is None:
-            self._color: List[float] = [0.4, 0.4, 0.4]
+            self._color = [0.4, 0.4, 0.4, 1.0]
         else:
             self._color = color
 
@@ -71,15 +84,24 @@ class Grid(object):
         self._material.color = self._color
         self._lines: List[Line] = [
             Line(
-                vertices=[[0.0, 0.0, 0.01], [xres / 2.0, 0.0, 0.01]],
+                vertices=[
+                    [0.0, 0.0, 0.01],
+                    [xres / 2.0, 0.0, 0.01],
+                ],
                 color=[1.0, 0.0, 0.0],
             ),
             Line(
-                vertices=[[0.0, 0.0, 0.01], [0.0, yres / 2.0, 0.01]],
+                vertices=[
+                    [0.0, 0.0, 0.01],
+                    [0.0, yres / 2.0, 0.01],
+                ],
                 color=[0.0, 1.0, 0.0],
             ),
             Line(
-                vertices=[[0.0, 0.0, 0.01], [0.0, 0.0, yres / 2.0]],
+                vertices=[
+                    [0.0, 0.0, 0.01],
+                    [0.0, 0.0, yres / 2.0],
+                ],
                 color=[0.0, 0.0, 1.0],
             ),
         ]
@@ -91,6 +113,7 @@ class Grid(object):
         self.resize(xres, yres)
 
     def destroy(self) -> bool:
+        """Destroy the grid object and free the graphics card memory area"""
         if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
             self._vao = -1
@@ -104,6 +127,7 @@ class Grid(object):
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
     ) -> bool:
+        """Render the grid"""
         if not self.visible:
             return True
 
@@ -130,6 +154,13 @@ class Grid(object):
         return True
 
     def resize(self, xres: int, yres: int, spacing: float = 1.0) -> None:
+        """Resize the grid
+
+        Keyword arguments:
+        xres -- Number of steps in X direction
+        yres -- Number of steps in Y direction
+        spacing -- Grid spacing
+        """
         self._vertices = []
         self._indices = []
         self._vertex_count = 0
@@ -163,15 +194,22 @@ class Grid(object):
         self._vao = -1
 
     @property
-    def color(self) -> List[float]:
+    def color(self) -> Vector3D:
+        """Return the color of the grid"""
         return self._color
 
     @color.setter
-    def color(self, color: List[float]) -> None:
+    def color(self, color: Vector3D) -> None:
+        """Set the color of the grid
+
+        Keyword arguments:
+        color -- Color of the grid
+        """
         self._color = color
         self._material.color = color
 
     def build(self) -> None:
+        """Generate the OpenGL stuff for the grid"""
         self._vao = glGenVertexArrays(1)
         vbos = glGenBuffers(2)
         glBindVertexArray(self._vao)

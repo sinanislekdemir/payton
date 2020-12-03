@@ -62,6 +62,7 @@ from payton.math.geometry import (
     raycast_plane_intersect,
     raycast_triangle_intersect,
 )
+from payton.math.vector import Vector3D
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
 from payton.scene.controller import Controller, GUIController, SceneController
@@ -70,7 +71,7 @@ from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
 from payton.scene.gui.help import help_win
 from payton.scene.light import Light
-from payton.scene.observer import Observer
+from payton.scene.camera import Camera
 from payton.scene.receiver import Receiver
 from payton.scene.shader import (
     DEFAULT_SHADER,
@@ -106,6 +107,21 @@ class Scene(Receiver):
         on_select: Optional[Callable] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize Scene
+
+        Scene is the playground of the whole show!
+
+        Keyword arguments:
+        width -- Window width for the Scene (default 800)
+        height -- Window height for the Scene (default 600)
+        on_select -- Callback function to handle object selections in the scene
+
+        On Select method definition:
+
+            def select(selected_object_list: List[Object]):
+                pass
+        """
+
         self.__fps_counter = 0
         self.fps = 0
         # All objects list
@@ -116,17 +132,17 @@ class Scene(Receiver):
         self.huds["_help"].hide()
 
         self.__timer = -1.0
-        self.observers: List[Observer] = []
-        self.observers.append(Observer(active=True))
+        self.cameras: List[Camera] = []
+        self.cameras.append(Camera(active=True))
 
-        self.hudcam = Observer(
+        self.hudcam = Camera(
             active=True,
             position=[0, 0, 1.0],
             up=[0, 1.0, 0],
             perspective=False,
         )
 
-        self.active_observer = self.observers[0]
+        self.active_camera = self.cameras[0]
 
         self.lights: List[Light] = []
         self.lights.append(Light())
@@ -172,34 +188,65 @@ class Scene(Receiver):
         self._shadow_samples = 20
 
     @property
-    def shadow_samples(self):
+    def shadow_samples(self) -> int:
+        """Return number of shadow samples"""
         return self._shadow_samples
 
     @shadow_samples.setter
     def shadow_samples(self, samples: int):
+        """Set shadow samples
+
+        Keyword arguments:
+        samples -- Number of shadow samples (default 20)
+        """
         self._shadow_samples = samples % 21
         if self._shadow_samples == 0:
             self._shadow_samples = 1
 
     @property
-    def shadow_quality(self):
+    def shadow_quality(self) -> int:
+        """Return the shadow quality integer"""
         return self._shadow_quality
 
     @shadow_quality.setter
     def shadow_quality(self, quality: int):
+        """Set shadow quality
+
+        Shadow quality is simply the resolution of shadow texture in pixels.
+        The higher the resolution gets, the better the shadow is. But that also
+        effects the performance in every cycle.
+
+        Keyword arguments:
+        quality -- SHADOW_NONE, SHADOW_LOW, SHADOW_MID, SHADOW_HIGH (default SHADOW_MID)
+        """
         self._shadow_quality = quality
 
     def add_click_plane(
         self,
-        plane_point: List[float],
-        plane_normal: List[float],
-        callback: Callable[[List[float]], Any],
+        plane_point: Vector3D,
+        plane_normal: Vector3D,
+        callback: Callable[[Vector3D], Any],
     ):
-        pn = plane_normal.copy() + [0.0]
-        pp = plane_point.copy() + [1.0]
-        self._click_planes.append((pp, pn, callback))
+        """Add a click plane to the scene.
 
-    def _check_click_plane(self, eye: List[float], vector: List[float]) -> None:
+        Click planes are infinite 2D planes that can grep and react to clicks.
+        You can create a CAD playground or any other stuff that involves selecting
+        points in space instead of objects.
+
+        Keyword arguments:
+        plane_point -- A point on the surface of the plane.
+        plane_normal -- Normal of the plane
+        callback -- Callback method to call when a click occurs on the plane
+
+        Callback method definition:
+
+            def hit(hit_point: Vector):
+                pass
+        """
+        self._click_planes.append((plane_point, plane_normal, callback))
+
+    def _check_click_plane(self, eye: Vector3D, vector: Vector3D) -> None:
+        """Check if any click planes registered has received a click event"""
         for click_plane in self._click_planes:
             hit = raycast_plane_intersect(eye, vector, click_plane[0], click_plane[1])
             if hit is None:
@@ -207,14 +254,20 @@ class Scene(Receiver):
             click_plane[2](hit[:3])
 
     def _render_3d_scene(self, shadow_round=False, shader=DEFAULT_SHADER) -> None:
+        """Render the 3D Scene
+
+        Keyword arguments:
+        shadow_round -- Is this render for shadow map creation? (default False)
+        shader -- Shader to use for the render pass (default DEFAULT_SHADER)
+        """
         light_count = len(self.lights)
         lit = light_count > 0
         if not lit:
             return
 
-        proj, view = self.active_observer.render()
+        proj, view = self.active_camera.render()
         _shader = self.shaders[shader]
-        _shader.set_vector3("camera_pos", self.active_observer.position)
+        _shader.set_vector3("camera_pos", self.active_camera.position)
         if view is None:
             if not shadow_round:
                 _shader.set_int("view_mode", 1)
@@ -255,6 +308,10 @@ class Scene(Receiver):
                 object.render(lit, _shader)
 
     def _render(self) -> None:
+        """Render the scene
+
+        This is the core render method that renders everything to the SDL buffer
+        """
         self.shaders["default"].use()
         self._render_lock = True
         glEnable(GL_DEPTH_TEST)
@@ -308,6 +365,12 @@ class Scene(Receiver):
             self.__fps_counter = 0
 
     def add_collision_test(self, name: str, tester: CollisionTest) -> None:
+        """Add a collision tester to the scene.
+
+        Keyword arguments:
+        name -- Name of the collision tester to be added
+        tester -- CollisionTest object to be added
+        """
         if not isinstance(tester, CollisionTest):
             logging.error("tester must be an instance of CollisionTest")
             return
@@ -315,6 +378,14 @@ class Scene(Receiver):
         self.collisions[name] = tester
 
     def add_object(self, name: str, obj: Object) -> bool:
+        """Add an object to the scene
+
+        Object can be a HUD object, 2D Shape or 3D Mesh.
+
+        Keyword arguments:
+        name -- Name of the object to add to the scene
+        obj -- 3D Object to be added.
+        """
         if not isinstance(obj, Object):
             logging.error("Given object is not an instance of `scene.Object`")
             return False
@@ -349,16 +420,26 @@ class Scene(Receiver):
         obj.name = name
         return True
 
-    def add_observer(self, obj: Observer) -> bool:
-        if not isinstance(obj, Observer):
-            logging.error("Observer is not an instance of `scene.Observer`")
+    def add_camera(self, camera: Camera) -> bool:
+        """Add a camera to the scene and return True if successful
+
+        If an invalid type of object is given to the scene as an camera,
+        it does not break the scene as the scene already has a working camera
+        to operate. Instead, failure returns False
+
+        Keyword arguments:
+        camera -- Camera object to be added
+        """
+        if not isinstance(camera, Camera):
+            logging.error("Camera is not an instance of `scene.camera`")
             return False
 
-        self.observers.append(obj)
+        self.cameras.append(camera)
         return True
 
-    def create_observer(self) -> None:
-        self.observers.append(Observer())
+    def create_camera(self) -> None:
+        """Create a dummy camera with defaults"""
+        self.cameras.append(Camera())
 
     def create_clock(
         self,
@@ -366,6 +447,23 @@ class Scene(Receiver):
         period: float,
         callback: Callable[[float, float], None],
     ) -> None:
+        """Create a Clock in the scene.
+
+        Clocks are asyn calls that are triggered in given periods.
+        Clocks should be written effectively to take as less time as possible.
+        If a clock can not be completed within the given period, there can be two parallel
+        processing interfering with eachother.
+
+        Keyword arguments:
+        name -- Name of the clock to create
+        period -- Period of the callback function in seconds
+        callback -- Callback method to call for each "tick" of the clock.
+
+        Callback method definition:
+
+            def logger(period_of_the_clock: float, total_seconds_passed: float)
+                pass
+        """
         if name in self.clocks:
             logging.error(f"A clock named {name} already exists")
             return
@@ -394,20 +492,38 @@ class Scene(Receiver):
         self.clocks = new_clocks
 
     def to_dict(self):
+        """Convert everything inside the Scene to Dictionary
+
+        This method is better to be called outside the render cycle as it can be
+        very costly.
+        """
         result = {
             "objects": {name: self.objects[name].to_dict() for name in self.objects},
             "lights": [light.to_dict() for light in self.lights],
-            "observers": [observer.to_dict() for observer in self.observers],
+            "cameras": [camera.to_dict() for camera in self.cameras],
         }
         return result
 
     def raycast_intersect(
         self,
-        start: List[float],
-        vector: List[float],
+        start: Vector3D,
+        direction: Vector3D,
         box_only: bool = True,
         exempt_objects: Optional[List[Object]] = None,
-    ) -> Optional[Tuple[Object, List[float]]]:
+    ) -> Optional[Tuple[Object, Vector3D]]:
+        """Raycast a vector to the scene.
+
+        Assume that there is a vector in space starting from "start"
+        and going in "vector" direction. This method checks through the
+        scene objects and returns the list of objects the vector hits
+        with their distances.
+
+        Keyword arguments:
+        start -- Start of the vector
+        direction -- Direction of the vector
+        box_only -- Only make an axis-aligned bounding box collusion check (default True)
+        exempt_objects -- Exempt these objects from being tested
+        """
         shortest = [0.0, 0.0, 0.0]
         dist_best = -1.0
         hit_obj = None
@@ -415,7 +531,7 @@ class Scene(Receiver):
             if exempt_objects is not None:
                 if obj in exempt_objects:
                     continue
-            box_hit = raycast_box_intersect(start, vector, obj.bounding_box[0], obj.bounding_box[1])
+            box_hit = raycast_box_intersect(start, direction, obj.bounding_box[0], obj.bounding_box[1])
             if box_hit is None:
                 continue
             if box_only:
@@ -426,7 +542,7 @@ class Scene(Receiver):
                     hit_obj = obj
                     continue
             for p1, p2, p3 in zip(*[iter(obj.absolute_vertices())] * 3):
-                ip, _ = raycast_triangle_intersect(start, vector, p1, p2, p3)
+                ip, _ = raycast_triangle_intersect(start, direction, p1, p2, p3)
                 if ip is None:
                     continue
                 dist = distance_native(ip, start)
@@ -477,9 +593,9 @@ Payton requires at least OpenGL 3.3 support and above."""
             print(f"OpenGL Version installed: {ogl_major}.{ogl_minor}")
             exit(16)
 
-        # Fix aspect ratios of observers
-        for observer in self.observers:
-            observer.aspect_ratio = self.window_width / self.window_height * 1.0
+        # Fix aspect ratios of cameras
+        for camera in self.cameras:
+            camera.aspect_ratio = self.window_width / self.window_height * 1.0
         for hud in self.huds.values():
             hud.set_size(self.window_width, self.window_height)
 
@@ -538,7 +654,7 @@ Payton requires at least OpenGL 3.3 support and above."""
                     self.window_height = self.event.window.data2
                     glViewport(0, 0, self.window_width, self.window_height)
 
-                    for ob in self.observers:
+                    for ob in self.cameras:
                         ob.aspect_ratio = self.window_width / self.window_height
                     for hud in self.huds:
                         self.huds[hud].set_size(self.window_width, self.window_height)
@@ -572,7 +688,7 @@ Payton requires at least OpenGL 3.3 support and above."""
             self.clocks[clock].join()
 
 
-class Background(object):
+class Background:
     """
     (Shader code and idea derived from the original work of:
     https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
@@ -580,10 +696,16 @@ class Background(object):
 
     def __init__(
         self,
-        top_color: Optional[List[float]] = None,
-        bottom_color: Optional[List[float]] = None,
+        top_color: Optional[Vector3D] = None,
+        bottom_color: Optional[Vector3D] = None,
         **kwargs: Dict[str, Any],
     ):
+        """Initialize the background
+
+        Keyword arguments:
+        top_color -- Gradient color at the top of the viewport
+        bottom_color -- Gradient color at the bottom of the viewport
+        """
         self.top_color = [0.0, 0.0, 0.0, 1.0] if top_color is None else top_color
         self.bottom_color = [0.0, 0.1, 0.2, 1.0] if bottom_color is None else bottom_color
         variables = ["top_color", "bot_color"]
@@ -596,6 +718,13 @@ class Background(object):
         self.visible = True
 
     def set_time(self, hour: int, minute: int):
+        """Background can mimic a background color based on the time of the date
+        It is not accurate but at least gives a small impression
+
+        Keyword arguments:
+        hour -- Hour as integer (24 hour format)
+        minute -- Minute as integer
+        """
         hour = hour % 24
         minute = minute % 60
         color_scheme = {
@@ -624,6 +753,7 @@ class Background(object):
                 return
 
     def render(self) -> None:
+        """Render the background"""
         if not self.visible:
             return
 

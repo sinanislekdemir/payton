@@ -153,8 +153,9 @@ class MD2(Mesh):
     def __init__(self, filename: str = "", texture_filename: str = "", **kwargs: Any):
         """Initialize the MD2 Object
 
-        Args:
-          filename: Filename to load
+        Keyword arguments:
+        filaname -- Filename to load
+        texture_filename -- Texture filaname for the MD2 Object
         """
         super().__init__(**kwargs)
         self.header: MD2Header = MD2Header()
@@ -194,6 +195,12 @@ class MD2(Mesh):
         between key-frames. Bake Animation method simply fills these gaps by
         calculating the N steps between key-frames. This gives you a smooth
         animation.
+
+        Keyword arguments:
+        animation_name -- Animation name to bake
+        from_frame -- Starting frame for baking
+        to_frame -- Ending frame for baking
+        steps -- Number of steps to interpolate.
         """
         if animation_name not in self.animations:
             logging.error(f"Animation {animation_name} not found in object")
@@ -235,11 +242,11 @@ class MD2(Mesh):
     ):
         """Set the model in motion
 
-        Args:
-          animation_name: Name of the animation to play
-          from_frame: Loop starting frame
-          to_frame: Loop ending frame
-          loop: Loop the animation?
+        Keyword arguments
+        animation_name -- Name of the animation to play
+        from_frame -- Loop starting frame
+        to_frame -- Loop ending frame
+        loop -- Loop the animation?
         """
         self.animation = ""  # For thread safety
         if animation_name not in self.animations:
@@ -264,6 +271,7 @@ class MD2(Mesh):
 
     @property
     def frame(self) -> str:
+        """Get the current frame name as <animation_name><frame_number>"""
         if self._time == 0:
             self._time = time.time()
 
@@ -291,6 +299,13 @@ class MD2(Mesh):
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
     ) -> None:
+        """Main render cycle for the MD2 Object
+
+        Keyword arguments:
+        lit -- Is this an illuminated object?
+        shader -- Shader to use for rendering
+        parent_matrix -- Matrix of the parent object if exists
+        _primitive -- Enforced OpenGL primitive to render"""
         if not self._visible:
             return
 
@@ -312,6 +327,11 @@ class MD2(Mesh):
             self.children[child].render(lit, shader, self._model_matrix)
 
     def load_file(self, filename: str):
+        """Load MD2 file
+
+        Keyword arguments:
+        filaname -- MD2 Filaname to load.
+        """
         if not os.path.exists(filename):
             raise BaseException(f"File not found: {filename}")
         self._path = os.path.dirname(os.path.abspath(filename))
@@ -319,6 +339,7 @@ class MD2(Mesh):
             self.load_buffer(f)
 
     def load_buffer(self, f: BinaryIO):
+        """Load MD2 buffer into memory and compile the object"""
         self.read_header(f)
         self.read_skin(f)
         self.read_tex_coords(f)
@@ -422,6 +443,7 @@ class MD2(Mesh):
         return MD2Frame(name=name, vertices=vertices)
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert the MD2 Object to Dictionary"""
         animation = self.animation
         if animation == "":
             animation = list(self.animations.keys())[0]
@@ -433,6 +455,7 @@ class MD2(Mesh):
         return result
 
     def set_texture(self, texture_filename: str):
+        """Set the object texture filaname"""
         for m in self.children.values():
             m.material.texture = texture_filename
             m.material.refresh()

@@ -1,6 +1,6 @@
 import logging
 from itertools import combinations
-from typing import Any, Callable, List, Optional, Set, Type
+from typing import Any, Callable, List, Optional, Set
 
 from payton.math.geometry import distance
 from payton.scene.geometry.base import Object
@@ -8,15 +8,34 @@ from payton.scene.geometry.mesh import Mesh
 from payton.scene.geometry.sphere import Sphere
 
 
-class Collision(object):
+class Collision:
+    """Collision pair"""
+
     def __init__(self, obj1: Object, obj2: Object) -> None:
+        """Collision pair
+
+        obj1 -- Object 1
+        obj2 -- Object 2
+        """
         self.object_1 = obj1
         self.object_2 = obj2
         self.segment = 1
 
 
-class CollisionTest(object):
+class CollisionTest:
     """
+    Main collision test
+
+    Currently, there are two types of collision test algorithms
+
+    AABB -- Axis Aligned Bounding Box intersection test
+    SPHERICAL -- Bounding Sphere intersection test
+
+    Both of the algorithms are just simple assumptions and not
+    accurate. But any better algorithms are currently hard to
+    implement without a big performance impact. At least, I tried.
+    Any contributions are welcome.
+
     TODO: Improve collision detection algorithms.
     """
 
@@ -27,15 +46,27 @@ class CollisionTest(object):
         self,
         callback: Callable,
         level: int = AABB,
-        objects: Optional[List[Type[Mesh]]] = None,
+        objects: Optional[List[Mesh]] = None,
         **kwargs: Any,
     ) -> None:
-        self.objects: List[Type[Mesh]] = [] if objects is None else objects
+        """Initialize the test case.
+
+        Keyword arguments:
+        callback -- Callback method to call in case of an intersection
+                    (Eg: def on_collide(test_case: CollisionTest, collision_pairs: List[Collision] = []))
+        level -- Level of the test (AABB, SPHERICAL, default AABB)
+        objects -- List of objects inside the test case
+        """
+        self.objects: List[Mesh] = [] if objects is None else objects
         self.callback: Callable = callback
         self.level: int = level
         self._pairs: List[Set[Mesh]] = []
 
-    def add_object(self, obj: Type[Mesh]) -> None:
+    def add_object(self, obj: Mesh) -> None:
+        """Add a mesh object to the test case
+
+        Keyword arguments:
+        obj -- Object to add"""
         if not isinstance(obj, Mesh):
             logging.error("object must be an instance of Mesh")
             return
@@ -86,11 +117,23 @@ class CollisionTest(object):
         return False
 
     def resolve(self, obj1: Mesh, obj2: Mesh) -> None:
+        """Notify the test case for collision resolution.
+
+        Otherwise, tester will ignore the collision in iterations
+        to gain more performance
+
+        Order of the objects are not important.
+
+        Keywords:
+        obj1 -- Object 1
+        obj2 -- Object 2
+        """
         pair = set([obj1, obj2])
         if pair in self._pairs:
             self._pairs.remove(pair)
 
     def check(self):
+        """Check the objects for possible collisions"""
         for pair_tuple in combinations(self.objects, 2):
             pair = set(pair_tuple)
             if pair not in self._pairs:

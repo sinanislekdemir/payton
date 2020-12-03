@@ -18,7 +18,7 @@ C: Change Camera mode (Perspective/Orthographic)
 Space: Start/Pause Scene Animations/Clocks
 G: Show/Hide Grid
 W: Display mode (wireframe/solid)
-F2: Previous Observer F3: Next Observer
+F2: Previous Camera F3: Next Camera
     """
     help_window = Window(
         align=WindowAlignment.RIGHT,
@@ -31,6 +31,14 @@ F2: Previous Observer F3: Next Observer
 
 
 def info_box(left: int, top: int, label: str) -> Hud:
+    """Create Info Box along with it's HUD so you do not need to setup the
+    whole HUD.
+
+    Keyword arguments:
+    left -- Left position of the info box
+    top -- Top position of the info box
+    label -- Label / text of the info box
+    """
     hud = Hud()
     timg = Image.new("RGBA", (1, 1))
     d = ImageDraw.Draw(timg)

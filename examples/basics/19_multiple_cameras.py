@@ -3,7 +3,7 @@ import os
 from payton.scene import Scene
 from payton.scene.geometry import Cube
 from payton.scene.gui import info_box
-from payton.scene.observer import Observer
+from payton.scene.camera import Camera
 
 scene = Scene()
 scene.background.top_color = [0, 0, 0, 1]
@@ -17,13 +17,13 @@ cube.material.texture = texture_file
 
 scene.add_object("cube", cube)
 
-inside_box = Observer(
+inside_box = Camera(
     position=[-1.7898840267533351, 2.210322695165203, 1.400984730396208],
     target=[0, 0, 1],
     fov=110,
 )
 
-scene.add_observer(inside_box)
+scene.add_camera(inside_box)
 
 scene.add_object(
     "info",

@@ -46,7 +46,7 @@ def select(list):
     global scene
     print(list[0].info)
     scene.huds["hud"].children["info"].label = list[0].info
-    scene.active_observer.target_object = list[0]
+    scene.active_camera.target_object = list[0]
 
 
 scene.on_select = select

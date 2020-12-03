@@ -34,6 +34,7 @@ from OpenGL.GL import (
 )
 from PIL import Image  # type: ignore
 
+from payton.math.vector import Vector3D
 from payton.scene.shader import Shader
 from payton.scene.types import IList
 
@@ -41,27 +42,27 @@ SOLID = 0  # type: int
 WIREFRAME = 1  # type: int
 POINTS = 2  # type: int
 
-RED = [1.0, 0.0, 0.0]  # type: List[float]
-GREEN = [0.0, 1.0, 0.0]  # type: List[float]
-BLUE = [0.0, 0.0, 1.0]  # type: List[float]
-CRIMSON = [220 / 255.0, 20 / 255.0, 60 / 255.0]  # type: List[float]
-PINK = [1.0, 192 / 255.0, 203 / 255.0]  # type: List[float]
-VIOLET_RED = [1.0, 62 / 255.0, 150 / 255.0]  # type: List[float]
-DEEP_PINK = [1.0, 20 / 255.0, 147 / 255.0]  # type: List[float]
-ORCHID = [218 / 255.0, 112 / 255.0, 214 / 255.0]  # type: List[float]
-PURPLE = [128 / 255.0, 0.0, 128 / 255.0]  # type: List[float]
-NAVY = [0.0, 0.0, 0.5]  # type: List[float]
-ROYAL_BLUE = [65 / 255.0, 105 / 255.0, 225 / 255.0]  # type: List[float]
-LIGHT_STEEL_BLUE = [176 / 255.0, 196 / 255.0, 222 / 255.0]  # type: List[float]
-STEEL_BLUE = [70 / 255.0, 130 / 255.0, 180 / 255.0]  # type: List[float]
-TURQUOISE = [0.0, 245 / 255.0, 1.0]  # type: List[float]
-YELLOW = [1.0, 1.0, 0.0]  # type: List[float]
-GOLD = [1.0, 225 / 255.0, 0.0]  # type: List[float]
-ORANGE = [1.0, 165 / 255.0, 0.0]  # type: List[float]
-WHITE = [1.0, 1.0, 1.0]  # type: List[float]
-BLACK = [0.0, 0.0, 0.0]  # type: List[float]
-DARK_GRAY = [0.2, 0.2, 0.2]  # type: List[float]
-LIGHT_GRAY = [0.8, 0.8, 0.8]  # type: List[float]
+RED = [1.0, 0.0, 0.0]  # type: Vector3D
+GREEN = [0.0, 1.0, 0.0]  # type: Vector3D
+BLUE = [0.0, 0.0, 1.0]  # type: Vector3D
+CRIMSON = [220 / 255.0, 20 / 255.0, 60 / 255.0]  # type: Vector3D
+PINK = [1.0, 192 / 255.0, 203 / 255.0]  # type: Vector3D
+VIOLET_RED = [1.0, 62 / 255.0, 150 / 255.0]  # type: Vector3D
+DEEP_PINK = [1.0, 20 / 255.0, 147 / 255.0]  # type: Vector3D
+ORCHID = [218 / 255.0, 112 / 255.0, 214 / 255.0]  # type: Vector3D
+PURPLE = [128 / 255.0, 0.0, 128 / 255.0]  # type: Vector3D
+NAVY = [0.0, 0.0, 0.5]  # type: Vector3D
+ROYAL_BLUE = [65 / 255.0, 105 / 255.0, 225 / 255.0]  # type: Vector3D
+LIGHT_STEEL_BLUE = [176 / 255.0, 196 / 255.0, 222 / 255.0]  # type: Vector3D
+STEEL_BLUE = [70 / 255.0, 130 / 255.0, 180 / 255.0]  # type: Vector3D
+TURQUOISE = [0.0, 245 / 255.0, 1.0]  # type: Vector3D
+YELLOW = [1.0, 1.0, 0.0]  # type: Vector3D
+GOLD = [1.0, 225 / 255.0, 0.0]  # type: Vector3D
+ORANGE = [1.0, 165 / 255.0, 0.0]  # type: Vector3D
+WHITE = [1.0, 1.0, 1.0]  # type: Vector3D
+BLACK = [0.0, 0.0, 0.0]  # type: Vector3D
+DARK_GRAY = [0.2, 0.2, 0.2]  # type: Vector3D
+LIGHT_GRAY = [0.8, 0.8, 0.8]  # type: Vector3D
 
 DEFAULT = "default"
 NO_VERTEX_ARRAY = -1
@@ -71,25 +72,35 @@ EMPTY_VERTEX_ARRAY = -3
 BASE_PARTICLE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "particle.png")
 
 
-class Material(object):
+class Material:
     def __init__(
         self,
-        color: Optional[List[float]] = None,
+        color: Optional[Vector3D] = None,
         display: int = SOLID,
         lights: bool = True,
         texture: str = "",
         opacity: float = 1.0,
         **kwargs: Any,
     ):
-        self._color: List[float] = [1.0, 1.0, 1.0] if color is None else color
-        self._color_np: np.ndarray = np.array(self._color, dtype=np.float32)
+        """Payton materials are quite simple and does not support some
+        functionalities like Game Engines or design softwares.
+
+        Keyword arguments:
+        color -- Material color
+        display -- Display type of the material (SOLID, WIREFRAME, POINTS)
+        lights -- Is this material effected by the light shading?
+        texture -- Texture filename
+        opacity -- Opacity of the material
+        """
+        self._color = [1.0, 1.0, 1.0] if color is None else color
+        self._color_np: np.ndarray = np.array(list(self._color), dtype=np.float32)
         self.display: int = display
         self.lights: bool = lights
         self.texture: str = texture
         self.particle_texture: str = BASE_PARTICLE
         self.opacity: float = opacity
         self.particle_size: float = 0.16
-        self._image: Optional[Image] = None
+        self._image: Optional[Image.Image] = None
         self._indices: IList = []
         self._vao: int = NO_VERTEX_ARRAY
         self._vbos: List[int] = []
@@ -102,6 +113,7 @@ class Material(object):
         self._particle_texture: Optional[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert the material into dictionary"""
         return {
             "color": self.color,
             "display": self.display,
@@ -111,32 +123,43 @@ class Material(object):
         }
 
     @property
-    def index_count(self):
+    def index_count(self) -> int:
+        """Return the number of indexes for OpenGL"""
         if self._index_count > 0:
             return self._index_count
         self._index_count = len(self._indices)
         return self._index_count
 
     @property
-    def color(self):
+    def color(self) -> Vector3D:
+        """Return the material color"""
         return self._color
 
     @color.setter
-    def color(self, color: List[float]) -> None:
+    def color(self, color: Vector3D) -> None:
+        """Set the material color
+
+        Keyword arguments:
+        color -- Color to set
+        """
         self._color = color
-        self._color_np = np.array(self._color, dtype=np.float32)
+        self._color_np = np.array(list(self._color), dtype=np.float32)
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "Material":
+    def from_dict(cls, material_dictionary: Dict[str, Any]) -> "Material":
+        """Import material from dictionary
+
+        material_dictionary -- Dictionary to import"""
         res = cls()
-        res.color = d["color"]
-        res.display = d["display"]
-        res.texture = d["texture"]
-        res.opacity = d["opacity"]
-        res._indices = d["indices"]
+        res.color = material_dictionary["color"]
+        res.display = material_dictionary["display"]
+        res.texture = material_dictionary["texture"]
+        res.opacity = material_dictionary["opacity"]
+        res._indices = material_dictionary["indices"]
         return res
 
     def build(self) -> bool:
+        """Build the material"""
         self._initialized = True
         if os.path.isfile(self.texture):
             img = Image.open(self.texture)
@@ -148,7 +171,13 @@ class Material(object):
             self.load_texture(img, particle=True)
         return True
 
-    def load_texture(self, img: Image, particle: bool = False) -> None:
+    def load_texture(self, img: Image.Image, particle: bool = False) -> None:
+        """Load texture directly from PIL Image object
+
+        Keyword arguments:
+        img -- Image to load
+        particle -- Is this a particle material?
+        """
         img_data = np.fromstring(img.tobytes(), np.uint8)
         width, height = img.size
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
@@ -185,9 +214,15 @@ class Material(object):
         glBindTexture(GL_TEXTURE_2D, 0)
 
     def refresh(self) -> None:
+        """Refresh / apply the material changes into OpenGL context"""
         self._initialized = False
 
     def material_mode(self, lit: bool) -> int:
+        """Return the material mode
+
+        Keyword argument:
+        lit -- Is this a lit material?
+        """
         mode = Shader.LIGHT_COLOR
 
         if self.display == SOLID:
@@ -211,6 +246,13 @@ class Material(object):
         shader: Shader,
         mode: Optional[int] = None,
     ) -> None:
+        """Render the material
+
+        Keyword arguments:
+        lit -- Is this a lit material?
+        shader -- Shader to use for rendering the material
+        mode -- Material mode
+        """
         if not self._initialized:
             self.build()
 

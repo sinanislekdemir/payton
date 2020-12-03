@@ -5,7 +5,7 @@ from typing import Any, List, Optional
 import sdl2
 
 from payton.scene.gui import EditBox
-from payton.scene.observer import BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
+from payton.scene.camera import BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 
 
 class BaseController:
@@ -36,6 +36,13 @@ class GUIController(BaseController):
         self._active_object: Optional[EditBox] = None
 
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> bool:
+        """Keyboard handler for the base GUI controls. Returns True if keyboard action
+        stops the event check cycle.
+
+        Keyword arguments:
+        event -- SDL2 Event Triggered
+        scene -- Active scene
+        """
         if event.type == sdl2.SDL_TEXTINPUT:
             if self._active_object is not None:
                 self._active_object._on_keypress(event.text.text.decode('utf-8'))
@@ -61,6 +68,13 @@ class GUIController(BaseController):
         return False
 
     def mouse(self, event: sdl2.SDL_Event, scene: Any) -> bool:
+        """Mouse handler for the base GUI controls. Returns True if the mouse action stops the
+        event check cycle.
+
+        Keyword arguments:
+        event -- SDL2 Event Triggered
+        scene -- Active scene
+        """
         if event.type == sdl2.SDL_MOUSEBUTTONDOWN:
             mx, my = event.button.x, event.button.y
             for hud in scene.huds:
@@ -82,7 +96,17 @@ class GUIController(BaseController):
 
 
 class SceneController(BaseController):
+    """SceneController controls the camera actions along with clocks and other
+    in-scene actions
+    """
+
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> bool:
+        """Keyboard handler for the whole scene
+
+        Keyword arguments:
+        event -- Triggered SDL2 Event
+        scene -- Active scene
+        """
         if event.type == sdl2.SDL_QUIT:
             logging.debug("Quit SDL Scene")
             scene.terminate()
@@ -105,9 +129,9 @@ class SceneController(BaseController):
 
             if key == sdl2.SDLK_c:
                 # below variable assignment is only for code style
-                p = scene.active_observer.perspective
-                scene.active_observer.perspective = not p
-                logging.debug(f"Observer Perspective={scene.active_observer.perspective}")
+                p = scene.active_camera.perspective
+                scene.active_camera.perspective = not p
+                logging.debug(f"Camera Perspective={scene.active_camera.perspective}")
 
             if key == sdl2.SDLK_g:
                 scene.grid.visible = not scene.grid.visible
@@ -130,30 +154,36 @@ class SceneController(BaseController):
 
             if key in [sdl2.SDLK_F2, sdl2.SDLK_F3]:
                 active = 0
-                for i in range(len(scene.observers)):
-                    if scene.observers[i].active:
+                for i in range(len(scene.cameras)):
+                    if scene.cameras[i].active:
                         active = i
                 if key == sdl2.SDLK_F2:
                     active -= 1
                 if key == sdl2.SDLK_F3:
                     active += 1
                 if active < 0:
-                    active = len(scene.observers) - 1
-                if active > len(scene.observers) - 1:
+                    active = len(scene.cameras) - 1
+                if active > len(scene.cameras) - 1:
                     active = 0
-                scene.active_observer = scene.observers[active]
-                for i in range(len(scene.observers)):
-                    scene.observers[i].active = i == active
+                scene.active_camera = scene.cameras[active]
+                for i in range(len(scene.cameras)):
+                    scene.cameras[i].active = i == active
         return False
 
     def mouse(self, event: sdl2.SDL_Event, scene: Any) -> bool:
-        observer = scene.active_observer
+        """Mouse handler for the scene
+
+        Keyword arguments:
+        event -- Triggered SDL2 Event
+        scene -- Active scene
+        """
+        camera = scene.active_camera
         if event.type == sdl2.SDL_MOUSEBUTTONUP:
-            observer._prev_intersection = None
+            camera._prev_intersection = None
 
         if event.type == sdl2.SDL_MOUSEBUTTONDOWN:
             mx, my = event.button.x, event.button.y
-            eye, ray_dir = observer.screen_to_world(mx, my, scene.window_width, scene.window_height)
+            eye, ray_dir = camera.screen_to_world(mx, my, scene.window_width, scene.window_height)
 
             list = []
             if callable(scene.on_select):
@@ -169,7 +199,7 @@ class SceneController(BaseController):
 
         if event.type == sdl2.SDL_MOUSEWHEEL:
             yrel = event.wheel.y
-            observer.mouse_wheel(yrel)
+            camera.mouse_wheel(yrel)
 
         if event.type == sdl2.SDL_MOUSEMOTION:
             button = -1
@@ -179,7 +209,7 @@ class SceneController(BaseController):
                 button = BUTTON_RIGHT
             if event.motion.state == sdl2.SDL_BUTTON_MIDDLE:
                 button = BUTTON_MIDDLE
-            observer.mouse_move(
+            camera.mouse_move(
                 button,
                 scene._shift_down,
                 scene._ctrl_down,
@@ -193,7 +223,9 @@ class SceneController(BaseController):
         return False
 
 
-class Controller(object):
+class Controller:
+    """Base controller class"""
+
     def __init__(self):
         super().__init__()
         self._controllers: List[BaseController] = []

@@ -35,16 +35,16 @@ obj_file = os.path.join(os.path.dirname(__file__), "scene", "scene.obj")
 obj = Wavefront(obj_file)
 for m in obj.materials.values():
     m.particle_size = 0.016
-# scene.active_observer.perspective = False
+# scene.active_camera.perspective = False
 
 scene.add_object("scene", obj)
 scene.create_clock("mover", 0.05, change_date)
-scene.active_observer.position = [
+scene.active_camera.position = [
     3.658917285721423,
     5.527119165715093,
     2.5024855760753986,
 ]
-scene.active_observer.target = [
+scene.active_camera.target = [
     -0.8135842084884644,
     0.7309485077857971,
     0.05432761460542679,

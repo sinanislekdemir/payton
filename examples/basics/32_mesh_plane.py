@@ -19,7 +19,7 @@ class App(Scene):
             [0, 1, 1],  # 3
             [0, 0, 1],  # 4+
         ]
-        self.active_observer.distance_to_target(40)
+        self.active_camera.distance_to_target(40)
         for i in range(60):
             for j in range(60):
                 self.matrix_plane.grid[i][j] = math.sin(math.radians(i * 18)) + math.cos(math.radians(j * 18))

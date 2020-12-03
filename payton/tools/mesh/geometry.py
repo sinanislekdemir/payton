@@ -1,10 +1,16 @@
 from copy import deepcopy
 
-from payton.math.vector import distance, mid_point
+from payton.math.functions import distance, mid_point
 from payton.scene.geometry import Mesh
 
 
 def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
+    """Merge two meshes into a single mesh
+
+    Keyword arguments:
+    mesh1 -- First mesh
+    mesh2 -- Second mesh
+    """
     m1_vertices = list(mesh1.absolute_vertices())
     m2_vertices = list(mesh2.absolute_vertices())
     mesh = Mesh()
@@ -24,6 +30,12 @@ def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
 
 
 def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
+    """Subdivide the mesh polygons by given steps
+
+    Keyword arguments:
+    mesh -- Original mesh
+    rounds -- Number of split rounds
+    """
     original = deepcopy(mesh)
     new = deepcopy(original)
     for i in range(rounds):

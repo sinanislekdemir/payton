@@ -1,6 +1,7 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
-from payton.math.vector import min_max
+from payton.math.functions import min_max
+from payton.math.vector import Vector3D
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT
 
@@ -11,10 +12,22 @@ class Cube(Mesh):
         width: float = 1.0,
         depth: float = 1.0,
         height: float = 1.0,
-        from_corner: Optional[List[float]] = None,
-        to_corner: Optional[List[float]] = None,
+        from_corner: Optional[Vector3D] = None,
+        to_corner: Optional[Vector3D] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize the Cube object
+
+        Instead of using W/D/H arguments, you can define a Cube
+        starting from a point A filling up to point B.
+
+        Keyword arguments:
+        width -- Width of the cube (default = 1)
+        depth -- Depth of the cube (default = 1)
+        height -- Height of the cube (default = 1)
+        from_corner -- (Optional) Starting point A
+        to_corner -- (Optional) Ending point B
+        """
         super().__init__(**kwargs)
         width *= 0.5
         depth *= 0.5

@@ -27,15 +27,14 @@ def generate(period, total):
 hud = Hud()
 text = Text(
     label="Hit Space to create points",
-    position=(5, 5),
-    size=(200, 35),
-    color=(1, 1, 1),
+    position=[5, 5, 1],
+    size=[200, 35],
+    color=[1, 1, 1],
 )
 
+scene.add_object("pc", pc)
 hud.add_child("text", text)
 scene.add_object("hud", hud)
-
-scene.add_object("pc", pc)
 scene.create_clock("generate", 0.001, generate)
 
 scene.run()

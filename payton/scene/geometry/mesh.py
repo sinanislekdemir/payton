@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Any, Dict, Optional
 
-from payton.math.vector import invert_vector, plane_normal, vector_angle
+from payton.math.functions import invert_vector, plane_normal, vector_angle
 from payton.scene.geometry.base import Object
 from payton.scene.material import DEFAULT, Material
 from payton.scene.types import VList
@@ -20,10 +20,6 @@ class Mesh(Object):
     or sub-division or cutting and so forth. It is a way of designing objects
     by code.
 
-
-    Example use case:
-
-        .. include:: ../../../examples/basics/09_mesh.py
     """
 
     def __init__(self, **kwargs: Any) -> None:
@@ -42,23 +38,30 @@ class Mesh(Object):
         self.refresh()
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "Mesh":
-        res = cls()
-        res._vertices = d["vertices"]
-        res._normals = d["normals"]
-        res._texcoords = d["texcoords"]
-        res.matrix = d["matrix"]
-        res.materials = {n: Material.from_dict(d["materials"][n]) for n in d["materials"]}
+    def from_dict(cls, object_dict: Dict[str, Any]) -> "Mesh":
+        """Load the mesh from a dictionary
 
-        res.children = {n: cls.from_dict(d["children"][n]) for n in d["children"]}
+        Keyword arguments:
+        object_dict -- Object dictionary to load
+        """
+        res = cls()
+        res._vertices = object_dict["vertices"]
+        res._normals = object_dict["normals"]
+        res._texcoords = object_dict["texcoords"]
+        res.matrix = object_dict["matrix"]
+        res.materials = {n: Material.from_dict(object_dict["materials"][n]) for n in object_dict["materials"]}
+
+        res.children = {n: cls.from_dict(object_dict["children"][n]) for n in object_dict["children"]}
 
         return res
 
     def to_json(self, **kwargs) -> str:
+        """Convert the mesh into JSON string"""
         return json.dumps(self.to_dict(), **kwargs)
 
     @classmethod
     def from_json(cls, jstr: str) -> "Mesh":
+        """Load the mesh from a JSON strong"""
         data = json.loads(jstr)
         return cls.from_dict(data)
 
@@ -78,13 +81,22 @@ class Mesh(Object):
 
     def fix_normals(self, reverse=False) -> None:
         """Try to re-calculate Mesh normals, if your object has already perfect
-        normals, do not call this method"""
+        normals, do not call this method
+
+        Keyword arguments:
+        reverse -- Force reversing the normal directions.
+        """
         self._normals = [[0, 0, 1.0]] * len(self._vertices)
 
         [self._calc_normal(face[0], face[1], face[2], reverse) for face in self._indices]
 
     def fix_texcoords(self, u: int = 1, v: int = 1) -> None:
-        """Try to recalculate mesh texture coordinates by cube projection"""
+        """Try to recalculate mesh texture coordinates by cube projection
+
+        Keyword arguments:
+        u -- X/U coordinate repeats for the texture coordinates
+        v -- Y/V coordinate repeats for the texture coordinates
+        """
         self._texcoords = []
         self._calc_bounds()
         bbox = self.bounding_box
@@ -171,15 +183,15 @@ class Mesh(Object):
     ) -> None:
         """Add triangle to Mesh
 
-        Args:
-          vertices: Vertices of the triangle. This is required. Ex:
-                    `[[0, 0, 0], [2, 0, 0], [1, 1, 0]]`
-          normals: Normals of the triangle. _(When left as None, Payton will
-                   calculate the surface normal based on vertices and assign
-                   it per given vertex.)_
-          material: Name of the material to use.
-          texcoords: Texture UV coordinates.
-          colors: Per vertex colors (optional)
+        Keyword arguments:
+        vertices -- Vertices of the triangle. This is required. Ex:
+                `[[0, 0, 0], [2, 0, 0], [1, 1, 0]]`
+        normals -- Normals of the triangle. _(When left as None, Payton will
+                calculate the surface normal based on vertices and assign
+                it per given vertex.)_
+        material -- Name of the material to use.
+        texcoords -- Texture UV coordinates.
+        colors -- Per vertex colors (optional)
         """
         if len(vertices) != 3:
             logging.error("A triangle must have 3 vertices")

@@ -2,7 +2,7 @@ import math
 from itertools import product
 from typing import Any
 
-from payton.math.vector import plane_normal
+from payton.math.functions import plane_normal
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT
 
@@ -15,6 +15,13 @@ class Sphere(Mesh):
         meridians: int = 12,
         **kwargs: Any,
     ) -> None:
+        """Initialize a Sphere object with the given parameters
+
+        Keyword arguments:
+        radius -- Radius of the sphere
+        parallels -- Number of horizontal steps to produce the sphere
+        meridians -- Number of vertical steps to produce the sphere
+        """
         super().__init__(**kwargs)
         self.radius: float = radius
         self.parallels: int = parallels
@@ -22,6 +29,7 @@ class Sphere(Mesh):
         self.build_sphere()
 
     def build_sphere(self) -> bool:
+        """Build the sphere"""
         r = self.radius
         # step angle is the rotational angle to build the sphere
         step_angle = math.radians(360.0 / self.meridians)

@@ -57,7 +57,7 @@ ball = Sphere(radius=1, track_motion=True)
 
 # Add ball to the scene
 scene.add_object("ball", ball)
-scene.active_observer.target_object = ball  # Track the ball
+scene.active_camera.target_object = ball  # Track the ball
 
 scene.grid.resize(30, 30, 2)
 ground = Plane(80, 80)

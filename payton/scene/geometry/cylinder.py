@@ -13,6 +13,13 @@ class Cylinder(Mesh):
         height: float = 1.0,
         **kwargs: Any,
     ) -> None:
+        """Define a Cylinder with given parameters
+
+        Keyword arguments:
+        bottom_radius -- Bottom radius
+        top_radius -- Top radius
+        meridians -- Vertical steps to draw the cylinder
+        height -- Height of the cylinder"""
         super().__init__(**kwargs)
         self._bottom_radius: float = bottom_radius
         self._top_radius: float = top_radius
@@ -21,6 +28,7 @@ class Cylinder(Mesh):
         self.build_cylinder()
 
     def build_cylinder(self) -> bool:
+        """Build the cylinder based on the initial parameters"""
         step_angle = math.radians(360 / self._meridians)
 
         u_step = 1.0 / self._meridians

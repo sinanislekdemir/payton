@@ -46,7 +46,9 @@ a newbie can kick-start it just by following the tutorials.
   - [Controls](#controls)
   - [Examples](#examples)
   - [Example Index](#example-index)
+  - [Contribution](#contribution)
   - [Screenshots and Videos](#screenshots-and-videos)
+  - [Some free-thoughts and decisions:](#some-free-thoughts-and-decisions)
 
 
 ## Features:
@@ -154,8 +156,8 @@ This will create your first empty scene and show it inside an SDL window.
 | Space | UnPause / Pause Scene Clocks |
 | G | Show / Hide Grid |
 | W | Change Display Mode (Solid / Wireframe / Points) |
-| F2 | Previous Observer |
-| F3 | Next Observer |
+| F2 | Previous Camera |
+| F3 | Next Camera |
 | H | Open / Close Help Window |
 
 ## Examples
@@ -240,3 +242,13 @@ You can either download the whole repository [as a zip file](https://github.com/
 | [![](https://27x2.com/thumb-engrave.png)](https://27x2.com/engrave.png) | [![](https://27x2.com/thumb-spotlight.png)](https://27x2.com/spotlight.png) | [![](https://27x2.com/thumb-day.png)](https://27x2.com/day.png) |
 | [![](https://27x2.com/thumb-ragdoll.png)](https://27x2.com/ragdoll.png) | [![](https://27x2.com/thumb-quake.png)](https://27x2.com/quake.png) | [![](https://27x2.com/thumb-motion.png)](https://27x2.com/motion.png) |
 | [![](https://27x2.com/thumb-gui.png)](https://27x2.com/gui.png) | [![](https://27x2.com/thumb-collision.png)](https://27x2.com/collision.png) | |
+
+
+## Some free-thoughts and decisions:
+
+I've choosen to use `List[float]` type for Vectors because:
+
+* I needed something mutable. Otherwise, the number of memory copy and swaps would be too much. So, I've crossed out `Tuple` and `NamedTuple`.
+* `dataclass` has an overhead to convert to C-type floats and arrays in memory.
+
+So, to gain some performance, I have created the main library with a risk of non-strict vector lengths.

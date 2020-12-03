@@ -30,7 +30,7 @@ def motion(period, total):
 space = Scene()
 space.shadow_quality = SHADOW_NONE
 space.lights.append(Light(position=[12, 12, 12]))
-space.observers[0].position = [20, 20, 20]
+space.cameras[0].position = [20, 20, 20]
 space.grid.resize(40, 40, 1)
 
 texture_file = os.path.join(os.path.dirname(__file__), "map.png")
