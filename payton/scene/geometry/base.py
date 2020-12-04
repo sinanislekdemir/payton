@@ -205,7 +205,7 @@ class Object:
 
         up = cross_product(self.matrix[0], self.matrix[1])
 
-        self.matrix = [self.matrix[0], self.matrix[1], to_4(normalize_vector(up)), self.matrix[3]]
+        self.matrix = [self.matrix[0], self.matrix[1], to_4(up, 0), self.matrix[3]]
         self._to_absolute.cache_clear()
         self._absolute_vertices = None
 

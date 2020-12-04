@@ -1,10 +1,10 @@
 import sdl2
 
 from payton.scene import Scene
-from payton.scene.controller import Controller
+from payton.scene.controller import GUIController
 
 
-class CustomKeyboardControls(Controller):
+class CustomKeyboardControls(GUIController):
     def keyboard(self, event, scene):
         # Do we want all other keyboard maps? if so, lets super this!
         super().keyboard(event, scene)
