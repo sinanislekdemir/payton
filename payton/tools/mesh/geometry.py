@@ -29,70 +29,69 @@ def merge_mesh(mesh1: Mesh, mesh2: Mesh) -> Mesh:
     return mesh
 
 
-def subdivide(mesh: Mesh, rounds: int = 1) -> Mesh:
+def subdivide(original: Mesh) -> Mesh:
     """Subdivide the mesh polygons by given steps
 
     Keyword arguments:
     mesh -- Original mesh
-    rounds -- Number of split rounds
     """
-    original = deepcopy(mesh)
-    new = deepcopy(original)
-    for i in range(rounds):
-        has_texcoords = len(original._texcoords) == len(original._vertices)
-        new.clear_triangles()
+    new = Mesh()
+    has_texcoords = len(original._texcoords) == len(original._vertices)
+    new.clear_triangles()
 
-        for indice in original._indices:
-            v1 = original._vertices[indice[0]]
-            v2 = original._vertices[indice[1]]
-            v3 = original._vertices[indice[2]]
+    for indice in original._indices:
+        v1 = original._vertices[indice[0]]
+        v2 = original._vertices[indice[1]]
+        v3 = original._vertices[indice[2]]
 
-            a = v1
-            a_i = indice[0]
-            b = v2
-            b_i = indice[1]
-            c = v3
-            c_i = indice[2]
+        a = v1
+        a_i = indice[0]
+        b = v2
+        b_i = indice[1]
+        c = v3
+        c_i = indice[2]
 
-            if distance(v2, v3) > distance(v1, v2):
-                a = v2
-                a_i = indice[1]
-                b = v3
-                b_i = indice[2]
-                c = v1
-                c_i = indice[0]
+        if distance(v2, v3) > distance(v1, v2):
+            a = v2
+            a_i = indice[1]
+            b = v3
+            b_i = indice[2]
+            c = v1
+            c_i = indice[0]
 
-            if distance(v3, v1) > distance(v2, v3):
-                a = v3
-                a_i = indice[2]
-                b = v1
-                b_i = indice[0]
-                c = v2
-                c_i = indice[1]
+        if distance(v3, v1) > distance(v2, v3):
+            a = v3
+            a_i = indice[2]
+            b = v1
+            b_i = indice[0]
+            c = v2
+            c_i = indice[1]
 
-            vc = mid_point(a, b)
-            n1 = original._normals[indice[0]]
-            texcoords_1 = None
-            texcoords_2 = None
-            if has_texcoords:
-                t1 = original._texcoords[a_i]
-                t2 = original._texcoords[b_i]
-                t3 = original._texcoords[c_i]
+        vc = mid_point(a, b)
+        n1 = original._normals[indice[0]]
+        texcoords_1 = None
+        texcoords_2 = None
+        if has_texcoords:
+            t1 = original._texcoords[a_i]
+            t2 = original._texcoords[b_i]
+            t3 = original._texcoords[c_i]
+            t1.append(0)
+            t2.append(0)
+            t3.append(0)
 
-                tc = mid_point(t1, t2)
+            tc = mid_point(t1, t2)
 
-                texcoords_1 = [t1, tc, t3]
-                texcoords_2 = [t3, tc, t2]
+            texcoords_1 = [t1[:2], tc[:2], t3[:2]]
+            texcoords_2 = [t3[:2], tc[:2], t2[:2]]
 
-            new.add_triangle(
-                vertices=[a, vc, c],
-                normals=[n1, n1, n1],
-                texcoords=texcoords_1,
-            )
-            new.add_triangle(
-                vertices=[c, vc, b],
-                normals=[n1, n1, n1],
-                texcoords=texcoords_2,
-            )
-        original = deepcopy(new)
+        new.add_triangle(
+            vertices=[a, vc, c],
+            normals=[n1, n1, n1],
+            texcoords=texcoords_1,
+        )
+        new.add_triangle(
+            vertices=[c, vc, b],
+            normals=[n1, n1, n1],
+            texcoords=texcoords_2,
+        )
     return new
