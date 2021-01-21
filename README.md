@@ -121,7 +121,7 @@ Is sufficient to install Payton and it's dependencies on Anaconda.
 
 Payton will be available to use with Spyder or JupyterLab on local.
 
-![](https://27x2.com/anaconda.png)
+![](https://islekdemir.com/payton/anaconda.png)
 
 ### Upgrade to the latest version:
 
@@ -233,15 +233,15 @@ You can either download the whole repository [as a zip file](https://github.com/
 
 ## Screenshots and Videos
 
-[![](https://27x2.com/youtube.png)](https://www.youtube.com/watch?v=bKQ9G1J5JYM)
+[![](https://islekdemir.com/payton/youtube.png)](https://www.youtube.com/watch?v=bKQ9G1J5JYM)
 
 |  |  |  |
 | --- | --- | --- |
-| [![](https://27x2.com/thumb-cube.png)](https://27x2.com/cube.png) | [![](https://27x2.com/thumb-clock.png)](https://27x2.com/clock.png) | [![](https://27x2.com/thumb-monkey.png)](https://27x2.com/monkey.png) |
-| [![](https://27x2.com/thumb-particle.png)](https://27x2.com/particle.png) | [![](https://27x2.com/thumb-mesh_plane.png)](https://27x2.com/mesh_plane.png) | [![](https://27x2.com/thumb-ripple.png)](https://27x2.com/ripple.png) |
-| [![](https://27x2.com/thumb-engrave.png)](https://27x2.com/engrave.png) | [![](https://27x2.com/thumb-spotlight.png)](https://27x2.com/spotlight.png) | [![](https://27x2.com/thumb-day.png)](https://27x2.com/day.png) |
-| [![](https://27x2.com/thumb-ragdoll.png)](https://27x2.com/ragdoll.png) | [![](https://27x2.com/thumb-quake.png)](https://27x2.com/quake.png) | [![](https://27x2.com/thumb-motion.png)](https://27x2.com/motion.png) |
-| [![](https://27x2.com/thumb-gui.png)](https://27x2.com/gui.png) | [![](https://27x2.com/thumb-collision.png)](https://27x2.com/collision.png) | |
+| [![](https://islekdemir.com/payton/thumb-cube.png)](https://islekdemir.com/payton/cube.png) | [![](https://islekdemir.com/payton/thumb-clock.png)](https://islekdemir.com/payton/clock.png) | [![](https://islekdemir.com/payton/thumb-monkey.png)](https://islekdemir.com/payton/monkey.png) |
+| [![](https://islekdemir.com/payton/thumb-particle.png)](https://islekdemir.com/payton/particle.png) | [![](https://islekdemir.com/payton/thumb-mesh_plane.png)](https://islekdemir.com/payton/mesh_plane.png) | [![](https://islekdemir.com/payton/thumb-ripple.png)](https://islekdemir.com/payton/ripple.png) |
+| [![](https://islekdemir.com/payton/thumb-engrave.png)](https://islekdemir.com/payton/engrave.png) | [![](https://islekdemir.com/payton/thumb-spotlight.png)](https://islekdemir.com/payton/spotlight.png) | [![](https://islekdemir.com/payton/thumb-day.png)](https://islekdemir.com/payton/day.png) |
+| [![](https://islekdemir.com/payton/thumb-ragdoll.png)](https://islekdemir.com/payton/ragdoll.png) | [![](https://islekdemir.com/payton/thumb-quake.png)](https://islekdemir.com/payton/quake.png) | [![](https://islekdemir.com/payton/thumb-motion.png)](https://islekdemir.com/payton/motion.png) |
+| [![](https://islekdemir.com/payton/thumb-gui.png)](https://islekdemir.com/payton/gui.png) | [![](https://islekdemir.com/payton/thumb-collision.png)](https://islekdemir.com/payton/collision.png) | |
 
 
 ## Some free-thoughts and decisions:
