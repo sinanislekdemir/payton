@@ -1,4 +1,4 @@
-# Contributing yo Payton
+# Contributing to Payton
 
 Dear developer! First of all, thank you so much for considering contributing to Payton. You can contribute to Payton in many ways!
 
