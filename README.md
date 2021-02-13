@@ -39,6 +39,7 @@ a newbie can kick-start it just by following the tutorials.
   - [Install](#install)
     - [Requirements:](#requirements)
     - [Install using Pip:](#install-using-pip)
+      - [AWP3D Format and Exporter](#awp3d-format-and-exporter)
       - [Using Payton with Anaconda](#using-payton-with-anaconda)
     - [Upgrade to the latest version:](#upgrade-to-the-latest-version)
   - [Getting Started](#getting-started)
@@ -79,6 +80,7 @@ a newbie can kick-start it just by following the tutorials.
   * Button
   * EditBox (Multi-line support)
 * 3D File formats:
+  * AWP3D Animated High-Poly 3D Object 
   * Wavefront OBJ
   * Quake 2 MD2 with Animations
 * Mesh Generation Tools
@@ -108,6 +110,13 @@ pip3 install payton
 ```
 
 This should install all dependencies. If you get any permission errors, you are probably installing the library to system-global so missing some permissions. If you do not want to use pipenv or virtualenv, then you might want to run above command as `sudo pip3 install payton`
+
+#### AWP3D Format and Exporter
+
+AWP3D is simply a ZIP file with every frame as Wavefront object. To export your animated
+Blender objects, you can use the exporter add-on here:
+
+[https://github.com/sinanislekdemir/payton/tree/master/plugins/Blender%202.8-2.9](https://github.com/sinanislekdemir/payton/tree/master/plugins/Blender%202.8-2.9)
 
 #### Using Payton with Anaconda
 
@@ -210,6 +219,9 @@ You can either download the whole repository [as a zip file](https://github.com/
   * [Changing time of day](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/29_day.py)
   * [Near and Far Planes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/30_near_far_plane.py)
   * [Spotlight Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/31_spotlight.py)
+  * [Mesh Plane Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/32_mesh_playne.py)
+  * [AWP3D Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/34_awp3d.py)
+  * [AWP3D Example Ranges](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/35_awp3d_range.py)
 * Mid Level
   * [Popping the baloons game](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/balloon.py)
   * [Build mesh using heightmap](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/engrave.py)
@@ -234,6 +246,9 @@ You can either download the whole repository [as a zip file](https://github.com/
 ## Screenshots and Videos
 
 [![](https://islekdemir.com/payton/youtube.png)](https://www.youtube.com/watch?v=bKQ9G1J5JYM)
+
+[![](http://i3.ytimg.com/vi/3ATRVLNuCew/maxresdefault.jpg)](https://www.youtube.com/watch?v=3ATRVLNuCew)
+
 
 |  |  |  |
 | --- | --- | --- |

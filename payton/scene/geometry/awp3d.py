@@ -67,7 +67,7 @@ class AWP3D(Wavefront):
 
     def set_range(self, from_frame: int, to_frame: int):
         """Set animation frame range
-        
+
         Keyword arguments:
         from_frame -- Starting frame number
         to_frame -- Ending frame number
