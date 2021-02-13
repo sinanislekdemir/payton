@@ -71,6 +71,8 @@ EMPTY_VERTEX_ARRAY = -3
 
 BASE_PARTICLE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "particle.png")
 
+_IMAGE_CACHE: Dict[str, int] = {}
+
 
 class Material:
     def __init__(
@@ -159,11 +161,15 @@ class Material:
         return res
 
     def build(self) -> bool:
+        global _IMAGE_CACHE
         """Build the material"""
         self._initialized = True
         if os.path.isfile(self.texture):
-            img = Image.open(self.texture)
-            self.load_texture(img)
+            if self.texture in _IMAGE_CACHE:
+                self._texture = _IMAGE_CACHE[self.texture]
+            else:
+                img = Image.open(self.texture)
+                _IMAGE_CACHE[self.texture] = self.load_texture(img)
         if self._image is not None:
             self.load_texture(self._image)
         if os.path.isfile(self.particle_texture):
@@ -171,7 +177,7 @@ class Material:
             self.load_texture(img, particle=True)
         return True
 
-    def load_texture(self, img: Image.Image, particle: bool = False) -> None:
+    def load_texture(self, img: Image.Image, particle: bool = False) -> int:
         """Load texture directly from PIL Image object
 
         Keyword arguments:
@@ -212,6 +218,7 @@ class Material:
         )
         glGenerateMipmap(GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, 0)
+        return self._texture or -1
 
     def refresh(self) -> None:
         """Refresh / apply the material changes into OpenGL context"""

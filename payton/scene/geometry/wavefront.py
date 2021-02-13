@@ -73,10 +73,13 @@ class Wavefront(Mesh):
 
             if parts[0] == "map_Kd":
                 rest = " ".join(parts[1:])
-                if rest == "/":
+                if rest.startswith("/"):
+                    if not os.path.exists(rest):
+                        base_name = os.path.basename(rest)
+                        rest = os.path.join(self.path, base_name)
                     material.texture = rest
                 else:
-                    material.texture = f"{self.path}/{rest}"
+                    material.texture = os.path.join(self.path, rest)
 
         self.add_material(material_name, material)
 
@@ -87,7 +90,6 @@ class Wavefront(Mesh):
         filename -- Filename to load
         """
         if not os.path.isfile(filename):
-            logging.exception(f"File not found {filename}")
             return False
         data = open(filename).read()
         return self.load_material(data)
