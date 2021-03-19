@@ -27,7 +27,7 @@ setup(
     # Dependent packages (distributions)
     install_requires=[
         "numpy==1.18.2",
-        "Pillow==7.1.0",
+        "Pillow==8.1.1",
         "PyOpenGL==3.1.3rc1",
         "PyOpenGL-accelerate==3.1.5",
         "pyrr==0.10.3",
