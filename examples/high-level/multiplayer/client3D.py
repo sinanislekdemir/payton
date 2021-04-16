@@ -3,7 +3,7 @@ import math
 import socket
 import uuid
 
-from payton.math.vector import distance
+from payton.math.functions import distance
 from payton.scene import Scene
 from payton.scene.geometry import Cube
 

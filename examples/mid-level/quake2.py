@@ -1,7 +1,7 @@
 import os
 import random
 
-from payton.math.vector import distance
+from payton.math.functions import distance
 from payton.scene import Scene
 from payton.scene.geometry import MD2, Plane
 

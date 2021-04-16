@@ -1,6 +1,6 @@
 import os
 
-from payton.math.vector import distance
+from payton.math.functions import distance
 from payton.scene import Scene
 from payton.scene.geometry import Plane, Wavefront
 
