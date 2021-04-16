@@ -171,14 +171,16 @@ class Camera:
         _theta = math.acos(diff[2] / r)
         _phi = math.atan2(diff[1], diff[0])
 
-        _theta = (math.degrees(_theta) + theta) % 360
-        _phi = (math.degrees(_phi) + phi) % 360
+        _ct = _theta + math.radians(theta)
+        _cp = _phi + math.radians(phi)
+        if _ct < 0.001:
+            _ct = 0.001
+        if _ct > 3.13:
+            _ct = 3.13
 
-        _theta = math.radians(_theta)
-        _phi = math.radians(_phi)
-        x = r * math.sin(_theta) * math.cos(_phi)
-        y = r * math.sin(_theta) * math.sin(_phi)
-        z = r * math.cos(_theta)
+        x = r * math.sin(_ct) * math.cos(_cp)
+        y = r * math.sin(_ct) * math.sin(_cp)
+        z = r * math.cos(_ct)
 
         self.position = [
             x + self.target[0],
