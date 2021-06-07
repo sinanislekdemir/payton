@@ -34,9 +34,9 @@ class CustomKeyboardControls(Controller):
                 rotate = 1
         if event.type == sdl2.SDL_KEYUP:
             key = event.key.keysym.sym
-            if key == sdl2.SDLK_UP or key == sdl2.SDLK_DOWN:
+            if key in [sdl2.SDLK_UP, sdl2.SDLK_DOWN]:
                 forward = 0
-            if key == sdl2.SDLK_LEFT or key == sdl2.SDLK_RIGHT:
+            if key in [sdl2.SDLK_LEFT, sdl2.SDLK_RIGHT]:
                 rotate = 0
 
 

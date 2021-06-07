@@ -35,6 +35,12 @@ class Cylinder(Mesh):
         r_bot = self._bottom_radius
         r_top = self._top_radius
         h_2 = self._height / 2.0
+        v1 = 1.0
+        v2 = 0.0
+
+        v3 = 1.0
+        v4 = 0.0
+
         for i in range(self._meridians):
             x1 = r_bot * math.cos(step_angle * i)
             y1 = r_bot * math.sin(step_angle * i)
@@ -42,20 +48,14 @@ class Cylinder(Mesh):
             y2 = r_top * math.sin(step_angle * i)
 
             u1 = u_step * i
-            v1 = 1.0
             u2 = u1
-            v2 = 0.0
-
             x3 = r_bot * math.cos(step_angle * (i + 1))
             y3 = r_bot * math.sin(step_angle * (i + 1))
             x4 = r_top * math.cos(step_angle * (i + 1))
             y4 = r_top * math.sin(step_angle * (i + 1))
 
             u3 = u_step * (i + 1)
-            v3 = 1.0
             u4 = u3
-            v4 = 0.0
-
             self.add_triangle(
                 [[x1, y1, -h_2], [x3, y3, -h_2], [x2, y2, h_2]],
                 texcoords=[[u1, v1], [u3, v3], [u2, v2]],

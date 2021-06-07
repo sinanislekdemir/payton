@@ -34,7 +34,7 @@ class ParticleDemo(Scene):
         self.create_clock("fps", 0.5, self.show_fps)
 
     def generate_particles(self):
-        for i in range(10000):
+        for _ in range(10000):
             angle = math.radians(random.randint(0, 9000) / 100.0)
             orientation = math.radians(random.randint(0, 3600) / 10.0)
             velocity = float(random.randint(100, 200) / 10.0)

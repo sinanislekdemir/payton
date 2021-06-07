@@ -173,10 +173,8 @@ class Camera:
 
         _ct = _theta + math.radians(theta)
         _cp = _phi + math.radians(phi)
-        if _ct < 0.001:
-            _ct = 0.001
-        if _ct > 3.13:
-            _ct = 3.13
+        _ct = max(_ct, 0.001)
+        _ct = min(_ct, 3.13)
 
         x = r * math.sin(_ct) * math.cos(_cp)
         y = r * math.sin(_ct) * math.sin(_cp)
@@ -307,8 +305,7 @@ class Camera:
             y = 70
             if self.zoom == 0:
                 self.zoom = 0.01
-            if self.near < 1:
-                self.near = 1
+            self.near = max(self.near, 1)
             proj_matrix = pyrr.matrix44.create_orthogonal_projection_matrix(
                 left=(-x / self.zoom),
                 right=(x / self.zoom),

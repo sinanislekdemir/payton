@@ -43,28 +43,26 @@ class GUIController(BaseController):
         event -- SDL2 Event Triggered
         scene -- Active scene
         """
-        if event.type == sdl2.SDL_TEXTINPUT:
-            if self._active_object is not None:
-                self._active_object._on_keypress(event.text.text.decode('utf-8'))
-                return True
+        if event.type == sdl2.SDL_TEXTINPUT and self._active_object is not None:
+            self._active_object._on_keypress(event.text.text.decode('utf-8'))
+            return True
 
-        if event.type == sdl2.SDL_KEYUP:
+        if event.type == sdl2.SDL_KEYUP and self._active_object is not None:
             key = event.key.keysym.sym
-            if self._active_object is not None:
-                if key == sdl2.SDLK_ESCAPE or (key == sdl2.SDLK_RETURN and not self._active_object.multiline):
-                    self._active_object._exit()
-                    self._active_object = None
-                    sdl2.SDL_ShowCursor(True)
-                    sdl2.SDL_StopTextInput()
-                if self._active_object and key == sdl2.SDLK_BACKSPACE:
-                    self._active_object.backspace()
-                if key == sdl2.SDLK_RETURN and self._active_object is not None and self._active_object.multiline:
-                    self._active_object._on_keypress("\n")
-                if self._active_object and key == sdl2.SDLK_LEFT:
-                    self._active_object.cursor_left()
-                if self._active_object and key == sdl2.SDLK_RIGHT:
-                    self._active_object.cursor_right()
-                return True
+            if key == sdl2.SDLK_ESCAPE or (key == sdl2.SDLK_RETURN and not self._active_object.multiline):
+                self._active_object._exit()
+                self._active_object = None
+                sdl2.SDL_ShowCursor(True)
+                sdl2.SDL_StopTextInput()
+            if self._active_object and key == sdl2.SDLK_BACKSPACE:
+                self._active_object.backspace()
+            if key == sdl2.SDLK_RETURN and self._active_object is not None and self._active_object.multiline:
+                self._active_object._on_keypress("\n")
+            if self._active_object and key == sdl2.SDLK_LEFT:
+                self._active_object.cursor_left()
+            if self._active_object and key == sdl2.SDLK_RIGHT:
+                self._active_object.cursor_right()
+            return True
         return False
 
     def mouse(self, event: sdl2.SDL_Event, scene: Any) -> bool:
@@ -185,13 +183,13 @@ class SceneController(BaseController):
             mx, my = event.button.x, event.button.y
             eye, ray_dir = camera.screen_to_world(mx, my, scene.window_width, scene.window_height)
 
-            list = []
             if callable(scene.on_select):
+                list = []
                 for obj in scene.objects:
                     hit = scene.objects[obj].select(eye, ray_dir)
                     if hit:
                         list.append(scene.objects[obj])
-                if len(list) > 0:
+                if list:
                     scene.on_select(list)
 
             if not (scene._shift_down or scene._ctrl_down):

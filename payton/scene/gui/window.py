@@ -297,8 +297,7 @@ class Button(Panel):
             theme=theme,
             **kwargs,
         )
-        if height < 30:
-            height = 30
+        height = max(height, 30)
 
         self._label = label
         self.text = Text(
@@ -315,10 +314,8 @@ class Button(Panel):
         text_size = self.text.text_size
         x = (self.size[0] - text_size[0]) / 2
         y = (self.size[1] - text_size[1]) / 2
-        if x < 0:
-            x = 0
-        if y < 0:
-            y = 0
+        x = max(x, 0)
+        y = max(y, 0)
         y -= 4
         self.text.label = self._label
         self.text.position = [x, y]
@@ -377,8 +374,7 @@ class EditBox(Panel):
         on_change -- On change callback method (expects a string argument) `def on_change(text: str)`
         """
         kwargs["on_click"] = self._focus
-        if height < 30:
-            height = 30
+        height = max(height, 30)
 
         super().__init__(
             width=width,
@@ -417,15 +413,13 @@ class EditBox(Panel):
     def cursor_left(self):
         """Move the cursor to the left"""
         self._cursor -= 1
-        if self._cursor < 0:
-            self._cursor = 0
+        self._cursor = max(self._cursor, 0)
         self._init = False
 
     def cursor_right(self):
         """Move the cursor to the right"""
         self._cursor += 1
-        if self._cursor > len(self.value):
-            self._cursor = len(self.value)
+        self._cursor = min(self._cursor, len(self.value))
         self._init = False
 
     def backspace(self):
@@ -454,8 +448,7 @@ class EditBox(Panel):
         text_size = list(self.text.text_size)
         x = 1
         y = (self.size[1] - text_size[1]) / 2
-        if y < 0:
-            y = 0
+        y = max(y, 0)
         y += 4
         self.text.position = [x, y]
         crop = [0, 0, text_size[0], text_size[1] + 4]

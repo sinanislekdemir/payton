@@ -15,7 +15,7 @@ class App(Scene):
         self.line.material.color = RED
         self.grid.visible = False
 
-        for i in range(20):
+        for _ in range(20):
             x = random.randint(-1000, 1000) / 100
             y = random.randint(-1000, 1000) / 100
             z = random.randint(-1000, 1000) / 100

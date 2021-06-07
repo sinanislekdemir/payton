@@ -446,8 +446,10 @@ class Object:
         if self._no_missing_vao:
             return False
         result = any(
-            [material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1 for material in self.materials.values()]
+            material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1
+            for material in self.materials.values()
         )
+
         if not result:
             self._no_missing_vao = True
         return result
@@ -500,7 +502,7 @@ class Object:
             glDisable(GL_DEPTH_TEST)
 
         for material in self.materials.values():
-            if not material.display == SOLID and shader._depth_shader:
+            if material.display != SOLID and shader._depth_shader:
                 continue
 
             material.render(
@@ -633,13 +635,8 @@ class Object:
         for mat in self.materials.values():
             mat.display = d
 
-        if d == POINTS:
-            self.shader = PARTICLE_SHADER
-            self.refresh()
-        else:
-            self.shader = DEFAULT_SHADER
-            self.refresh()
-
+        self.shader = PARTICLE_SHADER if d == POINTS else DEFAULT_SHADER
+        self.refresh()
         for child in self.children.values():
             child.toggle_wireframe()
 
@@ -899,7 +896,7 @@ class Line(Object):
             self.material._indices.append([i, i + 1])
             self._indices = self.material._indices
 
-        for i in range(self._vertex_count):
+        for _ in range(self._vertex_count):
             self._normals.append([0, 0, 0])
             self._texcoords.append([0, 0])
         self._needs_update = True

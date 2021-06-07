@@ -36,9 +36,8 @@ class Wavefront(Mesh):
 
         self.filename = filename
         self.path = os.path.dirname(os.path.abspath(self.filename))
-        f = open(filename)
-        data = f.read()
-        f.close()
+        with open(filename) as f:
+            data = f.read()
         self.load(data)
         return True
 
@@ -127,16 +126,15 @@ class Wavefront(Mesh):
                 y = float(parts[2])
                 z = float(parts[3])
                 _normals.append([x, y, z])
-            if command == "usemtl":
-                if parts[1] in self.materials:
-                    material = parts[1]
+            if command == "usemtl" and parts[1] in self.materials:
+                material = parts[1]
 
             if command == "f":
                 # I guess this part of the code should be compatable
                 # with POLYGON as well but IDK.
                 face = []  # type: List[List[int]]
                 for i in range(len(parts)):
-                    if parts[i] == "f" or parts[i] == "":
+                    if parts[i] in ["f", ""]:
                         continue
                     subs = parts[i].split("/")
                     vertex = int(subs[0]) - 1
@@ -196,13 +194,13 @@ def export(mesh: Mesh, filename: str, name: str = "object"):
         f"o {name}",
     ]
     for v in mesh._vertices:
-        output.append("v {}".format(" ".join([str(x) for x in v])))
+        output.append("v {}".format(" ".join(str(x) for x in v)))
 
     for t in mesh._texcoords:
-        output.append("vt {}".format(" ".join([str(x) for x in t])))
+        output.append("vt {}".format(" ".join(str(x) for x in t)))
 
     for n in mesh._normals:
-        output.append("vn {}".format(" ".join([str(x) for x in n])))
+        output.append("vn {}".format(" ".join(str(x) for x in n)))
 
     len_texcoords = len(mesh._texcoords) + 1
     len_normals = len(mesh._normals) + 1
