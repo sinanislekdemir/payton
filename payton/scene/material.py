@@ -230,14 +230,7 @@ class Material:
         Keyword argument:
         lit -- Is this a lit material?
         """
-        mode = Shader.LIGHT_COLOR
-
-        if (
-            self.display == SOLID
-            and lit
-            and self.lights
-            and self._texture is not None
-        ):
+        if self.display == SOLID and lit and self.lights and self._texture is not None:
             return Shader.LIGHT_TEXTURE
         elif self.display == SOLID and lit and self.lights:
             return Shader.LIGHT_COLOR

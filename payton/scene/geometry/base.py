@@ -446,8 +446,7 @@ class Object:
         if self._no_missing_vao:
             return False
         result = any(
-            material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1
-            for material in self.materials.values()
+            material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1 for material in self.materials.values()
         )
 
         if not result:
