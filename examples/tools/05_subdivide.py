@@ -9,7 +9,7 @@ object_file = os.path.join(os.path.dirname(__file__), "../basics/monkey.obj")
 
 
 monkey = Wavefront(filename=object_file)
-for i in range(4):
+for _ in range(4):
     monkey = subdivide(monkey)
 
 normal_monkey = Wavefront(filename=object_file)

@@ -88,7 +88,7 @@ def lines_to_mesh(lines: List[Line]) -> Mesh:
     mesh = Mesh()
     if lmin != lmax:
         raise BaseException("Number of vertices for each line must be equal")
-    if len(lines) == 0:
+    if not lines:
         raise BaseException("You must specify more than one line object")
     for i in range(len(lines) - 1):
         fvlist = lines[i]._vertices

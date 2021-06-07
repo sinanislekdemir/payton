@@ -13,7 +13,7 @@ base_sphere = Sphere()
 
 def create_balloons():
     global sphere_count
-    for i in range(4):
+    for _ in range(4):
         x = random.randint(-5, 5)
         y = random.randint(-5, 5)
         z = random.randint(10, 20)

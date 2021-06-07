@@ -12,7 +12,7 @@ from payton.math.vector import Vector3D
 
 def to_4(v: Iterable, fill: float = 1.0) -> Vector3D:
     res = list(v)
-    for i in range(4 - len(res)):
+    for _ in range(4 - len(res)):
         res.append(fill)
     return res
 
@@ -175,8 +175,7 @@ def mid_point(v1: Vector3D, v2: Vector3D) -> Vector3D:
     leng = vector_norm(diff)
     diff = normalize_vector(diff)
     diff = scale_vector(diff, leng / 2.0)
-    result = add_vectors(diff, v1)
-    return result
+    return add_vectors(diff, v1)
 
 
 def distance(v1: Vector3D, v2: Vector3D) -> float:

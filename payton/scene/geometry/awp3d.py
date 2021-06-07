@@ -118,7 +118,7 @@ class AWP3D(Wavefront):
         archive = ZipFile(filename, 'r')
         files = archive.namelist()
         max_frame = max([int(f.split('.')[0]) for f in files]) + 1
-        min_frame = min([int(f.split('.')[0]) for f in files])
+        min_frame = min(int(f.split('.')[0]) for f in files)
         for f in range(min_frame, max_frame):
             progress(f, max_frame - 1)
             wobj = Wavefront()
@@ -159,12 +159,7 @@ class AWP3D(Wavefront):
             mat.display = d
             mat.particle_size = 0.01
 
-        if d == POINTS:
-            self.shader = PARTICLE_SHADER
-            self.refresh()
-        else:
-            self.shader = DEFAULT_SHADER
-            self.refresh()
-
+        self.shader = PARTICLE_SHADER if d == POINTS else DEFAULT_SHADER
+        self.refresh()
         for frame in self.frames:
             frame.toggle_wireframe()

@@ -40,7 +40,7 @@ class Shape2D(Mesh):
             position.append(0)
         position[2] = -1
         self.__position = position
-        self.position = list([float(x) for x in self.__position])
+        self.position = [float(x) for x in self.__position]
         self.size = size
         self.on_click: Optional[Callable] = on_click
         self._font: ImageFont = None
@@ -245,10 +245,8 @@ class Text(Rectangle):
 
         res = d.textsize(self.label, font=self.font)
         lres = list(res)
-        if lres[0] < self.size[0]:
-            lres[0] = self.size[0]
-        if lres[1] < self.size[1]:
-            lres[1] = self.size[1]
+        lres[0] = max(lres[0], self.size[0])
+        lres[1] = max(lres[1], self.size[1])
         return lres[0], lres[1]
 
     def wrap(self, width_in_pixels: int):

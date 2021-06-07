@@ -232,20 +232,19 @@ class Material:
         """
         mode = Shader.LIGHT_COLOR
 
-        if self.display == SOLID:
-            if lit and self.lights:
-                if self._texture is not None:
-                    mode = Shader.LIGHT_TEXTURE
-                else:
-                    mode = Shader.LIGHT_COLOR
-            else:
-                if self._texture is not None:
-                    mode = Shader.NO_LIGHT_TEXTURE
-                else:
-                    mode = Shader.NO_LIGHT_COLOR
+        if (
+            self.display == SOLID
+            and lit
+            and self.lights
+            and self._texture is not None
+        ):
+            return Shader.LIGHT_TEXTURE
+        elif self.display == SOLID and lit and self.lights:
+            return Shader.LIGHT_COLOR
+        elif self.display == SOLID and self._texture is not None:
+            return Shader.NO_LIGHT_TEXTURE
         else:
-            mode = Shader.NO_LIGHT_COLOR
-        return mode
+            return Shader.NO_LIGHT_COLOR
 
     def render(
         self,
@@ -263,7 +262,7 @@ class Material:
         if not self._initialized:
             self.build()
 
-        _mode = mode if mode else self.material_mode(lit)
+        _mode = mode or self.material_mode(lit)
 
         glEnable(GL_BLEND)
         glDisable(GL_CULL_FACE)

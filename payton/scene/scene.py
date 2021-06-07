@@ -497,12 +497,11 @@ class Scene(Receiver):
         This method is better to be called outside the render cycle as it can be
         very costly.
         """
-        result = {
+        return {
             "objects": {name: self.objects[name].to_dict() for name in self.objects},
             "lights": [light.to_dict() for light in self.lights],
             "cameras": [camera.to_dict() for camera in self.cameras],
         }
-        return result
 
     def raycast_intersect(
         self,
@@ -528,9 +527,8 @@ class Scene(Receiver):
         dist_best = -1.0
         hit_obj = None
         for obj in self.objects.values():
-            if exempt_objects is not None:
-                if obj in exempt_objects:
-                    continue
+            if exempt_objects is not None and obj in exempt_objects:
+                continue
             box_hit = raycast_box_intersect(start, direction, obj.bounding_box[0], obj.bounding_box[1])
             if box_hit is None:
                 continue
@@ -725,8 +723,8 @@ class Background:
         hour -- Hour as integer (24 hour format)
         minute -- Minute as integer
         """
-        hour = hour % 24
-        minute = minute % 60
+        hour %= 24
+        minute %= 60
         color_scheme = {
             (0, 3): [[24 / 255, 24 / 255, 48 / 255, 1.0], [24 / 255, 48 / 255, 72 / 255, 1.0]],
             (3, 9): [[24 / 255, 48 / 255, 72 / 255, 1.0], [96 / 255, 168 / 255, 192 / 255, 1.0]],

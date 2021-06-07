@@ -53,10 +53,8 @@ class MatrixPlane(Mesh):
         self.height = height
         self.x = x
         self.y = y
-        if self.x < 2:
-            self.x = 2
-        if self.y < 2:
-            self.y = 2
+        self.x = max(self.x, 2)
+        self.y = max(self.y, 2)
         self.grid: List[List[float]] = []
         # List of List for X, Y and List[float] for color.
         self.color_grid: List[List[List[float]]] = []

@@ -289,8 +289,7 @@ class MD2(Mesh):
 
             self._time = time.time()
 
-        frame_name = f"{self.animation}{self._active_frame}"
-        return frame_name
+        return f"{self.animation}{self._active_frame}"
 
     def render(
         self,
@@ -468,12 +467,7 @@ class MD2(Mesh):
             mat.display = d
             mat.particle_size = 0.01
 
-        if d == POINTS:
-            self.shader = PARTICLE_SHADER
-            self.refresh()
-        else:
-            self.shader = DEFAULT_SHADER
-            self.refresh()
-
+        self.shader = PARTICLE_SHADER if d == POINTS else DEFAULT_SHADER
+        self.refresh()
         for frame in self._frame_children.values():
             frame.toggle_wireframe()

@@ -52,11 +52,7 @@ class Grid:
         yres -- Number of steps in Y direction
         color -- Color of the grid.
         """
-        if color is None:
-            self._color = [0.4, 0.4, 0.4, 1.0]
-        else:
-            self._color = color
-
+        self._color = [0.4, 0.4, 0.4, 1.0] if color is None else color
         self.static: bool = True
         self.matrix: List[float] = [
             1.0,
@@ -167,15 +163,15 @@ class Grid:
         ystart = -(yres * spacing / 2.0)
         xstart = -(xres * spacing / 2.0)
         self._model_matrix = np.asfortranarray(np.array(self.matrix, dtype=np.float32), dtype=np.float32)
-        for j in range(0, yres):
+        for j in range(yres):
             y = ystart + (j * spacing)
-            for i in range(0, xres):
+            for i in range(xres):
                 x = xstart + (i * spacing)
                 self._vertices += [x, y, 0.0]
 
-        for j in range(0, yres - 1):
+        for j in range(yres - 1):
             offset = j * xres
-            for i in range(0, xres - 1):
+            for i in range(xres - 1):
                 k = offset + i
                 self._indices += [
                     k,

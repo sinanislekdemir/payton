@@ -86,9 +86,7 @@ class CollisionTest:
         dist = self._dist(obj1, obj2)
         if obj1.bounding_radius > dist + obj2.bounding_radius:
             return True
-        if obj2.bounding_radius > dist + obj1.bounding_radius:
-            return True
-        return False
+        return obj2.bounding_radius > dist + obj1.bounding_radius
 
     def _aabb_collision_test(self, obj1: Mesh, obj2: Mesh) -> bool:
         a_min = obj1.bounding_box[0]
@@ -99,9 +97,7 @@ class CollisionTest:
             return False
         if a_min[1] >= b_max[1] or b_min[1] >= a_max[1]:
             return False
-        if a_min[2] >= b_max[2] or b_min[2] >= a_max[2]:
-            return False
-        return True
+        return a_min[2] < b_max[2] and b_min[2] < a_max[2]
 
     def _test(self, obj1: Mesh, obj2: Mesh) -> bool:
         bs_test = self._bounding_sphere_collision(obj1, obj2)
