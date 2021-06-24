@@ -8,9 +8,9 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np  # type: ignore
 import pyrr
 
-from payton.math.vector import Vector3D
-from payton.math.geometry import raycast_plane_intersect
 from payton.math.functions import sub_vector
+from payton.math.geometry import raycast_plane_intersect
+from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
 
 BUTTON_LEFT = 1
@@ -254,7 +254,7 @@ class Camera:
         if button == BUTTON_MIDDLE:
             self.pan(x, y, w, h)
 
-    def mouse_wheel(self, yrel: int):
+    def mouse_wheel(self, yrel: int) -> None:
         """Mouse wheel event handler for zoom
 
         Keyword arguments:

@@ -4,7 +4,7 @@ from payton.scene.gui.base import Hud
 from payton.scene.gui.window import Button, Window, WindowAlignment
 
 
-def help_win():
+def help_win() -> Window:
     text = """Payton Shortcuts and Mouse Controls:
 
 MOUSE:

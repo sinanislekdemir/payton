@@ -8,7 +8,7 @@ import os
 import struct
 import time
 from copy import deepcopy
-from typing import Any, BinaryIO, Dict, List, NamedTuple, Optional, cast
+from typing import Any, BinaryIO, Dict, Generator, List, NamedTuple, Optional, Tuple, cast
 
 import numpy as np  # type: ignore
 
@@ -102,8 +102,8 @@ class MD2TriangleLayout(NamedTuple):
     tc_indices: np.ndarray = []
 
 
-def read_block(b: BinaryIO, format_str: str, count: int):
-    def chunks(data: bytes, size):
+def read_block(b: BinaryIO, format_str: str, count: int) -> List[Tuple]:
+    def chunks(data: bytes, size: int) -> Generator:
         offset = 0
         while offset < len(data):
             yield_size = offset + size
@@ -239,7 +239,7 @@ class MD2(Mesh):
         from_frame: int,
         to_frame: int,
         loop: bool = True,
-    ):
+    ) -> None:
         """Set the model in motion
 
         Keyword arguments
@@ -325,7 +325,7 @@ class MD2(Mesh):
         for child in self.children:
             self.children[child].render(lit, shader, self._model_matrix)
 
-    def load_file(self, filename: str):
+    def load_file(self, filename: str) -> None:
         """Load MD2 file
 
         Keyword arguments:
@@ -337,7 +337,7 @@ class MD2(Mesh):
         with open(filename, "rb") as f:
             self.load_buffer(f)
 
-    def load_buffer(self, f: BinaryIO):
+    def load_buffer(self, f: BinaryIO) -> None:
         """Load MD2 buffer into memory and compile the object"""
         self.read_header(f)
         self.read_skin(f)
@@ -346,7 +346,7 @@ class MD2(Mesh):
         self.load_frames(f)
         self.compile()
 
-    def read_triangles(self, f: BinaryIO):
+    def read_triangles(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_tris, os.SEEK_SET)
         triangles = np.array(read_block(f, "< 6H", self.header.num_tris), dtype=np.uint16)
         triangles.shape = (-1, 6)
@@ -354,7 +354,7 @@ class MD2(Mesh):
         tc_indices = triangles[:, 3:]
         self.triangle_layout = MD2TriangleLayout(vertex_indices=vertex_indices, tc_indices=tc_indices)
 
-    def compile(self):
+    def compile(self) -> None:
         self.animations = {}
         for frame in self.frames:
             name = "".join(i for i in frame.name if not i.isdigit())
@@ -365,7 +365,7 @@ class MD2(Mesh):
             frame_name = f"{name}{num}"
             self.build_frame(frame, frame_name)
 
-    def build_frame(self, frame_information: MD2Frame, name: str):
+    def build_frame(self, frame_information: MD2Frame, name: str) -> None:
         mesh = Mesh()
         for i, tri in enumerate(self.triangle_layout.vertex_indices):
             v3 = frame_information.vertices[tri[1]].tolist()
@@ -394,7 +394,7 @@ class MD2(Mesh):
 
         self.add_frame_child(name, mesh)
 
-    def read_header(self, f: BinaryIO):
+    def read_header(self, f: BinaryIO) -> None:
         self.header = MD2Header._make(read_block(f, "< 4s16l", 1)[0])
 
         if self.header.ident.decode("ascii") != _SIGNATURE:
@@ -402,24 +402,24 @@ class MD2(Mesh):
         if self.header.version != _VERSION:
             raise BaseException("Invalid Version")
 
-    def read_skin(self, f: BinaryIO):
+    def read_skin(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_skins, os.SEEK_SET)
         skin_struct = struct.Struct("< %s" % ("64s" * self.header.num_skins))
 
         self.skins = [fix_skin_name(skin) for skin in skin_struct.unpack(f.read(skin_struct.size))]
 
-    def read_tex_coords(self, f: BinaryIO):
+    def read_tex_coords(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_st, os.SEEK_SET)
         tcs = np.array(read_block(f, "< 2h", self.header.num_st), dtype=np.float)
         tcs.shape = (-1, 2)
         tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
         self._texcoords = tcs
 
-    def load_frames(self, f: BinaryIO):
+    def load_frames(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_frames, os.SEEK_SET)
         self.frames = [self.read_frame(f) for x in range(self.header.num_frames)]
 
-    def read_frame(self, f: BinaryIO):
+    def read_frame(self, f: BinaryIO) -> MD2Frame:
         frame_translations = np.array(read_block(f, "< 3f", 2), dtype=np.float)
         scale = frame_translations[0]
         translation = frame_translations[1]
@@ -453,7 +453,7 @@ class MD2(Mesh):
         result["children"] = {name: self.children[name].to_dict() for name in self.children}
         return result
 
-    def set_texture(self, texture_filename: str):
+    def set_texture(self, texture_filename: str) -> None:
         """Set the object texture filaname"""
         for m in self.children.values():
             m.material.texture = texture_filename

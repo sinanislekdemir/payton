@@ -6,9 +6,9 @@ better in time. It just needs some time. Therefore, I am going to visit
 this file every now and then.
 """
 import math
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
-from payton.scene.geometry.base import Line
+from payton.scene.geometry.base import Line, Object
 from payton.scene.geometry.cube import Cube
 from payton.scene.geometry.sphere import Sphere
 from payton.scene.material import WIREFRAME
@@ -32,7 +32,7 @@ L_FOOT = "left_foot"
 
 
 class Joint(Sphere):
-    def __init__(self, name: str, **kwargs):
+    def __init__(self, name: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.radius = 0.01
         self.material.display = WIREFRAME
@@ -46,8 +46,8 @@ class Bone(Line):
         root_joint_name: str,
         end_joint_name: str,
         length: float,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
         root_joint = Joint(name=root_joint_name)
         end_joint = Joint(name=end_joint_name)
@@ -57,10 +57,10 @@ class Bone(Line):
         self.end = self.root.children[end_joint_name]
         self.end.position = [0.0, 0.0, length]
 
-    def connect_to_root(self, joint: Joint):
+    def connect_to_root(self, joint: Object) -> None:
         self.root.add_child(joint.name, joint)
 
-    def connect_to_end(self, joint: Joint):
+    def connect_to_end(self, joint: Object) -> None:
         self.end.add_child(joint.name, joint)
 
 
@@ -70,12 +70,12 @@ class RagDoll(Bone):
         kwargs["end_joint_name"] = "higher_spine"
         kwargs["length"] = 1.0
         super().__init__(**kwargs)
-        self.joints: Dict[str, Joint] = {}
+        self.joints: Dict[str, Union[Joint, Object]] = {}
         self.position = [0.0, 0.0, 2.0]
         self.setup_joints()
         self.setup_geometry()
 
-    def setup_geometry(self):
+    def setup_geometry(self) -> None:
         self.joints[HEAD].add_child(
             "mesh",
             Cube(from_corner=[-0.2, -0.2, 0], to_corner=[0.2, 0.2, 0.4]),
@@ -145,7 +145,7 @@ class RagDoll(Bone):
             Cube(from_corner=[-0.08, -0.08, 0], to_corner=[0.08, 0.08, 0.3]),
         )
 
-    def setup_joints(self):
+    def setup_joints(self) -> None:
         neck = Bone(root_joint_name="lower_neck", end_joint_name="head", length=0.2)
         self.connect_to_end(neck.root)
         head = Bone(root_joint_name="head", end_joint_name="head_top", length=0.4)

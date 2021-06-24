@@ -1,4 +1,5 @@
 from typing import Any, Callable, List, Tuple
+
 from payton.math.vector import Vector3D
 
 VList = List[Vector3D]

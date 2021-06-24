@@ -1,10 +1,10 @@
-from payton.math.matrix import Matrix
 from typing import Any, Dict, List, Optional
 
 import numpy as np  # type: ignore
 
-from payton.math.vector import Vector3D
 from payton.math.functions import cubemap_projection_matrices
+from payton.math.matrix import Matrix
+from payton.math.vector import Vector3D
 
 
 class Light:
@@ -69,7 +69,7 @@ class Light:
         return self._shadow_far_plane
 
     @shadow_far_plane.setter
-    def shadow_far_plane(self, distance: float):
+    def shadow_far_plane(self, distance: float) -> None:
         """Set the furthest distance that the light can cast shadows
 
         Keyword arguments:

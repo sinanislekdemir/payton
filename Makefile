@@ -16,7 +16,7 @@ clean:
 
 check:
 	@echo "If mypy fails miserably, check your MYPYPATH to include SDL and stuff"
-	@mypy payton
+	@mypy payton --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs
 	@flake8 payton
 	@pylama payton --options ./setup.cfg
 

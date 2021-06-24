@@ -8,7 +8,6 @@ Easiest way to generate those files is through using Blender Export
 Add-On.
 """
 import os
-from payton.scene.material import POINTS
 import time
 from typing import Any, Dict, List, Optional, Tuple
 from zipfile import ZipFile
@@ -16,6 +15,7 @@ from zipfile import ZipFile
 import numpy as np
 
 from payton.scene.geometry import Wavefront
+from payton.scene.material import POINTS
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.tools.bar import progress
 
@@ -32,7 +32,7 @@ class AWP3D(Wavefront):
     key frames in Payton
     """
 
-    def __init__(self, filename: str = "", fps=30, **kwargs: Any) -> None:
+    def __init__(self, filename: str = "", fps: int = 30, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.frames: List[Wavefront] = []
         self._frame: int = 0
@@ -52,20 +52,20 @@ class AWP3D(Wavefront):
         if os.path.exists(filename):
             self.load_file(filename)
 
-    def start(self):
+    def start(self) -> None:
         """Manually start animation"""
         self.animate = True
 
-    def pause(self):
+    def pause(self) -> None:
         """Pause animation"""
         self.animate = False
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop animation"""
         self.animate = False
         self._time = 0.0
 
-    def set_range(self, from_frame: int, to_frame: int):
+    def set_range(self, from_frame: int, to_frame: int) -> None:
         """Set animation frame range
 
         Keyword arguments:
@@ -83,7 +83,7 @@ class AWP3D(Wavefront):
         self._active_framecount = to_frame - from_frame
         self._frame_period = 1.0 / self.fps
 
-    def set_animation(self, name: str, from_frame: int, to_frame: int):
+    def set_animation(self, name: str, from_frame: int, to_frame: int) -> None:
         """Create an animation definition
 
         Keyword arguments:
@@ -92,7 +92,7 @@ class AWP3D(Wavefront):
         to_frame -- Animation ending frame number"""
         self.animations[name] = (from_frame, to_frame)
 
-    def run_animation(self, name: str):
+    def run_animation(self, name: str) -> None:
         """Run the selected animation
 
         Keyword arguments:
@@ -102,7 +102,7 @@ class AWP3D(Wavefront):
             raise BaseException("Animation not defined")
         self.set_range(self.animations[name][0], self.animations[name][1])
 
-    def load_file(self, filename: str):
+    def load_file(self, filename: str) -> bool:
         """Load file into system
 
         NOTE: This takes a while, that's why there is a loading
@@ -131,8 +131,11 @@ class AWP3D(Wavefront):
         self._active_framecount = max_frame - min_frame
         self.num_frames = max_frame - min_frame
         archive.close()
+        return True
 
-    def render(self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None):
+    def render(
+        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None
+    ) -> None:
         if not self._visible:
             return
         self.update_matrix(parent_matrix=parent_matrix)

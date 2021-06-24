@@ -41,7 +41,7 @@ class Wavefront(Mesh):
         self.load(data)
         return True
 
-    def load_material(self, material_string: str):
+    def load_material(self, material_string: str) -> None:
         """Load material from given material definition string
 
         Please note that, material capabilities of Payton are limited
@@ -82,16 +82,16 @@ class Wavefront(Mesh):
 
         self.add_material(material_name, material)
 
-    def load_material_file(self, filename: str) -> bool:
+    def load_material_file(self, filename: str) -> None:
         """Load wavefront material file (.mtl)
 
         Keyword arguments:
         filename -- Filename to load
         """
         if not os.path.isfile(filename):
-            return False
+            return
         data = open(filename).read()
-        return self.load_material(data)
+        self.load_material(data)
 
     def load(self, obj_string: str) -> None:
         """Load wavefront object data
@@ -176,7 +176,7 @@ class Wavefront(Mesh):
             self.fix_normals()
 
 
-def export(mesh: Mesh, filename: str, name: str = "object"):
+def export(mesh: Mesh, filename: str, name: str = "object") -> None:
     """Export given Mesh object as a Wavefront file with materials
 
     Keyword arguments:

@@ -1,9 +1,9 @@
 import os
 
 from payton.scene import Scene
+from payton.scene.camera import Camera
 from payton.scene.geometry import Cube
 from payton.scene.gui import info_box
-from payton.scene.camera import Camera
 
 scene = Scene()
 scene.background.top_color = [0, 0, 0, 1]

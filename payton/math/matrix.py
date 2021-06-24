@@ -1,4 +1,5 @@
 from typing import List
+
 from payton.math.vector import Vector3D
 
 Matrix = List[Vector3D]

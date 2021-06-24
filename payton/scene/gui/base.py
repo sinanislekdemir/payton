@@ -1,14 +1,14 @@
 import math
 import os
-from payton.math.vector import Vector3D
 from textwrap import wrap
-from typing import Any, Callable, Dict, Optional, List, Tuple, TypeVar, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 import numpy as np  # type: ignore
 from OpenGL.GL import GL_DEPTH_TEST, glDisable, glEnable
 from PIL import Image, ImageDraw, ImageFont  # type: ignore
 
 from payton.math.functions import ortho
+from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.shader import Shader
@@ -64,13 +64,13 @@ class Shape2D(Mesh):
         obj.parent = self
         return res
 
-    def draw(self):
+    def draw(self) -> None:
         """Placeholder for draw function"""
-        pass
+        ...
 
-    def draw_text(self):
+    def draw_text(self) -> None:
         """Placeholder for draw text function"""
-        pass
+        ...
 
     def render(
         self,
@@ -78,7 +78,7 @@ class Shape2D(Mesh):
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
-    ):
+    ) -> None:
         """Render cycle for the Shape 2D
 
         We override the `lit` parameter for the super.
@@ -106,7 +106,7 @@ class Shape2D(Mesh):
         self._font = font
         self.draw_text()
 
-    def _set_parent_size(self, w: int, h: int):
+    def _set_parent_size(self, w: int, h: int) -> None:
         self._parent_width = w
         self._parent_height = h
         self._init = False
@@ -249,7 +249,7 @@ class Text(Rectangle):
         lres[1] = max(lres[1], self.size[1])
         return lres[0], lres[1]
 
-    def wrap(self, width_in_pixels: int):
+    def wrap(self, width_in_pixels: int) -> None:
         """Word-wrap the text to fit into the given pixel size
 
         Keyword arguments:
@@ -369,7 +369,7 @@ class Hud(Object):
             self.children[child].render(lit, shader, None)
         glEnable(GL_DEPTH_TEST)
 
-    def set_size(self, w: int, h: int):
+    def set_size(self, w: int, h: int) -> None:
         """Set HUD size
 
         Keyword arguments:

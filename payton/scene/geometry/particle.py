@@ -28,7 +28,7 @@ class ParticleSystem(Object):
     def track(self) -> bool:
         return False
 
-    def add(self, vertex: Vector3D, **meta: Dict[str, Any]):
+    def add(self, vertex: Vector3D, **meta: Dict[str, Any]) -> None:
         """Add a vertex/new particle to the particle system
 
         Note: each particle can hold a meta information as a Dict[str, Any] format.

@@ -63,6 +63,7 @@ from payton.math.geometry import (
     raycast_triangle_intersect,
 )
 from payton.math.vector import Vector3D
+from payton.scene.camera import Camera
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
 from payton.scene.controller import Controller, GUIController, SceneController
@@ -71,7 +72,6 @@ from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
 from payton.scene.gui.help import help_win
 from payton.scene.light import Light
-from payton.scene.camera import Camera
 from payton.scene.receiver import Receiver
 from payton.scene.shader import (
     DEFAULT_SHADER,
@@ -193,7 +193,7 @@ class Scene(Receiver):
         return self._shadow_samples
 
     @shadow_samples.setter
-    def shadow_samples(self, samples: int):
+    def shadow_samples(self, samples: int) -> None:
         """Set shadow samples
 
         Keyword arguments:
@@ -209,7 +209,7 @@ class Scene(Receiver):
         return self._shadow_quality
 
     @shadow_quality.setter
-    def shadow_quality(self, quality: int):
+    def shadow_quality(self, quality: int) -> None:
         """Set shadow quality
 
         Shadow quality is simply the resolution of shadow texture in pixels.
@@ -226,7 +226,7 @@ class Scene(Receiver):
         plane_point: Vector3D,
         plane_normal: Vector3D,
         callback: Callable[[Vector3D], Any],
-    ):
+    ) -> None:
         """Add a click plane to the scene.
 
         Click planes are infinite 2D planes that can grep and react to clicks.
@@ -253,7 +253,7 @@ class Scene(Receiver):
                 continue
             click_plane[2](hit[:3])
 
-    def _render_3d_scene(self, shadow_round=False, shader=DEFAULT_SHADER) -> None:
+    def _render_3d_scene(self, shadow_round: bool = False, shader: str = DEFAULT_SHADER) -> None:
         """Render the 3D Scene
 
         Keyword arguments:
@@ -471,7 +471,7 @@ class Scene(Receiver):
         c = Clock(period, callback)
         self.clocks[name] = c
 
-    def _clear_context(self):
+    def _clear_context(self) -> None:
         for shader in self.shaders.values():
             shader.program = -1
         self.background._shader.program = -1
@@ -491,7 +491,7 @@ class Scene(Receiver):
 
         self.clocks = new_clocks
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """Convert everything inside the Scene to Dictionary
 
         This method is better to be called outside the render cycle as it can be
@@ -678,7 +678,7 @@ Payton requires at least OpenGL 3.3 support and above."""
         self._clear_context()
         return 0
 
-    def terminate(self):
+    def terminate(self) -> None:
         self.running = False
         for clock in self.clocks:
             logging.debug(f"Kill clock [{clock}]")
@@ -715,7 +715,7 @@ class Background:
         self._vao = None
         self.visible = True
 
-    def set_time(self, hour: int, minute: int):
+    def set_time(self, hour: int, minute: int) -> None:
         """Background can mimic a background color based on the time of the date
         It is not accurate but at least gives a small impression
 

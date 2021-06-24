@@ -6,7 +6,7 @@ Anyone without any UI coding experience should be able to get started
 with the basic stuff"""
 
 from enum import Enum
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 
@@ -18,7 +18,7 @@ from payton.scene.shader import Shader
 class Theme:
     """User interface theme"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the theme"""
         self.opacity = 0.9
 
@@ -31,7 +31,7 @@ class Theme:
         ]
         self.title_text_color: Vector3D = [0.0, 0.0, 0.0]
 
-    def secondary(self):
+    def secondary(self) -> None:
         """Secondary colors for the theme"""
         self.background_color, self.text_color = self.title_background_color, self.title_text_color
         self.title_background_color, self.title_text_color = self.background_color, self.text_color
@@ -58,8 +58,8 @@ class WindowElement(Shape2D):
         top: int = 10,
         align: WindowAlignment = WindowAlignment.FREE,
         theme: Optional[Theme] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """Initialize the Window Element
 
         Keyword arguments:
@@ -78,22 +78,21 @@ class WindowElement(Shape2D):
         self.theme = theme if theme is not None else Theme()
         self.material.opacity = self.theme.opacity
 
-    def _reposition(self):
+    def _reposition(self) -> None:
         if self.align == WindowAlignment.LEFT:
             self.position = [0.0, 0.0, 0.0]
-            self.size = (self.size[0], self._parent_height)
+            self.size = [self.size[0], self._parent_height]
         elif self.align == WindowAlignment.RIGHT:
             self.position = [self._parent_width - self.size[0], 0.0, 0.0]
-            self.size = (self.size[0], self._parent_height)
+            self.size = [self.size[0], self._parent_height]
         elif self.align == WindowAlignment.TOP:
             self.position = [0.0, 0.0, 0.0]
-            self.size = (self._parent_width, self.size[1])
+            self.size = [self._parent_width, self.size[1]]
         elif self.align == WindowAlignment.BOTTOM:
-            pos = [0, self._parent_height - self.size[1], 0]
-            self.position = pos
-            self.size = (self._parent_width, self.size[1])
+            self.position = [0, self._parent_height - self.size[1], 0]
+            self.size = [self._parent_width, self.size[1]]
 
-    def draw(self):
+    def draw(self) -> None:
         self._reposition()
 
     def render(
@@ -185,7 +184,7 @@ class Window(WindowElement):
             ),
         )
 
-    def draw(self):
+    def draw(self) -> None:
         """Create the frame polygons"""
         super().draw()
         w, h = self.size[0], self.size[1]
@@ -225,7 +224,7 @@ class Window(WindowElement):
 class Panel(WindowElement):
     """Panel element"""
 
-    def draw(self):
+    def draw(self) -> None:
         """Create the panel polygons"""
         super().draw()
         w, h = self.size[0], self.size[1]
@@ -308,7 +307,7 @@ class Button(Panel):
         )
         self.add_child("label", self.text)
 
-    def draw(self, **kwargs):
+    def draw(self, **kwargs: Any) -> None:
         """Create the button polygons"""
         super().draw()
         text_size = self.text.text_size
@@ -319,18 +318,18 @@ class Button(Panel):
         y -= 4
         self.text.label = self._label
         self.text.position = [x, y]
-        crop = [0, 0, text_size[0], text_size[1] + 4]
+        crop: List[int] = [0, 0, text_size[0], text_size[1] + 4]
         if text_size[0] > self.size[0]:
-            crop[0] = (text_size[0] - self.size[0]) / 2.0
-            crop[2] = text_size[0] - crop[0]
+            crop[0] = int((text_size[0] - self.size[0]) / 2.0)
+            crop[2] = int(text_size[0] - crop[0])
             diff = int(crop[2] - crop[0])
             text_size = (diff, text_size[1])
         if text_size[1] > self.size[1]:
-            crop[1] = (text_size[1] - self.size[1]) / 2.0
-            crop[3] = text_size[1] - crop[1]
+            crop[1] = int((text_size[1] - self.size[1]) / 2.0)
+            crop[3] = int(text_size[1] - crop[1])
             text_size = (text_size[0], self.size[1])
         self.text.crop = crop
-        self.text.size = (text_size[0], text_size[1] + 4)
+        self.text.size = [int(text_size[0]), int(text_size[1] + 4)]
 
     @property
     def label(self) -> str:
@@ -338,7 +337,7 @@ class Button(Panel):
         return self._label
 
     @label.setter
-    def label(self, text: str):
+    def label(self, text: str) -> None:
         """Set the button label
 
         Keyword arguments:
@@ -399,43 +398,41 @@ class EditBox(Panel):
         self.add_child("label", self.text)
         self._cursor = -1
 
-    def _on_keypress(self, instr: str):
+    def _on_keypress(self, instr: str) -> None:
         new = self.value[0 : self._cursor] + instr + self.value[self._cursor :]
         self._cursor = len(self.value[0 : self._cursor] + instr)
         self.value = new
 
-    def _focus(self):
+    def _focus(self) -> None:
         self._cursor = len(self.value)
         self._init = False
-        # Dummy holder to pass on_click test
-        pass
 
-    def cursor_left(self):
+    def cursor_left(self) -> None:
         """Move the cursor to the left"""
         self._cursor -= 1
         self._cursor = max(self._cursor, 0)
         self._init = False
 
-    def cursor_right(self):
+    def cursor_right(self) -> None:
         """Move the cursor to the right"""
         self._cursor += 1
         self._cursor = min(self._cursor, len(self.value))
         self._init = False
 
-    def backspace(self):
+    def backspace(self) -> None:
         """Delete the previous character"""
         if self._cursor == 0:
             return
         self.value = self.value[0 : self._cursor - 1] + self.value[self._cursor :]
         self.cursor_left()
 
-    def _exit(self):
+    def _exit(self) -> None:
         self._cursor = -1
         if callable(self.on_change):
             self.on_change(self._value)
         self._init = False
 
-    def draw(self, **kwargs):
+    def draw(self, **kwargs: Any) -> None:
         """Create the editbox polygons and texture along with cropping"""
         super().draw()
         if self._cursor > -1:
@@ -470,7 +467,7 @@ class EditBox(Panel):
         return self._value
 
     @value.setter
-    def value(self, text: str):
+    def value(self, text: str) -> None:
         """Set the editbox value
 
         Keyword arguments:

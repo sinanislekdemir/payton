@@ -55,7 +55,7 @@ class Mesh(Object):
 
         return res
 
-    def to_json(self, **kwargs) -> str:
+    def to_json(self, **kwargs: Any) -> str:
         """Convert the mesh into JSON string"""
         return json.dumps(self.to_dict(), **kwargs)
 
@@ -79,7 +79,7 @@ class Mesh(Object):
         self._normals[i3] = normal
         return True
 
-    def fix_normals(self, reverse=False) -> None:
+    def fix_normals(self, reverse: bool = False) -> None:
         """Try to re-calculate Mesh normals, if your object has already perfect
         normals, do not call this method
 

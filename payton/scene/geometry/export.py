@@ -1,7 +1,9 @@
+from typing import Any
+
 from payton.scene.geometry.mesh import Mesh
 
 
-def export_json(mesh: Mesh, filename: str, **kwargs):
+def export_json(mesh: Mesh, filename: str, **kwargs: Any) -> None:
     """Export the given mesh as JSON
 
     Keyword arguments:

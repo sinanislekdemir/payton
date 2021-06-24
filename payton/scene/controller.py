@@ -4,8 +4,8 @@ from typing import Any, List, Optional
 
 import sdl2
 
-from payton.scene.gui import EditBox
 from payton.scene.camera import BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
+from payton.scene.gui import EditBox
 
 
 class BaseController:
@@ -224,7 +224,7 @@ class SceneController(BaseController):
 class Controller:
     """Base controller class"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._controllers: List[BaseController] = []
 

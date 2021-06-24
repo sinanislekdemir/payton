@@ -128,7 +128,7 @@ class CollisionTest:
         if pair in self._pairs:
             self._pairs.remove(pair)
 
-    def check(self):
+    def check(self) -> None:
         """Check the objects for possible collisions"""
         for pair_tuple in combinations(self.objects, 2):
             pair = set(pair_tuple)

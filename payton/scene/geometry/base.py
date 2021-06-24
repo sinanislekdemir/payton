@@ -47,7 +47,7 @@ from payton.math.functions import (
     vector_transform,
 )
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import Matrix, IDENTITY_MATRIX
+from payton.math.matrix import IDENTITY_MATRIX, Matrix
 from payton.math.vector import Vector2D, Vector3D
 from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
@@ -57,9 +57,9 @@ from payton.scene.types import IList, VList
 class Object:
     def __init__(
         self,
-        name="",
-        visible=True,
-        track_motion=False,
+        name: str = "",
+        visible: bool = True,
+        track_motion: bool = False,
         **kwargs: Dict[str, Any],
     ) -> None:
         """Initialize the object
@@ -187,7 +187,7 @@ class Object:
         return self.matrix[1][:3]
 
     @direction.setter
-    def direction(self, v: Vector3D):
+    def direction(self, v: Vector3D) -> None:
         """Set the direction towards a given vector.
 
         Note: This is a unit vector and be sure to provide a unit vector!
@@ -209,7 +209,7 @@ class Object:
         self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
-    def direct_to(self, v: Vector3D):
+    def direct_to(self, v: Vector3D) -> None:
         """Direct object to given coordinates in space.
 
         Keyword arguments:
@@ -547,7 +547,7 @@ class Object:
         for child in self.children:
             self.children[child].render(lit, shader, self._model_matrix)
 
-    def set_position(self, x: float, y: float, z: float):
+    def set_position(self, x: float, y: float, z: float) -> None:
         """Set the position of the object
 
         Keyword arguments:
@@ -564,7 +564,7 @@ class Object:
         return self.matrix[3][:3]
 
     @position.setter
-    def position(self, pos: Union[Vector3D, list, tuple]) -> None:
+    def position(self, pos: Vector3D) -> None:
         """Set the position of the object by a given Vector
 
         In this context, the definition of the position is extended to
