@@ -294,11 +294,10 @@ class Scene(Receiver):
             shadow_matrices = self.lights[0].shadow_matrices
             for i, mat in enumerate(shadow_matrices):
                 _shader.set_matrix4x4_np("shadowMatrices[{}]".format(i), mat)
-        else:
-            if self.depth_map > -1:
-                glActiveTexture(GL_TEXTURE1)
-                glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
-                _shader.set_int("depthMap", 1)
+        elif self.depth_map > -1:
+            glActiveTexture(GL_TEXTURE1)
+            glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
+            _shader.set_int("depthMap", 1)
 
         if not shadow_round and shader == DEFAULT_SHADER:
             self.grid.render(lit, self.shaders[DEFAULT_SHADER])
