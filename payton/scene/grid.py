@@ -130,7 +130,7 @@ class Grid:
         if self._vao == -1:
             self.build()
 
-        shader.set_matrix4x4_np("model", self._model_matrix)
+        shader.set_matrix4x4_np("model", self._model_matrix)  # type: ignore
         self._material.render(False, shader)
 
         if glIsVertexArray(self._vao):

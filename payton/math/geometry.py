@@ -91,7 +91,7 @@ def raycast_sphere_intersect(start: GArray, direction: GArray, sphere_center: GA
     if proj < 0:
         proj = 0.0
     vc = combine(start, direction, 1.0, proj)
-    dist = distance2(sphere_center, vc)
+    dist = distance2(sphere_center, vc)  # type: ignore
     return dist < (sphere_radius ** 2)
 
 
@@ -182,13 +182,13 @@ def raycast_plane_intersect(
     direction = direction[:3]
     plane_point = plane_point[:3]
     plane_normal = plane_normal[:3]
-    d = np.dot(direction, plane_normal)
+    d = np.dot(direction, plane_normal)  # type: ignore
     res = (d > DIFF) or (d < -DIFF)
     if not res:
         return None
     sp = np.subtract(plane_point, start)
     d = 1.0 / d
-    t = np.dot(sp, plane_normal) * d
+    t = np.dot(sp, plane_normal) * d  # type: ignore
     if t <= 0:
         return None
     return combine(start, direction, 1.0, t)
@@ -209,25 +209,25 @@ def raycast_triangle_intersect(
     v1 = np.subtract(p2, p1)
     v2 = np.subtract(p3, p1)
     pvec = np.cross(direction, v2)
-    det = np.dot(v1, pvec)
+    det = np.dot(v1, pvec)  # type: ignore
     if (det < DIFF) and (det > -DIFF):
         return None, None
     inv_det = 1.0 / det
     tvec = np.subtract(start, p1)
-    u = np.dot(tvec, pvec) * inv_det
+    u = np.dot(tvec, pvec) * inv_det  # type: ignore
     if u < 0 or u > 1:
         return None, None
     qvec = np.cross(tvec, v1)
-    v = np.dot(direction, qvec) * inv_det
+    v = np.dot(direction, qvec) * inv_det  # type: ignore
     res = (v > 0) and (u + v <= 1.0)
     if not res:
         return None, None
-    t = np.dot(v2, qvec) * inv_det
+    t = np.dot(v2, qvec) * inv_det  # type: ignore
     if t <= 0:
         return None, None
     ip = combine(start, direction, 1, t)
     inor = np.cross(v1, v2)
-    inor /= np.linalg.norm(inor)
+    inor /= np.linalg.norm(inor)  # type: ignore
     return ip, inor
 
 
@@ -249,7 +249,7 @@ def line_triangle_intersect(
     p2 -- Second corner coordinates of the triangle
     p3 -- Third corner coordinates of the triangle"""
     direction = end - start
-    norm = np.linalg.norm(direction)
+    norm = np.linalg.norm(direction)  # type: ignore
     if norm == 0:
         return False
     direction /= norm

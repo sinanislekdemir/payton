@@ -59,9 +59,9 @@ class Light:
     def shadow_matrices(self) -> List[Matrix]:
         """Return the shadow casting cubemap projection matrices for the light"""
         if len(self._shadow_matrices) > 0:
-            return self._shadow_matrices
+            return self._shadow_matrices  # type: ignore
         self._shadow_matrices = cubemap_projection_matrices(self.position, self._shadow_far_plane)
-        return self._shadow_matrices
+        return self._shadow_matrices  # type: ignore
 
     @property
     def shadow_far_plane(self) -> float:

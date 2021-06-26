@@ -93,13 +93,13 @@ class MD2Header(NamedTuple):
 
 class MD2Frame(NamedTuple):
     name: str = ""
-    vertices: np.ndarray = []
-    normals: np.ndarray = []
+    vertices: np.ndarray = []  # type: ignore
+    normals: np.ndarray = []  # type: ignore
 
 
 class MD2TriangleLayout(NamedTuple):
-    vertex_indices: np.ndarray = []
-    tc_indices: np.ndarray = []
+    vertex_indices: np.ndarray = []  # type: ignore
+    tc_indices: np.ndarray = []  # type: ignore
 
 
 def read_block(b: BinaryIO, format_str: str, count: int) -> List[Tuple]:
@@ -410,17 +410,17 @@ class MD2(Mesh):
 
     def read_tex_coords(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_st, os.SEEK_SET)
-        tcs = np.array(read_block(f, "< 2h", self.header.num_st), dtype=np.float)
+        tcs = np.array(read_block(f, "< 2h", self.header.num_st), dtype=np.float)  # type: ignore
         tcs.shape = (-1, 2)
         tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
-        self._texcoords = tcs
+        self._texcoords = tcs  # type: ignore
 
     def load_frames(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_frames, os.SEEK_SET)
         self.frames = [self.read_frame(f) for x in range(self.header.num_frames)]
 
     def read_frame(self, f: BinaryIO) -> MD2Frame:
-        frame_translations = np.array(read_block(f, "< 3f", 2), dtype=np.float)
+        frame_translations = np.array(read_block(f, "< 3f", 2), dtype=np.float)  # type: ignore
         scale = frame_translations[0]
         translation = frame_translations[1]
 
@@ -432,7 +432,7 @@ class MD2(Mesh):
         frame_vertex_data.shape = (-1, 4)
 
         vertices_short = frame_vertex_data[:, :3]
-        vertices = vertices_short.astype(np.float)
+        vertices = vertices_short.astype(np.float)  # type: ignore
         vertices.shape = (-1, 3)
 
         vertices *= scale

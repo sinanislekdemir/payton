@@ -290,7 +290,7 @@ class Camera:
     def render(self) -> Tuple[np.ndarray, np.ndarray]:
         """Render the camera"""
         if self._use_cache and self.target_object is None:
-            return self._projection, self._view
+            return self._projection, self._view  # type: ignore
 
         if self.perspective:
             proj_matrix = pyrr.matrix44.create_perspective_projection(

@@ -109,8 +109,8 @@ class Object:
         # and if we fill all of it, we resize it.
         self._buffer_size: float = 500 * 12
         self._t_buffer_size: float = 500 * 8
-        self._model_matrix: np.ndarray = []  # Model matrix.
-        self._model_matrix_fortran: np.ndarray = []  # Model matrix as fortran
+        self._model_matrix: np.ndarray = []  # type: ignore  # Model matrix.
+        self._model_matrix_fortran: np.ndarray = []  # type: ignore  # Model matrix as fortran
         # Check if buffer size allocated for the object has changed.
         self._buffer_size_changed: bool = True
         self._t_buffer_size_changed: bool = True
@@ -415,7 +415,7 @@ class Object:
             self._motion_path_line.append([[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2], 1.0]])
 
         # Python trick here! need to .copy or it will pass reference.
-        self._previous_matrix = self.matrix[3]
+        self._previous_matrix = self.matrix[3]  # type: ignore
         return True
 
     @property
