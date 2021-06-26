@@ -1,7 +1,7 @@
 import ctypes
 from typing import Any, List, Optional
 
-import numpy as np  # type: ignore
+import numpy as np
 from OpenGL.GL import (
     GL_ARRAY_BUFFER,
     GL_ELEMENT_ARRAY_BUFFER,
@@ -130,7 +130,10 @@ class Grid:
         if self._vao == -1:
             self.build()
 
-        shader.set_matrix4x4_np("model", self._model_matrix)  # type: ignore
+        if self._model_matrix is None:
+            return True
+
+        shader.set_matrix4x4_np("model", self._model_matrix)
         self._material.render(False, shader)
 
         if glIsVertexArray(self._vao):

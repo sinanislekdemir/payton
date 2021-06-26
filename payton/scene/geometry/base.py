@@ -5,7 +5,7 @@ from copy import deepcopy
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import numpy as np  # type: ignore
+import numpy as np
 from OpenGL.GL import (
     GL_ARRAY_BUFFER,
     GL_DEPTH_TEST,
@@ -109,8 +109,8 @@ class Object:
         # and if we fill all of it, we resize it.
         self._buffer_size: float = 500 * 12
         self._t_buffer_size: float = 500 * 8
-        self._model_matrix: np.ndarray = []  # type: ignore  # Model matrix.
-        self._model_matrix_fortran: np.ndarray = []  # type: ignore  # Model matrix as fortran
+        self._model_matrix: np.ndarray = np.array([], dtype=np.float64)  # Model matrix.
+        self._model_matrix_fortran: np.ndarray = np.array([], dtype=np.float64)  # Model matrix as fortran
         # Check if buffer size allocated for the object has changed.
         self._buffer_size_changed: bool = True
         self._t_buffer_size_changed: bool = True
@@ -125,7 +125,7 @@ class Object:
         if not isinstance(self, Line):
             # _motion_path_line is used to display the motion path in scene
             self._motion_path_line = Line()
-        self._previous_matrix: Union[np.ndarray, None] = None
+        self._previous_matrix: Optional[Union[np.ndarray, List[float]]] = None
 
         # For raycast tests - bounding radius is the radius of the bounding
         # sphere.
@@ -412,10 +412,10 @@ class Object:
         self._motion_path.append(deepcopy(self.matrix))
         # Add the matrix position to motion math line for visualisation
         if self._motion_path_line is not None:
-            self._motion_path_line.append([[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2], 1.0]])
+            self._motion_path_line.append([[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]])
 
         # Python trick here! need to .copy or it will pass reference.
-        self._previous_matrix = self.matrix[3]  # type: ignore
+        self._previous_matrix = self.matrix[3]
         return True
 
     @property

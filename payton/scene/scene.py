@@ -4,7 +4,7 @@ import logging
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
-import numpy as np  # type: ignore
+import numpy as np
 import sdl2
 from OpenGL.GL import (
     GL_CLAMP_TO_EDGE,
@@ -280,25 +280,24 @@ class Scene(Receiver):
         _shader.set_matrix4x4_np("projection", proj)
         light_array = [light.position for light in self.lights]
         lcolor_array = [light.color for light in self.lights]
-        light_array = np.array(light_array, dtype=np.float32)  # type: ignore
-        lcolor_array = np.array(lcolor_array, dtype=np.float32)  # type: ignore
-        _shader.set_vector3_array_np("light_pos", light_array, light_count)  # type: ignore
+        light_array_np = np.array(light_array, dtype=np.float32)
+        lcolor_array_np = np.array(lcolor_array, dtype=np.float32)
+        _shader.set_vector3_array_np("light_pos", light_array_np, light_count)
 
         if not shadow_round:
             _shader.set_int("LIGHT_COUNT", light_count)
             _shader.set_int("samples", self._shadow_samples)
-            _shader.set_vector3_array_np("light_color", lcolor_array, light_count)  # type: ignore
+            _shader.set_vector3_array_np("light_color", lcolor_array_np, light_count)
         if self.shadow_quality > 0 and not shadow_round:
             _shader.set_int("shadow_enabled", 1)
         if shadow_round:
             shadow_matrices = self.lights[0].shadow_matrices
             for i, mat in enumerate(shadow_matrices):
-                _shader.set_matrix4x4_np("shadowMatrices[{}]".format(i), mat)  # type: ignore
-        else:
-            if self.depth_map > -1:
-                glActiveTexture(GL_TEXTURE1)
-                glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
-                _shader.set_int("depthMap", 1)
+                _shader.set_matrix4x4_np("shadowMatrices[{}]".format(i), mat)
+        elif self.depth_map > -1:
+            glActiveTexture(GL_TEXTURE1)
+            glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
+            _shader.set_int("depthMap", 1)
 
         if not shadow_round and shader == DEFAULT_SHADER:
             self.grid.render(lit, self.shaders[DEFAULT_SHADER])
@@ -318,7 +317,7 @@ class Scene(Receiver):
         glDepthFunc(GL_LESS)
 
         glClearColor(0.1, 0.1, 0.1, 1.0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         if self.shadow_quality > 0:
             glViewport(0, 0, self._shadow_quality, self._shadow_quality)
@@ -331,7 +330,7 @@ class Scene(Receiver):
 
         # Render background
         glViewport(0, 0, self.window_width, self.window_height)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         self.background.render()
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
@@ -536,17 +535,18 @@ class Scene(Receiver):
                 dist = distance_native(box_hit, start)
                 if dist_best == -1.0 or dist < dist_best:
                     dist_best = dist
-                    shortest = box_hit  # type: ignore
+                    shortest = box_hit
                     hit_obj = obj
                     continue
             for p1, p2, p3 in zip(*[iter(obj.absolute_vertices())] * 3):
-                ip, _ = raycast_triangle_intersect(start, direction, p1, p2, p3)
-                if ip is None:
+                ip_np, _ = raycast_triangle_intersect(start, direction, p1, p2, p3)
+                if ip_np is None:
                     continue
-                dist = distance_native(ip, start)  # type: ignore
+                ip = ip_np.tolist()
+                dist = distance_native(ip, start)
                 if dist_best == -1.0 or dist < dist_best:
                     dist_best = dist
-                    shortest = ip  # type: ignore
+                    shortest = ip
                     hit_obj = obj
         if hit_obj is None:
             return None
@@ -568,7 +568,7 @@ class Scene(Receiver):
             int(self.window_width),
             int(self.window_height),
             sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE,
-        )  # type: ignore
+        )
 
         if not self.window:
             return -1

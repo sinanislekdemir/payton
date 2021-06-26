@@ -3,9 +3,9 @@ import os
 from textwrap import wrap
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
-import numpy as np  # type: ignore
+import numpy as np
 from OpenGL.GL import GL_DEPTH_TEST, glDisable, glEnable
-from PIL import Image, ImageDraw, ImageFont  # type: ignore
+from PIL import Image, ImageDraw, ImageFont
 
 from payton.math.functions import ortho
 from payton.math.vector import Vector3D
@@ -48,7 +48,7 @@ class Shape2D(Mesh):
         self._scene_width: int = 0
         self._scene_height: int = 0
 
-    def add_child(self, name: str, obj: "Shape2D") -> bool:  # type: ignore
+    def add_child(self, name: str, obj: Object) -> bool:
         """Add a child shape to this shape object.
 
         This method overrides the parent by arguments. Child object's position
@@ -58,10 +58,11 @@ class Shape2D(Mesh):
         name -- Name of the object to be added
         obj -- Shape2D Object to add.
         """
-        res = super().add_child(name, obj)  # type: ignore
+        res = super().add_child(name, cast(Object, obj))
         if not res:
             return res
-        obj.parent = self
+        if isinstance(obj, Shape2D):
+            obj.parent = self
         return res
 
     def draw(self) -> None:
@@ -317,7 +318,7 @@ class Hud(Object):
         self.width: int = width
         self.height: int = height
         self._fontname: str = font
-        self.children: Dict[str, Shape2D] = {}  # type: ignore
+        self.children: Dict[str, Object] = {}
         self._font_size: int = font_size
         if self._fontname != "":
             self.set_font(self._fontname, self._font_size)
@@ -334,7 +335,7 @@ class Hud(Object):
         """Return the HUD Image Font"""
         return self._font
 
-    def add_child(self, name: str, obj: Shape2D) -> bool:  # type: ignore
+    def add_child(self, name: str, obj: Object) -> bool:
         """Add 2D Shape into Hud.
 
         Note: this is a type ignore due to it's mismatch with Object add_child method
@@ -343,12 +344,13 @@ class Hud(Object):
         name -- Name of the object
         obj -- Shape2D object to add"""
         res = super().add_child(name, obj)
-        obj._scene_height = self.height
-        obj._scene_width = self.width
+        if isinstance(obj, Shape2D):
+            obj._scene_height = self.height
+            obj._scene_width = self.width
+            obj.parent = self
 
         if not res:
             return res
-        obj.parent = self
         return res
 
     def render(self, lit: bool, shader: Shader, *_args: Any) -> None:
@@ -379,9 +381,10 @@ class Hud(Object):
         self.width = w
         self.height = h
         for child in self.children.values():
-            cast(Shape2D, child)._set_parent_size(w, h)
-            child._init = False
-            child.draw()
+            if isinstance(child, Shape2D):
+                child._set_parent_size(w, h)
+                child._init = False
+                child.draw()
 
         self._projection_matrix = None
 

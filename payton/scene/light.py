@@ -1,9 +1,8 @@
 from typing import Any, Dict, List, Optional
 
-import numpy as np  # type: ignore
+import numpy as np
 
 from payton.math.functions import cubemap_projection_matrices
-from payton.math.matrix import Matrix
 from payton.math.vector import Vector3D
 
 
@@ -56,12 +55,12 @@ class Light:
         }
 
     @property
-    def shadow_matrices(self) -> List[Matrix]:
+    def shadow_matrices(self) -> List[np.ndarray]:
         """Return the shadow casting cubemap projection matrices for the light"""
         if len(self._shadow_matrices) > 0:
-            return self._shadow_matrices  # type: ignore
+            return self._shadow_matrices
         self._shadow_matrices = cubemap_projection_matrices(self.position, self._shadow_far_plane)
-        return self._shadow_matrices  # type: ignore
+        return self._shadow_matrices
 
     @property
     def shadow_far_plane(self) -> float:

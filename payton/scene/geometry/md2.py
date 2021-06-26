@@ -10,7 +10,7 @@ import time
 from copy import deepcopy
 from typing import Any, BinaryIO, Dict, Generator, List, NamedTuple, Optional, Tuple, cast
 
-import numpy as np  # type: ignore
+import numpy as np
 
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import POINTS
@@ -93,13 +93,13 @@ class MD2Header(NamedTuple):
 
 class MD2Frame(NamedTuple):
     name: str = ""
-    vertices: np.ndarray = []  # type: ignore
-    normals: np.ndarray = []  # type: ignore
+    vertices: np.ndarray = np.array([], dtype=np.float64)
+    normals: np.ndarray = np.array([], dtype=np.float64)
 
 
 class MD2TriangleLayout(NamedTuple):
-    vertex_indices: np.ndarray = []  # type: ignore
-    tc_indices: np.ndarray = []  # type: ignore
+    vertex_indices: np.ndarray = np.array([], dtype=np.float64)
+    tc_indices: np.ndarray = np.array([], dtype=np.float64)
 
 
 def read_block(b: BinaryIO, format_str: str, count: int) -> List[Tuple]:
@@ -375,9 +375,9 @@ class MD2(Mesh):
             v2[0], v2[1] = v2[1], v2[0]
             v3[0], v3[1] = v3[1], v3[0]
 
-            t3 = cast(np.ndarray, self._texcoords[self.triangle_layout.tc_indices[i][1]]).tolist()
-            t2 = cast(np.ndarray, self._texcoords[self.triangle_layout.tc_indices[i][0]]).tolist()
-            t1 = cast(np.ndarray, self._texcoords[self.triangle_layout.tc_indices[i][2]]).tolist()
+            t3 = self._texcoords[self.triangle_layout.tc_indices[i][1]]
+            t2 = self._texcoords[self.triangle_layout.tc_indices[i][0]]
+            t1 = self._texcoords[self.triangle_layout.tc_indices[i][2]]
 
             mesh.add_triangle(
                 vertices=[v1, v2, v3],
@@ -410,17 +410,17 @@ class MD2(Mesh):
 
     def read_tex_coords(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_st, os.SEEK_SET)
-        tcs = np.array(read_block(f, "< 2h", self.header.num_st), dtype=np.float)  # type: ignore
+        tcs = np.array(read_block(f, "< 2h", self.header.num_st), dtype=np.float64)
         tcs.shape = (-1, 2)
         tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
-        self._texcoords = tcs  # type: ignore
+        self._texcoords = tcs.tolist()
 
     def load_frames(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_frames, os.SEEK_SET)
         self.frames = [self.read_frame(f) for x in range(self.header.num_frames)]
 
     def read_frame(self, f: BinaryIO) -> MD2Frame:
-        frame_translations = np.array(read_block(f, "< 3f", 2), dtype=np.float)  # type: ignore
+        frame_translations = np.array(read_block(f, "< 3f", 2), dtype=np.float64)
         scale = frame_translations[0]
         translation = frame_translations[1]
 
@@ -432,7 +432,7 @@ class MD2(Mesh):
         frame_vertex_data.shape = (-1, 4)
 
         vertices_short = frame_vertex_data[:, :3]
-        vertices = vertices_short.astype(np.float)  # type: ignore
+        vertices = vertices_short.astype(np.float64)
         vertices.shape = (-1, 3)
 
         vertices *= scale

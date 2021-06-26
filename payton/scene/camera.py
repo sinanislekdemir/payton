@@ -5,7 +5,7 @@ import logging
 import math
 from typing import Any, Dict, Optional, Tuple
 
-import numpy as np  # type: ignore
+import numpy as np
 import pyrr
 
 from payton.math.functions import sub_vector
@@ -289,8 +289,8 @@ class Camera:
 
     def render(self) -> Tuple[np.ndarray, np.ndarray]:
         """Render the camera"""
-        if self._use_cache and self.target_object is None:
-            return self._projection, self._view  # type: ignore
+        if self._use_cache and self.target_object is None and self._projection is not None and self._view is not None:
+            return self._projection, self._view
 
         if self.perspective:
             proj_matrix = pyrr.matrix44.create_perspective_projection(
@@ -321,7 +321,7 @@ class Camera:
 
         if self.target_object:
             # I believe there is a bug at mypy about @property methods
-            self.target = self.target_object.position  # type: ignore
+            self.target = self.target_object.position
 
         target = np.array(list(self.target), dtype=np.float32)
         up = np.array(list(self.up), dtype=np.float32)

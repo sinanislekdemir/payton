@@ -1,7 +1,7 @@
 import os
 from typing import Any, Dict, List, Optional
 
-import numpy as np  # type: ignore
+import numpy as np
 from OpenGL.GL import (
     GL_BLEND,
     GL_CULL_FACE,
@@ -32,7 +32,7 @@ from OpenGL.GL import (
     glTexImage2D,
     glTexParameterf,
 )
-from PIL import Image  # type: ignore
+from PIL import Image
 
 from payton.math.vector import Vector3D
 from payton.scene.shader import Shader

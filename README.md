@@ -243,6 +243,12 @@ You can either download the whole repository [as a zip file](https://github.com/
 * Example codes should be plain and simple.
 * Every new features should include sensible defaults.
   * Nothing should be too verbose to use.
+* Make sure that `make check` is clear before pushing your code.
+* Running `isort .` is not mandatory but highly encouraged.
+* Ever new feature should have an example code.
+* There is a reason why some methods are longer than they should and complex.
+  * To reduce code jumps and stack switches.
+  * To run faster.
 
 ## Screenshots and Videos
 

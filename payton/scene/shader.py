@@ -2,7 +2,7 @@ import ctypes
 import logging
 from typing import Any, Dict, List, Optional
 
-import numpy as np  # type: ignore
+import numpy as np
 from OpenGL.GL import (
     GL_FALSE,
     GL_FRAGMENT_SHADER,

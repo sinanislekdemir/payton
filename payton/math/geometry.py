@@ -1,6 +1,6 @@
 from typing import List, Optional, Tuple, Union
 
-import numpy as np  # type: ignore
+import numpy as np
 import pyrr
 
 from payton.math.functions import distance as distance_native
@@ -79,7 +79,7 @@ def combine3(v1: GArray, v2: GArray, v3: GArray, f1: float, f2: float, f3: float
     return np.array(res, dtype=np.float32)
 
 
-def raycast_sphere_intersect(start: GArray, direction: GArray, sphere_center: GArray, sphere_radius: float) -> bool:
+def raycast_sphere_intersect(start: GArray, direction: GArray, sphere_center: np.ndarray, sphere_radius: float) -> bool:
     """Check if ray intersects given sphere, returns boolean
 
     Keyword arguments:
@@ -91,7 +91,7 @@ def raycast_sphere_intersect(start: GArray, direction: GArray, sphere_center: GA
     if proj < 0:
         proj = 0.0
     vc = combine(start, direction, 1.0, proj)
-    dist = distance2(sphere_center, vc)  # type: ignore
+    dist = distance2(sphere_center, vc)
     return dist < (sphere_radius ** 2)
 
 

@@ -11,6 +11,7 @@ from typing import Any, Callable, Dict, List, Optional
 import numpy as np
 
 from payton.math.vector import Vector3D
+from payton.scene.geometry.base import Object
 from payton.scene.gui.base import Shape2D, Text
 from payton.scene.shader import Shader
 
@@ -107,13 +108,15 @@ class WindowElement(Shape2D):
 
         super().render(lit, shader, parent_matrix)
 
-    def add_child(self, name: str, obj: Shape2D) -> bool:  # type: ignore
+    def add_child(self, name: str, obj: Object) -> bool:
         """Add a window element as a child
 
         Keyword arguments:
         name -- Name of the window element to be added
         obj -- Object to add
         """
+        if not isinstance(obj, Shape2D):
+            return False
         if obj.position[0] > self.size[0]:
             obj.position[0] = self.size[0] - 1
         total_v = obj.position[0] + obj.size[0]
@@ -130,6 +133,7 @@ class WindowElement(Shape2D):
 
         super().add_child(name, obj)
         obj._set_parent_size(self.size[0], self.size[1])
+        return True
 
 
 class Window(WindowElement):
