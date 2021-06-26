@@ -16,7 +16,6 @@ class App(Scene):
         weapon_file = os.path.join(os.path.dirname(__file__), "forgottenone2", "weapon.md2")
 
         model = MD2(model_file, "ForgottenOne.pcx", track_motion=True)
-        model.track_motion = True
         model._motion_path_line.material.color = [1.0, 0.0, 0.0]
         weapon = MD2(weapon_file, "weapon.pcx")
         model.bake_animation("run", 0, 5, 3)

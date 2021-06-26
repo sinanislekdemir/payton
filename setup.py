@@ -9,7 +9,7 @@ if sys.version_info < (3, 7):
 
 setup(
     name="Payton",
-    version="v0.1.5",
+    version="v0.1.6",
     author="Sinan ISLEKDEMIR",
     author_email="sinan@islekdemir.com",
     # Packages
@@ -26,11 +26,11 @@ setup(
     python_requires=">3.7",
     # Dependent packages (distributions)
     install_requires=[
-        "numpy==1.18.2",
-        "Pillow==8.2.0",
-        "PyOpenGL==3.1.3rc1",
-        "PyOpenGL-accelerate==3.1.5",
-        "pyrr==0.10.3",
-        "PySDL2==0.9.7",
+        "numpy>=1.18.2",
+        "Pillow>=8.2.0",
+        "PyOpenGL>=3.1.3rc1",
+        "PyOpenGL-accelerate>=3.1.5",
+        "pyrr>=0.10.3",
+        "PySDL2>=0.9.7",
     ],
 )
