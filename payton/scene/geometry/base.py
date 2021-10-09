@@ -853,7 +853,7 @@ class Object:
 
     def changeDynamics(self, **kwargs: Dict[str, Any]) -> None:
         """Apply change dynamics of bullet physics."""
-        self._bullet_dynamics = {**self._bullet_dynamics, **kwargs}
+        self._bullet_dynamics = {**self._bullet_dynamics, **kwargs}  # type: ignore
         if self._bullet_id != -1:
             pybullet.changeDynamics(self._bullet_id, -1, **kwargs)
 

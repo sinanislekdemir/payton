@@ -89,9 +89,7 @@ class GUIController(BaseController):
 
 
 class SceneController(BaseController):
-    """SceneController controls the camera actions along with clocks and other
-    in-scene actions
-    """
+    """SceneController controls the camera actions along with clocks and other in-scene actions."""
 
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> bool:
         """Keyboard handler for the whole scene.
