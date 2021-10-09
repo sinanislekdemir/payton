@@ -165,7 +165,7 @@ class Scene(Receiver):
             )
             # pybullet.setRealTimeSimulation(1)
             # pybullet.resetSimulation()
-            self.create_clock("_bullet_physics", 0.02, self._step_physics)
+            self.create_clock("_bullet_physics", 0.01, self._step_physics)
 
         self.hudcam = Camera(
             active=True,

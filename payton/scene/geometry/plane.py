@@ -2,8 +2,6 @@
 from itertools import product
 from typing import Any, List
 
-from pyrr import Quaternion
-
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import SOLID, WHITE
 
@@ -40,20 +38,8 @@ class Plane(Mesh):
         self._indices = [[0, 1, 2], [2, 3, 0]]
         self.material._indices = self._indices
 
-    def _build_collision_shape(self) -> None:
-        if _BULLET and self.physics:
-            self._bullet_shape_id = pybullet.createCollisionShape(
-                pybullet.GEOM_PLANE,
-            )
-            q = Quaternion.from_matrix(self._model_matrix)
-            self._bullet_id = pybullet.createMultiBody(
-                baseMass=self.mass,
-                baseCollisionShapeIndex=self._bullet_shape_id,
-                basePosition=self.position,
-                baseOrientation=q.xyzw,
-            )
-            if len(self._bullet_dynamics.keys()) > 0:
-                pybullet.changeDynamics(self._bullet_id, -1, **self._bullet_dynamics)
+    def _create_collision_shape(self) -> None:
+        self._bullet_shape_id = pybullet.createCollisionShape(pybullet.GEOM_PLANE, planeNormal=self.matrix[2][:3])
 
 
 class MatrixPlane(Mesh):

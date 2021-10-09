@@ -102,6 +102,7 @@ class Object:
         self._bullet_id = -1
         self._bullet_shape_id = -1
         self._bullet_dynamics: Dict[str, float] = {}
+        self._bullet_linear_velocity: List[float] = [0, 0, 0]
 
         # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
@@ -836,11 +837,14 @@ class Object:
         self._build_collision_shape()
         return True
 
+    def _create_collision_shape(self) -> None:
+        self._bullet_shape_id = pybullet.createCollisionShape(
+            pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices
+        )
+
     def _build_collision_shape(self) -> None:
         if _BULLET and self.physics:
-            self._bullet_shape_id = pybullet.createCollisionShape(
-                pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices
-            )
+            self._create_collision_shape()
             q = Quaternion.from_matrix(self._model_matrix)
             self._bullet_id = pybullet.createMultiBody(
                 baseMass=self.mass,
@@ -849,13 +853,26 @@ class Object:
                 baseOrientation=q.xyzw,
             )
             if len(self._bullet_dynamics.keys()) > 0:
-                pybullet.changeDynamics(bodyUniqueId=self._bullet_id, **self._bullet_dynamics)
+                pybullet.changeDynamics(self._bullet_id, -1, **self._bullet_dynamics)
+            pybullet.resetBaseVelocity(self._bullet_id, linearVelocity=self._bullet_linear_velocity)
 
-    def changeDynamics(self, **kwargs: Dict[str, Any]) -> None:
+    def change_dynamics(self, **kwargs: Dict[str, Any]) -> None:
         """Apply change dynamics of bullet physics."""
         self._bullet_dynamics = {**self._bullet_dynamics, **kwargs}  # type: ignore
         if self._bullet_id != -1:
             pybullet.changeDynamics(self._bullet_id, -1, **kwargs)
+
+    @property
+    def linear_velocity(self) -> List[float]:
+        """Return linear velocity."""
+        return self._bullet_linear_velocity
+
+    @linear_velocity.setter
+    def linear_velocity(self, val: List[float]) -> None:
+        """Set linear velocity."""
+        self._bullet_linear_velocity = val
+        if self._bullet_id != -1:
+            pybullet.resetBaseVelocity(linearVelocity=self._bullet_linear_velocity)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the object into a dictionary for export / debug."""

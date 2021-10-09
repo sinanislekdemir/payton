@@ -1,8 +1,6 @@
 """Cube object module."""
 from typing import Any, Optional
 
-from pyrr import Quaternion
-
 from payton.math.functions import min_max
 from payton.math.vector import Vector3D
 from payton.scene.geometry.mesh import Mesh
@@ -138,17 +136,7 @@ class Cube(Mesh):
 
         return None
 
-    def _build_collision_shape(self) -> None:
-        if _BULLET and self.physics:
-            self._bullet_shape_id = pybullet.createCollisionShape(
-                pybullet.GEOM_BOX, halfExtents=[self._width, self._depth, self._height]
-            )
-            q = Quaternion.from_matrix(self._model_matrix)
-            self._bullet_id = pybullet.createMultiBody(
-                baseMass=self.mass,
-                baseCollisionShapeIndex=self._bullet_shape_id,
-                basePosition=self.position,
-                baseOrientation=q.xyzw,
-            )
-            if len(self._bullet_dynamics.keys()) > 0:
-                pybullet.changeDynamics(self._bullet_id, -1, **self._bullet_dynamics)
+    def _create_collision_shape(self) -> None:
+        self._bullet_shape_id = pybullet.createCollisionShape(
+            pybullet.GEOM_BOX, halfExtents=[self._width, self._depth, self._height]
+        )
