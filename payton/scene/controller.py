@@ -13,31 +13,26 @@ class BaseController:
         super().__init__()
 
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> bool:
-        """
-        Returns boolean to indicate if this controller interrupts the chain
-        """
+        """Return boolean to indicate if this controller interrupts the chain."""
         raise NotImplementedError()
 
     def mouse(self, event: sdl2.SDL_Event, scene: Any) -> bool:
-        """
-        Returns boolean to indicate if this controller interrupts the chain
-        """
+        """Return boolean to indicate if this controller interrupts the chain."""
         raise NotImplementedError()
 
 
 class GUIController(BaseController):
-    """
-    Define GUI related controller actions in this class
-    to reduce complexity inside Controller.
-    """
+    """Define GUI related controller actions in this class to reduce complexity inside Controller."""
 
     def __init__(self) -> None:
         super().__init__()
         self._active_object: Optional[EditBox] = None
 
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> bool:
-        """Keyboard handler for the base GUI controls. Returns True if keyboard action
-        stops the event check cycle.
+        """
+        Keyboard handler for the base GUI controls.
+
+        Returns True if keyboard action stops the event check cycle.
 
         Keyword arguments:
         event -- SDL2 Event Triggered
@@ -99,7 +94,7 @@ class SceneController(BaseController):
     """
 
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> bool:
-        """Keyboard handler for the whole scene
+        """Keyboard handler for the whole scene.
 
         Keyword arguments:
         event -- Triggered SDL2 Event
@@ -169,7 +164,7 @@ class SceneController(BaseController):
         return False
 
     def mouse(self, event: sdl2.SDL_Event, scene: Any) -> bool:
-        """Mouse handler for the scene
+        """Mouse handler for the scene.
 
         Keyword arguments:
         event -- Triggered SDL2 Event
@@ -222,7 +217,7 @@ class SceneController(BaseController):
 
 
 class Controller:
-    """Base controller class"""
+    """Base controller class."""
 
     def __init__(self) -> None:
         super().__init__()

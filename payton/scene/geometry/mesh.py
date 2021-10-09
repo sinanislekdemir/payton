@@ -1,3 +1,4 @@
+"""Mesh object is a better option than using Object directly."""
 # pylama:ignore=C901
 import json
 import logging
@@ -10,7 +11,8 @@ from payton.scene.types import VList
 
 
 class Mesh(Object):
-    """Mesh Object
+    """
+    Mesh Object.
 
     Mesh is almost like the Object except with some extra methods to make
     things easier. If you want to have custom geometries/shapes, it is
@@ -19,14 +21,10 @@ class Mesh(Object):
     and easier constructing capabilities such as adding triangles on the fly
     or sub-division or cutting and so forth. It is a way of designing objects
     by code.
-
     """
 
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
     def clear_triangles(self) -> None:
-        """Clear all triangles inside the Mesh"""
+        """Clear all triangles inside the Mesh."""
         self._vertices = []
         self._indices = []
         self._normals = []
@@ -37,9 +35,15 @@ class Mesh(Object):
 
         self.refresh()
 
+    @property
+    def physics(self) -> bool:
+        """Is a physics responding object."""
+        return True
+
     @classmethod
     def from_dict(cls, object_dict: Dict[str, Any]) -> "Mesh":
-        """Load the mesh from a dictionary
+        """
+        Load the mesh from a dictionary.
 
         Keyword arguments:
         object_dict -- Object dictionary to load
@@ -56,12 +60,12 @@ class Mesh(Object):
         return res
 
     def to_json(self, **kwargs: Any) -> str:
-        """Convert the mesh into JSON string"""
+        """Convert the mesh into JSON string."""
         return json.dumps(self.to_dict(), **kwargs)
 
     @classmethod
     def from_json(cls, jstr: str) -> "Mesh":
-        """Load the mesh from a JSON strong"""
+        """Load the mesh from a JSON string."""
         data = json.loads(jstr)
         return cls.from_dict(data)
 
@@ -80,8 +84,10 @@ class Mesh(Object):
         return True
 
     def fix_normals(self, reverse: bool = False) -> None:
-        """Try to re-calculate Mesh normals, if your object has already perfect
-        normals, do not call this method
+        """
+        Try to re-calculate Mesh normals.
+
+        If your object has already perfect normals, do not call this method.
 
         Keyword arguments:
         reverse -- Force reversing the normal directions.
@@ -91,7 +97,8 @@ class Mesh(Object):
         [self._calc_normal(face[0], face[1], face[2], reverse) for face in self._indices]
 
     def fix_texcoords(self, u: int = 1, v: int = 1) -> None:
-        """Try to recalculate mesh texture coordinates by cube projection
+        """
+        Try to recalculate mesh texture coordinates by cube projection.
 
         Keyword arguments:
         u -- X/U coordinate repeats for the texture coordinates
@@ -181,7 +188,8 @@ class Mesh(Object):
         texcoords: Optional[VList] = None,
         colors: Optional[VList] = None,
     ) -> None:
-        """Add triangle to Mesh
+        """
+        Add triangle to Mesh.
 
         Keyword arguments:
         vertices -- Vertices of the triangle. This is required. Ex:
@@ -227,4 +235,5 @@ class Mesh(Object):
         self.refresh()
 
     def click(self, x: int, y: int) -> Optional["Mesh"]:
+        """Click is not applicable."""
         pass

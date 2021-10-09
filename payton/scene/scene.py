@@ -1,7 +1,13 @@
+"""
+Main Scene Handler.
+
+Scene is the universe. Everything about Payton happens inside a Scene.
+"""
 # pylama:ignore=C901
 import ctypes
 import logging
 import time
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
 import numpy as np
@@ -72,6 +78,7 @@ from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
 from payton.scene.gui.help import help_win
 from payton.scene.light import Light
+from payton.scene.physics import physics_client
 from payton.scene.receiver import Receiver
 from payton.scene.shader import (
     DEFAULT_SHADER,
@@ -91,6 +98,11 @@ from payton.scene.shader import (
 )
 from payton.scene.types import CPlane
 
+try:
+    import pybullet
+except ModuleNotFoundError:
+    pass
+
 S = TypeVar("S", bound="Scene")
 # Shadow Qualities
 SHADOW_NONE = 0
@@ -99,7 +111,18 @@ SHADOW_MID = 1024
 SHADOW_HIGH = 2048
 
 
+@dataclass
+class PhysicsParams:
+    """Global physics parameters for the scene."""
+
+    gravity_x: float = 0
+    gravity_y: float = 0
+    gravity_z: float = -9.8
+
+
 class Scene(Receiver):
+    """Main Scene where everything happens."""
+
     def __init__(
         self,
         width: int = 800,
@@ -107,7 +130,7 @@ class Scene(Receiver):
         on_select: Optional[Callable] = None,
         **kwargs: Any,
     ) -> None:
-        """Initialize Scene
+        """Initialize Scene.
 
         Scene is the playground of the whole show!
 
@@ -121,7 +144,6 @@ class Scene(Receiver):
             def select(selected_object_list: List[Object]):
                 pass
         """
-
         self.__fps_counter = 0
         self.fps = 0
         # All objects list
@@ -134,6 +156,16 @@ class Scene(Receiver):
         self.__timer = -1.0
         self.cameras: List[Camera] = []
         self.cameras.append(Camera(active=True))
+        self._physics_params = PhysicsParams(0, 0, -10)
+        self.clocks: Dict[str, Clock] = {}
+
+        if physics_client is not None:
+            pybullet.setGravity(
+                self._physics_params.gravity_x, self._physics_params.gravity_y, self._physics_params.gravity_z
+            )
+            # pybullet.setRealTimeSimulation(1)
+            # pybullet.resetSimulation()
+            self.create_clock("_bullet_physics", 0.02, self._step_physics)
 
         self.hudcam = Camera(
             active=True,
@@ -147,7 +179,6 @@ class Scene(Receiver):
         self.lights: List[Light] = []
         self.lights.append(Light())
 
-        self.clocks: Dict[str, Clock] = {}
         self.grid = Grid()
         self.controller = Controller()
         self.controller.add_controller(GUIController())
@@ -187,14 +218,20 @@ class Scene(Receiver):
         self._shadow_quality = SHADOW_MID
         self._shadow_samples = 20
 
+    def _step_physics(self, period: float, total: float) -> None:
+        pybullet.setTimeStep(period)
+        pybullet.stepSimulation()
+        for child in self.objects:
+            self.objects[child]._bullet_physics()
+
     @property
     def shadow_samples(self) -> int:
-        """Return number of shadow samples"""
+        """Return number of shadow samples."""
         return self._shadow_samples
 
     @shadow_samples.setter
     def shadow_samples(self, samples: int) -> None:
-        """Set shadow samples
+        """Set shadow samples.
 
         Keyword arguments:
         samples -- Number of shadow samples (default 20)
@@ -205,12 +242,12 @@ class Scene(Receiver):
 
     @property
     def shadow_quality(self) -> int:
-        """Return the shadow quality integer"""
+        """Return the shadow quality integer."""
         return self._shadow_quality
 
     @shadow_quality.setter
     def shadow_quality(self, quality: int) -> None:
-        """Set shadow quality
+        """Set shadow quality.
 
         Shadow quality is simply the resolution of shadow texture in pixels.
         The higher the resolution gets, the better the shadow is. But that also
@@ -246,7 +283,7 @@ class Scene(Receiver):
         self._click_planes.append((plane_point, plane_normal, callback))
 
     def _check_click_plane(self, eye: Vector3D, vector: Vector3D) -> None:
-        """Check if any click planes registered has received a click event"""
+        """Check if any click planes registered has received a click event."""
         for click_plane in self._click_planes:
             hit = raycast_plane_intersect(eye, vector, click_plane[0], click_plane[1])
             if hit is None:
@@ -254,7 +291,8 @@ class Scene(Receiver):
             click_plane[2](hit[:3])
 
     def _render_3d_scene(self, shadow_round: bool = False, shader: str = DEFAULT_SHADER) -> None:
-        """Render the 3D Scene
+        """
+        Render the 3D Scene.
 
         Keyword arguments:
         shadow_round -- Is this render for shadow map creation? (default False)
@@ -307,7 +345,8 @@ class Scene(Receiver):
                 object.render(lit, _shader)
 
     def _render(self) -> None:
-        """Render the scene
+        """
+        Render the scene.
 
         This is the core render method that renders everything to the SDL buffer
         """
@@ -364,7 +403,8 @@ class Scene(Receiver):
             self.__fps_counter = 0
 
     def add_collision_test(self, name: str, tester: CollisionTest) -> None:
-        """Add a collision tester to the scene.
+        """
+        Add a collision tester to the scene.
 
         Keyword arguments:
         name -- Name of the collision tester to be added
@@ -377,7 +417,8 @@ class Scene(Receiver):
         self.collisions[name] = tester
 
     def add_object(self, name: str, obj: Object) -> bool:
-        """Add an object to the scene
+        """
+        Add an object to the scene.
 
         Object can be a HUD object, 2D Shape or 3D Mesh.
 
@@ -420,7 +461,7 @@ class Scene(Receiver):
         return True
 
     def add_camera(self, camera: Camera) -> bool:
-        """Add a camera to the scene and return True if successful
+        """Add a camera to the scene and return True if successful.
 
         If an invalid type of object is given to the scene as an camera,
         it does not break the scene as the scene already has a working camera
@@ -437,7 +478,7 @@ class Scene(Receiver):
         return True
 
     def create_camera(self) -> None:
-        """Create a dummy camera with defaults"""
+        """Create a dummy camera with defaults."""
         self.cameras.append(Camera())
 
     def create_clock(
@@ -491,7 +532,7 @@ class Scene(Receiver):
         self.clocks = new_clocks
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert everything inside the Scene to Dictionary
+        """Convert everything inside the Scene to Dictionary.
 
         This method is better to be called outside the render cycle as it can be
         very costly.
@@ -553,6 +594,7 @@ class Scene(Receiver):
         return hit_obj, shortest
 
     def run(self) -> int:
+        """Run the show."""
         if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
             return -1
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MAJOR_VERSION, 3)

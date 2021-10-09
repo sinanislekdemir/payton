@@ -29,7 +29,6 @@ setup(
         "numpy>=1.18.2",
         "Pillow>=8.2.0",
         "PyOpenGL>=3.1.3rc1",
-        "PyOpenGL-accelerate>=3.1.5",
         "pyrr>=0.10.3",
         "PySDL2>=0.9.7",
     ],

@@ -1,9 +1,10 @@
+"""Base geometry definitions."""
 # pylama:ignore=C901
 import ctypes
 import logging
 from copy import deepcopy
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 from OpenGL.GL import (
@@ -34,6 +35,7 @@ from OpenGL.GL import (
     glPolygonMode,
     glVertexAttribPointer,
 )
+from pyrr import Quaternion
 
 from payton.math.functions import (
     add_vectors,
@@ -47,14 +49,26 @@ from payton.math.functions import (
     vector_transform,
 )
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import IDENTITY_MATRIX, Matrix
+from payton.math.matrix import IDENTITY_MATRIX, NP_IDENTITY_MATRIX, Matrix
 from payton.math.vector import Vector2D, Vector3D
 from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.scene.types import IList, VList
 
+_BULLET = False
+try:
+    import pybullet
+    import pybullet_data
+
+    _BULLET = True
+    pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
+except ModuleNotFoundError:
+    _BULLET = False
+
 
 class Object:
+    """Base 3D geometry object."""
+
     def __init__(
         self,
         name: str = "",
@@ -62,7 +76,7 @@ class Object:
         track_motion: bool = False,
         **kwargs: Dict[str, Any],
     ) -> None:
-        """Initialize the object
+        """Initialize the object.
 
         This is the base Object of Payton and almost all scene objects as well
         as HUD objects.
@@ -85,6 +99,10 @@ class Object:
         self.name = name
         self._visible = visible
         self.matrix = deepcopy(IDENTITY_MATRIX)
+        self._bullet_id = -1
+        self._bullet_shape_id = -1
+        self._bullet_dynamics: Dict[str, float] = {}
+
         # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
         #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
@@ -94,6 +112,7 @@ class Object:
         # @NOTE: we have separate indices for materials but this base
         #        index list holds all indice definitions for fast access
         self._indices: IList = []  # Indices
+        self._total_indices: List[int] = []
         self._normals: List[Vector3D] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
         self._texcoords: List[Vector2D] = []  # Texture coordinates, 1 coordinate per Vertex
         self._vertex_colors: List[Vector3D] = []  # per-vertex colors, optional.
@@ -140,7 +159,7 @@ class Object:
         self._absolute_vertices: Optional[List[Vector3D]] = None
 
     def refresh(self) -> None:
-        """Refresh the object
+        """Refresh the object.
 
         Object has another memory area in the graphics card. So, for every
         geometrical change in the objects, you need to refresh the object
@@ -220,7 +239,7 @@ class Object:
         self.direction = diff
 
     def rotate_around_z(self, angle: float) -> None:
-        """Rotate the object around Z axis in given angle in Radians
+        """Rotate the object around Z axis in given angle in Radians.
 
         Keyword arguments:
         angle -- Angle in radians
@@ -233,7 +252,7 @@ class Object:
         self._absolute_vertices = None
 
     def rotate_around_x(self, angle: float) -> None:
-        """Rotate the object around X axis in given angle in Radians
+        """Rotate the object around X axis in given angle in Radians.
 
         Keyword arguments:
         angle -- Angle in radians
@@ -246,7 +265,7 @@ class Object:
         self._absolute_vertices = None
 
     def rotate_around_y(self, angle: float) -> None:
-        """Rotate the object around Y axis in given angle in Radians
+        """Rotate the object around Y axis in given angle in Radians.
 
         Keyword arguments:
         angle -- Angle in radians
@@ -290,7 +309,7 @@ class Object:
         self.refresh()
 
     def select(self, start: np.ndarray, vector: np.ndarray) -> bool:
-        """Checks if the given ray manages to select the object. Returns boolean.
+        """Check if the given ray manages to select the object. Returns boolean.
 
         This method does a bounding-sphere intersection test as it's the fastest
         intersection test. As a result, this method wouldn't be accurate
@@ -401,7 +420,7 @@ class Object:
         self._model_matrix_fortran = np.asfortranarray(self._model_matrix, dtype=np.float32)
 
     def track(self) -> bool:
-        """Track the object movement if it has changed from the previous frame"""
+        """Track the object movement if it has changed from the previous frame."""
         if not self.track_motion:
             return False
 
@@ -420,19 +439,19 @@ class Object:
 
     @property
     def visible(self) -> bool:
-        """Return if the object is visible"""
+        """Return if the object is visible."""
         return self._visible
 
     def show(self) -> None:
-        """Show the object (set visible = True)"""
+        """Show the object (set visible = True)."""
         self._visible = True
 
     def hide(self) -> None:
-        """Hide the object (set visible = False)"""
+        """Hide the object (set visible = False)."""
         self._visible = False
 
     def clone(self) -> "Object":
-        """Create the clone of an object - deepcopy
+        """Create the clone of an object - deepcopy.
 
         Caution! This will copy literally everything, that includes the OpenGL buffer pointers
         so changing one of the objects will result with changing the same memory area
@@ -442,7 +461,7 @@ class Object:
 
     @property
     def has_missing_vao(self) -> bool:
-        """Check if the object is missing any Virtual Array Objects. Return boolean"""
+        """Check if the object is missing any Virtual Array Objects. Return boolean."""
         if self._no_missing_vao:
             return False
         result = any(
@@ -460,7 +479,7 @@ class Object:
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
     ) -> None:
-        """Main render cycle of the object.
+        """Render cycle of the object.
 
         Keyword arguments:
         lit -- Is the object illuminated?
@@ -471,10 +490,11 @@ class Object:
         if not self._visible:
             return
 
+        self.update_matrix(parent_matrix=parent_matrix)
+
         if self.has_missing_vao or self._needs_update:
             self.build()
 
-        self.update_matrix(parent_matrix=parent_matrix)
         self.track()
 
         if self._vertex_count == 0:
@@ -548,7 +568,8 @@ class Object:
             self.children[child].render(lit, shader, self._model_matrix)
 
     def set_position(self, x: float, y: float, z: float) -> None:
-        """Set the position of the object
+        """
+        Set the position of the object.
 
         Keyword arguments:
         x -- X Position of the object
@@ -560,12 +581,12 @@ class Object:
 
     @property
     def position(self) -> Vector3D:
-        """Return the object's position"""
+        """Return the object's position."""
         return self.matrix[3][:3]
 
     @position.setter
     def position(self, pos: Vector3D) -> None:
-        """Set the position of the object by a given Vector
+        """Set the position of the object by a given Vector.
 
         In this context, the definition of the position is extended to
         support List[float] and Tuple as well to give some space to developers
@@ -604,18 +625,20 @@ class Object:
         return vector_transform(list(coordinate), self.matrix)
 
     def to_absolute(self, coordinate: Vector3D) -> Vector3D:
-        """Convert the given coordinates to absolute space coordinates. Returns the converted vector.
+        """
+        Convert the given coordinates to absolute space coordinates. Returns the converted vector.
 
         Child object's coordinates are relative to it's parent.
         You can use this method if you want to know the absoltue (root) coordinates of a local coordinate.
 
         Keyword arguments:
-        coordinate -- Coordinate to convert"""
-
+        coordinate -- Coordinate to convert
+        """
         return self._to_absolute(tuple(coordinate))
 
     def absolute_vertices(self) -> List[Vector3D]:
-        """Convert all object vertices into absolute vertices.
+        """
+        Convert all object vertices into absolute vertices.
 
         This is a cpu intesive operation and should be done with caution.
         Detailed collision detection calls this method.
@@ -628,7 +651,7 @@ class Object:
         return self._absolute_vertices
 
     def toggle_wireframe(self) -> None:
-        """Toggle the material display type from Wireframe / Particle / Solid"""
+        """Toggle the material display type from Wireframe / Particle / Solid."""
         d = (self.material.display + 1) % 3
 
         for mat in self.materials.values():
@@ -663,14 +686,14 @@ class Object:
 
     @property
     def bounding_radius(self) -> float:
-        """Get the bounding sphere radius"""
+        """Get the bounding sphere radius."""
         if self._bounding_radius > 0:
             return self._bounding_radius
         return self._calc_bounds()
 
     @property
     def bounding_box(self) -> VList:
-        """Get the bounding box (AABB) coordinates"""
+        """Get the bounding box (AABB) coordinates."""
         if self._absolute_vertices is None:
             self._calc_bounds()
         if len(self._bounding_box) > 0:
@@ -679,7 +702,8 @@ class Object:
         return self._bounding_box
 
     def build(self) -> bool:
-        """Build the object so that it can be rendered in pipeline.
+        """
+        Build the object so that it can be rendered in pipeline.
 
         Conver object vertices / normals / texture coordinates / vertex colors
         into Numpy arrays. Generate the Vertex Arrays and Buffer for the object
@@ -756,6 +780,8 @@ class Object:
         self._buffer_size_changed = False
         self._t_buffer_size_changed = False
 
+        total_indices = np.array([], dtype=np.int32)
+
         for material in self.materials.values():
             if len(material._indices) == 0:
                 material._vao == NO_INDICE
@@ -770,6 +796,8 @@ class Object:
             glBindVertexArray(material._vao)
 
             indices = np.array(material._indices, dtype=np.int32).flatten()
+            if _BULLET:
+                total_indices = np.append(total_indices, indices)  # type: ignore
 
             # Bind Vertices
             glBindBuffer(GL_ARRAY_BUFFER, self._vbos[0])
@@ -803,11 +831,34 @@ class Object:
             glBindVertexArray(0)
             glBindBuffer(GL_ARRAY_BUFFER, 0)
 
+        self._total_indices = total_indices.tolist()
         self._needs_update = False
+        self._build_collision_shape()
         return True
 
+    def _build_collision_shape(self) -> None:
+        if _BULLET and self.physics:
+            self._bullet_shape_id = pybullet.createCollisionShape(
+                pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices
+            )
+            q = Quaternion.from_matrix(self._model_matrix)
+            self._bullet_id = pybullet.createMultiBody(
+                baseMass=self.mass,
+                baseCollisionShapeIndex=self._bullet_shape_id,
+                basePosition=self.position,
+                baseOrientation=q.xyzw,
+            )
+            if len(self._bullet_dynamics.keys()) > 0:
+                pybullet.changeDynamics(bodyUniqueId=self._bullet_id, **self._bullet_dynamics)
+
+    def changeDynamics(self, **kwargs: Dict[str, Any]) -> None:
+        """Apply change dynamics of bullet physics."""
+        self._bullet_dynamics = {**self._bullet_dynamics, **kwargs}
+        if self._bullet_id != -1:
+            pybullet.changeDynamics(self._bullet_id, -1, **kwargs)
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the object into a dictionary for export / debug"""
+        """Convert the object into a dictionary for export / debug."""
         return {
             "vertices": self._vertices,
             "normals": self._normals,
@@ -817,15 +868,54 @@ class Object:
             "children": {n: self.children[n].to_dict() for n in self.children},
         }
 
+    @property
+    def physics(self) -> bool:
+        """Return true if this object reacts to physics."""
+        return False
+
+    @property
+    def mass(self) -> float:
+        """Return the self bullet mass."""
+        if self._bullet_dynamics is None:
+            return 0
+        return cast(float, self._bullet_dynamics.get('mass', 0))
+
+    @mass.setter
+    def mass(self, val: float) -> None:
+        """Set the self bullet physics mass."""
+        if self._bullet_dynamics is None:
+            self._bullet_dynamics = {}
+        self._bullet_dynamics['mass'] = val
+        if self._bullet_id != -1:
+            pybullet.changeDynamics(self._bullet_id, -1, **self._bullet_dynamics)
+
+    def _bullet_physics(self) -> bool:
+        """Responds to physics."""
+        if self._bullet_id != -1:
+            pos, ori = pybullet.getBasePositionAndOrientation(self._bullet_id)
+            qq = Quaternion.from_eulers(ori)
+
+            rot_matrix = qq.matrix44
+            local_matrix = np.array(NP_IDENTITY_MATRIX, dtype=np.float32)
+            local_matrix = rot_matrix.dot(local_matrix)
+            self.matrix = local_matrix.tolist()
+
+            self.set_position(pos[0], pos[1], pos[2])
+            return True
+
+        raise NotImplementedError("Physics is not defined for this object type")
+
 
 class Line(Object):
+    """Line Object."""
+
     def __init__(
         self,
         vertices: Optional[VList] = None,
         color: Optional[Vector3D] = None,
         **kwargs: Any,
     ) -> None:
-        """Initialize a Line object
+        """Initialize a Line object.
 
         Keyword arguments:
         vertices -- Optional Vertices information for the line
@@ -840,11 +930,17 @@ class Line(Object):
         self.build_lines()
 
     def toggle_wireframe(self) -> None:
-        """Toggle Wireframe overwrite to disable mode change"""
+        """Toggle Wireframe overwrite to disable mode change."""
+        pass
 
     def add_material(self, name: str, material: Material) -> None:
-        """@TODO Implement this later! Not urgent"""
+        """@TODO Implement this later! Not urgent."""
         logging.error("Can't add materials to Line object")
+
+    @property
+    def physics(self) -> bool:
+        """Physics is not applicable."""
+        return False
 
     def render(
         self,
@@ -853,15 +949,17 @@ class Line(Object):
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
     ) -> None:
-        """Same as the Object Render but with explicitly defined OpenGL primitive type"""
+        """Almost same as the Object Render but with explicitly defined OpenGL primitive type."""
         super().render(lit, shader, parent_matrix, GL_LINE_STRIP)
 
     def append(self, vertices: VList, material: str = DEFAULT) -> None:
-        """Append vertices to the line
+        """
+        Append vertices to the line.
 
         Keyword arguments:
         vertices -- List of vertices to append
-        material -- Material name to append lines into"""
+        material -- Material name to append lines into
+        """
         diff = len(vertices)  # Number of vertices added
         last_index = len(self._vertices)
         self._vertices += vertices
@@ -878,7 +976,8 @@ class Line(Object):
         self._needs_update = True
 
     def build_lines(self, vertices: Optional[VList] = None, color: Optional[Vector3D] = None) -> None:
-        """Build lines information
+        """
+        Build lines information.
 
         Keyword arguments:
         vertices -- (Optional) if you want to reset the whole line vertices in one go.

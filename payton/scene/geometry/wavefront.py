@@ -177,7 +177,8 @@ class Wavefront(Mesh):
 
 
 def export(mesh: Mesh, filename: str, name: str = "object") -> None:
-    """Export given Mesh object as a Wavefront file with materials
+    """
+    Export given Mesh object as a Wavefront file with materials.
 
     Keyword arguments:
     filename -- Filename / path to load

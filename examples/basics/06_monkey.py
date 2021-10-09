@@ -12,7 +12,8 @@ monkey = Wavefront(filename=object_file)
 
 export(monkey, "output.obj")
 exported_mesh = Wavefront(filename="output.obj")
-exported_mesh.position = [0, 0, 1.0]
+exported_mesh.position = [0, 0, 4.0]
+exported_mesh.mass = 1
 
 scene.add_object("monkey", exported_mesh)
 scene.add_object("ground", ground)
