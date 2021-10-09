@@ -26,4 +26,4 @@ jobs:
         pip install mypy
         pip install flake8
         pip install pylama
-        make check
+        make lint
