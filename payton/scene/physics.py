@@ -8,3 +8,9 @@ try:
     physics_client = pybullet.connect(pybullet.DIRECT)
 except ModuleNotFoundError:
     print("Bullet Physics is not installed, continue without Physics support")
+
+
+class PhysicsException(Exception):
+    """Raise this exception when needed."""
+
+    pass

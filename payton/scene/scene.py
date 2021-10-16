@@ -163,9 +163,9 @@ class Scene(Receiver):
             pybullet.setGravity(
                 self._physics_params.gravity_x, self._physics_params.gravity_y, self._physics_params.gravity_z
             )
-            # pybullet.setRealTimeSimulation(1)
-            # pybullet.resetSimulation()
-            self.create_clock("_bullet_physics", 0.01, self._step_physics)
+            pybullet.setPhysicsEngineParameter(numSolverIterations=10, minimumSolverIslandSize=1024)
+            pybullet.setTimeStep(1.0 / 120.0)
+            self.create_clock("_bullet_physics", 1.0 / 120.0, self._step_physics)
 
         self.hudcam = Camera(
             active=True,
@@ -219,7 +219,6 @@ class Scene(Receiver):
         self._shadow_samples = 20
 
     def _step_physics(self, period: float, total: float) -> None:
-        pybullet.setTimeStep(period)
         pybullet.stepSimulation()
         for child in self.objects:
             self.objects[child]._bullet_physics()

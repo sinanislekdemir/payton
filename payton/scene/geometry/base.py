@@ -49,7 +49,7 @@ from payton.math.functions import (
     vector_transform,
 )
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import IDENTITY_MATRIX, NP_IDENTITY_MATRIX, Matrix
+from payton.math.matrix import IDENTITY_MATRIX, Matrix, bullet_to_matrix
 from payton.math.vector import Vector2D, Vector3D
 from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
@@ -74,6 +74,9 @@ class Object:
         name: str = "",
         visible: bool = True,
         track_motion: bool = False,
+        mass: float = 0,
+        force_concave: bool = False,
+        heightfield: bool = False,
         **kwargs: Dict[str, Any],
     ) -> None:
         """Initialize the object.
@@ -99,10 +102,16 @@ class Object:
         self.name = name
         self._visible = visible
         self.matrix = deepcopy(IDENTITY_MATRIX)
+        # BULLET PHYSICS
         self._bullet_id = -1
         self._bullet_shape_id = -1
-        self._bullet_dynamics: Dict[str, float] = {}
+        self._bullet_dynamics: Dict[str, float] = {
+            'mass': mass,
+        }
         self._bullet_linear_velocity: List[float] = [0, 0, 0]
+        self._bullet_force_concave = force_concave
+        self._bullet_heightfield = heightfield
+        self._bullet_constraints: List[Dict[str, Any]] = []
 
         # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
@@ -496,6 +505,9 @@ class Object:
         if self.has_missing_vao or self._needs_update:
             self.build()
 
+        if _BULLET:
+            self._build_constraints()
+
         self.track()
 
         if self._vertex_count == 0:
@@ -838,9 +850,33 @@ class Object:
         return True
 
     def _create_collision_shape(self) -> None:
+        flags = None
+        if self._bullet_force_concave:
+            flags = pybullet.GEOM_FORCE_CONCAVE_TRIMESH
+        if self._bullet_heightfield:
+            flags = pybullet.GEOM_HEIGHTFIELD
         self._bullet_shape_id = pybullet.createCollisionShape(
-            pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices
+            pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices, flags=flags
         )
+
+    def _build_constraints(self) -> None:
+        for constraint in self._bullet_constraints:
+            if constraint["active"]:
+                continue
+            if constraint["type"] == "p2p":
+                if constraint["target"]._bullet_id == -1:
+                    continue
+                constraint["active"] = True
+                pybullet.createConstraint(
+                    self._bullet_id,
+                    -1,
+                    constraint["target"]._bullet_id,
+                    -1,
+                    pybullet.JOINT_POINT2POINT,
+                    [0, 0, 0],
+                    constraint["local_point"],
+                    constraint["target_point"],
+                )
 
     def _build_collision_shape(self) -> None:
         if _BULLET and self.physics:
@@ -861,6 +897,12 @@ class Object:
         self._bullet_dynamics = {**self._bullet_dynamics, **kwargs}  # type: ignore
         if self._bullet_id != -1:
             pybullet.changeDynamics(self._bullet_id, -1, **kwargs)
+
+    def constraint_point(self, target: "Object", local_point: Vector3D, target_point: Vector3D) -> None:
+        """Create point2point contraint."""
+        self._bullet_constraints.append(
+            {"type": "p2p", "target": target, "local_point": local_point, "target_point": target_point, "active": False}
+        )
 
     @property
     def linear_velocity(self) -> List[float]:
@@ -908,19 +950,15 @@ class Object:
 
     def _bullet_physics(self) -> bool:
         """Responds to physics."""
-        if self._bullet_id != -1:
+        if self._bullet_id != -1 and self.mass > 0:
             pos, ori = pybullet.getBasePositionAndOrientation(self._bullet_id)
-            qq = Quaternion.from_eulers(ori)
-
-            rot_matrix = qq.matrix44
-            local_matrix = np.array(NP_IDENTITY_MATRIX, dtype=np.float32)
-            local_matrix = rot_matrix.dot(local_matrix)
-            self.matrix = local_matrix.tolist()
-
+            self.matrix = bullet_to_matrix(ori)
             self.set_position(pos[0], pos[1], pos[2])
             return True
 
-        raise NotImplementedError("Physics is not defined for this object type")
+        if self.mass > 0:
+            raise NotImplementedError("Physics is not defined for this object type")
+        return True
 
 
 class Line(Object):
