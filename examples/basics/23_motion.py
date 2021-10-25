@@ -46,7 +46,7 @@ scene.controller.add_controller(CustomKeyboardControls())
 scene.add_object("cube", cube)
 scene.create_clock("motion", 0.01, motion)
 
-label = """This demo uses clock\n hit SPACE to start
+label = """This demo uses clock
 
 Key Up = forward
 Key Down = back
@@ -56,4 +56,4 @@ Key Right = turn right
 
 scene.add_object("info", info_box(left=10, top=10, label=label))
 
-scene.run()
+scene.run(start_clocks=True)

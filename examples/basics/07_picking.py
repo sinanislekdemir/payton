@@ -8,6 +8,7 @@ from payton.scene.gui import info_box
 def select(list):
     for obj in list:
         obj.material.color = [1, 1, 1]
+        obj.mass = 1.0
 
 
 scene = Scene(on_select=select)
@@ -28,5 +29,4 @@ scene.add_object(
     info_box(left=10, top=10, label="Try clicking cubes"),
 )
 
-
-scene.run()
+scene.run(start_clocks=True)

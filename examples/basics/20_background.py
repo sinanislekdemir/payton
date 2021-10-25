@@ -24,4 +24,4 @@ scene.add_object(
     ),
 )
 
-scene.run()
+scene.run(True)

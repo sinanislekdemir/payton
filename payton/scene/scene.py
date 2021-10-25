@@ -592,7 +592,7 @@ class Scene(Receiver):
             return None
         return hit_obj, shortest
 
-    def run(self) -> int:
+    def run(self, start_clocks: bool = False) -> int:
         """Run the show."""
         if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
             return -1
@@ -640,6 +640,8 @@ Payton requires at least OpenGL 3.3 support and above."""
 
         for clock in self.clocks:
             self.clocks[clock].start()
+            if start_clocks:
+                self.clocks[clock].pause()
 
         # if shadows
         # @TODO Creating the shadow cubemap here is not a good idea

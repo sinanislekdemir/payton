@@ -54,4 +54,4 @@ space.add_object(
     info_box(left=10, top=10, label="Hit SPACE to start animation"),
 )
 
-space.run()
+space.run(True)

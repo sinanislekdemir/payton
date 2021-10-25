@@ -3,7 +3,6 @@ import random
 from payton.math.functions import distance, normalize_vector, scale_vector
 from payton.scene import Scene
 from payton.scene.geometry import Line
-from payton.scene.gui import info_box
 from payton.scene.material import BLACK, RED
 
 
@@ -29,14 +28,6 @@ class App(Scene):
         self.create_clock("clock", 0.01, self.animate)
         self.background.top_color = BLACK
         self.background.bottom_color = BLACK
-        self.add_object(
-            "info",
-            info_box(
-                left=10,
-                top=10,
-                label="Hit SPACE to start animation",
-            ),
-        )
 
     def animate(self, period, total):
         for i, vertex in enumerate(self.line._vertices):
@@ -50,4 +41,4 @@ class App(Scene):
 
 
 scene = App()
-scene.run()
+scene.run(start_clocks=True)

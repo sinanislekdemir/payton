@@ -33,4 +33,4 @@ scene.add_object(
 )
 scene.add_object("ground", ground)
 
-scene.run()
+scene.run(start_clocks=True)

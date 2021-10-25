@@ -855,17 +855,25 @@ class Object:
             flags = pybullet.GEOM_FORCE_CONCAVE_TRIMESH
         if self._bullet_heightfield:
             flags = pybullet.GEOM_HEIGHTFIELD
-        self._bullet_shape_id = pybullet.createCollisionShape(
-            pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices, flags=flags
-        )
+        try:
+            if flags is not None:
+                self._bullet_shape_id = pybullet.createCollisionShape(
+                    pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices, flags=flags
+                )
+            else:
+                self._bullet_shape_id = pybullet.createCollisionShape(
+                    pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices
+                )
+        except Exception:
+            print(f"\nCould not activate Physics for {self}")
 
     def _build_constraints(self) -> None:
         for constraint in self._bullet_constraints:
             if constraint["active"]:
                 continue
+            if constraint["target"]._bullet_id == -1:
+                continue
             if constraint["type"] == "p2p":
-                if constraint["target"]._bullet_id == -1:
-                    continue
                 constraint["active"] = True
                 pybullet.createConstraint(
                     self._bullet_id,

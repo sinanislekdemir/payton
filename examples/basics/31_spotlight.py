@@ -41,4 +41,4 @@ scene.active_camera.position = [
 scene.lights[0].position = [0, 0, 8.6]
 scene.add_object("table", table)
 scene.add_object("lamp", lamp)
-scene.run()
+scene.run(start_clocks=True)
