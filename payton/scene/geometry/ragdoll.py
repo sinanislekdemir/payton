@@ -75,6 +75,11 @@ class RagDoll(Bone):
         self.setup_joints()
         self.setup_geometry()
 
+    @property
+    def physics(self) -> bool:
+        """TODO: Implement humanoid physics."""
+        return False
+
     def setup_geometry(self) -> None:
         self.joints[HEAD].add_child(
             "mesh",

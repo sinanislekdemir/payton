@@ -18,7 +18,7 @@ def to_4(v: Iterable, fill: float = 1.0) -> Vector3D:
 
 
 def sub_vector(v1: Vector3D, v2: Vector3D) -> Vector3D:
-    """Substract vector V1 from vector V2 and return resulting Vector
+    """Substract vector V1 from vector V2 and return resulting Vector.
 
     Keyword arguments:
     v1 -- Vector 1
@@ -28,7 +28,7 @@ def sub_vector(v1: Vector3D, v2: Vector3D) -> Vector3D:
 
 
 def cross_product(v1: Vector3D, v2: Vector3D) -> Vector3D:
-    """Return the cross product vector of V1 and V2
+    """Return the cross product vector of V1 and V2.
 
     Keyword arguments:
     v1 -- Vector 1
@@ -42,15 +42,17 @@ def cross_product(v1: Vector3D, v2: Vector3D) -> Vector3D:
 
 
 def vector_norm(v: Vector3D) -> float:
-    """Calculate and return the Norm of a given Vector"""
+    """Calculate and return the Norm of a given Vector."""
     return math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]))
 
 
 def normalize_vector(v: Vector3D) -> Vector3D:
-    """Normalize given vector and output normalized vector
+    """
+    Normalize given vector and output normalized vector.
 
-    Keyword arguments:
-    v -- Vector to normalize"""
+    Keyword Arguments:
+    v -- Vector to normalize
+    """
     vn = vector_norm(v)
     if vn == 0.0:
         return v
@@ -59,7 +61,8 @@ def normalize_vector(v: Vector3D) -> Vector3D:
 
 
 def plane_normal(v1: Vector3D, v2: Vector3D, v3: Vector3D) -> Vector3D:
-    """Calculate the normal of the plane defined by v1, v2, v3 Vectors in space
+    """
+    Calculate the normal of the plane defined by v1, v2, v3 Vectors in space.
 
     Keyword arguments:
     v1 -- V1 Vector of the plane (Corner of the triangle in the given plane)
@@ -70,11 +73,13 @@ def plane_normal(v1: Vector3D, v2: Vector3D, v3: Vector3D) -> Vector3D:
 
 
 def vector_transform(v: Vector3D, matrix: Matrix) -> Vector3D:
-    """Transform the given Vector into given Matrix coordinates
+    """
+    Transform the given Vector into given Matrix coordinates.
 
     Keyword arguments:
     v -- Vector to transform
-    matrix -- Matrix for the transformation"""
+    matrix -- Matrix for the transformation
+    """
     mx = matrix[0]
     my = matrix[1]
     mz = matrix[2]
@@ -88,20 +93,22 @@ def vector_transform(v: Vector3D, matrix: Matrix) -> Vector3D:
 
 
 def invert_vector(v: Vector3D) -> Vector3D:
-    """Invert - Negate the given vector
+    """
+    Invert - Negate the given vector.
 
     Keyword arguments:
-    v -- Vector to invert"""
+    v -- Vector to invert
+    """
     return [-v[0], -v[1], -v[2]]
 
 
 def min_max(vlist: List[Vector3D]) -> Tuple[Vector3D, Vector3D]:
-    """Calculate the smallest and biggest components of the given vector list
+    """
+    Calculate the smallest and biggest components of the given vector list.
 
     Returns the result as Tuple of Vectors as minVector - maxVector
 
     Example:
-
         vlist = [
             Vector(-2, 3, 4),
             Vector(-3, -5, 9)
@@ -117,7 +124,6 @@ def min_max(vlist: List[Vector3D]) -> Tuple[Vector3D, Vector3D]:
     Keyword arguments:
     vlist -- List of vectors
     """
-
     x_list = [item[0] for item in vlist]
     y_list = [item[1] for item in vlist]
     z_list = [item[2] for item in vlist]
@@ -128,49 +134,59 @@ def min_max(vlist: List[Vector3D]) -> Tuple[Vector3D, Vector3D]:
 
 
 def scale_vector(v: Vector3D, factor: float) -> Vector3D:
-    """Scale (multiply each component) of the given Vector and return as a result
+    """
+    Scale (multiply each component) of the given Vector and return as a result.
 
     Keyword arguments:
     v -- Vector to scale
-    factor -- factor to multiply"""
+    factor -- factor to multiply
+    """
     return [v[0] * factor, v[1] * factor, v[2] * factor]
 
 
 def add_vectors(v1: Vector3D, v2: Vector3D) -> Vector3D:
-    """Add two vectors
+    """
+    Add two vectors.
 
     Keyword arguments:
     v1 -- First vector
-    v2 -- Second vector"""
+    v2 -- Second vector
+    """
     return [v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]]
 
 
 def dot_product(v1: Vector3D, v2: Vector3D) -> float:
-    """Return vector dot product of v1 and v2"
+    """
+    Return vector dot product of v1 and v2.
 
     Keyword arguments:
     v1 -- First vector
-    v2 -- Second vector"""
+    v2 -- Second vector
+    """
     return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
 
 
 def vector_angle(v1: Vector3D, v2: Vector3D) -> float:
-    """Calculate the angle between two given vectors
+    """
+    Calculate the angle between two given vectors.
 
     Keyword arguments:
     v1 -- First vector
-    v2 -- Second vector"""
+    v2 -- Second vector
+    """
     v1_n = normalize_vector(v1)
     v2_n = normalize_vector(v2)
     return math.acos(dot_product(v1_n, v2_n) / (vector_norm(v1_n) * vector_norm(v2_n)))
 
 
 def mid_point(v1: Vector3D, v2: Vector3D) -> Vector3D:
-    """Calculate the middle point between v1 and v2 vectors
+    """
+    Calculate the middle point between v1 and v2 vectors.
 
     Keyword arguments:
     v1 -- First vector
-    v2 -- Second vector"""
+    v2 -- Second vector
+    """
     diff = sub_vector(v2, v1)
     leng = vector_norm(diff)
     diff = normalize_vector(diff)
@@ -179,28 +195,32 @@ def mid_point(v1: Vector3D, v2: Vector3D) -> Vector3D:
 
 
 def distance(v1: Vector3D, v2: Vector3D) -> float:
-    """Calculate the distance between vectors v1 and v2
+    """
+    Calculate the distance between vectors v1 and v2.
 
     Keyword arguments:
     v1 -- First vector
-    v2 -- Second vector"""
+    v2 -- Second vector
+    """
     diff = sub_vector(v2, v1)
     return vector_norm(diff)
 
 
 def rotate_around_z(v: Vector3D, angle: float) -> Vector3D:
-    """Rotate the given vector around Z axis by given degrees
+    """Rotate the given vector around Z axis by given degrees.
 
     Keyword arguments:
     v -- Vector to rotate
-    angle -- Angle of rotation in Radians"""
+    angle -- Angle of rotation in Radians
+    """
     s = math.sin(angle)
     c = math.cos(angle)
     return [v[0] * c + v[1] * s, v[1] * c - v[0] * s, v[2]]
 
 
 def create_rotation_matrix_raw(axis: Vector3D, angle: float) -> Matrix:
-    """Create a rotation matrix as Numpy array
+    """
+    Create a rotation matrix as Numpy array.
 
     If you transform a Vector by the rotation Matrix, you will be rotating
     the given Vector according to the rotation defined by the matrix.
@@ -210,7 +230,8 @@ def create_rotation_matrix_raw(axis: Vector3D, angle: float) -> Matrix:
 
     Keyword arguments:
     axis -- Rotation axis
-    angle -- Angle of rotation in Radians"""
+    angle -- Angle of rotation in Radians
+    """
     sin = math.sin(angle)
     cos = math.cos(angle)
     m_cos = 1 - cos
@@ -239,7 +260,8 @@ def create_rotation_matrix_raw(axis: Vector3D, angle: float) -> Matrix:
 
 
 def create_rotation_matrix(axis: Vector3D, angle: float) -> np.ndarray:
-    """Create rotation matrix as a numpy array.
+    """
+    Create rotation matrix as a numpy array.
 
     Numpy array is a well packed proper memory array that fits well into
     graphics card. Therefore, we are using Numpy Arrays to push stuff to
@@ -253,14 +275,15 @@ def create_rotation_matrix(axis: Vector3D, angle: float) -> np.ndarray:
 
     Keyword arguments:
     axis -- Rotation axis
-    angle -- Angle of rotation in Radians"""
-
+    angle -- Angle of rotation in Radians.
+    """
     result = create_rotation_matrix_raw(axis, angle)
     return np.array(result, dtype=np.float32)
 
 
 def scale_matrix(x: float, y: float, z: float) -> np.ndarray:
-    """Create a scale matrix.
+    """
+    Create a scale matrix.
 
     If you multiply an objects matrix with a scale matrix, it will scale / resize
     the coordinates relative to the object. As a result, the object will look resized.
@@ -268,7 +291,8 @@ def scale_matrix(x: float, y: float, z: float) -> np.ndarray:
     Keyword arguments:
     x -- X Scale Factor
     y -- Y Scale Factor
-    z -- Z Scale Factor"""
+    z -- Z Scale Factor
+    """
     result = deepcopy(IDENTITY_MATRIX)
     result = [[x, 0, 0, 0], [0, y, 0, 0], [0, 0, z, 0], [0, 0, 0, 1]]
     return np.array(result, dtype=np.float32)
@@ -276,13 +300,15 @@ def scale_matrix(x: float, y: float, z: float) -> np.ndarray:
 
 @lru_cache(maxsize=512)
 def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
-    """Create an orthographic projection matrix as a Numpy Array
+    """
+    Create an orthographic projection matrix as a Numpy Array.
 
     Keyword arguments:
     left -- Viewport left side (-x) coordinate
     right -- Viewport right side (+x) coordinate
     bottom -- Viewport bottom side (+y) coordinate
-    top -- Viewport top side (-y) coordinate"""
+    top -- Viewport top side (-y) coordinate
+    """
     result = [
         [2 / (right - left), 0, 0, 0],
         [0, 2 / (top - bottom), 0, 0],
@@ -293,7 +319,8 @@ def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
 
 
 def cubemap_projection_matrices(from_point: Vector3D, far_plane: float) -> List[np.ndarray]:
-    """Create the required Cubemap projection matrices
+    """
+    Create the required Cubemap projection matrices.
 
     This method is suitable for generating a Shadow Map.
 
@@ -302,7 +329,8 @@ def cubemap_projection_matrices(from_point: Vector3D, far_plane: float) -> List[
 
     Keyword arguments;
     from_point -- Imaginary camera location
-    far_plane -- How far the camera is capable of seeing. (Effects performance!)"""
+    far_plane -- How far the camera is capable of seeing. (Effects performance!)
+    """
 
     def a2np(a: List[float]) -> np.ndarray:
         return np.array(a, dtype=np.float32)

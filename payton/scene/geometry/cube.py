@@ -1,3 +1,4 @@
+"""Cube object module."""
 from typing import Any, Optional
 
 from payton.math.functions import min_max
@@ -5,8 +6,18 @@ from payton.math.vector import Vector3D
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT
 
+_BULLET = False
+try:
+    import pybullet
+
+    _BULLET = True
+except ModuleNotFoundError:
+    _BULLET = False
+
 
 class Cube(Mesh):
+    """Basic Cube Mesh."""
+
     def __init__(
         self,
         width: float = 1.0,
@@ -16,7 +27,7 @@ class Cube(Mesh):
         to_corner: Optional[Vector3D] = None,
         **kwargs: Any,
     ) -> None:
-        """Initialize the Cube object
+        """Initialize the Cube object.
 
         Instead of using W/D/H arguments, you can define a Cube
         starting from a point A filling up to point B.
@@ -32,6 +43,9 @@ class Cube(Mesh):
         width *= 0.5
         depth *= 0.5
         height *= 0.5
+        self._width = width
+        self._depth = depth
+        self._height = height
 
         if from_corner is not None and to_corner is not None:
             vmin, vmax = min_max([from_corner, to_corner])
@@ -121,3 +135,8 @@ class Cube(Mesh):
         self._indices = self.materials[DEFAULT]._indices
 
         return None
+
+    def _create_collision_shape(self) -> None:
+        self._bullet_shape_id = pybullet.createCollisionShape(
+            pybullet.GEOM_BOX, halfExtents=[self._width, self._depth, self._height]
+        )

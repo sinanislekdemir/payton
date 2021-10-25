@@ -1,13 +1,24 @@
+"""Plane geometry module."""
 from itertools import product
 from typing import Any, List
 
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import SOLID, WHITE
 
+_BULLET = False
+try:
+    import pybullet
+
+    _BULLET = True
+except ModuleNotFoundError:
+    _BULLET = False
+
 
 class Plane(Mesh):
+    """Plane object."""
+
     def __init__(self, width: float = 1.0, height: float = 1.0, **kwargs: Any) -> None:
-        """Initialize a plane surface
+        """Initialize a plane surface.
 
         Keyword arguments:
         width -- Width of the plane
@@ -27,8 +38,13 @@ class Plane(Mesh):
         self._indices = [[0, 1, 2], [2, 3, 0]]
         self.material._indices = self._indices
 
+    def _create_collision_shape(self) -> None:
+        self._bullet_shape_id = pybullet.createCollisionShape(pybullet.GEOM_PLANE, planeNormal=self.matrix[2][:3])
+
 
 class MatrixPlane(Mesh):
+    """Matrix plane."""
+
     def __init__(
         self,
         width: float = 1.0,
@@ -37,7 +53,7 @@ class MatrixPlane(Mesh):
         y: int = 2,
         **kwargs: Any,
     ) -> None:
-        """Define a Matrix Plane
+        """Define a Matrix Plane.
 
         Matrix plane is an MxN grid matrix where you can change the height / color
         of each individual vertex in the matrix by ease
@@ -61,7 +77,7 @@ class MatrixPlane(Mesh):
         self.populate_grid()
 
     def update_grid(self) -> None:
-        """Update the grid for changes"""
+        """Update the grid for changes."""
         # TODO This method needs some optimization
         for i, j in product(range(self.x), range(self.y)):
             self._vertices[(self.x * i) + j][2] = self.grid[i][j]
@@ -71,7 +87,7 @@ class MatrixPlane(Mesh):
         self.refresh()
 
     def populate_grid(self) -> None:
-        """Turn grid data into plane"""
+        """Turn grid data into plane."""
         self.clear_triangles()
 
         self.grid = [[0.0] * self.y for _i in range(self.x)]

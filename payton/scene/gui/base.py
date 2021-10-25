@@ -48,6 +48,10 @@ class Shape2D(Mesh):
         self._scene_width: int = 0
         self._scene_height: int = 0
 
+    @property
+    def physics(self) -> bool:
+        return False
+
     def add_child(self, name: str, obj: Object) -> bool:
         """Add a child shape to this shape object.
 

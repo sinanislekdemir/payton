@@ -28,6 +28,11 @@ class ParticleSystem(Object):
     def track(self) -> bool:
         return False
 
+    @property
+    def physics(self) -> bool:
+        """TODO: Enable particle physics for this."""
+        return False
+
     def add(self, vertex: Vector3D, **meta: Dict[str, Any]) -> None:
         """Add a vertex/new particle to the particle system
 

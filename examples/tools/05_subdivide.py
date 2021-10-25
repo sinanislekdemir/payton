@@ -18,4 +18,6 @@ normal_monkey.position = [2, 0, 0]
 scene = Scene()
 scene.add_object("cube", monkey)
 scene.add_object("normal_cube", normal_monkey)
+monkey.toggle_wireframe()
+normal_monkey.toggle_wireframe()
 scene.run()

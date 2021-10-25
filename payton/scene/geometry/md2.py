@@ -1,5 +1,6 @@
 """
-ID Software Quake 2 Model File
+ID Software Quake 2 Model File.
+
 Some parts of this file is based on the original work from:
 https://github.com/adamlwgriffiths/PyMesh/tree/master/pymesh/md2
 """
@@ -21,11 +22,13 @@ _VERSION = 8
 
 
 class MeshException(Exception):
+    """Mesh relatex exceptions for MD2."""
+
     pass
 
 
 def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> List[Mesh]:
-    """Interpolate two alike meshes
+    """Interpolate two alike meshes.
 
     This is suitable to fill the blank frames of an animated object
     This function makes the assumption that same indices will be forming
@@ -72,6 +75,8 @@ def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> List[Mesh]:
 
 
 class MD2Header(NamedTuple):
+    """MD2 Model Header Byte Order."""
+
     ident: bytes = b""
     version: int = 0
     skin_width: int = 0
@@ -92,17 +97,21 @@ class MD2Header(NamedTuple):
 
 
 class MD2Frame(NamedTuple):
+    """MD2 Model Frame Information."""
+
     name: str = ""
     vertices: np.ndarray = np.array([], dtype=np.float64)
     normals: np.ndarray = np.array([], dtype=np.float64)
 
 
 class MD2TriangleLayout(NamedTuple):
+    """MD2 Triangle Collection."""
+
     vertex_indices: np.ndarray = np.array([], dtype=np.float64)
     tc_indices: np.ndarray = np.array([], dtype=np.float64)
 
 
-def read_block(b: BinaryIO, format_str: str, count: int) -> List[Tuple]:
+def _read_block(b: BinaryIO, format_str: str, count: int) -> List[Tuple]:
     def chunks(data: bytes, size: int) -> Generator:
         offset = 0
         while offset < len(data):
@@ -118,7 +127,7 @@ def read_block(b: BinaryIO, format_str: str, count: int) -> List[Tuple]:
     return [struct.unpack(format_str, chunk) for chunk in chunks(data, struct_length)]
 
 
-def fix_skin_name(name: bytes) -> str:
+def _fix_skin_name(name: bytes) -> str:
     name_str = name.decode("utf-8").replace("\x00", "")
     name_parts = os.path.splitext(name_str)
     if name_parts[1].startswith(".pcx"):
@@ -128,7 +137,8 @@ def fix_skin_name(name: bytes) -> str:
 
 class MD2(Mesh):
     """
-    MD2 File Format Loader
+    MD2 File Format Loader.
+
     I know that this is a pretty old file format. We can consider it as ancient
     On the other hand, our target on creating Payton is not to make a game
     engine.
@@ -151,7 +161,7 @@ class MD2(Mesh):
     """
 
     def __init__(self, filename: str = "", texture_filename: str = "", **kwargs: Any):
-        """Initialize the MD2 Object
+        """Initialize the MD2 Object.
 
         Keyword arguments:
         filaname -- Filename to load
@@ -179,6 +189,7 @@ class MD2(Mesh):
             self.load_file(filename)
 
     def add_frame_child(self, name: str, mesh: Mesh) -> None:
+        """Add Frame Model."""
         self._frame_children[name] = mesh
 
     def bake_animation(
@@ -240,7 +251,7 @@ class MD2(Mesh):
         to_frame: int,
         loop: bool = True,
     ) -> None:
-        """Set the model in motion
+        """Set the model in motion.
 
         Keyword arguments
         animation_name -- Name of the animation to play
@@ -271,7 +282,7 @@ class MD2(Mesh):
 
     @property
     def frame(self) -> str:
-        """Get the current frame name as <animation_name><frame_number>"""
+        """Get the current frame name as <animation_name><frame_number>."""
         if self._time == 0:
             self._time = time.time()
 
@@ -298,13 +309,14 @@ class MD2(Mesh):
         parent_matrix: Optional[np.ndarray] = None,
         _primitive: int = None,
     ) -> None:
-        """Main render cycle for the MD2 Object
+        """Render cycle for the MD2 Object.
 
         Keyword arguments:
         lit -- Is this an illuminated object?
         shader -- Shader to use for rendering
         parent_matrix -- Matrix of the parent object if exists
-        _primitive -- Enforced OpenGL primitive to render"""
+        _primitive -- Enforced OpenGL primitive to render
+        """
         if not self._visible:
             return
 
@@ -326,7 +338,7 @@ class MD2(Mesh):
             self.children[child].render(lit, shader, self._model_matrix)
 
     def load_file(self, filename: str) -> None:
-        """Load MD2 file
+        """Load MD2 file.
 
         Keyword arguments:
         filaname -- MD2 Filaname to load.
@@ -338,7 +350,7 @@ class MD2(Mesh):
             self.load_buffer(f)
 
     def load_buffer(self, f: BinaryIO) -> None:
-        """Load MD2 buffer into memory and compile the object"""
+        """Load MD2 buffer into memory and compile the object."""
         self.read_header(f)
         self.read_skin(f)
         self.read_tex_coords(f)
@@ -348,7 +360,7 @@ class MD2(Mesh):
 
     def read_triangles(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_tris, os.SEEK_SET)
-        triangles = np.array(read_block(f, "< 6H", self.header.num_tris), dtype=np.uint16)
+        triangles = np.array(_read_block(f, "< 6H", self.header.num_tris), dtype=np.uint16)
         triangles.shape = (-1, 6)
         vertex_indices = triangles[:, :3]
         tc_indices = triangles[:, 3:]
@@ -395,7 +407,7 @@ class MD2(Mesh):
         self.add_frame_child(name, mesh)
 
     def read_header(self, f: BinaryIO) -> None:
-        self.header = MD2Header._make(read_block(f, "< 4s16l", 1)[0])
+        self.header = MD2Header._make(_read_block(f, "< 4s16l", 1)[0])
 
         if self.header.ident.decode("ascii") != _SIGNATURE:
             raise BaseException("MD2 Identifier is incorrect")
@@ -406,11 +418,11 @@ class MD2(Mesh):
         f.seek(self.header.offset_skins, os.SEEK_SET)
         skin_struct = struct.Struct("< %s" % ("64s" * self.header.num_skins))
 
-        self.skins = [fix_skin_name(skin) for skin in skin_struct.unpack(f.read(skin_struct.size))]
+        self.skins = [_fix_skin_name(skin) for skin in skin_struct.unpack(f.read(skin_struct.size))]
 
     def read_tex_coords(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_st, os.SEEK_SET)
-        tcs = np.array(read_block(f, "< 2h", self.header.num_st), dtype=np.float64)
+        tcs = np.array(_read_block(f, "< 2h", self.header.num_st), dtype=np.float64)
         tcs.shape = (-1, 2)
         tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
         self._texcoords = tcs.tolist()
@@ -420,14 +432,14 @@ class MD2(Mesh):
         self.frames = [self.read_frame(f) for x in range(self.header.num_frames)]
 
     def read_frame(self, f: BinaryIO) -> MD2Frame:
-        frame_translations = np.array(read_block(f, "< 3f", 2), dtype=np.float64)
+        frame_translations = np.array(_read_block(f, "< 3f", 2), dtype=np.float64)
         scale = frame_translations[0]
         translation = frame_translations[1]
 
-        name = read_block(f, "< 16s", 1)[0][0]
+        name = _read_block(f, "< 16s", 1)[0][0]
         name = str(name).split("\x00")[0].split("\\")[0].replace("b'", "")
 
-        frame_vertex_data = np.array(read_block(f, "<4B", self.header.num_vertices), dtype=np.uint8)
+        frame_vertex_data = np.array(_read_block(f, "<4B", self.header.num_vertices), dtype=np.uint8)
 
         frame_vertex_data.shape = (-1, 4)
 

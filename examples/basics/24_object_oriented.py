@@ -37,4 +37,4 @@ class Application(Scene):
 
 if __name__ == "__main__":
     app = Application()
-    app.run()
+    app.run(start_clocks=True)

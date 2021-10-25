@@ -37,4 +37,4 @@ scene.add_object("cube_by_corners", cube_by_corners)
 scene.add_object("ground", ground)
 scene.grid.visible = False
 
-scene.run()
+scene.run(start_clocks=True)

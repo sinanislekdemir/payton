@@ -32,6 +32,4 @@ ground.material.texture = tex_file
 scene.add_object("dir", odir)
 scene.add_object("ground", ground)
 
-print("Hit space to start then click on the scene")
-
-scene.run()
+scene.run(start_clocks=True)

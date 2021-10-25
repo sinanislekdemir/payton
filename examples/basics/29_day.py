@@ -52,4 +52,4 @@ scene.active_camera.target = [
 scene.grid.visible = False
 scene.shadow_quality = SHADOW_HIGH
 scene.shadow_samples = 20
-scene.run()
+scene.run(start_clocks=True)

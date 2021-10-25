@@ -57,4 +57,4 @@ for i in range(50):
 
 scene.add_collision_test("test", collision)
 scene.create_clock("plane", 0.01, change_near_plane)
-scene.run()
+scene.run(start_clocks=True)

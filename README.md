@@ -70,6 +70,8 @@ a newbie can kick-start it just by following the tutorials.
 * Pre-defined environment
 * Clock system for parallel tasks and time based operations
 * Simple collision detection
+* Optional Physics Engine
+  * Basic support for Bullet Physics. _to be extended_
 * Extendable controllers
 * Pre-defined lighting with shadows.
 * Material support
@@ -111,6 +113,18 @@ pip3 install payton
 ```
 
 This should install all dependencies. If you get any permission errors, you are probably installing the library to system-global so missing some permissions. If you do not want to use pipenv or virtualenv, then you might want to run above command as `sudo pip3 install payton`
+
+### Optional Bullet Physics Integration
+
+Payton supports Bullet Physics at a basic level for solid geometries.
+
+```bash
+pip3 install pybullet
+```
+
+Once bullet physics is successfully installed in the same environment as Payton, it will automatically be activated and you will be able to use basic properties of it.
+Check out the relevant examples.
+
 
 #### AWP3D Format and Exporter
 
@@ -207,6 +221,9 @@ You can either download the whole repository [as a zip file](https://github.com/
   * Collision Detection
     * [Simple example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_collision.py)
     * [Complex example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_1_collision_detailed.py)
+  * Physics Engine
+    * [Cubes example](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/01_bullet_hello.py)
+    * [Joint example](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/02_joint_p2p.py)
   * [Rotating Objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/14_rotate.py)
   * [Graphical User Interface (GUI)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/15_gui.py)
   * [Custom keyboard shortcuts](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/16_keyboard.py)

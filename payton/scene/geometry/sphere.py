@@ -6,6 +6,14 @@ from payton.math.functions import plane_normal
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT
 
+_BULLET = False
+try:
+    import pybullet
+
+    _BULLET = True
+except ModuleNotFoundError:
+    _BULLET = False
+
 
 class Sphere(Mesh):
     def __init__(
@@ -84,3 +92,6 @@ class Sphere(Mesh):
             self.materials[DEFAULT]._indices.append([indices, indices + 2, indices + 3])
             indices += 4
         return True
+
+    def _create_collision_shape(self) -> None:
+        self._bullet_shape_id = pybullet.createCollisionShape(pybullet.GEOM_SPHERE, radius=self.radius)

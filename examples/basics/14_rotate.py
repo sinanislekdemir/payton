@@ -37,4 +37,4 @@ scene.add_object(
     ),
 )
 
-scene.run()
+scene.run(start_clocks=True)

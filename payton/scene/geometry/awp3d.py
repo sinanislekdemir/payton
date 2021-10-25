@@ -22,7 +22,7 @@ from payton.tools.bar import progress
 
 class AWP3D(Wavefront):
     """
-    AWP3D File Format Loader
+    AWP3D File Format Loader.
 
     This file format is quite like MD2 but supports high-poly animations.
     Simply, each awp3d file is a zip file with every frame of an anination
@@ -33,6 +33,7 @@ class AWP3D(Wavefront):
     """
 
     def __init__(self, filename: str = "", fps: int = 30, **kwargs: Any) -> None:
+        """Initialize AWP3D."""
         super().__init__(**kwargs)
         self.frames: List[Wavefront] = []
         self._frame: int = 0
@@ -53,20 +54,20 @@ class AWP3D(Wavefront):
             self.load_file(filename)
 
     def start(self) -> None:
-        """Manually start animation"""
+        """Manually start animation."""
         self.animate = True
 
     def pause(self) -> None:
-        """Pause animation"""
+        """Pause animation."""
         self.animate = False
 
     def stop(self) -> None:
-        """Stop animation"""
+        """Stop animation."""
         self.animate = False
         self._time = 0.0
 
     def set_range(self, from_frame: int, to_frame: int) -> None:
-        """Set animation frame range
+        """Set animation frame range.
 
         Keyword arguments:
         from_frame -- Starting frame number
@@ -84,16 +85,17 @@ class AWP3D(Wavefront):
         self._frame_period = 1.0 / self.fps
 
     def set_animation(self, name: str, from_frame: int, to_frame: int) -> None:
-        """Create an animation definition
+        """Create an animation definition.
 
         Keyword arguments:
         name -- Name of the animation
         from_frame -- Animation starting frame number
-        to_frame -- Animation ending frame number"""
+        to_frame -- Animation ending frame number
+        """
         self.animations[name] = (from_frame, to_frame)
 
     def run_animation(self, name: str) -> None:
-        """Run the selected animation
+        """Run the selected animation.
 
         Keyword arguments:
         name -- Name of the desired animation
@@ -103,7 +105,7 @@ class AWP3D(Wavefront):
         self.set_range(self.animations[name][0], self.animations[name][1])
 
     def load_file(self, filename: str) -> bool:
-        """Load file into system
+        """Load file into system.
 
         NOTE: This takes a while, that's why there is a loading
         indicator here. If it is annoying for you, ping me thus
@@ -136,6 +138,7 @@ class AWP3D(Wavefront):
     def render(
         self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None
     ) -> None:
+        """Render AWP3D."""
         if not self._visible:
             return
         self.update_matrix(parent_matrix=parent_matrix)
@@ -155,7 +158,7 @@ class AWP3D(Wavefront):
         self.frames[render_frame].render(lit, shader, self._model_matrix)
 
     def toggle_wireframe(self) -> None:
-        """Toggle wireframe view of the Object"""
+        """Toggle wireframe view of the Object."""
         d = (self.material.display + 1) % 3
 
         for mat in self.materials.values():

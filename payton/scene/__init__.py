@@ -1,5 +1,4 @@
-# pylama:ignore=W
-"""#Payton Scene Module
+"""Payton Scene Module.
 
 ##Main Scene Module:
 
@@ -20,13 +19,8 @@
 Also, `payton.scene.scene` contents are accessible through `payton.scene` main
 module
 """
+# pylama:ignore=W
+from payton.scene.physics import physics_client
 from payton.scene.scene import SHADOW_HIGH, SHADOW_LOW, SHADOW_MID, SHADOW_NONE, Background, Scene
 
-__all__ = [
-    "Scene",
-    "Background",
-    "SHADOW_HIGH",
-    "SHADOW_LOW",
-    "SHADOW_MID",
-    "SHADOW_NONE",
-]
+__all__ = ["Scene", "Background", "SHADOW_HIGH", "SHADOW_LOW", "SHADOW_MID", "SHADOW_NONE", "physics_client"]
