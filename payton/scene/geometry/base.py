@@ -522,11 +522,7 @@ class Object:
 
             return
 
-        # Material shading mode.
-        mode = None
-        if self._has_vertex_colors:
-            mode = Shader.PER_VERTEX_COLOR
-
+        mode = Shader.PER_VERTEX_COLOR if self._has_vertex_colors else None
         shader.set_matrix4x4_np("model", self._model_matrix_fortran)
         indice_0 = ctypes.c_void_p(0)
 

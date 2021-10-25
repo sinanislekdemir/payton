@@ -161,9 +161,7 @@ class Wavefront(Mesh):
                 else:
                     fix_normals = True
                     l_normal = [0.0, 0.0, 1.0]
-                l_tex = [0.0, 0.0]
-                if f[1] > -1:
-                    l_tex = _texcoords[f[1]]
+                l_tex = _texcoords[f[1]] if f[1] > -1 else [0.0, 0.0]
                 self._vertices.append(l_vertex)
                 self._normals.append(l_normal)
                 self._texcoords.append(l_tex)
