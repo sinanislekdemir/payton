@@ -1,5 +1,4 @@
-from typing import Any, List, Union
-from numpy import ndarray
+from typing import List
 
-Vector3D = Union[List[float], ndarray[Any, Any]]
-Vector2D = Union[List[float], ndarray[Any, Any]]
+Vector3D = List[float]
+Vector2D = List[float]

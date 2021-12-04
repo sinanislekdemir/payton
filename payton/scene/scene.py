@@ -287,7 +287,8 @@ class Scene(Receiver):
             hit = raycast_plane_intersect(eye, vector, click_plane[0], click_plane[1])
             if hit is None:
                 continue
-            click_plane[2](hit[:3])
+            _hit = hit.tolist()
+            click_plane[2](_hit[:3])
 
     def _render_3d_scene(self, shadow_round: bool = False, shader: str = DEFAULT_SHADER) -> None:
         """
