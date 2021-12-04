@@ -195,6 +195,9 @@ You can either download the whole repository [as a zip file](https://github.com/
 *Tested in Windows 10 Paperspace, seems to be working as expected*
 ![https://user-images.githubusercontent.com/1842484/84317888-38767780-ab76-11ea-8337-a102d7c59275.png](https://user-images.githubusercontent.com/1842484/84317888-38767780-ab76-11ea-8337-a102d7c59275.png)
 
+*Supports pyBullet solid geometry physics*
+[![https://www.youtube.com/watch?v=Zt2vnUMLYVs](https://www.islekdemir.com/snapshot.jpg)](https://www.youtube.com/watch?v=Zt2vnUMLYVs)
+
 ## Example Index
 
 * Basic Examples
