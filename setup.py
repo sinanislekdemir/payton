@@ -9,7 +9,7 @@ if sys.version_info < (3, 7):
 
 setup(
     name="Payton",
-    version="v1.0.0",
+    version="v1.0.1",
     author="Sinan ISLEKDEMIR",
     author_email="sinan@islekdemir.com",
     # Packages
@@ -19,7 +19,7 @@ setup(
     # Details
     url="https://github.com/sinanislekdemir/payton",
     #
-    license="MIT License (MIT)",
+    license="BSD License",
     description="Payton 3D Kickstart Toolkit",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
