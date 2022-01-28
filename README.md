@@ -1,5 +1,8 @@
 # Payton 3D SDK
 
+[![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
+[![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
+
 Payton is a general-purpose 3D Software Development Kit. Simply, a 3D Programming Playground!
 
 * Payton is a playground. Kickstart any idea fast and easy, grow it.
