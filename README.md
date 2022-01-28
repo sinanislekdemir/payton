@@ -1,5 +1,6 @@
 # Payton 3D SDK
 
+![example workflow](https://github.com/sinanislekdemir/payton/actions/workflows/pythonpackage.yml/badge.svg)
 [![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
 [![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
 
