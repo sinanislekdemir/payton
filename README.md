@@ -1,5 +1,9 @@
 # Payton 3D SDK
 
+![example workflow](https://github.com/sinanislekdemir/payton/actions/workflows/pythonpackage.yml/badge.svg)
+[![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
+[![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
+
 Payton is a general-purpose 3D Software Development Kit. Simply, a 3D Programming Playground!
 
 * Payton is a playground. Kickstart any idea fast and easy, grow it.
@@ -12,8 +16,6 @@ Payton is a general-purpose 3D Software Development Kit. Simply, a 3D Programmin
 * Tools programming is easy.
 * Easy to visualize what you want to achieve or do what you want to do.
 * You can move forward from Payton to any other place if you like.
-
-[![Screenshot from 2021-04-23 23-12-48](https://user-images.githubusercontent.com/1842484/115925218-78da9d80-a489-11eb-9ebe-613d398aeacd.png)](https://www.youtube.com/watch?v=OnLFIMhmvh8)
 
 We draw 2D graphs and charts in reports and we generally understand much more
 easily when we visualize the data. But in some cases, visualizing exceeds 2
@@ -276,15 +278,21 @@ You can either download the whole repository [as a zip file](https://github.com/
 
 [![](http://i3.ytimg.com/vi/3ATRVLNuCew/maxresdefault.jpg)](https://www.youtube.com/watch?v=3ATRVLNuCew)
 
+## Examples Showcase:
 
-|  |  |  |
-| --- | --- | --- |
-| [![](https://islekdemir.com/payton/thumb-cube.png)](https://islekdemir.com/payton/cube.png) | [![](https://islekdemir.com/payton/thumb-clock.png)](https://islekdemir.com/payton/clock.png) | [![](https://islekdemir.com/payton/thumb-monkey.png)](https://islekdemir.com/payton/monkey.png) |
-| [![](https://islekdemir.com/payton/thumb-particle.png)](https://islekdemir.com/payton/particle.png) | [![](https://islekdemir.com/payton/thumb-mesh_plane.png)](https://islekdemir.com/payton/mesh_plane.png) | [![](https://islekdemir.com/payton/thumb-ripple.png)](https://islekdemir.com/payton/ripple.png) |
-| [![](https://islekdemir.com/payton/thumb-engrave.png)](https://islekdemir.com/payton/engrave.png) | [![](https://islekdemir.com/payton/thumb-spotlight.png)](https://islekdemir.com/payton/spotlight.png) | [![](https://islekdemir.com/payton/thumb-day.png)](https://islekdemir.com/payton/day.png) |
-| [![](https://islekdemir.com/payton/thumb-ragdoll.png)](https://islekdemir.com/payton/ragdoll.png) | [![](https://islekdemir.com/payton/thumb-quake.png)](https://islekdemir.com/payton/quake.png) | [![](https://islekdemir.com/payton/thumb-motion.png)](https://islekdemir.com/payton/motion.png) |
-| [![](https://islekdemir.com/payton/thumb-gui.png)](https://islekdemir.com/payton/gui.png) | [![](https://islekdemir.com/payton/thumb-collision.png)](https://islekdemir.com/payton/collision.png) | |
-
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/02.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/02.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/04.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/04.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/05.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/05.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/11.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/11.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/awp3d.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/awp3d.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/bullet.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/bullet.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/day.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/day.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/engrave.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/engrave.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/explosion.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/explosion.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/gui.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/gui.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/quake.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/quake.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/ripple.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/ripple.jpg?raw=true)
+![https://github.com/sinanislekdemir/payton/blob/assets/assets/spot.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/spot.jpg?raw=true)
 
 ## Some free-thoughts and decisions:
 
