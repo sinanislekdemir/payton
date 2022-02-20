@@ -1,4 +1,4 @@
-from typing import Any, List, Union
+from typing import List, Union
 
 import numpy as np
 
@@ -6,7 +6,7 @@ from payton.math.vector import Vector3D
 
 DIFF = 0.0000001
 
-Matrix = Union[List[Vector3D], np.ndarray[Any, Any]]
+Matrix = Union[List[Vector3D], np.ndarray]
 
 IDENTITY_MATRIX: Matrix = [
     [1.0, 0.0, 0.0, 0.0],

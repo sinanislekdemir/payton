@@ -40,6 +40,7 @@ from OpenGL.GL import (
     GL_TEXTURE_WRAP_S,
     GL_TEXTURE_WRAP_T,
     GL_TRIANGLES,
+    GL_VERSION,
     glActiveTexture,
     glBindFramebuffer,
     glBindTexture,
@@ -56,6 +57,7 @@ from OpenGL.GL import (
     glGenTextures,
     glGenVertexArrays,
     glGetIntegerv,
+    glGetString,
     glReadBuffer,
     glTexImage2D,
     glTexParameteri,
@@ -198,6 +200,7 @@ class Scene(Receiver):
         self.shaders["depth"]._depth_shader = True
 
         # SDL Related Stuff
+
         self.window = None
         self.window_width = width
         self.window_height = height
@@ -597,11 +600,8 @@ class Scene(Receiver):
         """Run the show."""
         if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
             return -1
-        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
-        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MINOR_VERSION, 3)
+
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE)
-        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
-        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
 
         self.window = sdl2.SDL_CreateWindow(
             b"Payton Scene",
@@ -619,8 +619,11 @@ class Scene(Receiver):
         sdl2.SDL_GL_SetSwapInterval(0)
         self.event = sdl2.SDL_Event()
         self.running = True
+        version = glGetString(GL_VERSION).decode('utf-8')
         ogl_major = glGetIntegerv(GL_MAJOR_VERSION)
         ogl_minor = glGetIntegerv(GL_MINOR_VERSION)
+        print(f"gl-int: {ogl_major}.{ogl_minor} - {version}")
+
         v = (ogl_major * 10) + ogl_minor
         if v < 33:  # OpenGL 3.3
             print(
