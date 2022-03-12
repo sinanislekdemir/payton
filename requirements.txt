@@ -1,6 +1,6 @@
-numpy>=1.18.2
-Pillow>=8.2.0
-PyOpenGL>=3.1.3rc1
+Pillow>=9.0.1
+PyOpenGL>=3.1.6
 pyrr>=0.10.3
-PySDL2>=0.9.7
-PyOpenGL-accelerate>=3.1.5
+PySDL2>=0.9.11
+Cython>=0.29.28
+numpy>=1.22.3

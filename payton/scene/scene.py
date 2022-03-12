@@ -6,6 +6,7 @@ Scene is the universe. Everything about Payton happens inside a Scene.
 # pylama:ignore=C901
 import ctypes
 import logging
+import os
 import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
@@ -148,6 +149,13 @@ class Scene(Receiver):
         """
         self.__fps_counter = 0
         self.fps = 0
+        _env_width = os.getenv('SDL_WINDOW_WIDTH', None)
+        _env_height = os.getenv('SDL_WINDOW_HEIGHT', None)
+        if _env_width:
+            width = int(_env_width)
+        if _env_height:
+            height = int(_env_height)
+
         # All objects list
         self.objects: Dict[str, Object] = {}
         # All Huds (Heads Up Display)
@@ -602,6 +610,12 @@ class Scene(Receiver):
             return -1
 
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE)
+        multisample_buffers = os.getenv('GL_MULTISAMPLEBUFFERS', None)
+        multisample_samples = os.getenv('GL_MULTISAMPLESAMPLES', None)
+        if multisample_buffers:
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, int(multisample_buffers))
+        if multisample_samples:
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, int(multisample_samples))
 
         self.window = sdl2.SDL_CreateWindow(
             b"Payton Scene",
@@ -726,6 +740,7 @@ Payton requires at least OpenGL 3.3 support and above."""
         return 0
 
     def terminate(self) -> None:
+        """Terminate scene."""
         self.running = False
         for clock in self.clocks:
             logging.debug(f"Kill clock [{clock}]")
@@ -734,8 +749,8 @@ Payton requires at least OpenGL 3.3 support and above."""
 
 
 class Background:
-    """
-    (Shader code and idea derived from the original work of:
+    """(Shader code and idea derived from the original work of.
+
     https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
     """
 
@@ -745,7 +760,7 @@ class Background:
         bottom_color: Optional[Vector3D] = None,
         **kwargs: Dict[str, Any],
     ):
-        """Initialize the background
+        """Initialize the background.
 
         Keyword arguments:
         top_color -- Gradient color at the top of the viewport
@@ -763,7 +778,8 @@ class Background:
         self.visible = True
 
     def set_time(self, hour: int, minute: int) -> None:
-        """Background can mimic a background color based on the time of the date
+        """Background can mimic a background color based on the time of the date.
+
         It is not accurate but at least gives a small impression
 
         Keyword arguments:
@@ -798,7 +814,7 @@ class Background:
                 return
 
     def render(self) -> None:
-        """Render the background"""
+        """Render the background."""
         if not self.visible:
             return
 

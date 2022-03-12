@@ -26,10 +26,11 @@ setup(
     python_requires=">3.8",
     # Dependent packages (distributions)
     install_requires=[
-        "numpy>=1.18.2",
-        "Pillow>=8.2.0",
-        "PyOpenGL>=3.1.3rc1",
+        "Cython>=0.29.28",
+        "numpy>=1.22.3",
+        "Pillow>=9.0.1",
+        "PyOpenGL>=3.1.6",
         "pyrr>=0.10.3",
-        "PySDL2>=0.9.7",
+        "PySDL2>=0.9.11",
     ],
 )

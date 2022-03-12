@@ -2,3 +2,13 @@
 target-version = ['py37']
 line-length = 120
 skip-string-normalization = true
+
+[tool.pylint.messages_control]
+disable = [
+  "fixme",
+  "protected-access",
+  "too-few-public-methods",
+  "too-many-locals",
+  "too-many-branches",
+  "too-many-statements",
+]

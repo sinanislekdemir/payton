@@ -8,7 +8,9 @@ Payton is a general-purpose 3D Software Development Kit. Simply, a 3D Programmin
 
 * Payton is a playground. Kickstart any idea fast and easy, grow it.
 * Create tools for the next step. Create map editors, small animations, small
-  algorithms or artificial intelligence for your game. Whenever you need to try a new idea, don't bother to create a new application with all the details. Payton comes with all the necessary defaults and that is what makes it unique. Almost everything has a pre-set.
+  algorithms or artificial intelligence for your game. Whenever you need to try a new idea, don't
+  bother to create a new application with all the details. Payton comes with all the necessary
+  defaults and that is what makes it unique. Almost everything has a pre-set.
 * Game engines and other libraries are way too complex and it takes a long time
   to start the initial playground.
 * Payton never intends to take place as a game engine or a full-featured 3D
@@ -185,6 +187,17 @@ This will create your first empty scene and show it inside an SDL window.
 | F2 | Previous Camera |
 | F3 | Next Camera |
 | H | Open / Close Help Window |
+
+## Environment variables
+
+Some options can be configured from the environment variables.
+
+- `SDL_WINDOW_WIDTH`: Set window width.
+- `SDL_WINDOW_HEIGHT`: Set window height.
+- `GL_MULTISAMPLEBUFFERES`: Set OpenGL multisample buffer count for antialiasing. (usually 1 or 2)
+- `GL_MULTISAMPLESAMPLES`: Set OpenGL multisample sampling count for antialiasing. (usually 1-16)
+
+Without `GL_MULTISAMPLEBUFFERS` AND `GL_MULTISAMPLESAMPLES`, you may notice pixelated graphics. There is no default set for those values because they can vary between graphic cards.
 
 ## Examples
 
