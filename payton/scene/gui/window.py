@@ -333,7 +333,7 @@ class Button(Panel):
             crop[3] = int(text_size[1] - crop[1])
             text_size = (text_size[0], self.size[1])
         self.text.crop = crop
-        self.text.size = [int(text_size[0]), int(text_size[1] + 4)]
+        self.text.size = [int(text_size[0]), int(text_size[1])]
 
     @property
     def label(self) -> str:
