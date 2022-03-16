@@ -116,6 +116,7 @@ class Shape2D(Mesh):
         self._parent_height = h
         self._init = False
         self.draw()
+
         for child in self.children.values():
             cast("Shape2D", child)._set_parent_size(self.size[0], self.size[1])
 
@@ -250,8 +251,9 @@ class Text(Rectangle):
 
         res = d.textsize(self.label, font=self.font)
         lres = list(res)
+
         lres[0] = max(lres[0], self.size[0])
-        lres[1] = max(lres[1], self.size[1])
+        lres[1] = max(lres[1] + 4, self.size[1])
         return lres[0], lres[1]
 
     def wrap(self, width_in_pixels: int) -> None:
