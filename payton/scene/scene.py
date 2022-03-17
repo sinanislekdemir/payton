@@ -165,7 +165,7 @@ class Scene(Receiver):
 
         self.__timer = -1.0
         self.cameras: List[Camera] = []
-        self.cameras.append(Camera(active=True))
+        self.cameras.append(Camera(active=True, viewport_size=[width, height, 0]))
         self._physics_params = PhysicsParams(0, 0, -10)
         self.clocks: Dict[str, Clock] = {}
 
@@ -490,7 +490,7 @@ class Scene(Receiver):
 
     def create_camera(self) -> None:
         """Create a dummy camera with defaults."""
-        self.cameras.append(Camera())
+        self.cameras.append(Camera(viewport_size=[self.window_width, self.window_height, 0]))
 
     def create_clock(
         self,
@@ -653,6 +653,7 @@ Payton requires at least OpenGL 3.3 support and above."""
         # Fix aspect ratios of cameras
         for camera in self.cameras:
             camera.aspect_ratio = self.window_width / self.window_height * 1.0
+
         for hud in self.huds.values():
             hud.set_size(self.window_width, self.window_height)
 
@@ -715,6 +716,7 @@ Payton requires at least OpenGL 3.3 support and above."""
 
                     for ob in self.cameras:
                         ob.aspect_ratio = self.window_width / self.window_height
+                        ob._viewport_size = [self.window_width, self.window_height, 0]
                     for hud in self.huds:
                         self.huds[hud].set_size(self.window_width, self.window_height)
                 self.controller.keyboard(self.event, self)

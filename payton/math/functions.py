@@ -92,6 +92,27 @@ def vector_transform(v: Vector3D, matrix: Matrix) -> Vector3D:
     return [rx + mw[0], ry + mw[1], rz + mw[2]]
 
 
+def vector_transform_4(v: Vector3D, matrix: Matrix) -> Vector3D:
+    """
+    Transform the given Vector into given Matrix coordinates.
+
+    Keyword arguments:
+    v -- Vector to transform
+    matrix -- Matrix for the transformation
+    """
+    mx = matrix[0]
+    my = matrix[1]
+    mz = matrix[2]
+    mw = matrix[3]
+
+    rx = v[0] * mx[0] + v[1] * my[0] + v[2] * mz[0] + v[3] * mw[0]
+    ry = v[0] * mx[1] + v[1] * my[1] + v[2] * mz[1] + v[3] * mw[1]
+    rz = v[0] * mx[2] + v[1] * my[2] + v[2] * mz[2] + v[3] * mw[2]
+    rw = v[0] * mx[3] + v[1] * my[3] + v[2] * mz[3] + v[3] * mw[3]
+
+    return [rx, ry, rz, rw]
+
+
 def invert_vector(v: Vector3D) -> Vector3D:
     """
     Invert - Negate the given vector.

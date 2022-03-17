@@ -179,7 +179,7 @@ class Window(WindowElement):
         self.add_child(
             "title",
             Text(
-                position=[0, 0, 0],
+                position=[10, 0, 0],
                 size=[self.size[0], 20],
                 label=self.title,
                 # bgcolor=self.theme.title_background_color,

@@ -139,7 +139,8 @@ class Object:
         self._buffer_size: float = 500 * 12
         self._t_buffer_size: float = 500 * 8
         self._model_matrix: np.ndarray = np.array([], dtype=np.float64)  # Model matrix.
-        self._model_matrix_fortran: np.ndarray = np.array([], dtype=np.float64)  # Model matrix as fortran
+        # Model matrix as fortran
+        self._model_matrix_fortran: np.ndarray = np.array([], dtype=np.float64)
         # Check if buffer size allocated for the object has changed.
         self._buffer_size_changed: bool = True
         self._t_buffer_size_changed: bool = True

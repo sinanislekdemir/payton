@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 import pyrr
 
-from payton.math.functions import sub_vector
+from payton.math.functions import sub_vector, vector_transform_4
 from payton.math.geometry import raycast_plane_intersect
 from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
@@ -32,6 +32,7 @@ class Camera:
         zoom: float = 10.0,
         active: bool = False,
         perspective: bool = True,
+        viewport_size: Optional[Vector3D] = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the camera
@@ -64,6 +65,9 @@ class Camera:
         self.active: bool = active
         self._perspective: bool = perspective
         self._use_cache = False
+        self._viewport_size = [0.0, 0.0]
+        if viewport_size:
+            self._viewport_size = viewport_size
 
         # Store matrices for future reference.
         self._projection: Optional[np.ndarray] = None
@@ -330,8 +334,31 @@ class Camera:
         self._use_cache = True
         return proj_matrix, view_matrix
 
+    def world_to_screen(self, world_coordinates: Vector3D) -> Vector3D:
+        """Turn the world coordinates into screen coordinates.
+
+        Keyword arguments:
+        world_coordinates -- 3D Vector in space coordinates
+
+        Returns:
+        3D vector coordinates.
+        """
+        if len(world_coordinates) == 3:
+            world_coordinates.append(1)
+        proj_matrix, view_matrix = self.render()
+        clip_space = vector_transform_4(world_coordinates, view_matrix)
+        clip_space = vector_transform_4(clip_space, proj_matrix)
+        div = clip_space[3]
+        clip_space = [elem / div for elem in clip_space]
+        clip_space = [
+            self._viewport_size[0] * (clip_space[0] + 1) / 2.0,
+            self._viewport_size[1] - (self._viewport_size[1] * (clip_space[1] + 1) / 2.0),
+            0,
+        ]
+        return clip_space
+
     def screen_to_world(self, x: int, y: int, width: int, height: int) -> Tuple[np.ndarray, np.ndarray]:
-        """Turn the screen coordinates into world coordinates
+        """Turn the screen coordinates into world coordinates.
 
         Imagine a point on the surface of the camera (your cursor),
         this method turns X-Y coordinates into world coordinates

@@ -1,10 +1,12 @@
 from PIL import Image, ImageDraw
 
-from payton.scene.gui.base import Hud
+from payton.scene.geometry.base import Object
+from payton.scene.gui.base import Hud, Text
 from payton.scene.gui.window import Button, Window, WindowAlignment
 
 
 def help_win() -> Window:
+    """Help window."""
     text = """Payton Shortcuts and Mouse Controls:
 
 MOUSE:
@@ -63,5 +65,24 @@ def info_box(left: int, top: int, label: str) -> Hud:
             on_click=window.hide,
         ),
     )
+    hud.add_child("window", window)
+    return hud
+
+
+def object_box(left: int, top: int, ob: Object) -> Hud:
+    """Show object box."""
+    px = ob.matrix[3][0]
+    py = ob.matrix[3][1]
+    pz = ob.matrix[3][2]
+    label = f"""Object:
+Position: [{px}, {py}, {pz}]
+Number of Indices: {len(ob._indices)}
+Number of vertices: {ob._vertex_count}
+    """
+    hud = Hud()
+    width = 400
+    height = 200
+    window = Window(ob.name, width=width, height=height, left=left, top=top)
+    window.add_child("label", Text(position=[10, 20], size=[380, 300], label=label, color=[1, 1, 1]))
     hud.add_child("window", window)
     return hud
