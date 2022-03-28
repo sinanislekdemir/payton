@@ -92,7 +92,7 @@ def raycast_sphere_intersect(start: GArray, direction: GArray, sphere_center: np
         proj = 0.0
     vc = combine(start, direction, 1.0, proj)
     dist = distance2(sphere_center, vc)
-    return dist < (sphere_radius**2)
+    return dist < (sphere_radius ** 2)
 
 
 def _find_box_mid_for_intersection(start: GArray, box_a: GArray, box_b: GArray) -> Tuple[List[bool], List[float], bool]:

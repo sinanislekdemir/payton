@@ -52,7 +52,7 @@ class ParticleDemo(Scene):
             ys = math.sin(self.ps.meta[i]["orientation"])
             angle = self.ps.meta[i]["angle"]
             dist = -(self.ps.meta[i]["velocity"] * total * math.cos(angle))
-            height = self.ps.meta[i]["velocity"] * total * math.sin(angle) - 0.5 * GRAVITY * (total**2)
+            height = self.ps.meta[i]["velocity"] * total * math.sin(angle) - 0.5 * GRAVITY * (total ** 2)
 
             position[0] = dist * xs
             position[1] = dist * ys

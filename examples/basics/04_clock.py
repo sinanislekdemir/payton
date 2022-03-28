@@ -26,7 +26,7 @@ def projectile_motion(period, total):
 
     # Go towards -Y direction.
     position[1] = -(INITIAL_VELOCITY * total * math.cos(LAUNCH_ANGLE))
-    position[2] = INITIAL_VELOCITY * total * math.sin(LAUNCH_ANGLE) - 0.5 * GRAVITY * (total**2)
+    position[2] = INITIAL_VELOCITY * total * math.sin(LAUNCH_ANGLE) - 0.5 * GRAVITY * (total ** 2)
     scene.objects["ball"].position = position
     return None
 
