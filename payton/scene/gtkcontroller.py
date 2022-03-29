@@ -104,7 +104,7 @@ class GTKController:
             self.scene.window_height,
         )
 
-    def keyboard_press(self, event: Any) -> int:
+    def keyboard_press(self, event: Any) -> int:  # noqa: C901
         """Keyboard press."""
         keyval = event.keyval
         print(keyval == Gdk.KEY_h)

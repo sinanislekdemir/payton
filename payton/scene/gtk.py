@@ -13,7 +13,7 @@ except ModuleNotFoundError:
 from payton.scene import Scene
 from payton.scene.gtkcontroller import GTKController
 
-if _GTK_SUPPORTED:
+if _GTK_SUPPORTED:  # noqa: C901
 
     class PaytonGTKSceneArea(Gtk.EventBox):
         """Instance of GTk GLArea."""
