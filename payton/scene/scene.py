@@ -22,6 +22,7 @@ from OpenGL.GL import (
     GL_DEPTH_TEST,
     GL_FLOAT,
     GL_FRAMEBUFFER,
+    GL_FRAMEBUFFER_BINDING,
     GL_LESS,
     GL_MAJOR_VERSION,
     GL_MINOR_VERSION,
@@ -371,11 +372,12 @@ class Scene(Receiver):
 
         if self.shadow_quality > 0:
             glViewport(0, 0, self._shadow_quality, self._shadow_quality)
+            default_id = glGetIntegerv(GL_FRAMEBUFFER_BINDING)
             glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
             glClear(GL_DEPTH_BUFFER_BIT)
             self.shaders[SHADOW_SHADER].use()
             self._render_3d_scene(True, SHADOW_SHADER)
-            glBindFramebuffer(GL_FRAMEBUFFER, 0)
+            glBindFramebuffer(GL_FRAMEBUFFER, default_id)
             self.shaders[SHADOW_SHADER].end()
 
         # Render background
@@ -604,35 +606,7 @@ class Scene(Receiver):
             return None
         return hit_obj, shortest
 
-    def run(self, start_clocks: bool = False) -> int:
-        """Run the show."""
-        if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
-            return -1
-
-        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE)
-        multisample_buffers = os.getenv('GL_MULTISAMPLEBUFFERS', None)
-        multisample_samples = os.getenv('GL_MULTISAMPLESAMPLES', None)
-        if multisample_buffers:
-            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, int(multisample_buffers))
-        if multisample_samples:
-            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, int(multisample_samples))
-
-        self.window = sdl2.SDL_CreateWindow(
-            b"Payton Scene",
-            sdl2.SDL_WINDOWPOS_UNDEFINED,
-            sdl2.SDL_WINDOWPOS_UNDEFINED,
-            int(self.window_width),
-            int(self.window_height),
-            sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE,
-        )
-
-        if not self.window:
-            return -1
-
-        self._context = sdl2.SDL_GL_CreateContext(self.window)
-        sdl2.SDL_GL_SetSwapInterval(0)
-        self.event = sdl2.SDL_Event()
-        self.running = True
+    def _init_runtime(self, start_clocks: bool = False) -> bool:
         version = glGetString(GL_VERSION).decode('utf-8')
         ogl_major = glGetIntegerv(GL_MAJOR_VERSION)
         ogl_minor = glGetIntegerv(GL_MINOR_VERSION)
@@ -694,6 +668,7 @@ Payton requires at least OpenGL 3.3 support and above."""
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE)
 
+        default_id = glGetIntegerv(GL_FRAMEBUFFER_BINDING)
         glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
         glFramebufferTexture(
             GL_FRAMEBUFFER,
@@ -703,9 +678,43 @@ Payton requires at least OpenGL 3.3 support and above."""
         )
         glDrawBuffer(GL_NONE)
         glReadBuffer(GL_NONE)
-        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+        glBindFramebuffer(GL_FRAMEBUFFER, default_id)
         for shader in self.shaders.values():
             shader.build()
+
+        return True
+
+    def run(self, start_clocks: bool = False) -> int:
+        """Run the show."""
+        if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
+            return -1
+
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE)
+        multisample_buffers = os.getenv('GL_MULTISAMPLEBUFFERS', None)
+        multisample_samples = os.getenv('GL_MULTISAMPLESAMPLES', None)
+        if multisample_buffers:
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, int(multisample_buffers))
+        if multisample_samples:
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, int(multisample_samples))
+
+        self.window = sdl2.SDL_CreateWindow(
+            b"Payton Scene",
+            sdl2.SDL_WINDOWPOS_UNDEFINED,
+            sdl2.SDL_WINDOWPOS_UNDEFINED,
+            int(self.window_width),
+            int(self.window_height),
+            sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE,
+        )
+
+        if not self.window:
+            return -1
+
+        self._context = sdl2.SDL_GL_CreateContext(self.window)
+        sdl2.SDL_GL_SetSwapInterval(0)
+        self.event = sdl2.SDL_Event()
+        self.running = True
+
+        self._init_runtime()
 
         while self.running:
             while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
