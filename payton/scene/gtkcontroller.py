@@ -87,10 +87,11 @@ class GTKController:
             self.yrel = event.y
         xrel = event.x - self.xrel
         yrel = event.y - self.yrel
-        if not button:
-            return
         self.xrel = event.x
         self.yrel = event.y
+        if not button:
+            return
+
         camera.mouse_move(
             button,
             self.shift_down,
