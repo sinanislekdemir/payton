@@ -1,8 +1,10 @@
+from typing import Any
+
 try:
     import gi
 
     gi.require_version('Gtk', '3.0')
-    from gi.repository import Gdk, GObject, Gtk
+    from gi.repository import Gdk, Gtk
 
     _GTK_SUPPORTED = True
 except ModuleNotFoundError:
@@ -25,9 +27,12 @@ if _GTK_SUPPORTED:
             self._gl_area.connect("render", self.render)
             self._gl_area.connect("resize", self.resize)
 
+            self.set_events(Gdk.EventMask.ALL_EVENTS_MASK)
+
             self.connect("button-press-event", self.button_press)
             self.connect("button-release-event", self.button_release)
             self.connect("motion-notify-event", self.motion_notify)
+            self.connect("scroll-event", self.scroll)
 
             self._gl_area.set_has_depth_buffer(True)
             self._gl_area.set_has_stencil_buffer(True)
@@ -35,7 +40,7 @@ if _GTK_SUPPORTED:
             self.scene = scene
             self.controller = GTKController(self.scene)
 
-        def render(self, area, ctx):
+        def render(self, area: Gtk.GLArea, ctx: Any) -> bool:
             """Render the scene."""
             ctx.make_current()
             area.make_current()
@@ -43,7 +48,11 @@ if _GTK_SUPPORTED:
             area.queue_draw()
             return True
 
-        def resize(self, area, width: int, height: int):
+        def scroll(self, widget: "PaytonGTKSceneArea", event: Gdk.EventScroll) -> None:
+            """Scroll mouse."""
+            self.controller.scroll(event)
+
+        def resize(self, area: Gtk.GLArea, width: int, height: int) -> None:
             """Resize the widget."""
             self.scene.window_width = width
             self.scene.window_height = height
@@ -53,7 +62,7 @@ if _GTK_SUPPORTED:
             for hud in self.scene.huds:
                 self.scene.huds[hud].set_size(width, height)
 
-        def on_realize(self, area, *args):
+        def on_realize(self, area: Gtk.GLArea) -> None:
             """Realize (initialize) the area."""
             area.make_current()
             self.scene.window_width = area.get_allocated_width()
@@ -69,31 +78,31 @@ if _GTK_SUPPORTED:
             else:
                 print("Widget initialized.")
 
-        def key_press(self, widget: Gtk.Window, event: Gdk.EventKey):
+        def key_press(self, widget: Gtk.Window, event: Gdk.EventKey) -> None:
             """Handle key press."""
             self.controller.keyboard_press(event)
 
-        def key_release(self, widget: Gtk.Window, event: Gdk.EventKey):
-            pass
+        def key_release(self, widget: Gtk.Window, event: Gdk.EventKey) -> None:
+            """Handle key release."""
+            self.controller.keyboard_release(event)
 
-        def button_press(self, widget: Gtk.Window, event: Gdk.EventButton):
+        def button_press(self, widget: Gtk.Window, event: Gdk.EventButton) -> None:
             """Handle button press."""
-            print(widget)
-            print(event.type)
-            print(event.x, event.y)
+            self.controller.button_press(event)
 
-        def button_release(self, widget: Gtk.Window, event: Gdk.EventButton):
+        def button_release(self, widget: Gtk.Window, event: Gdk.EventButton) -> None:
             """Handle button release event."""
-            pass
+            self.controller.button_release(event)
 
-        def motion_notify(self, widget: Gtk.Window, event: Gdk.EventMotion):
+        def motion_notify(self, widget: Gtk.Window, event: Gdk.EventMotion) -> None:
             """Handle mouse motion."""
-            print(widget)
-            print(event)
-
+            self.controller.mouse_move(event)
 
 else:
 
-    class PaytonGTKSceneArea:
+    class PaytonGTKSceneArea:  # type: ignore
+        """Payton GTK Scene for invalid GTK Imports."""
+
         def __init__(self, scene: Scene):
-            raise "PyGTK can not be initialized"
+            """This shall fail."""
+            raise BaseException("PyGTK can not be initialized")

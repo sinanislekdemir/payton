@@ -606,7 +606,7 @@ class Scene(Receiver):
             return None
         return hit_obj, shortest
 
-    def _init_runtime(self, start_clocks: bool = False):
+    def _init_runtime(self, start_clocks: bool = False) -> bool:
         version = glGetString(GL_VERSION).decode('utf-8')
         ogl_major = glGetIntegerv(GL_MAJOR_VERSION)
         ogl_minor = glGetIntegerv(GL_MINOR_VERSION)
@@ -681,6 +681,8 @@ Payton requires at least OpenGL 3.3 support and above."""
         glBindFramebuffer(GL_FRAMEBUFFER, default_id)
         for shader in self.shaders.values():
             shader.build()
+
+        return True
 
     def run(self, start_clocks: bool = False) -> int:
         """Run the show."""
