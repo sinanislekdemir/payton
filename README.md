@@ -248,6 +248,7 @@ You can either download the whole repository [as a zip file](https://github.com/
   * Physics Engine
     * [Cubes example](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/01_bullet_hello.py)
     * [Joint example](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/02_joint_p2p.py)
+  * [GTK3 Python OpenGL Payton Integration](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/03_gtk.py)
   * [Rotating Objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/14_rotate.py)
   * [Graphical User Interface (GUI)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/15_gui.py)
   * [Custom keyboard shortcuts](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/16_keyboard.py)
