@@ -44,27 +44,29 @@ class GTKController:
             eye, ray_dir = camera.screen_to_world(mx, my, self.scene.window_width, self.scene.window_height)
             if callable(self.scene.on_select):
                 list = []
-                for obj in self.scene.objects:
-                    hit = self.scene.objects[obj].select(eye, ray_dir)
-                    if hit:
-                        list.append(self.scene.objects[obj])
+                list.extend(
+                    self.scene.objects[obj]
+                    for obj in self.scene.objects
+                    if (hit := self.scene.objects[obj].select(eye, ray_dir))
+                )
+
                 if list:
                     self.scene.on_select(list)
-            if not (self.shift_down or self.ctrl_down):
+            if not self.shift_down and not self.ctrl_down:
                 self.scene._check_click_plane(eye, ray_dir)
 
         if event.button == 2:
             self.middle_button_down = True
-        if event.button == 3:
+        elif event.button == 3:
             self.right_button_down = True
 
     def button_release(self, event: Any) -> None:
         """Relese the mouse button."""
         if event.button == 1:
             self.left_button_down = False
-        if event.button == 2:
+        elif event.button == 2:
             self.middle_button_down = False
-        if event.button == 3:
+        elif event.button == 3:
             self.right_button_down = False
 
     def scroll(self, event: Any) -> None:

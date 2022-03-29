@@ -343,7 +343,7 @@ class Scene(Receiver):
         if shadow_round:
             shadow_matrices = self.lights[0].shadow_matrices
             for i, mat in enumerate(shadow_matrices):
-                _shader.set_matrix4x4_np("shadowMatrices[{}]".format(i), mat)
+                _shader.set_matrix4x4_np(f"shadowMatrices[{i}]", mat)
         elif self.depth_map > -1:
             glActiveTexture(GL_TEXTURE1)
             glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)

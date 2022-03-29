@@ -71,8 +71,7 @@ if _GTK_SUPPORTED:  # noqa: C901
             self.scene.running = True
             self.scene._init_runtime()
             self.scene._context = area
-            err = self._gl_area.get_error()
-            if err:
+            if err := self._gl_area.get_error():
                 print("Something went wrong with the GTK:")
                 print(err)
             else:
