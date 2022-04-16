@@ -132,7 +132,7 @@ Check out the relevant examples.
 ### Optional GTK3 Integration
 
 Instead of SDL2, you can use GTK3 (along with all nice GTK3 widgets) with Payton.
-![https://raw.githubusercontent.com/sinanislekdemir/payton/assets/assets/gtk3.png](https://raw.githubusercontent.com/sinanislekdemir/payton/assets/assets/gtk3.png)
+![https://raw.githubusercontent.com/sinanislekdemir/payton/assets/assets/gtk3.jpg](https://raw.githubusercontent.com/sinanislekdemir/payton/assets/assets/gtk3.png)
 
 You need to [install Python GTK3 Bindings](https://pygobject.readthedocs.io/en/latest/getting_started.html).
 
