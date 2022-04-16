@@ -204,8 +204,6 @@ class Object:
         name -- Name of the new material
         material -- Material to set
         """
-        if name in self.materials:
-            raise Exception(f"Name {name} already exists")
         self.materials[name] = deepcopy(material)
 
     @property
