@@ -963,9 +963,7 @@ class Object:
             self.set_position(pos[0], pos[1], pos[2])
             return True
 
-        if self.mass > 0:
-            raise NotImplementedError("Physics is not defined for this object type")
-        return True
+        return False
 
 
 class Line(Object):

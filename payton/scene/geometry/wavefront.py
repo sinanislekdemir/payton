@@ -41,6 +41,11 @@ class Wavefront(Mesh):
         self.load(data)
         return True
 
+    @property
+    def physics(self) -> bool:
+        """Is a physics responding object."""
+        return True
+
     def load_material(self, material_string: str) -> None:
         """Load material from given material definition string
 

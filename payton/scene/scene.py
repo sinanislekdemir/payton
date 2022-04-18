@@ -176,7 +176,7 @@ class Scene(Receiver):
             )
             pybullet.setPhysicsEngineParameter(numSolverIterations=10, minimumSolverIslandSize=1024)
             pybullet.setTimeStep(1.0 / 120.0)
-            self.create_clock("_bullet_physics", 1.0 / 120.0, self._step_physics)
+            self.create_clock("_bullet_physics", 1.0 / 120.0, self._step_physics, True)
 
         self.hudcam = Camera(
             active=True,
