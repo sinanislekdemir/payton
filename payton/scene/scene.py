@@ -499,6 +499,7 @@ class Scene(Receiver):
         name: str,
         period: float,
         callback: Callable[[float, float], None],
+        non_stop: bool = False,
     ) -> None:
         """Create a Clock in the scene.
 
@@ -521,7 +522,7 @@ class Scene(Receiver):
             logging.error(f"A clock named {name} already exists")
             return
 
-        c = Clock(period, callback)
+        c = Clock(period, callback, non_stop)
         self.clocks[name] = c
 
     def _clear_context(self) -> None:

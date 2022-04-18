@@ -9,7 +9,7 @@ if sys.version_info < (3, 8):
 
 setup(
     name="Payton",
-    version="v1.1.0",
+    version="v1.1.2",
     author="Sinan ISLEKDEMIR",
     author_email="sinan@islekdemir.com",
     # Packages

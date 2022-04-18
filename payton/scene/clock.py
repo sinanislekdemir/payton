@@ -34,7 +34,7 @@ class Clock(threading.Thread):
 
     """
 
-    def __init__(self, period: float, callback: Callable[[float, float], None]):
+    def __init__(self, period: float, callback: Callable[[float, float], None], non_stop: bool = False):
         """Initialize the clock
 
         Keyword arguments:
@@ -48,6 +48,7 @@ class Clock(threading.Thread):
         self._kill = False
         self._pause = True
         self._hold = False
+        self._non_stop = non_stop
 
     def kill(self) -> None:
         """Kill the clock, do not run anymore. (Kill the thread)"""
@@ -55,6 +56,8 @@ class Clock(threading.Thread):
 
     def pause(self) -> None:
         """Pause the clock temporarily"""
+        if self._non_stop:
+            return
         self._pause = not self._pause
 
     def run(self) -> Any:
@@ -65,7 +68,7 @@ class Clock(threading.Thread):
             if self._kill:
                 return False
 
-            if self._pause:
+            if not self._non_stop and self._pause:
                 # sleep a safe time to avoid excessive cpu usage
                 time.sleep(SAFE_ASSUMPTION)
                 continue
