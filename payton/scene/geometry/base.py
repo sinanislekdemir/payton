@@ -588,8 +588,14 @@ class Object:
         y -- Y Position of the object
         z -- Z Position of the object
         """
-        self.matrix[3] = [x, y, z, 1.0]
-        self._to_absolute.cache_clear()
+        self.position = [x, y, z]
+        if self._bullet_id > -1:
+            q = Quaternion.from_matrix(self._model_matrix)
+            pybullet.resetBasePositionAndOrientation(
+                self._bullet_id,
+                self.position[:3],
+                q.xyzw,
+            )
 
     @property
     def position(self) -> Vector3D:
@@ -921,7 +927,7 @@ class Object:
         """Set linear velocity."""
         self._bullet_linear_velocity = val
         if self._bullet_id != -1:
-            pybullet.resetBaseVelocity(linearVelocity=self._bullet_linear_velocity)
+            pybullet.resetBaseVelocity(self._bullet_id, linearVelocity=self._bullet_linear_velocity)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the object into a dictionary for export / debug."""
@@ -960,7 +966,7 @@ class Object:
         if self._bullet_id != -1 and self.mass > 0:
             pos, ori = pybullet.getBasePositionAndOrientation(self._bullet_id)
             self.matrix = bullet_to_matrix(ori)
-            self.set_position(pos[0], pos[1], pos[2])
+            self.position = pos
             return True
 
         return False

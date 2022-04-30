@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 import pyrr
 
-from payton.math.functions import sub_vector, vector_transform_4
+from payton.math.functions import add_vectors, sub_vector, vector_transform_4
 from payton.math.geometry import raycast_plane_intersect
 from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
@@ -55,6 +55,7 @@ class Camera:
         self.up = [0.0, 0.0, 1.0] if up is None else up
 
         self.target_object: Optional[Object] = target_object
+        self._previous_target_location: Optional[Vector3D] = None
         self.fov: float = fov
         self.aspect_ratio: float = aspect_ratio
         self._near: float = near
@@ -325,7 +326,13 @@ class Camera:
 
         if self.target_object:
             # I believe there is a bug at mypy about @property methods
+            if self._previous_target_location is None:
+                self._previous_target_location = self.target_object.position
+            target_diff = sub_vector(self.target_object.position, self._previous_target_location)
+            self.position = add_vectors(self.position, target_diff)
+            eye = np.array(list(self.position), dtype=np.float32)
             self.target = self.target_object.position
+            self._previous_target_location = self.target_object.position
 
         target = np.array(list(self.target), dtype=np.float32)
         up = np.array(list(self.up), dtype=np.float32)

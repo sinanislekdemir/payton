@@ -19,6 +19,14 @@ from payton.scene.material import POINTS
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.tools.bar import progress
 
+_BULLET = False
+try:
+    import pybullet
+
+    _BULLET = True
+except ModuleNotFoundError:
+    _BULLET = False
+
 
 class AWP3D(Wavefront):
     """
@@ -49,6 +57,7 @@ class AWP3D(Wavefront):
         self.animate = True
         self._time = 0.0
         self.animations: Dict[str, Tuple[int, int]] = {}
+        self._needs_update = True
 
         if os.path.exists(filename):
             self.load_file(filename)
@@ -104,6 +113,15 @@ class AWP3D(Wavefront):
             raise BaseException("Animation not defined")
         self.set_range(self.animations[name][0], self.animations[name][1])
 
+    def build(self) -> bool:
+        if len(self.frames) == 0:
+            return False
+        if len(self.frames[0]._model_matrix) > 0:
+            self.frames[0].build()
+            self._build_collision_shape()
+            self._needs_update = False
+        return True
+
     def load_file(self, filename: str) -> bool:
         """Load file into system.
 
@@ -143,6 +161,8 @@ class AWP3D(Wavefront):
             return
         self.update_matrix(parent_matrix=parent_matrix)
         self.track()
+        if self._needs_update:
+            self.build()
 
         if not self.animate:
             self.frames[0].render(lit, shader, self._model_matrix)
@@ -156,6 +176,8 @@ class AWP3D(Wavefront):
             self._time = time.time()
         render_frame = self._frame + self._from_frame
         self.frames[render_frame].render(lit, shader, self._model_matrix)
+        if _BULLET:
+            self._build_constraints()
 
     def toggle_wireframe(self) -> None:
         """Toggle wireframe view of the Object."""
@@ -169,3 +191,13 @@ class AWP3D(Wavefront):
         self.refresh()
         for frame in self.frames:
             frame.toggle_wireframe()
+
+    def _create_collision_shape(self) -> None:
+        width = self.frames[0].bounding_box[1][0] - self.frames[0].bounding_box[0][0]
+        depth = self.frames[0].bounding_box[1][1] - self.frames[0].bounding_box[0][1]
+        height = self.frames[0].bounding_box[1][2] - self.frames[0].bounding_box[0][2]
+        self._bullet_shape_id = pybullet.createCollisionShape(pybullet.GEOM_BOX, halfExtents=[width, depth, height])
+
+    @property
+    def physics(self) -> bool:
+        return True
