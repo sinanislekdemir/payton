@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from OpenGL.GL import (
+    GL_BACK,
     GL_BLEND,
     GL_CULL_FACE,
     GL_LINEAR,
@@ -24,6 +25,7 @@ from OpenGL.GL import (
     glActiveTexture,
     glBindTexture,
     glBlendFunc,
+    glCullFace,
     glDisable,
     glEnable,
     glGenerateMipmap,
@@ -102,6 +104,7 @@ class Material:
         self.particle_texture: str = BASE_PARTICLE
         self.opacity: float = opacity
         self.particle_size: float = 0.16
+        self.culling = False
         self._image: Optional[Image.Image] = None
         self._indices: IList = []
         self._vao: int = NO_VERTEX_ARRAY
@@ -258,7 +261,11 @@ class Material:
         _mode = mode or self.material_mode(lit)
 
         glEnable(GL_BLEND)
-        glDisable(GL_CULL_FACE)
+        if self.culling:
+            glEnable(GL_CULL_FACE)
+            glCullFace(GL_BACK)
+        else:
+            glDisable(GL_CULL_FACE)
         blend = GL_ONE_MINUS_SRC_ALPHA
         if self.display == POINTS:
             blend = GL_ONE

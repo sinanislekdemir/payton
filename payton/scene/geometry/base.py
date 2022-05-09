@@ -579,7 +579,7 @@ class Object:
         for child in self.children:
             self.children[child].render(lit, shader, self._model_matrix)
 
-    def set_position(self, x: float, y: float, z: float) -> None:
+    def set_position(self, x: float, y: float, z: float, with_physics: bool = False) -> None:
         """
         Set the position of the object.
 
@@ -589,7 +589,7 @@ class Object:
         z -- Z Position of the object
         """
         self.position = [x, y, z]
-        if self._bullet_id > -1:
+        if self._bullet_id > -1 and with_physics:
             q = Quaternion.from_matrix(self._model_matrix)
             pybullet.resetBasePositionAndOrientation(
                 self._bullet_id,

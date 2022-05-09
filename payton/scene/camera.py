@@ -60,6 +60,10 @@ class Camera:
         self.aspect_ratio: float = aspect_ratio
         self._near: float = near
         self._far: float = far
+        self.min_elevation = -1
+        self.max_elevation = -1
+        self.min_distance = 0
+        self.max_distance = -1
 
         # zoom factor for Orthographic projection
         self._zoom: float = zoom
@@ -160,30 +164,34 @@ class Camera:
         self._use_cache = False
 
     def rotate_around_target(self, phi: float, theta: float) -> None:
-        """Rotate the camera around the target
+        """Rotate the camera around the target.
 
         NOTE: This method works with Spherical Coordinates!
         https://en.wikipedia.org/wiki/Spherical_coordinate_system
-
         Keyword arguments:
         phi -- Phi angle in radians
-        theta -- Theta angle in radians
-        """
+        theta -- Theta angle in radians"""
 
         diff = sub_vector(self.position, self.target)
 
         r = self.distance()
-        _theta = math.acos(diff[2] / r)
-        _phi = math.atan2(diff[1], diff[0])
+        current_theta = math.acos(diff[2] / r)
+        current_phi = math.atan2(diff[1], diff[0])
 
-        _ct = _theta + math.radians(theta)
-        _cp = _phi + math.radians(phi)
-        _ct = max(_ct, 0.001)
-        _ct = min(_ct, 3.13)
+        if self.min_elevation != -1 and current_theta < self.min_elevation:
+            current_theta = self.min_elevation
 
-        x = r * math.sin(_ct) * math.cos(_cp)
-        y = r * math.sin(_ct) * math.sin(_cp)
-        z = r * math.cos(_ct)
+        if self.max_elevation != -1 and current_theta > self.max_elevation:
+            current_theta = self.max_elevation
+
+        ct = current_theta + math.radians(theta)
+        cp = current_phi + math.radians(phi)
+        ct = max(ct, 0.001)
+        ct = min(ct, 3.13)
+
+        x = r * math.sin(ct) * math.cos(cp)
+        y = r * math.sin(ct) * math.sin(cp)
+        z = r * math.cos(ct)
 
         self.position = [
             x + self.target[0],
@@ -281,6 +289,13 @@ class Camera:
         if not self.perspective:
             self.zoom = distance
             return
+
+        if self.max_distance != -1:
+            if distance > self.max_distance:
+                distance = self.max_distance
+        if distance < self.min_distance:
+            distance = self.min_distance
+
         diff = sub_vector(self.position, self.target)
         _theta = math.acos(diff[2] / self.distance())
         _phi = math.atan2(diff[1], diff[0])
@@ -293,7 +308,7 @@ class Camera:
         self._use_cache = False
 
     def render(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Render the camera"""
+        """Render the camera."""
         if self._use_cache and self.target_object is None and self._projection is not None and self._view is not None:
             return self._projection, self._view
 
