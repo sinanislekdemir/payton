@@ -1,2 +1,3 @@
 include payton/scene/gui/monofonto.ttf
 include payton/scene/particle.png
+include payton/scene/font/Glametrix.otf
