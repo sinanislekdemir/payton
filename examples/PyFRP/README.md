@@ -12,3 +12,4 @@ Example showcase to show how you can code a FRP like game with Payton.
 file size allowed in github is 100mb. `main.py` will download the required
 asset from https://www.16x4.com/thebot.awp3d address.
 
+* Hit `e` from keyboard to throw a ball.
