@@ -9,7 +9,7 @@ requirements:
 	@pip install -r requirements.txt
 
 development:
-	@python setup.py develop
+	@pip install --editable .
 
 clean:
 	@find . | grep -E "(__pycache__|\.pyc|\.pyo$\)" | xargs rm -rf

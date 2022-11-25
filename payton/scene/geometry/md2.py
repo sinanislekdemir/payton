@@ -307,7 +307,7 @@ class MD2(Mesh):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        _primitive: Optional[int] = None,
     ) -> None:
         """Render cycle for the MD2 Object.
 

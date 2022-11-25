@@ -101,7 +101,7 @@ class WindowElement(Shape2D):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        _primitive: Optional[int] = None,
     ) -> None:
         if not self._init:
             self.draw()

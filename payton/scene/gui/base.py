@@ -82,7 +82,7 @@ class Shape2D(Mesh):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        _primitive: Optional[int] = None,
     ) -> None:
         """Render cycle for the Shape 2D
 
@@ -228,7 +228,7 @@ class Text(Rectangle):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        _primitive: Optional[int] = None,
     ) -> None:
         """Render the text object by initializing the text material if not initialized yet
 

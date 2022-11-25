@@ -486,7 +486,7 @@ class Object:
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        _primitive: Optional[int] = None,
     ) -> None:
         """Render cycle of the object.
 
@@ -1013,7 +1013,7 @@ class Line(Object):
         lit: bool,
         shader: Shader,
         parent_matrix: Optional[np.ndarray] = None,
-        _primitive: int = None,
+        _primitive: Optional[int] = None,
     ) -> None:
         """Almost same as the Object Render but with explicitly defined OpenGL primitive type."""
         super().render(lit, shader, parent_matrix, GL_LINE_STRIP)

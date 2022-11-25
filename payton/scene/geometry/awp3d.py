@@ -154,7 +154,7 @@ class AWP3D(Wavefront):
         return True
 
     def render(
-        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: int = None
+        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: Optional[int] = None
     ) -> None:
         """Render AWP3D."""
         if not self._visible:
