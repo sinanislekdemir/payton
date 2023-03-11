@@ -113,7 +113,7 @@ a newbie can kick-start it just by following the tutorials.
 
 From a bash terminal:
 ```bash
-pip3 install payton
+pip install payton
 ```
 
 This should install all dependencies. If you get any permission errors, you are probably installing the library to system-global so missing some permissions. If you do not want to use pipenv or virtualenv, then you might want to run above command as `sudo pip3 install payton`
@@ -123,7 +123,7 @@ This should install all dependencies. If you get any permission errors, you are 
 Payton supports Bullet Physics at a basic level for solid geometries.
 
 ```bash
-pip3 install pybullet
+pip install pybullet
 ```
 
 Once bullet physics is successfully installed in the same environment as Payton, it will automatically be activated and you will be able to use basic properties of it.
