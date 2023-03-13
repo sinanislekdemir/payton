@@ -4,37 +4,11 @@
 [![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
 [![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
 
-Payton is a general-purpose 3D Software Development Kit. Simply, a 3D Programming Playground!
+Payton is a 3D Software Development Kit that serves as a general-purpose playground for programming. With Payton, users can quickly and easily kickstart their ideas and create tools for the next step, such as map editors, small animations, small algorithms, or artificial intelligence for games. Unlike game engines and other libraries that can be too complex and time-consuming to start, Payton comes with pre-set defaults, making it unique and simple to use.
 
-* Payton is a playground. Kickstart any idea fast and easy, grow it.
-* Create tools for the next step. Create map editors, small animations, small
-  algorithms or artificial intelligence for your game. Whenever you need to try a new idea, don't
-  bother to create a new application with all the details. Payton comes with all the necessary
-  defaults and that is what makes it unique. Almost everything has a pre-set.
-* Game engines and other libraries are way too complex and it takes a long time
-  to start the initial playground.
-* Payton never intends to take place as a game engine or a full-featured 3D
-  environment. There is already plenty of stuff for that purpose.
-* Tools programming is easy.
-* Easy to visualize what you want to achieve or do what you want to do.
-* You can move forward from Payton to any other place if you like.
+Payton is not intended to be a game engine or a full-featured 3D environment as there are already plenty of tools available for those purposes. However, it excels at tools programming and allows users to easily visualize their goals and achieve them. Users can also move forward from Payton to any other place if they desire.
 
-We draw 2D graphs and charts in reports and we generally understand much more
-easily when we visualize the data. But in some cases, visualizing exceeds 2
-dimensions. We require to have third and even fourth dimensions. (And on top of
-those, the definition of the fourth dimension as time can get foggy in terms of
-relativity.)
-
-Payton gives you the ability to extend your graphics into 4 dimensions. It is not
-software but a software development toolkit/library built with Python.
-This will give users the ability to read real-time data from sensors, cameras or
-any other data sources in realtime and visualize them in real-time. The data source
-can be a thermometer, a random number generator, a toy car connected to a speed
-sensor, a map, a vehicle port or anything that generates time-based 3D data.
-Furthermore, it can be a time-based formula. As this can get too complex,
-software with that complexity will probably be too hard to use and understand
-where Payton is designed to be as simple as it can be. So easy to program that
-a newbie can kick-start it just by following the tutorials.
+While 2D graphs and charts are useful in reports, some cases require visualizing data in 3 or 4 dimensions. Payton enables users to extend their graphics into 4 dimensions and read real-time data from sensors, cameras, or any other data source. These sources can be anything that generates time-based 3D data, including thermometers, random number generators, toy cars connected to speed sensors, maps, or vehicle ports. Payton can even handle time-based formulas. Although it can get complex, Payton is designed to be easy to use, even for beginners who can follow the tutorials to kick-start their programming skills.
 
 ## Contents of this Document:
 
@@ -59,46 +33,45 @@ a newbie can kick-start it just by following the tutorials.
 
 ## Features:
 
-* 3D Math Library
-* Various base geometries:
-  * Cube
-  * Cylinder
-  * Triangular Mesh
-  * Plane
-  * Lines
-  * Particle System
-  * Sphere
-  * Dynamic Grid
-* Clean default scene.
-* Pre-defined keyboard-mouse and camera controls
-* Pre-defined environment
-* Clock system for parallel tasks and time based operations
-* Simple collision detection
-* Optional Physics Engine
-  * Basic support for Bullet Physics. _to be extended_
-* Extendable controllers
-* Pre-defined lighting with shadows.
-* Material support
-* Clickable objects and virtual planes
-* Shader support
-* Basic GUI Support
-  * Window
-  * Panel
-  * Button
-  * EditBox (Multi-line support)
-* 3D File formats:
-  * AWP3D Animated High-Poly 3D Object 
-  * Wavefront OBJ
-  * Quake 2 MD2 with Animations
-* Mesh Generation Tools
-  * Extrude Line in 3D
-  * Rotate Line around an axis in 3D
-  * Fill between lines
-* Mesh modifiers:
-  * Merge Mesh
-  * Subdivide Mesh
-* Extensive examples for every feature
-
+-   3D Math Library
+-   Various base geometries:
+    -   Cube
+    -   Cylinder
+    -   Triangular Mesh
+    -   Plane
+    -   Lines
+    -   Particle System
+    -   Sphere
+    -   Dynamic Grid
+-   Clean default scene
+-   Pre-defined keyboard-mouse and camera controls
+-   Pre-defined environment
+-   Clock system for parallel tasks and time-based operations
+-   Simple collision detection
+-   Optional Physics Engine
+    -   Basic support for Bullet Physics (to be extended)
+-   Extendable controllers
+-   Pre-defined lighting with shadows
+-   Material support
+-   Clickable objects and virtual planes
+-   Shader support
+-   Basic GUI Support
+    -   Window
+    -   Panel
+    -   Button
+    -   EditBox (with multi-line support)
+-   3D File formats:
+    -   AWP3D Animated High-Poly 3D Object
+    -   Wavefront OBJ
+    -   Quake 2 MD2 with Animations
+-   Mesh Generation Tools
+    -   Extrude Line in 3D
+    -   Rotate Line around an axis in 3D
+    -   Fill between lines
+-   Mesh modifiers:
+    -   Merge Mesh
+    -   Subdivide Mesh
+-   Extensive examples for every feature
 
 ## Install
 
@@ -126,7 +99,7 @@ Payton supports Bullet Physics at a basic level for solid geometries.
 pip install pybullet
 ```
 
-Once bullet physics is successfully installed in the same environment as Payton, it will automatically be activated and you will be able to use basic properties of it.
+Once Bullet Physics is successfully installed in the same environment as Payton, it will be automatically activated and you will be able to use its basic properties.
 Check out the relevant examples.
 
 ### Optional GTK3 Integration
@@ -138,8 +111,7 @@ You need to [install Python GTK3 Bindings](https://pygobject.readthedocs.io/en/l
 
 #### AWP3D Format and Exporter
 
-AWP3D is simply a ZIP file with every frame as Wavefront object. To export your animated
-Blender objects, you can use the exporter add-on here:
+AWP3D is simply a ZIP file containing every frame as a Wavefront object. To export your animated Blender objects as AWP3D files, you can use the exporter add-on available here:
 
 [https://github.com/sinanislekdemir/payton/tree/master/plugins/Blender%202.8-2.9](https://github.com/sinanislekdemir/payton/tree/master/plugins/Blender%202.8-2.9)
 
