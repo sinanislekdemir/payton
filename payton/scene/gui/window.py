@@ -12,7 +12,7 @@ import numpy as np
 
 from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
-from payton.scene.gui.base import Shape2D, Text
+from payton.scene.gui.base import Shape2D, Text, text_size
 from payton.scene.shader import Shader
 
 
@@ -314,26 +314,32 @@ class Button(Panel):
     def draw(self, **kwargs: Any) -> None:
         """Create the button polygons"""
         super().draw()
-        text_size = self.text.text_size
-        x = (self.size[0] - text_size[0]) / 2
-        y = (self.size[1] - text_size[1]) / 2
+        text_area = self.text.text_size
+
+        ts = text_size(self._label, self.text.font)
+        x = (self.size[0] - text_area[0]) / 2
+        y = ((self.size[1] - text_area[1]) / 2) - (ts[1] / 2)
         x = max(x, 0)
         y = max(y, 0)
-        y -= 4
+
         self.text.label = self._label
         self.text.position = [x, y]
-        crop: List[int] = [0, 0, text_size[0], text_size[1] + 4]
-        if text_size[0] > self.size[0]:
-            crop[0] = int((text_size[0] - self.size[0]) / 2.0)
-            crop[2] = int(text_size[0] - crop[0])
+        crop: List[int] = [0, 0, text_area[0], text_area[1] + 4]
+
+        if text_area[0] > self.size[0]:
+            crop[0] = int((text_area[0] - self.size[0]) / 2.0)
+            crop[2] = int(text_area[0] - crop[0])
             diff = int(crop[2] - crop[0])
-            text_size = (diff, text_size[1])
-        if text_size[1] > self.size[1]:
-            crop[1] = int((text_size[1] - self.size[1]) / 2.0)
-            crop[3] = int(text_size[1] - crop[1])
-            text_size = (text_size[0], self.size[1])
+            text_area = (diff, text_area[1])
+
+        if text_area[1] > self.size[1]:
+            crop[1] = int((text_area[1] - self.size[1]) / 2.0)
+            crop[3] = int(text_area[1] - crop[1])
+            diff = int(crop[3] - crop[1])
+            text_area = (text_area[0], diff)
+
         self.text.crop = crop
-        self.text.size = [int(text_size[0]), int(text_size[1])]
+        self.text.size = [int(text_area[0]), int(text_area[1]) + 10]
 
     @property
     def label(self) -> str:

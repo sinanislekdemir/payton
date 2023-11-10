@@ -16,6 +16,15 @@ from payton.scene.shader import Shader
 S2 = TypeVar("S2", bound="Shape2D")
 
 
+def text_size(s: str, font: ImageFont) -> Tuple[int, int]:
+    timg = Image.new("RGBA", (1, 1))
+    d = ImageDraw.Draw(timg)
+    size = d.textbbox((0, 0), s, font=font)
+    x = size[2] - size[0]
+    y = size[3] - size[1]
+    return int(x), int(y)
+
+
 class Shape2D(Mesh):
     def __init__(
         self,
@@ -43,7 +52,7 @@ class Shape2D(Mesh):
         self.position = [float(x) for x in self.__position]
         self.size = size
         self.on_click: Optional[Callable] = on_click
-        self._font: ImageFont = None
+        self._font: ImageFont | None = None
         self.parent: Any = None
         self._scene_width: int = 0
         self._scene_height: int = 0
@@ -245,16 +254,8 @@ class Text(Rectangle):
     @property
     def text_size(self) -> Tuple[int, int]:
         """Return the text size in pixels"""
-        res = (0, 0)
-        timg = Image.new("RGBA", (1, 1))
-        d = ImageDraw.Draw(timg)
-
-        res = d.textsize(self.label, font=self.font)
-        lres = list(res)
-
-        lres[0] = max(lres[0], self.size[0])
-        lres[1] = max(lres[1] + 4, self.size[1])
-        return lres[0], lres[1]
+        x, y = text_size(self.label, self.font)
+        return max(int(self.size[0]), x), max(int(self.size[1]), y)
 
     def wrap(self, width_in_pixels: int) -> None:
         """Word-wrap the text to fit into the given pixel size
@@ -267,7 +268,7 @@ class Text(Rectangle):
         if self.font is None:
             return
         if self._max_char_width == 0.0:
-            self._max_char_width = self.font.getsize('_')[0]
+            self._max_char_width = text_size('_', self.font)[0]
         split_length = int(math.floor(width_in_pixels / self._max_char_width)) - 1
         parts = wrap(original, split_length)
         self.__label = "\n".join(parts)
@@ -284,6 +285,7 @@ class Text(Rectangle):
             int(self.bgcolor[2] * 255),
             int(self.bgcolor[3] * 255),
         )
+
         img = Image.new("RGBA", self.text_size, color=bgcolor)
         d = ImageDraw.Draw(img, "RGBA")
         color = (int(self.color[0] * 255), int(self.color[1] * 255), int(self.color[2] * 255), 255)
@@ -291,8 +293,10 @@ class Text(Rectangle):
             d.text((1, 1), self.label, fill=color, font=self.font)
         else:
             d.text((1, 1), self.label, fill=color)
+
         if any(self.crop):
             img = img.crop(self.crop)
+
         del d
 
         self.material._image = img

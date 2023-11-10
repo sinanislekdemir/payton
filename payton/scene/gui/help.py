@@ -1,7 +1,5 @@
-from PIL import Image, ImageDraw
-
 from payton.scene.geometry.base import Object
-from payton.scene.gui.base import Hud, Text
+from payton.scene.gui.base import Hud, Text, text_size
 from payton.scene.gui.window import Button, Window, WindowAlignment
 
 
@@ -42,24 +40,24 @@ def info_box(left: int, top: int, label: str) -> Hud:
     label -- Label / text of the info box
     """
     hud = Hud()
-    timg = Image.new("RGBA", (1, 1))
-    d = ImageDraw.Draw(timg)
-    res = d.textsize(label, font=hud.font)
-    width = res[0] + 60
-    height = res[1] + 60
 
-    window = Window("Info", width=width, height=height + 60, left=left, top=top)
+    res = text_size(label, hud.font)
+    width = res[0] + 60
+    height = res[1] + 20
+
+    window = Window("Info", width=width, height=height + 120, left=left, top=top)
 
     window.add_child(
         "label",
-        Button(label=label, width=width - 20, height=height - 40, top=40, left=10),
+        Button(label=label, left=2, width=width, height=height, top=40),
     )
+
     window.add_child(
         "close",
         Button(
             label="CLOSE",
             left=int(width / 2) - 10,
-            top=height + 10,
+            top=height + 60,
             width=int(width / 2),
             height=30,
             on_click=window.hide,
