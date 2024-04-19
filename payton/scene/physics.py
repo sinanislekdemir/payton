@@ -1,4 +1,5 @@
 """Physics resolver."""
+
 physics_client = None
 
 try:

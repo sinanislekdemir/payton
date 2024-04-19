@@ -1,4 +1,5 @@
 """Plane geometry module."""
+
 from itertools import product
 from typing import Any, List
 

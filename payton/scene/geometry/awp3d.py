@@ -7,6 +7,7 @@ files with each frame packed inside.
 Easiest way to generate those files is through using Blender Export
 Add-On.
 """
+
 import os
 import time
 from typing import Any, Dict, List, Optional, Tuple

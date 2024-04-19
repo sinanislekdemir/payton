@@ -1,4 +1,5 @@
 """Cube object module."""
+
 from typing import Any, Optional
 
 from payton.math.functions import min_max

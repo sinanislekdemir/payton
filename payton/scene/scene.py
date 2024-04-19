@@ -3,6 +3,7 @@ Main Scene Handler.
 
 Scene is the universe. Everything about Payton happens inside a Scene.
 """
+
 # pylama:ignore=C901
 import ctypes
 import logging

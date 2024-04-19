@@ -4,6 +4,7 @@ ID Software Quake 2 Model File.
 Some parts of this file is based on the original work from:
 https://github.com/adamlwgriffiths/PyMesh/tree/master/pymesh/md2
 """
+
 import logging
 import os
 import struct

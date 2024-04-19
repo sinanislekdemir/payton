@@ -9,6 +9,7 @@ expensive and reduces the performance.
 This example will show you simply how to deal with Payton in an object oriented
 way.
 """
+
 import math
 
 from payton.scene import Scene

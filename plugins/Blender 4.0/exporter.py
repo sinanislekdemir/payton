@@ -54,7 +54,11 @@ class ExportAnimatedWavefrontPackage(bpy.types.Operator, ExportHelper):
                 context.view_layer.update()
                 fname = os.path.join(path, f"{frame}.obj")
                 bpy.ops.wm.obj_export(
-                    filepath=fname, export_selected_objects=True, export_triangulated_mesh=True, forward_axis="NEGATIVE_Y", up_axis="Z"
+                    filepath=fname,
+                    export_selected_objects=True,
+                    export_triangulated_mesh=True,
+                    forward_axis="NEGATIVE_Y",
+                    up_axis="Z",
                 )
                 zipf.write(
                     fname,

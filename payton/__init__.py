@@ -3,6 +3,7 @@
 
 .. include:: ../README.md
 """
+
 import OpenGL
 
 # OpenGL Error Checking has a great over-head to render cycle

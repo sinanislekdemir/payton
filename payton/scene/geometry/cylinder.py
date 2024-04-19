@@ -1,4 +1,5 @@
 """Cylinder module."""
+
 import math
 from typing import Any
 

@@ -1,4 +1,5 @@
 """Quake 2 Model Test"""
+
 import os
 
 import sdl2

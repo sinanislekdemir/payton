@@ -1,4 +1,5 @@
 """Payton Line to Mesh module"""
+
 from typing import List
 
 from payton.math.functions import add_vectors, create_rotation_matrix_raw, scale_vector, vector_transform

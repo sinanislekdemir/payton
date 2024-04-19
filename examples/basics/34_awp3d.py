@@ -1,4 +1,5 @@
 """Original model from mixamo.com"""
+
 import os
 
 from payton.scene import Scene

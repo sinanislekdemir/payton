@@ -1,4 +1,5 @@
 """Mesh object is a better option than using Object directly."""
+
 # pylama:ignore=C901
 import json
 import logging

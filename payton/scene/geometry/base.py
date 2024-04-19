@@ -1,4 +1,5 @@
 """Base geometry definitions."""
+
 # pylama:ignore=C901
 import ctypes
 import logging
