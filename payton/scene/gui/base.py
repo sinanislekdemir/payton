@@ -5,7 +5,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 import numpy as np
 from OpenGL.GL import GL_DEPTH_TEST, glDisable, glEnable
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
+from PIL.ImageFont import ImageFont, truetype
 
 from payton.math.functions import ortho
 from payton.math.vector import Vector3D
@@ -16,7 +17,7 @@ from payton.scene.shader import Shader
 S2 = TypeVar("S2", bound="Shape2D")
 
 
-def text_size(s: str, font: ImageFont) -> Tuple[int, int]:
+def text_size(s: str, font: ImageFont | None) -> Tuple[int, int]:
     timg = Image.new("RGBA", (1, 1))
     d = ImageDraw.Draw(timg)
     size = d.textbbox((0, 0), s, font=font)
@@ -102,7 +103,7 @@ class Shape2D(Mesh):
         super().render(False, shader, parent_matrix)
 
     @property
-    def font(self) -> None:
+    def font(self) -> None | ImageFont:
         """Return the fond of the shape"""
         if self._font is not None:
             return self._font
@@ -254,6 +255,8 @@ class Text(Rectangle):
     @property
     def text_size(self) -> Tuple[int, int]:
         """Return the text size in pixels"""
+        if self.font is None:
+            return (0, 0)
         x, y = text_size(self.label, self.font)
         return max(int(self.size[0]), x), max(int(self.size[1]), y)
 
@@ -295,7 +298,7 @@ class Text(Rectangle):
             d.text((1, 1), self.label, fill=color)
 
         if any(self.crop):
-            img = img.crop(self.crop)
+            img = img.crop((self.crop[0], self.crop[1], self.crop[2], self.crop[3]))
 
         del d
 
@@ -332,7 +335,7 @@ class Hud(Object):
         self._font_size: int = font_size
         if self._fontname != "":
             self.set_font(self._fontname, self._font_size)
-        self._font: ImageFont = None
+        self._font: ImageFont | None = None
         self._projection_matrix: Optional[np.ndarray] = None
         try:
             self.set_font(os.path.join(os.path.dirname(os.path.abspath(__file__)), "monofonto.ttf"))
@@ -341,7 +344,7 @@ class Hud(Object):
             pass
 
     @property
-    def font(self) -> ImageFont:
+    def font(self) -> ImageFont | None:
         """Return the HUD Image Font"""
         return self._font
 
@@ -405,4 +408,4 @@ class Hud(Object):
         font_name -- Name of the True Type font installed in the system
         font_size -- Size of the font in pixels
         """
-        self._font = ImageFont.truetype(font_name, font_size)
+        self._font = truetype(font_name, font_size)  # type: ignore
