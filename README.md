@@ -79,7 +79,7 @@ While 2D graphs and charts are useful in reports, some cases require visualizing
 
 - LibSDL2 `sudo apt install libsdl2-dev` for debian/ubuntu based linux distros. For other platforms, you can see your favourite package manager.
 - imagemagick `sudo apt install imagemagick` for debian/ubuntu based linux distros. For other platforms, you can see your favourite package manager.
-- Python 3.7+
+- Python 3.10+
 - A Graphics card that supports OpenGL 3.3+
 
 ### Install using Pip:
@@ -113,7 +113,7 @@ You need to [install Python GTK3 Bindings](https://pygobject.readthedocs.io/en/l
 
 AWP3D is simply a ZIP file containing every frame as a Wavefront object. To export your animated Blender objects as AWP3D files, you can use the exporter add-on available here:
 
-[https://github.com/sinanislekdemir/payton/tree/master/plugins/Blender%202.8-2.9](https://github.com/sinanislekdemir/payton/tree/master/plugins/Blender%202.8-2.9)
+[https://github.com/sinanislekdemir/payton/tree/master/plugins](https://github.com/sinanislekdemir/payton/tree/master/plugins)
 
 #### Using Payton with Anaconda
 
