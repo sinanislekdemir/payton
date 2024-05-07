@@ -28,6 +28,7 @@ While 2D graphs and charts are useful in reports, some cases require visualizing
   - [Example Index](#example-index)
   - [Contribution](#contribution)
   - [Screenshots and Videos](#screenshots-and-videos)
+  - [Troubleshooting](#troubleshooting)
   - [Some free-thoughts and decisions:](#some-free-thoughts-and-decisions)
 
 
@@ -176,6 +177,16 @@ Some options can be configured from the environment variables.
 - `GL_MULTISAMPLESAMPLES`: Set OpenGL multisample sampling count for antialiasing. (usually 1-16)
 
 Without `GL_MULTISAMPLEBUFFERS` AND `GL_MULTISAMPLESAMPLES`, you may notice pixelated graphics. There is no default set for those values because they can vary between graphic cards.
+
+## Troubleshooting
+
+In some older systems or where a decent graphics driver is not installed, you can try running Payton code with MESA. It runs fine. There will be some performance decrease. But it will not be noticeable for basic applications.
+
+To enforce MESA 3.3, you can run payton with:
+
+```
+MESA_GL_VERSION_OVERRIDE=3.3 python <path-to-your-payton-code>
+```
 
 ## Examples
 

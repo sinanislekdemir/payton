@@ -7,6 +7,7 @@
 import argparse
 import concurrent.futures
 import os
+import sys
 
 from PIL import Image
 
@@ -31,11 +32,11 @@ args = parser.parse_args()
 # It is good to check things that can fail in the beginning
 if not os.path.exists(args.file):
     print(f"File not found: {args.file}")
-    exit(1)
+    sys.exit(1)
 
 if not args.width.isnumeric():
     print(f"Width is not a number: {args.width}")
-    exit(1)
+    sys.exit(1)
 
 # Create the wavefront mesh object
 print("Creating the object model")
@@ -45,7 +46,7 @@ try:
 except Exception as e:
     print("Unable to create the object")
     print(e)
-    exit(1)
+    sys.exit(1)
 
 print("Calculating the object bounding box")
 bounding_box = wavefront_obj.bounding_box

@@ -8,6 +8,7 @@ Scene is the universe. Everything about Payton happens inside a Scene.
 import ctypes
 import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
@@ -624,7 +625,7 @@ This can be related to an old graphics card / an old driver issue.
 Payton requires at least OpenGL 3.3 support and above."""
             )
             print(f"OpenGL Version installed: {ogl_major}.{ogl_minor}")
-            exit(16)
+            sys.exit(1)
 
         # Fix aspect ratios of cameras
         for camera in self.cameras:
