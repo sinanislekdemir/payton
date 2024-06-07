@@ -23,6 +23,7 @@ jobs:
         pip install .
     - name: Run checks
       run: |
+        pip install ruff
         pip install mypy
         pip install flake8
         pip install pylama
