@@ -36,7 +36,6 @@ from OpenGL.GL import (
     glPolygonMode,
     glVertexAttribPointer,
 )
-from pyrr import Quaternion
 
 from payton.math.functions import (
     add_vectors,
@@ -50,9 +49,21 @@ from payton.math.functions import (
     vector_transform,
 )
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import IDENTITY_MATRIX, Matrix, bullet_to_matrix
+from payton.math.matrix import (
+    IDENTITY_MATRIX,
+    Matrix,
+    matrix_to_position_and_quaternion,
+)
 from payton.math.vector import Vector2D, Vector3D
-from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
+from payton.scene.material import (
+    DEFAULT,
+    NO_INDICE,
+    NO_VERTEX_ARRAY,
+    POINTS,
+    SOLID,
+    WIREFRAME,
+    Material,
+)
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.scene.types import IList, VList
 
@@ -107,7 +118,7 @@ class Object:
         self._bullet_id = -1
         self._bullet_shape_id = -1
         self._bullet_dynamics: Dict[str, float] = {
-            'mass': mass,
+            "mass": mass,
         }
         self._bullet_linear_velocity: List[float] = [0, 0, 0]
         self._bullet_force_concave = force_concave
@@ -124,8 +135,12 @@ class Object:
         #        index list holds all indice definitions for fast access
         self._indices: IList = []  # Indices
         self._total_indices: List[int] = []
-        self._normals: List[Vector3D] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
-        self._texcoords: List[Vector2D] = []  # Texture coordinates, 1 coordinate per Vertex
+        self._normals: List[
+            Vector3D
+        ] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
+        self._texcoords: List[
+            Vector2D
+        ] = []  # Texture coordinates, 1 coordinate per Vertex
         self._vertex_colors: List[Vector3D] = []  # per-vertex colors, optional.
         self._has_vertex_colors: bool = False  # flag for using vertex colors
 
@@ -230,7 +245,12 @@ class Object:
 
         left = cross_product(self.matrix[1], self.matrix[2])
 
-        self.matrix = [to_4(normalize_vector(left), 0), self.matrix[1], self.matrix[2], self.matrix[3]]
+        self.matrix = [
+            to_4(normalize_vector(left), 0),
+            self.matrix[1],
+            self.matrix[2],
+            self.matrix[3],
+        ]
 
         up = cross_product(self.matrix[0], self.matrix[1])
 
@@ -399,7 +419,12 @@ class Object:
         distance -- Distance to move forward.
         """
         diff = scale_vector(self.matrix[1], distance)
-        self.matrix = [self.matrix[0], self.matrix[1], self.matrix[2], to_4(add_vectors(self.matrix[3], diff))]
+        self.matrix = [
+            self.matrix[0],
+            self.matrix[1],
+            self.matrix[2],
+            to_4(add_vectors(self.matrix[3], diff)),
+        ]
         self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
@@ -427,7 +452,9 @@ class Object:
             self._model_matrix = self._model_matrix.dot(parent_matrix)
 
         # Fortran array is used to push matrix to opengl context
-        self._model_matrix_fortran = np.asfortranarray(self._model_matrix, dtype=np.float32)
+        self._model_matrix_fortran = np.asfortranarray(
+            self._model_matrix, dtype=np.float32
+        )
 
     def track(self) -> bool:
         """Track the object movement if it has changed from the previous frame."""
@@ -441,7 +468,9 @@ class Object:
         self._motion_path.append(deepcopy(self.matrix))
         # Add the matrix position to motion math line for visualisation
         if self._motion_path_line is not None:
-            self._motion_path_line.append([[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]])
+            self._motion_path_line.append(
+                [[self.matrix[3][0], self.matrix[3][1], self.matrix[3][2]]]
+            )
 
         # Python trick here! need to .copy or it will pass reference.
         self._previous_matrix = self.matrix[3]
@@ -475,7 +504,8 @@ class Object:
         if self._no_missing_vao:
             return False
         result = any(
-            material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1 for material in self.materials.values()
+            material._vao == NO_VERTEX_ARRAY and len(material._indices) > 1
+            for material in self.materials.values()
         )
 
         if not result:
@@ -580,7 +610,9 @@ class Object:
         for child in self.children:
             self.children[child].render(lit, shader, self._model_matrix)
 
-    def set_position(self, x: float, y: float, z: float, with_physics: bool = False) -> None:
+    def set_position(
+        self, x: float, y: float, z: float, with_physics: bool = False
+    ) -> None:
         """
         Set the position of the object.
 
@@ -591,11 +623,11 @@ class Object:
         """
         self.position = [x, y, z]
         if self._bullet_id > -1 and with_physics:
-            q = Quaternion.from_matrix(self._model_matrix)
+            pos, quat = matrix_to_position_and_quaternion(self.matrix)
             pybullet.resetBasePositionAndOrientation(
                 self._bullet_id,
-                self.position[:3],
-                q.xyzw,
+                pos,
+                quat,
             )
 
     @property
@@ -665,7 +697,9 @@ class Object:
         Sets `self._absolute_vertices` if None, else returns it as is.
         """
         if self._absolute_vertices is None:
-            self._absolute_vertices = [self._to_absolute(tuple(v)) for v in self._vertices]
+            self._absolute_vertices = [
+                self._to_absolute(tuple(v)) for v in self._vertices
+            ]
 
         return self._absolute_vertices
 
@@ -864,11 +898,16 @@ class Object:
         try:
             if flags is not None:
                 self._bullet_shape_id = pybullet.createCollisionShape(
-                    pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices, flags=flags
+                    pybullet.GEOM_MESH,
+                    vertices=self._vertices,
+                    indices=self._total_indices,
+                    flags=flags,
                 )
             else:
                 self._bullet_shape_id = pybullet.createCollisionShape(
-                    pybullet.GEOM_MESH, vertices=self._vertices, indices=self._total_indices
+                    pybullet.GEOM_MESH,
+                    vertices=self._vertices,
+                    indices=self._total_indices,
                 )
         except Exception:
             print(f"\nCould not activate Physics for {self}")
@@ -893,18 +932,20 @@ class Object:
                 )
 
     def _build_collision_shape(self) -> None:
-        if _BULLET and self.physics:
+        if _BULLET and self.physics and self._bullet_id == -1:
             self._create_collision_shape()
-            q = Quaternion.from_matrix(self._model_matrix)
+            pos, quat = matrix_to_position_and_quaternion(self.matrix)
             self._bullet_id = pybullet.createMultiBody(
                 baseMass=self.mass,
                 baseCollisionShapeIndex=self._bullet_shape_id,
-                basePosition=self.position,
-                baseOrientation=q.xyzw,
+                basePosition=pos,
+                baseOrientation=quat,
             )
             if len(self._bullet_dynamics.keys()) > 0:
                 pybullet.changeDynamics(self._bullet_id, -1, **self._bullet_dynamics)
-            pybullet.resetBaseVelocity(self._bullet_id, linearVelocity=self._bullet_linear_velocity)
+            pybullet.resetBaseVelocity(
+                self._bullet_id, linearVelocity=self._bullet_linear_velocity
+            )
 
     def change_dynamics(self, **kwargs: Dict[str, Any]) -> None:
         """Apply change dynamics of bullet physics."""
@@ -912,10 +953,18 @@ class Object:
         if self._bullet_id != -1:
             pybullet.changeDynamics(self._bullet_id, -1, **kwargs)
 
-    def constraint_point(self, target: "Object", local_point: Vector3D, target_point: Vector3D) -> None:
+    def constraint_point(
+        self, target: "Object", local_point: Vector3D, target_point: Vector3D
+    ) -> None:
         """Create point2point contraint."""
         self._bullet_constraints.append(
-            {"type": "p2p", "target": target, "local_point": local_point, "target_point": target_point, "active": False}
+            {
+                "type": "p2p",
+                "target": target,
+                "local_point": local_point,
+                "target_point": target_point,
+                "active": False,
+            }
         )
 
     @property
@@ -928,7 +977,9 @@ class Object:
         """Set linear velocity."""
         self._bullet_linear_velocity = val
         if self._bullet_id != -1:
-            pybullet.resetBaseVelocity(self._bullet_id, linearVelocity=self._bullet_linear_velocity)
+            pybullet.resetBaseVelocity(
+                self._bullet_id, linearVelocity=self._bullet_linear_velocity
+            )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the object into a dictionary for export / debug."""
@@ -951,24 +1002,35 @@ class Object:
         """Return the self bullet mass."""
         if self._bullet_dynamics is None:
             return 0
-        return cast(float, self._bullet_dynamics.get('mass', 0))
+        return cast(float, self._bullet_dynamics.get("mass", 0))
 
     @mass.setter
     def mass(self, val: float) -> None:
         """Set the self bullet physics mass."""
         if self._bullet_dynamics is None:
             self._bullet_dynamics = {}
-        self._bullet_dynamics['mass'] = val
+        self._bullet_dynamics["mass"] = val
         if self._bullet_id != -1:
             pybullet.changeDynamics(self._bullet_id, -1, **self._bullet_dynamics)
 
     def _bullet_physics(self) -> bool:
         """Responds to physics."""
-        if self._bullet_id != -1 and self.mass > 0:
-            pos, ori = pybullet.getBasePositionAndOrientation(self._bullet_id)
-            self.matrix = bullet_to_matrix(ori)
-            self.position = pos
-            return True
+        if self._bullet_id != -1:
+            if self.mass > 0:
+                pos, ori = pybullet.getBasePositionAndOrientation(self._bullet_id)
+                rot_matrix = pybullet.getMatrixFromQuaternion(ori)
+                rot_matrix = np.array(
+                    [rot_matrix[0:3], rot_matrix[3:6], rot_matrix[6:9]]
+                ).T
+                self.position = pos
+                self.matrix[0][:3] = rot_matrix[0].tolist()
+                self.matrix[1][:3] = rot_matrix[1].tolist()
+                self.matrix[2][:3] = rot_matrix[2].tolist()
+                return True
+            else:
+                pass
+                # pos, quat = matrix_to_position_and_quaternion(self.matrix)
+                # pybullet.resetBasePositionAndOrientation(self._bullet_id, pos, quat)
 
         return False
 
@@ -1042,7 +1104,9 @@ class Line(Object):
 
         self._needs_update = True
 
-    def build_lines(self, vertices: Optional[VList] = None, color: Optional[Vector3D] = None) -> None:
+    def build_lines(
+        self, vertices: Optional[VList] = None, color: Optional[Vector3D] = None
+    ) -> None:
         """
         Build lines information.
 

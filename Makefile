@@ -17,11 +17,11 @@ clean:
 lint:
 	@echo "If mypy fails miserably, check your MYPYPATH to include SDL and stuff"
 	@mypy payton --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs
-	@flake8 payton
+	@ruff payton
 
 fmt:
 	isort .
-	black .
+	ruff check payton --fix
 
 help:
 	@echo "Make Payton"

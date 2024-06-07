@@ -152,8 +152,8 @@ class Scene(Receiver):
         """
         self.__fps_counter = 0
         self.fps = 0
-        _env_width = os.getenv('SDL_WINDOW_WIDTH', None)
-        _env_height = os.getenv('SDL_WINDOW_HEIGHT', None)
+        _env_width = os.getenv("SDL_WINDOW_WIDTH", None)
+        _env_height = os.getenv("SDL_WINDOW_HEIGHT", None)
         if _env_width:
             width = int(_env_width)
         if _env_height:
@@ -174,10 +174,17 @@ class Scene(Receiver):
 
         if physics_client is not None:
             pybullet.setGravity(
-                self._physics_params.gravity_x, self._physics_params.gravity_y, self._physics_params.gravity_z
+                self._physics_params.gravity_x,
+                self._physics_params.gravity_y,
+                self._physics_params.gravity_z,
             )
-            pybullet.setPhysicsEngineParameter(numSolverIterations=10, minimumSolverIslandSize=1024)
+            pybullet.setPhysicsEngineParameter(
+                numSolverIterations=10, minimumSolverIslandSize=1024
+            )
             pybullet.setTimeStep(1.0 / 120.0)
+            pybullet.connect(pybullet.DIRECT)
+            pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_KEYBOARD_SHORTCUTS, 0)
+            pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
             self.create_clock("_bullet_physics", 1.0 / 120.0, self._step_physics, True)
 
         self.hudcam = Camera(
@@ -198,9 +205,13 @@ class Scene(Receiver):
         self.controller.add_controller(SceneController())
         self.background = Background()
         self.shaders: Dict[str, Shader] = {
-            DEFAULT_SHADER: Shader(fragment=default_fragment_shader, vertex=default_vertex_shader),
+            DEFAULT_SHADER: Shader(
+                fragment=default_fragment_shader, vertex=default_vertex_shader
+            ),
             PARTICLE_SHADER: Shader(
-                fragment=particle_fragment_shader, vertex=particle_vertex_shader, geometry=particle_geometry_shader
+                fragment=particle_fragment_shader,
+                vertex=particle_vertex_shader,
+                geometry=particle_geometry_shader,
             ),
             SHADOW_SHADER: Shader(
                 fragment=depth_fragment_shader,
@@ -304,7 +315,9 @@ class Scene(Receiver):
             _hit = hit.tolist()
             click_plane[2](_hit[:3])
 
-    def _render_3d_scene(self, shadow_round: bool = False, shader: str = DEFAULT_SHADER) -> None:
+    def _render_3d_scene(
+        self, shadow_round: bool = False, shader: str = DEFAULT_SHADER
+    ) -> None:
         """
         Render the 3D Scene.
 
@@ -355,7 +368,9 @@ class Scene(Receiver):
             self.grid.render(lit, self.shaders[DEFAULT_SHADER])
 
         for object in self.objects.values():
-            if object.shader == shader or (shadow_round and object.shader != PARTICLE_SHADER):
+            if object.shader == shader or (
+                shadow_round and object.shader != PARTICLE_SHADER
+            ):
                 object.render(lit, _shader)
 
     def _render(self) -> None:
@@ -494,7 +509,9 @@ class Scene(Receiver):
 
     def create_camera(self) -> None:
         """Create a dummy camera with defaults."""
-        self.cameras.append(Camera(viewport_size=[self.window_width, self.window_height, 0]))
+        self.cameras.append(
+            Camera(viewport_size=[self.window_width, self.window_height, 0])
+        )
 
     def create_clock(
         self,
@@ -585,7 +602,9 @@ class Scene(Receiver):
         for obj in self.objects.values():
             if exempt_objects is not None and obj in exempt_objects:
                 continue
-            box_hit = raycast_box_intersect(start, direction, obj.bounding_box[0], obj.bounding_box[1])
+            box_hit = raycast_box_intersect(
+                start, direction, obj.bounding_box[0], obj.bounding_box[1]
+            )
             if box_hit is None:
                 continue
             if box_only:
@@ -610,7 +629,7 @@ class Scene(Receiver):
         return hit_obj, shortest
 
     def _init_runtime(self, start_clocks: bool = False) -> bool:
-        version = glGetString(GL_VERSION).decode('utf-8')
+        version = glGetString(GL_VERSION).decode("utf-8")
         ogl_major = glGetIntegerv(GL_MAJOR_VERSION)
         ogl_minor = glGetIntegerv(GL_MINOR_VERSION)
         print(f"gl-int: {ogl_major}.{ogl_minor} - {version}")
@@ -692,13 +711,19 @@ Payton requires at least OpenGL 3.3 support and above."""
         if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
             return -1
 
-        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE)
-        multisample_buffers = os.getenv('GL_MULTISAMPLEBUFFERS', None)
-        multisample_samples = os.getenv('GL_MULTISAMPLESAMPLES', None)
+        sdl2.SDL_GL_SetAttribute(
+            sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE
+        )
+        multisample_buffers = os.getenv("GL_MULTISAMPLEBUFFERS", None)
+        multisample_samples = os.getenv("GL_MULTISAMPLESAMPLES", None)
         if multisample_buffers:
-            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, int(multisample_buffers))
+            sdl2.SDL_GL_SetAttribute(
+                sdl2.SDL_GL_MULTISAMPLEBUFFERS, int(multisample_buffers)
+            )
         if multisample_samples:
-            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, int(multisample_samples))
+            sdl2.SDL_GL_SetAttribute(
+                sdl2.SDL_GL_MULTISAMPLESAMPLES, int(multisample_samples)
+            )
 
         self.window = sdl2.SDL_CreateWindow(
             b"Payton Scene",
@@ -718,10 +743,12 @@ Payton requires at least OpenGL 3.3 support and above."""
         self.running = True
 
         self._init_runtime()
-
         while self.running:
             while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
-                if self.event.type == sdl2.SDL_WINDOWEVENT and self.event.window.event == sdl2.SDL_WINDOWEVENT_RESIZED:
+                if (
+                    self.event.type == sdl2.SDL_WINDOWEVENT
+                    and self.event.window.event == sdl2.SDL_WINDOWEVENT_RESIZED
+                ):
                     self.window_width = self.event.window.data1
                     self.window_height = self.event.window.data2
                     glViewport(0, 0, self.window_width, self.window_height)
@@ -781,7 +808,9 @@ class Background:
         bottom_color -- Gradient color at the bottom of the viewport
         """
         self.top_color = [0.0, 0.0, 0.0, 1.0] if top_color is None else top_color
-        self.bottom_color = [0.0, 0.1, 0.2, 1.0] if bottom_color is None else bottom_color
+        self.bottom_color = (
+            [0.0, 0.1, 0.2, 1.0] if bottom_color is None else bottom_color
+        )
         variables = ["top_color", "bot_color"]
         self._shader = Shader(
             fragment=background_fragment_shader,
@@ -803,20 +832,41 @@ class Background:
         hour %= 24
         minute %= 60
         color_scheme = {
-            (0, 3): [[24 / 255, 24 / 255, 48 / 255, 1.0], [24 / 255, 48 / 255, 72 / 255, 1.0]],
-            (3, 9): [[24 / 255, 48 / 255, 72 / 255, 1.0], [96 / 255, 168 / 255, 192 / 255, 1.0]],
-            (9, 15): [[96 / 255, 168 / 255, 192 / 255, 1.0], [144 / 255, 192 / 255, 240 / 255, 1.0]],
-            (15, 21): [[144 / 255, 192 / 255, 240 / 255, 1.0], [48 / 255, 72 / 255, 120 / 255, 1.0]],
-            (21, 24): [[48 / 255, 72 / 255, 120 / 255, 1.0], [24 / 255, 24 / 255, 48 / 255, 1.0]],
+            (0, 3): [
+                [24 / 255, 24 / 255, 48 / 255, 1.0],
+                [24 / 255, 48 / 255, 72 / 255, 1.0],
+            ],
+            (3, 9): [
+                [24 / 255, 48 / 255, 72 / 255, 1.0],
+                [96 / 255, 168 / 255, 192 / 255, 1.0],
+            ],
+            (9, 15): [
+                [96 / 255, 168 / 255, 192 / 255, 1.0],
+                [144 / 255, 192 / 255, 240 / 255, 1.0],
+            ],
+            (15, 21): [
+                [144 / 255, 192 / 255, 240 / 255, 1.0],
+                [48 / 255, 72 / 255, 120 / 255, 1.0],
+            ],
+            (21, 24): [
+                [48 / 255, 72 / 255, 120 / 255, 1.0],
+                [24 / 255, 24 / 255, 48 / 255, 1.0],
+            ],
         }
         for color in color_scheme:
             if hour >= color[0] and hour < color[1]:
                 hours = color[1] - color[0]
                 minutes = hours * 60
                 minute = ((hour - color[0]) * 60) + minute
-                xdist = ((color_scheme[color][1][0] - color_scheme[color][0][0]) / minutes) * minute
-                ydist = ((color_scheme[color][1][1] - color_scheme[color][0][1]) / minutes) * minute
-                zdist = ((color_scheme[color][1][2] - color_scheme[color][0][2]) / minutes) * minute
+                xdist = (
+                    (color_scheme[color][1][0] - color_scheme[color][0][0]) / minutes
+                ) * minute
+                ydist = (
+                    (color_scheme[color][1][1] - color_scheme[color][0][1]) / minutes
+                ) * minute
+                zdist = (
+                    (color_scheme[color][1][2] - color_scheme[color][0][2]) / minutes
+                ) * minute
 
                 self.bottom_color = color_scheme[color][0]
                 self.top_color = [
@@ -841,8 +891,12 @@ class Background:
         glDisable(GL_DEPTH_TEST)
 
         self._shader.use()
-        self._shader.set_vector4_np("top_color", np.array(self.top_color, dtype=np.float32))
-        self._shader.set_vector4_np("bot_color", np.array(self.bottom_color, dtype=np.float32))
+        self._shader.set_vector4_np(
+            "top_color", np.array(self.top_color, dtype=np.float32)
+        )
+        self._shader.set_vector4_np(
+            "bot_color", np.array(self.bottom_color, dtype=np.float32)
+        )
         glBindVertexArray(self._vao)
         glDrawArrays(GL_TRIANGLES, 0, 3)
         glBindVertexArray(0)
