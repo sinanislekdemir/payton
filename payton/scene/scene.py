@@ -134,6 +134,7 @@ class Scene(Receiver):
         width: int = 800,
         height: int = 600,
         on_select: Optional[Callable] = None,
+        physics_force_continuous: bool = False,
         **kwargs: Any,
     ) -> None:
         """Initialize Scene.
@@ -185,7 +186,12 @@ class Scene(Receiver):
             pybullet.connect(pybullet.DIRECT)
             pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_KEYBOARD_SHORTCUTS, 0)
             pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
-            self.create_clock("_bullet_physics", 1.0 / 120.0, self._step_physics, True)
+            self.create_clock(
+                "_bullet_physics",
+                1.0 / 120.0,
+                self._step_physics,
+                physics_force_continuous,
+            )
 
         self.hudcam = Camera(
             active=True,

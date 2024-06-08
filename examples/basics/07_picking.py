@@ -1,6 +1,6 @@
 import random
 
-from payton.scene import Scene
+from payton.scene import Scene, physics
 from payton.scene.geometry import Cube
 from payton.scene.gui import info_box
 
@@ -11,7 +11,7 @@ def select(list):
         obj.mass = 1.0
 
 
-scene = Scene(on_select=select)
+scene = Scene(on_select=select, physics_force_continuous=True)
 for i in range(10):
     x = random.randint(-5, 5)
     y = random.randint(-5, 5)

@@ -17,7 +17,7 @@ clean:
 lint:
 	@echo "If mypy fails miserably, check your MYPYPATH to include SDL and stuff"
 	@mypy payton --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs
-	@ruff payton
+	@ruff check payton
 
 fmt:
 	isort .

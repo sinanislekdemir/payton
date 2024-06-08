@@ -5,7 +5,7 @@ from urllib import request
 import sdl2
 
 from payton.math.functions import add_vectors, distance, normalize_vector, scale_vector
-from payton.scene import SHADOW_HIGH, Scene
+from payton.scene import SHADOW_HIGH, Scene, physics
 from payton.scene.controller import BaseController
 from payton.scene.geometry import Cube, Sphere, Wavefront
 from payton.scene.geometry.awp3d import AWP3D
@@ -140,7 +140,9 @@ class Game(Scene):
         self.hero.mass = 0
         self.hero.position = [0, 0, -0.2]
         self.ground = Wavefront("./assets/map_ground.obj")  # Plane(width=20, height=20)
-        self.ground.change_dynamics(restitution=1, lateralFriction=2.0, linearDamping=10, angularDamping=10)
+        self.ground.change_dynamics(
+            restitution=1, lateralFriction=2.0, linearDamping=10, angularDamping=10
+        )
         self.ground.mass = 0  # make it stationary
         self.ground.position = [0, 0, 0]
         self.cameras[0].target_object = self.hero
@@ -181,7 +183,7 @@ class Game(Scene):
         for i in range(10):
             for j in range(5):
                 cube = Cube(width=1, depth=1, height=1)
-                cube.material.texture = 'assets/cube.png'
+                cube.material.texture = "assets/cube.png"
                 cube.mass = 1.0
                 cube.position = [10, x, z]
                 z += 1.01
@@ -210,7 +212,9 @@ class Game(Scene):
         self.hero.target(cursor_position)
 
     def _generate_ammo(self):
-        self.balls = [Sphere(radius=0.15, mass=0, parallels=6, meridians=6) for i in range(100)]
+        self.balls = [
+            Sphere(radius=0.15, mass=0, parallels=6, meridians=6) for i in range(100)
+        ]
         for i, ball in enumerate(self.balls):
             ball.material.color = [1, 0, 0]
             ball.hide()
@@ -224,11 +228,13 @@ class Game(Scene):
         self.hero.time_forward(period)
 
 
-if not os.path.exists('assets/thebot.awp3d'):
+if not os.path.exists("assets/thebot.awp3d"):
     print("Downloading the bot asset")
     print("The file is 123mb which can not fit into github")
-    request.urlretrieve("https://www.islekdemir.com/thebot.awp3d", "assets/thebot.awp3d")
+    request.urlretrieve(
+        "https://www.islekdemir.com/thebot.awp3d", "assets/thebot.awp3d"
+    )
     print("Download complete")
 
-game = Game()
+game = Game(physics_force_continuous=True)
 game.run()
