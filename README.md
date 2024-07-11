@@ -1,4 +1,5 @@
 # Payton 3D SDK
+[Payton 3D SDK Screencast](https://github.com/sinanislekdemir/payton/assets/1842484/a18c8e43-61e9-48c3-a92a-4988716a1919)
 
 ![example workflow](https://github.com/sinanislekdemir/payton/actions/workflows/pythonpackage.yml/badge.svg)
 [![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
