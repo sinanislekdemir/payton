@@ -54,9 +54,15 @@ class Mesh(Object):
         res._normals = object_dict["normals"]
         res._texcoords = object_dict["texcoords"]
         res.matrix = object_dict["matrix"]
-        res.materials = {n: Material.from_dict(object_dict["materials"][n]) for n in object_dict["materials"]}
+        res.materials = {
+            n: Material.from_dict(object_dict["materials"][n])
+            for n in object_dict["materials"]
+        }
 
-        res.children = {n: cls.from_dict(object_dict["children"][n]) for n in object_dict["children"]}
+        res.children = {
+            n: cls.from_dict(object_dict["children"][n])
+            for n in object_dict["children"]
+        }
 
         return res
 
@@ -95,7 +101,10 @@ class Mesh(Object):
         """
         self._normals = [[0, 0, 1.0]] * len(self._vertices)
 
-        [self._calc_normal(face[0], face[1], face[2], reverse) for face in self._indices]
+        [
+            self._calc_normal(face[0], face[1], face[2], reverse)
+            for face in self._indices
+        ]
 
     def fix_texcoords(self, u: int = 1, v: int = 1) -> None:
         """

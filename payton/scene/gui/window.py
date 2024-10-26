@@ -34,8 +34,14 @@ class Theme:
 
     def secondary(self) -> None:
         """Secondary colors for the theme"""
-        self.background_color, self.text_color = self.title_background_color, self.title_text_color
-        self.title_background_color, self.title_text_color = self.background_color, self.text_color
+        self.background_color, self.text_color = (
+            self.title_background_color,
+            self.title_text_color,
+        )
+        self.title_background_color, self.title_text_color = (
+            self.background_color,
+            self.text_color,
+        )
 
 
 class WindowAlignment(Enum):
@@ -197,12 +203,20 @@ class Window(WindowElement):
             self.add_triangle(
                 [[0, 22, 1], [w, h, 1], [w, 22, 1]],
                 texcoords=[[0, 0], [1, 1], [1, 0]],
-                colors=[self.theme.background_color, self.theme.background_color, self.theme.background_color],
+                colors=[
+                    self.theme.background_color,
+                    self.theme.background_color,
+                    self.theme.background_color,
+                ],
             )
             self.add_triangle(
                 [[0, 22, 1], [0, h, 1], [w, h, 1]],
                 texcoords=[[0, 0], [0, 1], [1, 1]],
-                colors=[self.theme.background_color, self.theme.background_color, self.theme.background_color],
+                colors=[
+                    self.theme.background_color,
+                    self.theme.background_color,
+                    self.theme.background_color,
+                ],
             )
             self.add_triangle(
                 [[0, 0, 1], [w - 1, 22, 1], [w - 1, 0, 1]],
@@ -255,12 +269,20 @@ class Panel(WindowElement):
             self.add_triangle(
                 [[1, 1, 1], [w - 1, h - 1, 1], [w - 1, 1, 1]],
                 texcoords=[[0, 0], [1, 1], [1, 0]],
-                colors=[self.theme.background_color, self.theme.background_color, self.theme.background_color],
+                colors=[
+                    self.theme.background_color,
+                    self.theme.background_color,
+                    self.theme.background_color,
+                ],
             )
             self.add_triangle(
                 [[1, 1, 1], [1, h - 1, 1], [w - 1, h - 1, 1]],
                 texcoords=[[0, 0], [0, 1], [1, 1]],
-                colors=[self.theme.background_color, self.theme.background_color, self.theme.background_color],
+                colors=[
+                    self.theme.background_color,
+                    self.theme.background_color,
+                    self.theme.background_color,
+                ],
             )
 
             self._init = True

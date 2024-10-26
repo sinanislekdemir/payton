@@ -39,19 +39,25 @@ class GUIController(BaseController):
         scene -- Active scene
         """
         if event.type == sdl2.SDL_TEXTINPUT and self._active_object is not None:
-            self._active_object._on_keypress(event.text.text.decode('utf-8'))
+            self._active_object._on_keypress(event.text.text.decode("utf-8"))
             return True
 
         if event.type == sdl2.SDL_KEYUP and self._active_object is not None:
             key = event.key.keysym.sym
-            if key == sdl2.SDLK_ESCAPE or (key == sdl2.SDLK_RETURN and not self._active_object.multiline):
+            if key == sdl2.SDLK_ESCAPE or (
+                key == sdl2.SDLK_RETURN and not self._active_object.multiline
+            ):
                 self._active_object._exit()
                 self._active_object = None
                 sdl2.SDL_ShowCursor(True)
                 sdl2.SDL_StopTextInput()
             if self._active_object and key == sdl2.SDLK_BACKSPACE:
                 self._active_object.backspace()
-            if key == sdl2.SDLK_RETURN and self._active_object is not None and self._active_object.multiline:
+            if (
+                key == sdl2.SDLK_RETURN
+                and self._active_object is not None
+                and self._active_object.multiline
+            ):
                 self._active_object._on_keypress("\n")
             if self._active_object and key == sdl2.SDLK_LEFT:
                 self._active_object.cursor_left()
@@ -75,7 +81,10 @@ class GUIController(BaseController):
                 for shape in h.children:
                     focus_element = h.children[shape].click(mx, my)
                     if focus_element:
-                        if self._active_object is not None and self._active_object != focus_element:
+                        if (
+                            self._active_object is not None
+                            and self._active_object != focus_element
+                        ):
                             self._active_object._exit()
                             self._active_object = None
                             sdl2.SDL_ShowCursor(True)
@@ -174,7 +183,9 @@ class SceneController(BaseController):
 
         if event.type == sdl2.SDL_MOUSEBUTTONDOWN:
             mx, my = event.button.x, event.button.y
-            eye, ray_dir = camera.screen_to_world(mx, my, scene.window_width, scene.window_height)
+            eye, ray_dir = camera.screen_to_world(
+                mx, my, scene.window_width, scene.window_height
+            )
 
             if callable(scene.on_select):
                 list = []

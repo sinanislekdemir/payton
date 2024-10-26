@@ -339,7 +339,9 @@ def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
     return np.array(result, dtype=np.float32)
 
 
-def cubemap_projection_matrices(from_point: Vector3D, far_plane: float) -> List[np.ndarray]:
+def cubemap_projection_matrices(
+    from_point: Vector3D, far_plane: float
+) -> List[np.ndarray]:
     """
     Create the required Cubemap projection matrices.
 
@@ -356,7 +358,9 @@ def cubemap_projection_matrices(from_point: Vector3D, far_plane: float) -> List[
     def a2np(a: List[float]) -> np.ndarray:
         return np.array(a, dtype=np.float32)
 
-    shadow_proj = pyrr.matrix44.create_perspective_projection(90.0, 1.0, 0.01, far_plane, np.float32)
+    shadow_proj = pyrr.matrix44.create_perspective_projection(
+        90.0, 1.0, 0.01, far_plane, np.float32
+    )
     lightpos = np.array(list(from_point), dtype=np.float32)[:3]
 
     nx = pyrr.matrix44.create_look_at(

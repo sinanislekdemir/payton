@@ -22,6 +22,7 @@ lint:
 fmt:
 	isort .
 	ruff check payton --fix
+	ruff format payton
 
 help:
 	@echo "Make Payton"

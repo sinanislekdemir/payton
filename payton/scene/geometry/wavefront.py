@@ -143,8 +143,12 @@ class Wavefront(Mesh):
                         continue
                     subs = parts[i].split("/")
                     vertex = int(subs[0]) - 1
-                    textcoord = int(subs[1]) - 1 if len(subs) > 1 and len(subs[1]) > 0 else -1
-                    normal = int(subs[2]) - 1 if len(subs) > 2 and len(subs[2]) > 0 else -1
+                    textcoord = (
+                        int(subs[1]) - 1 if len(subs) > 1 and len(subs[1]) > 0 else -1
+                    )
+                    normal = (
+                        int(subs[2]) - 1 if len(subs) > 2 and len(subs[2]) > 0 else -1
+                    )
                     face.append([vertex, textcoord, normal])
                 if len(face) > 3:
                     logging.error("Only triangular wavefronts are accepted")
@@ -230,7 +234,9 @@ def export(mesh: Mesh, filename: str, name: str = "object") -> None:
             n2 = str(f[2]) if len_normals > f[2] else ""
             output.append(f"f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}")
         material_data.append(f"newmtl {name}")
-        material_data.append(f"Kd {material.color[0]} {material.color[1]} {material.color[2]}")
+        material_data.append(
+            f"Kd {material.color[0]} {material.color[1]} {material.color[2]}"
+        )
         if material.texture != "":
             base_name = os.path.basename(material.texture)
             path = os.path.join(os.path.abspath(os.path.dirname(filename)), base_name)

@@ -22,6 +22,21 @@ module
 
 # pylama:ignore=W
 from payton.scene.physics import physics_client
-from payton.scene.scene import SHADOW_HIGH, SHADOW_LOW, SHADOW_MID, SHADOW_NONE, Background, Scene
+from payton.scene.scene import (
+    SHADOW_HIGH,
+    SHADOW_LOW,
+    SHADOW_MID,
+    SHADOW_NONE,
+    Background,
+    Scene,
+)
 
-__all__ = ["Scene", "Background", "SHADOW_HIGH", "SHADOW_LOW", "SHADOW_MID", "SHADOW_NONE", "physics_client"]
+__all__ = [
+    "Scene",
+    "Background",
+    "SHADOW_HIGH",
+    "SHADOW_LOW",
+    "SHADOW_MID",
+    "SHADOW_NONE",
+    "physics_client",
+]

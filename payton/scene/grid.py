@@ -165,7 +165,9 @@ class Grid:
         self._vertex_count = 0
         ystart = -(yres * spacing / 2.0)
         xstart = -(xres * spacing / 2.0)
-        self._model_matrix = np.asfortranarray(np.array(self.matrix, dtype=np.float32), dtype=np.float32)
+        self._model_matrix = np.asfortranarray(
+            np.array(self.matrix, dtype=np.float32), dtype=np.float32
+        )
         for j in range(yres):
             y = ystart + (j * spacing)
             for i in range(xres):

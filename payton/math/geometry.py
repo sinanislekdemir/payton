@@ -21,7 +21,11 @@ ideal"""
 
 
 def point_project(p: GArray, origin: GArray, direction: GArray) -> float:
-    return direction[0] * (p[0] - origin[0]) + direction[1] * (p[1] - origin[1]) + direction[2] * (p[2] - origin[2])
+    return (
+        direction[0] * (p[0] - origin[0])
+        + direction[1] * (p[1] - origin[1])
+        + direction[2] * (p[2] - origin[2])
+    )
 
 
 def distance(v1: np.ndarray, v2: np.ndarray) -> float:
@@ -63,7 +67,9 @@ def combine(v1: GArray, v2: GArray, f1: float, f2: float) -> np.ndarray:
     return np.array([x, y, z], dtype=np.float32)
 
 
-def combine3(v1: GArray, v2: GArray, v3: GArray, f1: float, f2: float, f3: float) -> np.ndarray:
+def combine3(
+    v1: GArray, v2: GArray, v3: GArray, f1: float, f2: float, f3: float
+) -> np.ndarray:
     """Combine three vectors with three factors
 
     Keyword arguments:
@@ -79,7 +85,9 @@ def combine3(v1: GArray, v2: GArray, v3: GArray, f1: float, f2: float, f3: float
     return np.array(res, dtype=np.float32)
 
 
-def raycast_sphere_intersect(start: GArray, direction: GArray, sphere_center: np.ndarray, sphere_radius: float) -> bool:
+def raycast_sphere_intersect(
+    start: GArray, direction: GArray, sphere_center: np.ndarray, sphere_radius: float
+) -> bool:
     """Check if ray intersects given sphere, returns boolean
 
     Keyword arguments:
@@ -95,7 +103,9 @@ def raycast_sphere_intersect(start: GArray, direction: GArray, sphere_center: np
     return dist < (sphere_radius**2)
 
 
-def _find_box_mid_for_intersection(start: GArray, box_a: GArray, box_b: GArray) -> Tuple[List[bool], List[float], bool]:
+def _find_box_mid_for_intersection(
+    start: GArray, box_a: GArray, box_b: GArray
+) -> Tuple[List[bool], List[float], bool]:
     is_middle = [False, False, False]
     plane = [0.0, 0.0, 0.0]
     result = True
@@ -113,7 +123,9 @@ def _find_box_mid_for_intersection(start: GArray, box_a: GArray, box_b: GArray) 
     return is_middle, plane, result
 
 
-def raycast_box_intersect(start: GArray, direction: GArray, box_a: GArray, box_b: GArray) -> Optional[Vector3D]:
+def raycast_box_intersect(
+    start: GArray, direction: GArray, box_a: GArray, box_b: GArray
+) -> Optional[Vector3D]:
     """Check if ray intersects given axis-aligned-box, returns point of intersection if True
 
     AABB - Axis Aligned Bounding Box means the given box is parallel to the X,Y,Z axises.

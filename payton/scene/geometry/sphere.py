@@ -94,4 +94,6 @@ class Sphere(Mesh):
         return True
 
     def _create_collision_shape(self) -> None:
-        self._bullet_shape_id = pybullet.createCollisionShape(pybullet.GEOM_SPHERE, radius=self.radius)
+        self._bullet_shape_id = pybullet.createCollisionShape(
+            pybullet.GEOM_SPHERE, radius=self.radius
+        )

@@ -40,7 +40,9 @@ class Plane(Mesh):
         self.material._indices = self._indices
 
     def _create_collision_shape(self) -> None:
-        self._bullet_shape_id = pybullet.createCollisionShape(pybullet.GEOM_PLANE, planeNormal=self.matrix[2][:3])
+        self._bullet_shape_id = pybullet.createCollisionShape(
+            pybullet.GEOM_PLANE, planeNormal=self.matrix[2][:3]
+        )
 
 
 class MatrixPlane(Mesh):
@@ -102,7 +104,9 @@ class MatrixPlane(Mesh):
         c_x = self.width / 2.0
         c_y = self.height / 2.0
         for i, j in product(range(self.x), range(self.y)):
-            self._vertices.append([(i * step_x) - c_x, (j * step_y) - c_y, self.grid[i][j]])
+            self._vertices.append(
+                [(i * step_x) - c_x, (j * step_y) - c_y, self.grid[i][j]]
+            )
             self._texcoords.append([i * step_u, j * step_v])
             self._vertex_colors.append(WHITE)
 

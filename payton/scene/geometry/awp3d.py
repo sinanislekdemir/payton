@@ -136,16 +136,16 @@ class AWP3D(Wavefront):
         if not os.path.exists(filename):
             raise BaseException(f"File not found: {filename}")
         self._path = os.path.dirname(os.path.abspath(filename))
-        archive = ZipFile(filename, 'r')
+        archive = ZipFile(filename, "r")
         files = archive.namelist()
-        max_frame = max([int(f.split('.')[0]) for f in files]) + 1
-        min_frame = min(int(f.split('.')[0]) for f in files)
+        max_frame = max([int(f.split(".")[0]) for f in files]) + 1
+        min_frame = min(int(f.split(".")[0]) for f in files)
         for f in range(min_frame, max_frame):
             progress(f, max_frame - 1)
             wobj = Wavefront()
             wobj.path = self._path
-            data = archive.read(f"{f}.obj").decode('utf-8')
-            material = archive.read(f"{f}.mtl").decode('utf-8')
+            data = archive.read(f"{f}.obj").decode("utf-8")
+            material = archive.read(f"{f}.mtl").decode("utf-8")
             wobj.load_material(material)
             wobj.load(data)
             self.frames.append(wobj)
@@ -155,7 +155,11 @@ class AWP3D(Wavefront):
         return True
 
     def render(
-        self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: Optional[int] = None
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: Optional[int] = None,
     ) -> None:
         """Render AWP3D."""
         if not self._visible:
@@ -197,7 +201,9 @@ class AWP3D(Wavefront):
         width = self.frames[0].bounding_box[1][0] - self.frames[0].bounding_box[0][0]
         depth = self.frames[0].bounding_box[1][1] - self.frames[0].bounding_box[0][1]
         height = self.frames[0].bounding_box[1][2] - self.frames[0].bounding_box[0][2]
-        self._bullet_shape_id = pybullet.createCollisionShape(pybullet.GEOM_BOX, halfExtents=[width, depth, height])
+        self._bullet_shape_id = pybullet.createCollisionShape(
+            pybullet.GEOM_BOX, halfExtents=[width, depth, height]
+        )
 
     @property
     def physics(self) -> bool:

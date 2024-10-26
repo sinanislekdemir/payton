@@ -147,7 +147,12 @@ class Shape2D(Mesh):
         if self._model_matrix is None:
             return None
         mm = self._model_matrix[3]
-        if x > mm[0] and x < mm[0] + self.size[0] and y > mm[1] and y < mm[1] + self.size[1]:
+        if (
+            x > mm[0]
+            and x < mm[0] + self.size[0]
+            and y > mm[1]
+            and y < mm[1] + self.size[1]
+        ):
             self.on_click()
             return self
         return None
@@ -271,7 +276,7 @@ class Text(Rectangle):
         if self.font is None:
             return
         if self._max_char_width == 0.0:
-            self._max_char_width = text_size('_', self.font)[0]
+            self._max_char_width = text_size("_", self.font)[0]
         split_length = int(math.floor(width_in_pixels / self._max_char_width)) - 1
         parts = wrap(original, split_length)
         self.__label = "\n".join(parts)
@@ -291,7 +296,12 @@ class Text(Rectangle):
 
         img = Image.new("RGBA", self.text_size, color=bgcolor)
         d = ImageDraw.Draw(img, "RGBA")
-        color = (int(self.color[0] * 255), int(self.color[1] * 255), int(self.color[2] * 255), 255)
+        color = (
+            int(self.color[0] * 255),
+            int(self.color[1] * 255),
+            int(self.color[2] * 255),
+            255,
+        )
         if self.font is not None:
             d.text((1, 1), self.label, fill=color, font=self.font)
         else:
@@ -338,7 +348,11 @@ class Hud(Object):
         self._font: ImageFont | None = None
         self._projection_matrix: Optional[np.ndarray] = None
         try:
-            self.set_font(os.path.join(os.path.dirname(os.path.abspath(__file__)), "monofonto.ttf"))
+            self.set_font(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "monofonto.ttf"
+                )
+            )
         except OSError:
             # font not found but pillow has better than nothinf font
             pass

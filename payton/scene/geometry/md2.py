@@ -10,7 +10,17 @@ import os
 import struct
 import time
 from copy import deepcopy
-from typing import Any, BinaryIO, Dict, Generator, List, NamedTuple, Optional, Tuple, cast
+from typing import (
+    Any,
+    BinaryIO,
+    Dict,
+    Generator,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    cast,
+)
 
 import numpy as np
 
@@ -65,7 +75,11 @@ def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> List[Mesh]:
         mesh.destroy()  # Destroy references to previous objects opengl
         for v_i, vertex in enumerate(results[i - 1]._vertices):
             mesh._vertices.append(
-                [vertex[0] + distances[v_i][0], vertex[1] + distances[v_i][1], vertex[2] + distances[v_i][2]]
+                [
+                    vertex[0] + distances[v_i][0],
+                    vertex[1] + distances[v_i][1],
+                    vertex[2] + distances[v_i][2],
+                ]
             )
         mesh.fix_normals()
         results.append(mesh)
@@ -329,7 +343,9 @@ class MD2(Mesh):
             self._motion_path_line.render(lit, shader, parent_matrix)
 
         if self.animation == "":
-            next(iter(self._frame_children.values())).render(lit, shader, self._model_matrix)
+            next(iter(self._frame_children.values())).render(
+                lit, shader, self._model_matrix
+            )
             for child in self.children:
                 self.children[child].render(lit, shader, self._model_matrix)
             return
@@ -361,11 +377,15 @@ class MD2(Mesh):
 
     def read_triangles(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_tris, os.SEEK_SET)
-        triangles = np.array(_read_block(f, "< 6H", self.header.num_tris), dtype=np.uint16)
+        triangles = np.array(
+            _read_block(f, "< 6H", self.header.num_tris), dtype=np.uint16
+        )
         triangles.shape = (-1, 6)
         vertex_indices = triangles[:, :3]
         tc_indices = triangles[:, 3:]
-        self.triangle_layout = MD2TriangleLayout(vertex_indices=vertex_indices, tc_indices=tc_indices)
+        self.triangle_layout = MD2TriangleLayout(
+            vertex_indices=vertex_indices, tc_indices=tc_indices
+        )
 
     def compile(self) -> None:
         self.animations = {}
@@ -399,10 +419,14 @@ class MD2(Mesh):
 
         mesh.fix_normals(False)
         if self.texture_filename != "":
-            mesh.material.texture = os.path.join(self._path, os.path.basename(self.texture_filename))
+            mesh.material.texture = os.path.join(
+                self._path, os.path.basename(self.texture_filename)
+            )
             mesh.material.particle_size = 0.1
         elif len(self.skins) > 0:
-            mesh.material.texture = os.path.join(self._path, os.path.basename(self.skins[0]))
+            mesh.material.texture = os.path.join(
+                self._path, os.path.basename(self.skins[0])
+            )
             mesh.material.particle_size = 0.1
 
         self.add_frame_child(name, mesh)
@@ -419,7 +443,10 @@ class MD2(Mesh):
         f.seek(self.header.offset_skins, os.SEEK_SET)
         skin_struct = struct.Struct("< %s" % ("64s" * self.header.num_skins))
 
-        self.skins = [_fix_skin_name(skin) for skin in skin_struct.unpack(f.read(skin_struct.size))]
+        self.skins = [
+            _fix_skin_name(skin)
+            for skin in skin_struct.unpack(f.read(skin_struct.size))
+        ]
 
     def read_tex_coords(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_st, os.SEEK_SET)
@@ -440,7 +467,9 @@ class MD2(Mesh):
         name = _read_block(f, "< 16s", 1)[0][0]
         name = str(name).split("\x00")[0].split("\\")[0].replace("b'", "")
 
-        frame_vertex_data = np.array(_read_block(f, "<4B", self.header.num_vertices), dtype=np.uint8)
+        frame_vertex_data = np.array(
+            _read_block(f, "<4B", self.header.num_vertices), dtype=np.uint8
+        )
 
         frame_vertex_data.shape = (-1, 4)
 
@@ -463,7 +492,9 @@ class MD2(Mesh):
         frame_name = f"{animation}{self._active_frame}"
         result = self._frame_children[frame_name].to_dict()
         result["matrix"] = self.matrix
-        result["children"] = {name: self.children[name].to_dict() for name in self.children}
+        result["children"] = {
+            name: self.children[name].to_dict() for name in self.children
+        }
         return result
 
     def set_texture(self, texture_filename: str) -> None:

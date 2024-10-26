@@ -1,9 +1,16 @@
 # pylama:ignore=W
-"""#Payton GUI Module
-"""
+"""#Payton GUI Module"""
+
 from payton.scene.gui.base import Hud, Rectangle, Shape2D, Text
 from payton.scene.gui.help import info_box
-from payton.scene.gui.window import Button, EditBox, Panel, Theme, Window, WindowAlignment
+from payton.scene.gui.window import (
+    Button,
+    EditBox,
+    Panel,
+    Theme,
+    Window,
+    WindowAlignment,
+)
 
 __all__ = [
     "Button",

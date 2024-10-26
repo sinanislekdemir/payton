@@ -2,7 +2,12 @@
 
 from typing import List
 
-from payton.math.functions import add_vectors, create_rotation_matrix_raw, scale_vector, vector_transform
+from payton.math.functions import (
+    add_vectors,
+    create_rotation_matrix_raw,
+    scale_vector,
+    vector_transform,
+)
 from payton.math.vector import Vector3D
 from payton.scene.geometry import Line, Mesh
 
@@ -60,7 +65,11 @@ def rotate_line(line: Line, axis: Vector3D, angle: float, steps: int = 10) -> Me
         for j in range(len(vertices) - 1):
             mesh.add_triangle(
                 vertices=[vertices[j], vertices[j + 1], mirror_vertices[j]],
-                texcoords=[[step_u * i, step_v * j], [step_u * (i + 1), step_v * j], [step_u * i, step_v * (j + 1)]],
+                texcoords=[
+                    [step_u * i, step_v * j],
+                    [step_u * (i + 1), step_v * j],
+                    [step_u * i, step_v * (j + 1)],
+                ],
             )
             mesh.add_triangle(
                 vertices=[vertices[j + 1], mirror_vertices[j + 1], mirror_vertices[j]],

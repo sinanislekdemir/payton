@@ -34,7 +34,12 @@ class Clock(threading.Thread):
 
     """
 
-    def __init__(self, period: float, callback: Callable[[float, float], None], non_stop: bool = False):
+    def __init__(
+        self,
+        period: float,
+        callback: Callable[[float, float], None],
+        non_stop: bool = False,
+    ):
         """Initialize the clock
 
         Keyword arguments:

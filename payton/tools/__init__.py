@@ -1,3 +1,1 @@
-"""Payton tools module
-
-"""
+"""Payton tools module"""

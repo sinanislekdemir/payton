@@ -26,7 +26,9 @@ F2: Previous Camera F3: Next Camera
         height=10000,
         width=520,
     )
-    help_window.add_child("text", Button(width=500, height=400, left=10, top=40, label=text))
+    help_window.add_child(
+        "text", Button(width=500, height=400, left=10, top=40, label=text)
+    )
     return help_window
 
 
@@ -81,6 +83,8 @@ Number of vertices: {ob._vertex_count}
     width = 400
     height = 200
     window = Window(ob.name, width=width, height=height, left=left, top=top)
-    window.add_child("label", Text(position=[10, 20], size=[380, 300], label=label, color=[1, 1, 1]))
+    window.add_child(
+        "label", Text(position=[10, 20], size=[380, 300], label=label, color=[1, 1, 1])
+    )
     hud.add_child("window", window)
     return hud

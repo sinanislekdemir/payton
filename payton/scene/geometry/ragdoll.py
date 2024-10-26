@@ -173,35 +173,53 @@ class RagDoll(Bone):
         right_collar.root.rotate_around_y(math.radians(100))
         left_collar.root.rotate_around_y(math.radians(-100))
 
-        right_upper_arm = Bone(root_joint_name="r_shoulder", end_joint_name="r_elbow", length=0.5)
+        right_upper_arm = Bone(
+            root_joint_name="r_shoulder", end_joint_name="r_elbow", length=0.5
+        )
         right_collar.connect_to_end(right_upper_arm.root)
         right_upper_arm.rotate_around_y(math.radians(20))
 
-        left_upper_arm = Bone(root_joint_name="l_shoulder", end_joint_name="l_elbow", length=0.5)
+        left_upper_arm = Bone(
+            root_joint_name="l_shoulder", end_joint_name="l_elbow", length=0.5
+        )
         left_collar.connect_to_end(left_upper_arm.root)
         left_upper_arm.rotate_around_y(math.radians(-20))
 
-        right_lower_arm = Bone(root_joint_name="r_elbow", end_joint_name="r_wrist", length=0.5)
+        right_lower_arm = Bone(
+            root_joint_name="r_elbow", end_joint_name="r_wrist", length=0.5
+        )
         right_upper_arm.connect_to_end(right_lower_arm.root)
-        left_lower_arm = Bone(root_joint_name="l_elbow", end_joint_name="l_wrist", length=0.5)
+        left_lower_arm = Bone(
+            root_joint_name="l_elbow", end_joint_name="l_wrist", length=0.5
+        )
         left_upper_arm.connect_to_end(left_lower_arm.root)
 
-        right_hand = Bone(root_joint_name="r_wrist", end_joint_name="r_hand", length=0.2)
+        right_hand = Bone(
+            root_joint_name="r_wrist", end_joint_name="r_hand", length=0.2
+        )
         right_lower_arm.connect_to_end(right_hand.root)
         left_hand = Bone(root_joint_name="l_wrist", end_joint_name="l_hand", length=0.2)
         left_lower_arm.connect_to_end(left_hand.root)
 
-        right_upper_leg = Bone(root_joint_name="r_hip", end_joint_name="r_knee", length=1.0)
+        right_upper_leg = Bone(
+            root_joint_name="r_hip", end_joint_name="r_knee", length=1.0
+        )
         self.connect_to_root(right_upper_leg.root)
         right_upper_leg.root.rotate_around_y(math.radians(160))
 
-        left_upper_leg = Bone(root_joint_name="l_hip", end_joint_name="l_knee", length=1.0)
+        left_upper_leg = Bone(
+            root_joint_name="l_hip", end_joint_name="l_knee", length=1.0
+        )
         self.connect_to_root(left_upper_leg.root)
         left_upper_leg.root.rotate_around_y(math.radians(-160))
 
-        right_lower_leg = Bone(root_joint_name="r_knee", end_joint_name="r_foot", length=1.0)
+        right_lower_leg = Bone(
+            root_joint_name="r_knee", end_joint_name="r_foot", length=1.0
+        )
         right_upper_leg.connect_to_end(right_lower_leg.root)
-        left_lower_leg = Bone(root_joint_name="l_knee", end_joint_name="l_foot", length=1.0)
+        left_lower_leg = Bone(
+            root_joint_name="l_knee", end_joint_name="l_foot", length=1.0
+        )
         left_upper_leg.connect_to_end(left_lower_leg.root)
         right_foot = Bone(root_joint_name="r_foot", end_joint_name="r_toe", length=0.3)
         right_lower_leg.connect_to_end(right_foot.root)

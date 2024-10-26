@@ -1,5 +1,4 @@
-"""Camera module
-"""
+"""Camera module"""
 
 import logging
 import math
@@ -309,7 +308,12 @@ class Camera:
 
     def render(self) -> Tuple[np.ndarray, np.ndarray]:
         """Render the camera."""
-        if self._use_cache and self.target_object is None and self._projection is not None and self._view is not None:
+        if (
+            self._use_cache
+            and self.target_object is None
+            and self._projection is not None
+            and self._view is not None
+        ):
             return self._projection, self._view
 
         if self.perspective:
@@ -343,7 +347,9 @@ class Camera:
             # I believe there is a bug at mypy about @property methods
             if self._previous_target_location is None:
                 self._previous_target_location = self.target_object.position
-            target_diff = sub_vector(self.target_object.position, self._previous_target_location)
+            target_diff = sub_vector(
+                self.target_object.position, self._previous_target_location
+            )
             self.position = add_vectors(self.position, target_diff)
             eye = np.array(list(self.position), dtype=np.float32)
             self.target = self.target_object.position
@@ -374,12 +380,15 @@ class Camera:
         clip_space = [elem / div for elem in clip_space]
         clip_space = [
             self._viewport_size[0] * (clip_space[0] + 1) / 2.0,
-            self._viewport_size[1] - (self._viewport_size[1] * (clip_space[1] + 1) / 2.0),
+            self._viewport_size[1]
+            - (self._viewport_size[1] * (clip_space[1] + 1) / 2.0),
             0,
         ]
         return clip_space
 
-    def screen_to_world(self, x: int, y: int, width: int, height: int) -> Tuple[np.ndarray, np.ndarray]:
+    def screen_to_world(
+        self, x: int, y: int, width: int, height: int
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Turn the screen coordinates into world coordinates.
 
         Imagine a point on the surface of the camera (your cursor),
@@ -403,7 +412,9 @@ class Camera:
         proj = self._projection
         inv_proj = pyrr.matrix44.inverse(proj)
         eye_coords_ray = pyrr.matrix44.apply_to_vector(inv_proj, ray_start)
-        eye_coords = np.array([eye_coords_ray[0], eye_coords_ray[1], -1.0, 0.0], dtype=np.float32)
+        eye_coords = np.array(
+            [eye_coords_ray[0], eye_coords_ray[1], -1.0, 0.0], dtype=np.float32
+        )
         view = self._view
         inv_view = pyrr.matrix44.inverse(view)
         ray_end = pyrr.matrix44.apply_to_vector(inv_view, eye_coords)

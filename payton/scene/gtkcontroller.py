@@ -4,7 +4,7 @@ from typing import Any
 try:
     import gi
 
-    gi.require_version('Gtk', '3.0')
+    gi.require_version("Gtk", "3.0")
     from gi.repository import Gdk
 
     _GTK_SUPPORTED = True
@@ -41,7 +41,9 @@ class GTKController:
             self.left_button_down = True
             camera = self.scene.active_camera
             mx, my = event.x, event.y
-            eye, ray_dir = camera.screen_to_world(mx, my, self.scene.window_width, self.scene.window_height)
+            eye, ray_dir = camera.screen_to_world(
+                mx, my, self.scene.window_width, self.scene.window_height
+            )
             if callable(self.scene.on_select):
                 list = []
                 for obj in self.scene.objects:
@@ -129,7 +131,7 @@ class GTKController:
                 c.pause()
 
         if keyval == Gdk.KEY_h:
-            self.scene.huds['_help']._visible = not self.scene.huds['_help'].visible
+            self.scene.huds["_help"]._visible = not self.scene.huds["_help"].visible
 
         if keyval == Gdk.KEY_w:
             for obj in self.scene.objects:

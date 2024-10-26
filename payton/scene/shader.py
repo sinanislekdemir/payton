@@ -374,16 +374,26 @@ class Shader:
 
         Compile the shader codes and compile the program
         """
-        vertex_shader = shaders.compileShader(self.vertex_shader_source, GL_VERTEX_SHADER)
-        fragment_shader = shaders.compileShader(self.fragment_shader_source, GL_FRAGMENT_SHADER)
+        vertex_shader = shaders.compileShader(
+            self.vertex_shader_source, GL_VERTEX_SHADER
+        )
+        fragment_shader = shaders.compileShader(
+            self.fragment_shader_source, GL_FRAGMENT_SHADER
+        )
         geometry_shader = None
         if self.geometry_shader_source != "":
-            geometry_shader = shaders.compileShader(self.geometry_shader_source, GL_GEOMETRY_SHADER)
+            geometry_shader = shaders.compileShader(
+                self.geometry_shader_source, GL_GEOMETRY_SHADER
+            )
 
         if geometry_shader is not None:
-            self.program = shaders.compileProgram(vertex_shader, fragment_shader, geometry_shader, validate=False)
+            self.program = shaders.compileProgram(
+                vertex_shader, fragment_shader, geometry_shader, validate=False
+            )
         else:
-            self.program = shaders.compileProgram(vertex_shader, fragment_shader, validate=False)
+            self.program = shaders.compileProgram(
+                vertex_shader, fragment_shader, validate=False
+            )
 
         return self.program
 
@@ -401,7 +411,9 @@ class Shader:
         glUseProgram(0)
         glDisable(GL_PROGRAM_POINT_SIZE)
 
-    def set_matrix4x4_np(self, variable: str, value: np.ndarray, transpose: bool = False) -> bool:
+    def set_matrix4x4_np(
+        self, variable: str, value: np.ndarray, transpose: bool = False
+    ) -> bool:
         """Set 4x4 Matrix data in the shader as Numpy Array
 
         Keyword arguments:
@@ -435,7 +447,9 @@ class Shader:
         self._stack[variable] = location
         return location
 
-    def set_matrix4x4(self, variable: str, value: Matrix, transpose: bool = False) -> None:
+    def set_matrix4x4(
+        self, variable: str, value: Matrix, transpose: bool = False
+    ) -> None:
         """Set 4x4 Matrix data in the shader
 
         Keyword arguments:
@@ -445,7 +459,9 @@ class Shader:
         """
         self.set_matrix4x4_np(variable, np.array(value, np.float32), transpose)
 
-    def set_vector3_array_np(self, variable: str, value: np.ndarray, count: int) -> bool:
+    def set_vector3_array_np(
+        self, variable: str, value: np.ndarray, count: int
+    ) -> bool:
         """Set the given vectors as value in the shader
 
         Keyword arguments:

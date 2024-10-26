@@ -59,7 +59,9 @@ class Light:
         """Return the shadow casting cubemap projection matrices for the light"""
         if len(self._shadow_matrices) > 0:
             return self._shadow_matrices
-        self._shadow_matrices = cubemap_projection_matrices(self.position, self._shadow_far_plane)
+        self._shadow_matrices = cubemap_projection_matrices(
+            self.position, self._shadow_far_plane
+        )
         return self._shadow_matrices
 
     @property
