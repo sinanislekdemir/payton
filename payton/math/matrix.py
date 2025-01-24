@@ -88,4 +88,4 @@ def matrix_to_position_and_quaternion(
 
     quaternion = (x, y, z, w)
 
-    return position.tolist(), quaternion
+    return position.tolist(), quaternion  # type: ignore

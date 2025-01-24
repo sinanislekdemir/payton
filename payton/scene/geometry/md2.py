@@ -10,17 +10,7 @@ import os
 import struct
 import time
 from copy import deepcopy
-from typing import (
-    Any,
-    BinaryIO,
-    Dict,
-    Generator,
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    cast,
-)
+from typing import Any, BinaryIO, Dict, Generator, List, NamedTuple, Optional, Tuple, cast
 
 import numpy as np
 
@@ -453,7 +443,7 @@ class MD2(Mesh):
         tcs = np.array(_read_block(f, "< 2h", self.header.num_st), dtype=np.float64)
         tcs.shape = (-1, 2)
         tcs /= [float(self.header.skin_width), float(self.header.skin_height)]
-        self._texcoords = tcs.tolist()
+        self._texcoords = cast(list[list[float]], tcs.tolist())
 
     def load_frames(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_frames, os.SEEK_SET)

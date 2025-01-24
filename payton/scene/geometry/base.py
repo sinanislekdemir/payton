@@ -49,21 +49,9 @@ from payton.math.functions import (
     vector_transform,
 )
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import (
-    IDENTITY_MATRIX,
-    Matrix,
-    matrix_to_position_and_quaternion,
-)
+from payton.math.matrix import IDENTITY_MATRIX, Matrix, matrix_to_position_and_quaternion
 from payton.math.vector import Vector2D, Vector3D
-from payton.scene.material import (
-    DEFAULT,
-    NO_INDICE,
-    NO_VERTEX_ARRAY,
-    POINTS,
-    SOLID,
-    WIREFRAME,
-    Material,
-)
+from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.scene.types import IList, VList
 
@@ -277,7 +265,7 @@ class Object:
         rot_matrix = create_rotation_matrix([0, 0, 1], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
-        self.matrix = local_matrix.tolist()
+        self.matrix = cast(list[list[float]], local_matrix.tolist())
         self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
@@ -290,7 +278,7 @@ class Object:
         rot_matrix = create_rotation_matrix([1, 0, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
-        self.matrix = local_matrix.tolist()
+        self.matrix = cast(list[list[float]], local_matrix.tolist())
         self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
@@ -303,7 +291,7 @@ class Object:
         rot_matrix = create_rotation_matrix([0, 1, 0], angle)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = rot_matrix.dot(local_matrix)
-        self.matrix = local_matrix.tolist()
+        self.matrix = cast(list[list[float]], local_matrix.tolist())
         self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
@@ -321,7 +309,7 @@ class Object:
         sm = scale_matrix(x, y, z)
         local_matrix = np.array(self.matrix, dtype=np.float32)
         local_matrix = sm.dot(local_matrix)
-        self.matrix = local_matrix.tolist()
+        self.matrix = cast(list[list[float]], local_matrix.tolist())
         self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
@@ -884,7 +872,7 @@ class Object:
             glBindVertexArray(0)
             glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-        self._total_indices = total_indices.tolist()
+        self._total_indices = cast(list[int], total_indices.tolist())
         self._needs_update = False
         self._build_collision_shape()
         return True

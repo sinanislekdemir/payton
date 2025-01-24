@@ -11,7 +11,7 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 import numpy as np
 import sdl2
@@ -319,7 +319,7 @@ class Scene(Receiver):
             if hit is None:
                 continue
             _hit = hit.tolist()
-            click_plane[2](_hit[:3])
+            click_plane[2](cast(list[float], _hit[:3]))
 
     def _render_3d_scene(
         self, shadow_round: bool = False, shader: str = DEFAULT_SHADER
@@ -624,7 +624,7 @@ class Scene(Receiver):
                 ip_np, _ = raycast_triangle_intersect(start, direction, p1, p2, p3)
                 if ip_np is None:
                     continue
-                ip = ip_np.tolist()
+                ip = cast(list[float], ip_np.tolist())
                 dist = distance_native(ip, start)
                 if dist_best == -1.0 or dist < dist_best:
                     dist_best = dist
