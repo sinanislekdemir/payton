@@ -1,0 +1,85 @@
+name: "Ollama"
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [master]
+
+
+jobs:
+  analyze:
+    name: Ollama review test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        # We must fetch at least the immediate parents so that if this is
+        # a pull request then we can checkout the head.
+        fetch-depth: 0
+
+    - name: Install Ollama
+      run: |
+        curl -fsSL https://ollama.com/install.sh | bash
+        sudo systemctl enable ollama
+        sudo systemctl start ollama
+        ollama pull codegemma
+      shell: bash
+
+    - name: Get modified files
+      id: get-modified-files
+      uses: tj-actions/changed-files@v45
+
+    - name: Review modified files
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
+          # Debug: Print the file being processed
+          echo "Processing file: $file"
+
+          # Read the file content and escape it for JSON
+          file_content=$(cat "$file" | jq -Rs .)
+          
+          # Debug: Print the file content
+          echo "File content: $file_content"
+
+          # Send the file content to Ollama for review
+          payload=$(jq -n --arg model "codegemma" --arg prompt "Review the following file:\n\n\`\`\`\n$file_content\n\`\`\`" '{
+            model: $model,
+            prompt: $prompt,
+            stream: false
+          }')
+
+          # Debug: Print the payload being sent
+          echo "Payload: $payload"
+
+          # Make the request to Ollama
+          response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
+
+          # Debug: Print the raw response from Ollama
+          echo "Raw response: $response"
+
+          # Extract the review from the response
+          modified_file_review=$(echo "$response" | jq -r '.response')
+
+          # Debug: Print the extracted review
+          echo "Extracted review: $modified_file_review"
+
+          # Format the review comment with proper newlines
+          file_comment=$(printf "Ollama Code Review for \`%s\`:\n\n%s" "$file" "$modified_file_review")
+          
+          # Append the review to the output file
+          echo "$file_comment" >> ollama_review.txt
+        done
+
+        # Post the review as a comment on the pull request
+        if [[ -f ollama_review.txt ]]; then
+          gh pr comment ${{ github.event.pull_request.number }} --body "$(cat ollama_review.txt)"
+        else
+          echo "No files were modified or no review was generated."
+        fi
+      shell: bash
