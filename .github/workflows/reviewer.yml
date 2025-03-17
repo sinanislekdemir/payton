@@ -20,7 +20,7 @@ jobs:
         curl -fsSL https://ollama.com/install.sh | bash
         sudo systemctl enable ollama
         sudo systemctl start ollama
-        ollama pull codellama
+        ollama pull codegemma
       shell: bash
 
     - name: Get modified files
@@ -54,7 +54,7 @@ jobs:
           file_diff_escaped=$(echo "$file_diff" | jq -Rs .)
 
           # Send the diff to Ollama for review
-          payload=$(jq -n --arg model "codellama" --arg prompt "Review the following git diff. Check for potential security issues, bugs, typos and possible improvements. Keep your comments concise. Diff:\n\n\`\`\`\n$file_diff_escaped\n\`\`\`" '{
+          payload=$(jq -n --arg model "codegemma" --arg prompt "Review the following git diff. Check for potential security issues, bugs, typos and possible improvements. Keep your comments concise.:\n\n\`\`\`\n$file_diff_escaped\n\`\`\`" '{
             model: $model,
             prompt: $prompt,
             stream: false
