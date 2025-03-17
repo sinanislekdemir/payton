@@ -24,6 +24,8 @@ jobs:
     - name: Install Ollama
       run: |
         curl -fsSL https://ollama.com/install.sh | bash
+        systemctl enable ollama
+        systemctl start ollama
         ollama pull codegemma
       shell: bash
 
