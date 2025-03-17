@@ -23,69 +23,68 @@ jobs:
         ollama pull qwen2.5-coder:3b
       shell: bash
 
-    - name: Get modified files
-      id: get-modified-files
-      uses: tj-actions/changed-files@v45
-
-    - name: Review modified files (individual diffs, combined comment)
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+    - name: Get all changes (git diff master)
+      id: get-changes
       run: |
         # Fetch the latest changes from the master branch
         git fetch origin master
 
-        # Initialize a variable to store the combined review
-        combined_review="Ollama Code Review for the entire PR:\n\n"
+        # Get the full git diff between the current branch and master
+        git_diff=$(git diff origin/master)
 
-        # Loop through all modified files
-        for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-          # Debug: Print the file being processed
-          echo "Processing file: $file"
+        # Debug: Print the git diff
+        echo "Git diff:\n$git_diff"
 
-          # Get the git diff for the file (changes compared to master)
-          file_diff=$(git diff origin/master -- "$file")
+        # Truncate the git diff to fit within the model's context window (16k tokens)
+        # Assuming ~4 characters per token, we limit the diff to ~64k characters
+        max_diff_length=128000
+        if [[ ${#git_diff} -gt $max_diff_length ]]; then
+          echo "Git diff is too large. Truncating to fit within the model's context window."
+          git_diff="${git_diff:0:$max_diff_length}"
+        fi
 
-          # Skip if there are no changes
-          if [[ -z "$file_diff" ]]; then
-            echo "No changes detected in $file. Skipping."
-            continue
-          fi
+        # Escape the git diff for JSON
+        git_diff_escaped=$(echo "$git_diff" | jq -Rs .)
 
-          # Escape the file diff for JSON
-          file_diff_escaped=$(echo "$file_diff" | jq -Rs .)
+        # Save the escaped diff as an output for the next step
+        echo "git_diff_escaped=$git_diff_escaped" >> $GITHUB_OUTPUT
+      shell: bash
 
-          # Send the file diff to Ollama for review
-          payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the file '$file'. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n\`\`\`\n$file_diff_escaped\n\`\`\`" '{
-            model: $model,
-            prompt: $prompt,
-            stream: false
-          }')
+    - name: Review all changes (single request)
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        # Load the escaped git diff from the previous step
+        git_diff_escaped=${{ steps.get-changes.outputs.git_diff_escaped }}
 
-          # Debug: Print the payload being sent
-          echo "Payload: $payload"
-
-          # Make the request to Ollama
-          response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
-
-          # Debug: Print the raw response from Ollama
-          echo "Raw response: $response"
-
-          # Extract the review from the response
-          file_review=$(echo "$response" | jq -r '.response')
-
-          # Debug: Print the extracted review
-          echo "Extracted review: $file_review"
-
-          # Append the file review to the combined review
-          combined_review+="Review for $file:\n\n$file_review\n\n"
-        done
-
-        # Skip if no reviews were generated
-        if [[ "$combined_review" == "Ollama Code Review for the entire PR:\n\n" ]]; then
-          echo "No reviews were generated. Skipping comment."
+        # Skip if there are no changes
+        if [[ -z "$git_diff_escaped" || "$git_diff_escaped" == '""' ]]; then
+          echo "No changes detected. Skipping review."
           exit 0
         fi
 
-        # Post the combined review as a comment on the pull request
-        gh pr comment ${{ github.event.pull_request.number }} --body "$combined_review"
+        # Send the entire git diff to Ollama for review
+        payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the entire pull request. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n\`\`\`\n$git_diff_escaped\n\`\`\`" '{
+          model: $model,
+          prompt: $prompt,
+          stream: false
+        }')
+
+        # Debug: Print the payload being sent
+        echo "Payload: $payload"
+
+        # Make the request to Ollama
+        response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
+
+        # Debug: Print the raw response from Ollama
+        echo "Raw response: $response"
+
+        # Extract the review from the response
+        pr_review=$(echo "$response" | jq -r '.response')
+
+        # Debug: Print the extracted review
+        echo "Extracted review: $pr_review"
+
+        # Post the review as a comment on the pull request
+        gh pr comment ${{ github.event.pull_request.number }} --body "Ollama Code Review for the entire PR:\n\n$pr_review"
       shell: bash
