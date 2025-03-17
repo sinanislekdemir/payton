@@ -35,14 +35,6 @@ jobs:
         # Debug: Print the git diff
         echo "Git diff:\n$git_diff"
 
-        # Truncate the git diff to fit within the model's context window (16k tokens)
-        # Assuming ~4 characters per token, we limit the diff to ~64k characters
-        max_diff_length=128000
-        if [[ ${#git_diff} -gt $max_diff_length ]]; then
-          echo "Git diff is too large. Truncating to fit within the model's context window."
-          git_diff="${git_diff:0:$max_diff_length}"
-        fi
-
         # Escape the git diff for JSON
         git_diff_escaped=$(echo "$git_diff" | jq -Rs .)
 
@@ -64,7 +56,7 @@ jobs:
         fi
 
         # Send the entire git diff to Ollama for review
-        payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the entire pull request. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n\`\`\`\n$git_diff_escaped\n\`\`\`" '{
+        payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the entire pull request. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n$git_diff_escaped" '{
           model: $model,
           prompt: $prompt,
           stream: false
