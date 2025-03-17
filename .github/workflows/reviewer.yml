@@ -10,82 +10,82 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0  # Fetch full history to allow diffing
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Fetch full history to allow diffing
 
-    - name: Install Ollama
-      run: |
-        curl -fsSL https://ollama.com/install.sh | bash
-        sudo systemctl enable ollama
-        sudo systemctl start ollama
-        ollama pull qwen2.5-coder:3b
-      shell: bash
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | bash
+          sudo systemctl enable ollama
+          sudo systemctl start ollama
+          ollama pull qwen2.5-coder:3b
+        shell: bash
 
-    - name: Get modified files
-      id: get-modified-files
-      uses: tj-actions/changed-files@v45
+      - name: Get modified files
+        id: get-modified-files
+        uses: tj-actions/changed-files@v45
 
-    - name: Review modified files (individual diffs, combined comment)
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: |
-        # Fetch the latest changes from the master branch
-        git fetch origin master
+      - name: Review modified files (individual diffs, combined comment)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          # Fetch the latest changes from the master branch
+          git fetch origin master
 
-        # Initialize a variable to store the combined review
-        combined_review="Ollama Code Review for the entire PR:\n\n"
+          # Initialize a variable to store the combined review
+          combined_review="Ollama Code Review for the entire PR:\n\n"
 
-        # Loop through all modified files
-        for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-          # Debug: Print the file being processed
-          echo "Processing file: $file"
+          # Loop through all modified files
+          for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
+            # Debug: Print the file being processed
+            echo "Processing file: $file"
 
-          # Get the git diff for the file (changes compared to master)
-          file_diff=$(git diff origin/master -- "$file")
+            # Get the git diff for the file (changes compared to master)
+            file_diff=$(git diff origin/master -- "$file")
 
-          # Skip if there are no changes
-          if [[ -z "$file_diff" ]]; then
-            echo "No changes detected in $file. Skipping."
-            continue
+            # Skip if there are no changes
+            if [[ -z "$file_diff" ]]; then
+              echo "No changes detected in $file. Skipping."
+              continue
+            fi
+
+            # Escape the file diff for JSON
+            file_diff_escaped=$(echo "$file_diff" | jq -Rs .)
+
+            # Send the file diff to Ollama for review
+            payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the file '$file'. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n\`\`\`\n$file_diff_escaped\n\`\`\`" '{
+              model: $model,
+              prompt: $prompt,
+              stream: false
+            }')
+
+            # Debug: Print the payload being sent
+            echo "Payload: $payload"
+
+            # Make the request to Ollama
+            response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
+
+            # Debug: Print the raw response from Ollama
+            echo "Raw response: $response"
+
+            # Extract the review from the response
+            file_review=$(echo "$response" | jq -r '.response')
+
+            # Debug: Print the extracted review
+            echo "Extracted review: $file_review"
+
+            # Append the file review to the combined review
+            combined_review+="Review for $file:\n\n$file_review\n\n"
+          done
+
+          # Skip if no reviews were generated
+          if [[ "$combined_review" == "Ollama Code Review for the entire PR:\n\n" ]]; then
+            echo "No reviews were generated. Skipping comment."
+            exit 0
           fi
 
-          # Escape the file diff for JSON
-          file_diff_escaped=$(echo "$file_diff" | jq -Rs .)
-
-          # Send the file diff to Ollama for review
-          payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the file '$file'. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n\`\`\`\n$file_diff_escaped\n\`\`\`" '{
-            model: $model,
-            prompt: $prompt,
-            stream: false
-          }')
-
-          # Debug: Print the payload being sent
-          echo "Payload: $payload"
-
-          # Make the request to Ollama
-          response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
-
-          # Debug: Print the raw response from Ollama
-          echo "Raw response: $response"
-
-          # Extract the review from the response
-          file_review=$(echo "$response" | jq -r '.response')
-
-          # Debug: Print the extracted review
-          echo "Extracted review: $file_review"
-
-          # Append the file review to the combined review
-          combined_review+="Review for $file:\n\n$file_review\n\n"
-        done
-
-        # Skip if no reviews were generated
-        if [[ "$combined_review" == "Ollama Code Review for the entire PR:\n\n" ]]; then
-          echo "No reviews were generated. Skipping comment."
-          exit 0
-        fi
-
-        # Post the combined review as a comment on the pull request
-        gh pr comment ${{ github.event.pull_request.number }} --body "$combined_review"
-      shell: bash
+          # Post the combined review as a comment on the pull request
+          echo -e "$combined_review" | gh pr comment ${{ github.event.pull_request.number }} --body-file -
+        shell: bash
