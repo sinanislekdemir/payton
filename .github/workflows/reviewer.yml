@@ -24,7 +24,7 @@ jobs:
     - name: Install Ollama
       run: |
         curl -fsSL https://ollama.com/install.sh | bash
-        ollama pull ${{ inputs.llm-model }}
+        ollama pull codegemma
       shell: bash
 
     - name: Get modified files
