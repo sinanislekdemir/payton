@@ -10,7 +10,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze
+    name: Ollama review test
     runs-on: ubuntu-latest
 
     steps:
