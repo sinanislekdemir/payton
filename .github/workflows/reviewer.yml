@@ -23,7 +23,9 @@ jobs:
         ollama pull qwen2.5-coder:3b
       shell: bash
 
-    - name: Get full PR diff
+    - name: Get full PR diff and review
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Fetch the latest changes from master
         git fetch origin master
@@ -41,13 +43,9 @@ jobs:
         full_diff_escaped=$(echo "$full_diff" | jq -Rs .)
 
         # Create the payload for Ollama
-        payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the entire PR. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):
-
-\`\`\`
-$full_diff_escaped
-\`\`\`" '{
+        payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the entire PR. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):" --arg diff "$full_diff_escaped" '{
           model: $model,
-          prompt: $prompt,
+          prompt: ($prompt + "\n\n" + $diff),
           stream: false
         }')
 
