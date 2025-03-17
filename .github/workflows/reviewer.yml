@@ -1,0 +1,45 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [master]
+
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        # We must fetch at least the immediate parents so that if this is
+        # a pull request then we can checkout the head.
+        fetch-depth: 0
+
+    - name: Install Ollama
+      run: |
+        curl -fsSL https://ollama.com/install.sh | bash
+        ollama pull ${{ inputs.llm-model }}
+      shell: bash
+
+    - name: Get modified files
+      id: get-modified-files
+      use: tj-actions/changed-files@v43
+
+    - name: Review modified files
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
+          modified_file_review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "${{ inputs.llm-model }}", "prompt": "Review the following file:\n\n```\n$(cat $file)\n```", "stream": false}' | jq -r '.response')
+          file_comment="Ollama Code Review for \`$file\`:\n\n$modified_file_review"
+          echo "$file_comment" >> ollama_review.txt
+        done
+
+        gh pr comment ${{ github.event.pull_request.number }} --body "$(cat ollama_review.txt)"
+      shell: bash
