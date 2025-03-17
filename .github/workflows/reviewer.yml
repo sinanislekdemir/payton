@@ -37,18 +37,38 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
-
         for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
+          # Debug: Print the file being processed
+          echo "Processing file: $file"
+
           # Read the file content and escape it for JSON
           file_content=$(cat "$file" | jq -Rs .)
           
+          # Debug: Print the file content
+          echo "File content: $file_content"
+
           # Send the file content to Ollama for review
-          modified_file_review=$(curl -s http://127.0.0.1:11434/api/generate -d '{
-            "model": "codegemma",
-            "prompt": "Review the following file:\n\n```\n'"$file_content"'\n```",
-            "stream": false
-          }' | jq -r '.response')
-          
+          payload=$(jq -n --arg model "codegemma" --arg prompt "Review the following file:\n\n\`\`\`\n$file_content\n\`\`\`" '{
+            model: $model,
+            prompt: $prompt,
+            stream: false
+          }')
+
+          # Debug: Print the payload being sent
+          echo "Payload: $payload"
+
+          # Make the request to Ollama
+          response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
+
+          # Debug: Print the raw response from Ollama
+          echo "Raw response: $response"
+
+          # Extract the review from the response
+          modified_file_review=$(echo "$response" | jq -r '.response')
+
+          # Debug: Print the extracted review
+          echo "Extracted review: $modified_file_review"
+
           # Format the review comment
           file_comment="Ollama Code Review for \`$file\`:\n\n$modified_file_review"
           
