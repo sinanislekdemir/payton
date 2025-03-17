@@ -57,11 +57,7 @@ jobs:
 
         # Construct the payload using a temporary file to avoid syntax issues
         payload_file=$(mktemp)
-        jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the entire pull request. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n$git_diff_escaped" '{
-          model: $model,
-          prompt: $prompt,
-          stream: false
-        }' > "$payload_file"
+        echo "$git_diff_escaped" | jq -R '{model: "qwen2.5-coder:3b", prompt: ("Review the following git diff for the entire pull request. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n" + .), stream: false}' > "$payload_file"
 
         # Debug: Print the payload being sent
         echo "Payload: $(cat "$payload_file")"
