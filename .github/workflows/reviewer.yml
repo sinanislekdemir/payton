@@ -27,13 +27,17 @@ jobs:
       id: get-modified-files
       uses: tj-actions/changed-files@v45
 
-    - name: Review modified files (git diff)
+    - name: Review modified files (combined git diff)
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
         # Fetch the latest changes from the master branch
         git fetch origin master
 
+        # Initialize a variable to store the combined diff
+        combined_diff=""
+
+        # Loop through all modified files
         for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
           # Debug: Print the file being processed
           echo "Processing file: $file"
@@ -41,51 +45,54 @@ jobs:
           # Get the git diff for the file (changes compared to master)
           file_diff=$(git diff origin/master -- "$file")
 
-          # Debug: Print the file diff
-          echo "File diff: $file_diff"
-
           # Skip if there are no changes
           if [[ -z "$file_diff" ]]; then
-            echo "No changes detected in $file. Skipping review."
+            echo "No changes detected in $file. Skipping."
             continue
           fi
 
-          # Escape the diff for JSON
-          file_diff_escaped=$(echo "$file_diff" | jq -Rs .)
-
-          # Send the diff to Ollama for review
-          payload=$(jq -n --arg model "codegemma" --arg prompt "Review the following git diff. Check for potential security issues, bugs, typos and possible improvements. Keep your comments concise.:\n\n\`\`\`\n$file_diff_escaped\n\`\`\`" '{
-            model: $model,
-            prompt: $prompt,
-            stream: false
-          }')
-
-          # Debug: Print the payload being sent
-          echo "Payload: $payload"
-
-          # Make the request to Ollama
-          response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
-
-          # Debug: Print the raw response from Ollama
-          echo "Raw response: $response"
-
-          # Extract the review from the response
-          modified_file_review=$(echo "$response" | jq -r '.response')
-
-          # Debug: Print the extracted review
-          echo "Extracted review: $modified_file_review"
-
-          # Format the review comment with proper newlines
-          file_comment=$(printf "Ollama Code Review for \`%s\`:\n\n%s" "$file" "$modified_file_review")
-          
-          # Append the review to the output file
-          echo "$file_comment" >> ollama_review.txt
+          # Append the file diff to the combined diff
+          combined_diff+="Changes in file: $file\n\n"
+          combined_diff+="$file_diff\n\n"
         done
 
-        # Post the review as a comment on the pull request
-        if [[ -f ollama_review.txt ]]; then
-          gh pr comment ${{ github.event.pull_request.number }} --body "$(cat ollama_review.txt)"
-        else
-          echo "No files were modified or no review was generated."
+        # Debug: Print the combined diff
+        echo "Combined diff for all files:\n$combined_diff"
+
+        # Skip if no changes were detected in any file
+        if [[ -z "$combined_diff" ]]; then
+          echo "No changes detected in any file. Skipping review."
+          exit 0
         fi
+
+        # Escape the combined diff for JSON
+        combined_diff_escaped=$(echo "$combined_diff" | jq -Rs .)
+
+        # Send the combined diff to Ollama for review
+        payload=$(jq -n --arg model "codegemma" --arg prompt "Review the following git diff for the entire pull request. Check for potential security issues, bugs, typos, and possible improvements. Keep your comments concise:\n\n\`\`\`\n$combined_diff_escaped\n\`\`\`" '{
+          model: $model,
+          prompt: $prompt,
+          stream: false
+        }')
+
+        # Debug: Print the payload being sent
+        echo "Payload: $payload"
+
+        # Make the request to Ollama
+        response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
+
+        # Debug: Print the raw response from Ollama
+        echo "Raw response: $response"
+
+        # Extract the review from the response
+        pr_review=$(echo "$response" | jq -r '.response')
+
+        # Debug: Print the extracted review
+        echo "Extracted review: $pr_review"
+
+        # Format the review comment with proper newlines
+        pr_comment=$(printf "Ollama Code Review for the entire PR:\n\n%s" "$pr_review")
+
+        # Post the review as a comment on the pull request
+        gh pr comment ${{ github.event.pull_request.number }} --body "$pr_comment"
       shell: bash
