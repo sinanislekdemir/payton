@@ -22,12 +22,14 @@ def new_cube():
 
 
 def print_fps(period, total):
-    scene.huds["interface"].children["main_window"].children["fps_text"].label = f"FPS: {scene.fps}"
+    scene.huds["interface"].children["main_window"].children[
+        "fps_text"
+    ].label = f"FPS: {scene.fps}"
 
 
 def set_size(val: str):
     global w, d, h
-    parts = val.split(',')
+    parts = val.split(",")
     if len(parts) != 3:
         print("Invalid format given")
     try:
@@ -49,12 +51,16 @@ main_window = Window(
     align=WindowAlignment.LEFT,
     theme=theme,
 )
-create_cube = Button("Create New Cube", width=200, height=30, left=10, top=40, on_click=new_cube)
-cube_size = EditBox("1, 1, 1", width=200, height=30, left=10, top=80, on_change=set_size)
+create_cube = Button(
+    "Create New Cube", width=200, height=30, left=10, top=40, on_click=new_cube
+)
+cube_size = EditBox(
+    "1, 1, 1", width=200, height=30, left=10, top=80, on_change=set_size
+)
 fps_text = Button("Hit Space for FPS", width=200, height=30, left=10, top=120)
 
 free_text = EditBox(
-    "Choice is an illusion created between those with power and those without.",
+    "The nine-to-five is one of the greatest atrocities sprung upon mankind. You give your life away to a function that doesn’t interest you.",
     width=200,
     height=200,
     left=10,

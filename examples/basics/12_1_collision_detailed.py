@@ -52,7 +52,9 @@ scene = Scene(width=600, height=600)
 spherical_collision = CollisionTest(callback=hit_sphere, level=CollisionTest.SPHERICAL)
 aabb_collision = CollisionTest(callback=hit_aabb, level=CollisionTest.AABB)
 
-car_object_file = os.path.join(os.path.dirname(__file__), "lib", "Low-Poly-Racing-Car.obj")
+car_object_file = os.path.join(
+    os.path.dirname(__file__), "lib", "Low-Poly-Racing-Car.obj"
+)
 
 spherical_car_1 = Wavefront(filename=car_object_file)
 spherical_car_2 = Wavefront(filename=car_object_file)

@@ -23,7 +23,7 @@ class Server:
     def __init__(self):
         super().__init__()
         self.socket = socket.socket()
-        self.socket.bind(('0.0.0.0', 6000))
+        self.socket.bind(("0.0.0.0", 6000))
         self.socket.listen(5)
         self.clients = []
 

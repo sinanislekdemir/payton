@@ -17,7 +17,9 @@ class ParticleDemo(Scene):
 
         self.add_object(
             "info",
-            info_box(left=10, top=10, label="Hit SPACE to start animation\n10000 Particles"),
+            info_box(
+                left=10, top=10, label="Hit SPACE to start animation\n10000 Particles"
+            ),
         )
         hud = Hud()
         text = Text(
@@ -38,7 +40,9 @@ class ParticleDemo(Scene):
             angle = math.radians(random.randint(0, 9000) / 100.0)
             orientation = math.radians(random.randint(0, 3600) / 10.0)
             velocity = float(random.randint(100, 200) / 10.0)
-            self.ps.add([0, 0, 0.2], angle=angle, velocity=velocity, orientation=orientation)
+            self.ps.add(
+                [0, 0, 0.2], angle=angle, velocity=velocity, orientation=orientation
+            )
 
     def show_fps(self, period, total):
         self.huds["hud"].children["text"].label = f"FPS: {self.fps}"
@@ -52,7 +56,9 @@ class ParticleDemo(Scene):
             ys = math.sin(self.ps.meta[i]["orientation"])
             angle = self.ps.meta[i]["angle"]
             dist = -(self.ps.meta[i]["velocity"] * total * math.cos(angle))
-            height = self.ps.meta[i]["velocity"] * total * math.sin(angle) - 0.5 * GRAVITY * (total**2)
+            height = self.ps.meta[i]["velocity"] * total * math.sin(
+                angle
+            ) - 0.5 * GRAVITY * (total**2)
 
             position[0] = dist * xs
             position[1] = dist * ys
