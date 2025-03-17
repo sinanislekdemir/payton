@@ -19,7 +19,9 @@ scene.add_object("wall", wall)
 
 roof_base = Line(vertices=[[-1, -1, 4], [6, -1, 4], [6, 3, 4], [-1, 3, 4], [-1, -1, 4]])
 
-roof_top = Line(vertices=[[2, 0.999, 7], [3, 0.999, 7], [3, 1.001, 7], [2, 1.001, 7], [2, 0.999, 7]])
+roof_top = Line(
+    vertices=[[2, 0.999, 7], [3, 0.999, 7], [3, 1.001, 7], [2, 1.001, 7], [2, 0.999, 7]]
+)
 
 roof = lines_to_mesh([roof_base, roof_top])
 roof.material.texture = texture_file

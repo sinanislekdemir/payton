@@ -10,7 +10,7 @@ from payton.scene.geometry import Cube
 logger = logging.getLogger(__name__)
 
 
-host = 'localhost'
+host = "localhost"
 
 
 class App(Scene):
@@ -30,8 +30,8 @@ class App(Scene):
     def listen(self, period, total):
         print("waiting")
         data = self._socket.recv(63)
-        data_str = data.decode('utf-8')
-        parts = data_str.split('|')
+        data_str = data.decode("utf-8")
+        parts = data_str.split("|")
         if parts[0] == self._id:
             return
         client_id = parts[0]
@@ -57,10 +57,14 @@ class App(Scene):
         self._add_on_existing = False
 
     def publish_action(self, location):
-        converted = ["%08.2f" % location[0], "%08.2f" % location[1], "%08.2f" % location[2]]
+        converted = [
+            "%08.2f" % location[0],
+            "%08.2f" % location[1],
+            "%08.2f" % location[2],
+        ]
         data = f"{self._id}|{converted[0]}|{converted[1]}|{converted[2]}"
-        print(len(data.encode('utf-8')))
-        result = self._socket.send(data.encode('utf-8'))
+        print(len(data.encode("utf-8")))
+        result = self._socket.send(data.encode("utf-8"))
         if result > 0:
             logger.debug(f"Result came back: {result}")
 

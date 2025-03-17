@@ -14,7 +14,10 @@ class App(Scene):
         """Select object and show info box."""
         pos = obj_list[0].matrix[3]
         screen_coordinates = self.active_camera.world_to_screen(pos)
-        self.add_object("ObjectInfo", object_box(screen_coordinates[0], screen_coordinates[1], obj_list[0]))
+        self.add_object(
+            "ObjectInfo",
+            object_box(screen_coordinates[0], screen_coordinates[1], obj_list[0]),
+        )
 
 
 app = App()

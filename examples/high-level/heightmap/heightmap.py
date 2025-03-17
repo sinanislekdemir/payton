@@ -24,7 +24,9 @@ parser = argparse.ArgumentParser(
 # Let's define our CLI arguments
 parser.add_argument("--file", default="", help="Input filename", required=True)
 parser.add_argument("--output", default="out.png", help="Output image filename")
-parser.add_argument("--width", default="256", help="Image width, height will be calculated dynamically")
+parser.add_argument(
+    "--width", default="256", help="Image width, height will be calculated dynamically"
+)
 
 # Parse the incoming arguments
 args = parser.parse_args()
@@ -104,7 +106,11 @@ def intersection(face, pos):
 def get_pixel(position):
     x = position[0]
     y = position[1]
-    pos = [start_position[0] + (x * x_step), start_position[1] + (y * y_step), start_position[2]]
+    pos = [
+        start_position[0] + (x * x_step),
+        start_position[1] + (y * y_step),
+        start_position[2],
+    ]
     total_results = [intersection(face, pos) for face in wavefront_obj._indices]
     maxt = max(total_results)
     return (int((maxt - min_z) * scale_z) if maxt != -1000 else 0, position)
@@ -118,7 +124,7 @@ with concurrent.futures.ProcessPoolExecutor(max_workers=12) as executor:
     futures = [executor.submit(get_pixel, position) for position in pixels]
     for future in concurrent.futures.as_completed(futures):
         image_data.append(future.result())
-        progress(len(image_data), len(pixels), 'Collecting...')
+        progress(len(image_data), len(pixels), "Collecting...")
 
 for item in image_data:
     img.putpixel(item[1], (item[0], item[0], item[0]))
