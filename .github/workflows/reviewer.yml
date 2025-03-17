@@ -54,8 +54,8 @@ jobs:
             # Escape the file diff for JSON
             file_diff_escaped=$(echo "$file_diff" | jq -Rs .)
 
-            # Send the file diff to Ollama for review
-            payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the file '$file'. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n\`\`\`\n$file_diff_escaped\n\`\`\`" '{
+            # Send the file diff to Ollama for review with the optimized prompt
+            payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the file '$file'. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting). Use concise bullet points or short sentences (1-2 sentences max per point). Do not provide examples or lengthy explanations. Focus only on critical issues and actionable suggestions:\n\n$file_diff_escaped" '{
               model: $model,
               prompt: $prompt,
               stream: false
@@ -77,7 +77,7 @@ jobs:
             echo "Extracted review: $file_review"
 
             # Append the file review to the combined review
-            combined_review+="Review for $file:\n\n$file_review\n\n"
+            combined_review+="## Review for $file:\n$file_review\n\n"
           done
 
           # Skip if no reviews were generated
