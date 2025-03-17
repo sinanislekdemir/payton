@@ -23,53 +23,69 @@ jobs:
         ollama pull qwen2.5-coder:3b
       shell: bash
 
-    - name: Get full PR diff and review
+    - name: Get modified files
+      id: get-modified-files
+      uses: tj-actions/changed-files@v45
+
+    - name: Review modified files (individual diffs, combined comment)
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
       run: |
-        # Fetch the latest changes from master
+        # Fetch the latest changes from the master branch
         git fetch origin master
-        
-        # Get the full diff of the PR
-        full_diff=$(git diff origin/master)
 
-        # Skip if there are no changes
-        if [[ -z "$full_diff" ]]; then
-          echo "No changes detected. Skipping review."
+        # Initialize a variable to store the combined review
+        combined_review="Ollama Code Review for the entire PR:\n\n"
+
+        # Loop through all modified files
+        for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
+          # Debug: Print the file being processed
+          echo "Processing file: $file"
+
+          # Get the git diff for the file (changes compared to master)
+          file_diff=$(git diff origin/master -- "$file")
+
+          # Skip if there are no changes
+          if [[ -z "$file_diff" ]]; then
+            echo "No changes detected in $file. Skipping."
+            continue
+          fi
+
+          # Escape the file diff for JSON
+          file_diff_escaped=$(echo "$file_diff" | jq -Rs .)
+
+          # Send the file diff to Ollama for review
+          payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the file '$file'. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):\n\n\`\`\`\n$file_diff_escaped\n\`\`\`" '{
+            model: $model,
+            prompt: $prompt,
+            stream: false
+          }')
+
+          # Debug: Print the payload being sent
+          echo "Payload: $payload"
+
+          # Make the request to Ollama
+          response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
+
+          # Debug: Print the raw response from Ollama
+          echo "Raw response: $response"
+
+          # Extract the review from the response
+          file_review=$(echo "$response" | jq -r '.response')
+
+          # Debug: Print the extracted review
+          echo "Extracted review: $file_review"
+
+          # Append the file review to the combined review
+          combined_review+="Review for $file:\n\n$file_review\n\n"
+        done
+
+        # Skip if no reviews were generated
+        if [[ "$combined_review" == "Ollama Code Review for the entire PR:\n\n" ]]; then
+          echo "No reviews were generated. Skipping comment."
           exit 0
         fi
 
-        # Escape the diff for JSON
-        full_diff_escaped=$(echo "$full_diff" | jq -Rs .)
-
-        # Create the payload for Ollama
-        payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the entire PR. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting):" --arg diff "$full_diff_escaped" '{
-          model: $model,
-          prompt: ($prompt + "\n\n" + $diff),
-          stream: false
-        }')
-
-        # Debug: Print the payload being sent
-        echo "Payload: $payload"
-
-        # Make the request to Ollama
-        response=$(curl -s http://127.0.0.1:11434/api/generate -d "$payload")
-
-        # Debug: Print the raw response from Ollama
-        echo "Raw response: $response"
-
-        # Extract the review from the response
-        review=$(echo "$response" | jq -r '.response')
-
-        # Debug: Print the extracted review
-        echo "Extracted review: $review"
-
-        # Skip if no review was generated
-        if [[ -z "$review" ]]; then
-          echo "No review generated. Skipping comment."
-          exit 0
-        fi
-
-        # Post the review as a comment on the pull request
-        gh pr comment ${{ github.event.pull_request.number }} --body "$review"
+        # Post the combined review as a comment on the pull request
+        gh pr comment ${{ github.event.pull_request.number }} --body "$combined_review"
       shell: bash
