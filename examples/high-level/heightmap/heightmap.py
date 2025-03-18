@@ -130,5 +130,3 @@ for item in image_data:
     img.putpixel(item[1], (item[0], item[0], item[0]))
 
 img.save(args.output)
-
-breakpoint()

@@ -749,6 +749,10 @@ Payton requires at least OpenGL 3.3 support and above."""
         self.running = True
 
         self._init_runtime()
+        if start_clocks:
+            for clock in self.clocks:
+                self.clocks[clock]._pause = False
+
         while self.running:
             while sdl2.SDL_PollEvent(ctypes.byref(self.event)) != 0:
                 if (

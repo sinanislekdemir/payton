@@ -29,14 +29,6 @@ class RippleApp(Scene):
         self.create_clock("drop", 5, self.drop)
         self.add_object("plane", self.plane)
         self.active_camera.distance_to_target(20)
-        self.add_object(
-            "info",
-            info_box(
-                left=10,
-                top=10,
-                label="Hit SPACE to start animation",
-            ),
-        )
 
     def drop(self, period, total):
         self.water[random.randint(0, self.water_size - 1)][
@@ -110,4 +102,4 @@ class RippleApp(Scene):
 
 
 app = RippleApp(water_size=30, damp=20)
-app.run()
+app.run(start_clocks=True)

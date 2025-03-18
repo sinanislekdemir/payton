@@ -1,3 +1,4 @@
+# qwen2.5-coder:3b
 name: "Ollama"
 
 on:
@@ -20,7 +21,7 @@ jobs:
           curl -fsSL https://ollama.com/install.sh | bash
           sudo systemctl enable ollama
           sudo systemctl start ollama
-          ollama pull qwen2.5-coder:3b
+          ollama pull codegemma
         shell: bash
 
       - name: Get modified files
@@ -55,7 +56,7 @@ jobs:
             file_diff_escaped=$(echo "$file_diff" | jq -Rs .)
 
             # Send the file diff to Ollama for review with the optimized prompt
-            payload=$(jq -n --arg model "qwen2.5-coder:3b" --arg prompt "Review the following git diff for the file '$file'. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting). Use concise bullet points or short sentences (1-2 sentences max per point). Do not provide examples or lengthy explanations. Focus only on critical issues and actionable suggestions:\n\n$file_diff_escaped" '{
+            payload=$(jq -n --arg model "codegemma" --arg prompt "Review the following git diff for the file '$file'. Check for potential security issues, bugs, typos, and possible improvements. Provide your response in plain text format (no Markdown or code formatting). Use concise bullet points or short sentences (1-2 sentences max per point). Do not provide examples or lengthy explanations. Lines starting with (-) are old code. Lines with (+) are new code. This is a git diff. Focus only on critical issues and actionable suggestions:\n\n$file_diff_escaped" '{
               model: $model,
               prompt: $prompt,
               stream: false
