@@ -63,13 +63,4 @@ game.create_clock("move-balloons", 0.02, move_balloons)
 game.on_select = select
 create_balloons()
 
-game.add_object(
-    "info",
-    info_box(
-        left=10,
-        top=10,
-        label="Hit SPACE to start popping!",
-    ),
-)
-
-game.run()
+game.run(start_clocks=True)
