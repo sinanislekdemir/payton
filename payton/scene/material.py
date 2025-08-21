@@ -293,3 +293,9 @@ class Material:
             shader.set_int("lit", 1 if lit else 0)
             if not self.lights:
                 shader.set_int("lit", 0)
+            
+            # Set default PBR material properties if the shader supports them
+            # This ensures compatibility with enhanced shaders
+            shader.set_float("metallic", 0.0)
+            shader.set_float("roughness", 0.5)
+            shader.set_float("ao", 1.0)
