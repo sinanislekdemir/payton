@@ -12,6 +12,8 @@ on:
 jobs:
   analyze:
     name: Analyze
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
 
     strategy:
