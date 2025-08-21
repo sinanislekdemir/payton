@@ -1,12 +1,12 @@
-permissions:
-  contents: read
 name: Payton package
 
 on: [push]
 
 jobs:
   build:
-
+    name: Build and Test
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
