@@ -2,12 +2,7 @@
 
 from typing import List
 
-from payton.math.functions import (
-    add_vectors,
-    create_rotation_matrix_raw,
-    scale_vector,
-    vector_transform,
-)
+from payton.math.functions import add_vectors, create_rotation_matrix_raw, scale_vector, vector_transform
 from payton.math.vector import Vector3D
 from payton.scene.geometry import Line, Mesh
 

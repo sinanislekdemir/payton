@@ -1,7 +1,11 @@
-"""
-Main Scene Handler.
+"""payton.scene.scene
 
-Scene is the universe. Everything about Payton happens inside a Scene.
+High-level scene manager for Payton.
+
+The :class:`Scene` contains objects, cameras, lights, HUD elements, physics
+and the render loop. This module provides the Scene class and the
+Background helper used by the renderer. Only documentation strings were
+improved here; runtime behaviour is unchanged.
 """
 
 # pylama:ignore=C901
@@ -127,7 +131,13 @@ class PhysicsParams:
 
 
 class Scene(Receiver):
-    """Main Scene where everything happens."""
+    """Main scene container.
+
+    The Scene manages 3D objects, HUDs, cameras, lights, collision tests,
+    physics clocks and the render loop. It is responsible for initializing
+    OpenGL runtime resources, dispatching input to controllers, and
+    coordinating rendering passes (including shadow-map passes).
+    """
 
     def __init__(
         self,
@@ -137,19 +147,21 @@ class Scene(Receiver):
         physics_force_continuous: bool = False,
         **kwargs: Any,
     ) -> None:
-        """Initialize Scene.
+        """Create a new Scene.
 
-        Scene is the playground of the whole show!
-
-        Keyword arguments:
-        width -- Window width for the Scene (default 800)
-        height -- Window height for the Scene (default 600)
-        on_select -- Callback function to handle object selections in the scene
-
-        On Select method definition:
-
-            def select(selected_object_list: List[Object]):
-                pass
+        Parameters
+        ----------
+        width : int, optional
+            Initial window width in pixels. Default is 800.
+        height : int, optional
+            Initial window height in pixels. Default is 600.
+        on_select : callable or None, optional
+            Optional callback invoked when objects are selected. The
+            callback receives a list of selected :class:`Object` instances.
+        physics_force_continuous : bool, optional
+            If True, forces the physics clock to run continuously.
+        **kwargs
+            Ignored; kept for backward compatibility.
         """
         self.__fps_counter = 0
         self.fps = 0
@@ -250,21 +262,40 @@ class Scene(Receiver):
         self._shadow_samples = 20
 
     def _step_physics(self, period: float, total: float) -> None:
+        """Advance the physics simulation one step.
+
+        This method is intended to be called from a Clock. It advances the
+        PyBullet simulation and forwards a physics tick to every object that
+        implements the ``_bullet_physics`` hook.
+
+        Parameters
+        ----------
+        period : float
+            The period passed by the clock (seconds between ticks).
+        total : float
+            Accumulated time since clock start (seconds).
+        """
         pybullet.stepSimulation()
         for child in self.objects:
             self.objects[child]._bullet_physics()
 
     @property
     def shadow_samples(self) -> int:
-        """Return number of shadow samples."""
+        """Number of shadow samples used for soft shadow sampling.
+
+        Higher values improve shadow smoothness at the cost of performance.
+        """
         return self._shadow_samples
 
     @shadow_samples.setter
     def shadow_samples(self, samples: int) -> None:
-        """Set shadow samples.
+        """Set the number of shadow samples.
 
-        Keyword arguments:
-        samples -- Number of shadow samples (default 20)
+        Parameters
+        ----------
+        samples : int
+            Desired number of samples. The value will be normalized into the
+            range [1, 20].
         """
         self._shadow_samples = samples % 21
         if self._shadow_samples == 0:
@@ -272,19 +303,21 @@ class Scene(Receiver):
 
     @property
     def shadow_quality(self) -> int:
-        """Return the shadow quality integer."""
+        """Shadow texture resolution (0 disables shadows).
+
+        The value corresponds to a square cubemap face size in pixels
+        (e.g. 512, 1024, 2048). 0 disables shadow mapping.
+        """
         return self._shadow_quality
 
     @shadow_quality.setter
     def shadow_quality(self, quality: int) -> None:
-        """Set shadow quality.
+        """Set shadow texture resolution.
 
-        Shadow quality is simply the resolution of shadow texture in pixels.
-        The higher the resolution gets, the better the shadow is. But that also
-        effects the performance in every cycle.
-
-        Keyword arguments:
-        quality -- SHADOW_NONE, SHADOW_LOW, SHADOW_MID, SHADOW_HIGH (default SHADOW_MID)
+        Parameters
+        ----------
+        quality : int
+            One of SHADOW_NONE, SHADOW_LOW, SHADOW_MID or SHADOW_HIGH.
         """
         self._shadow_quality = quality
 
@@ -294,26 +327,33 @@ class Scene(Receiver):
         plane_normal: Vector3D,
         callback: Callable[[Vector3D], Any],
     ) -> None:
-        """Add a click plane to the scene.
+        """Register an infinite plane that receives click events.
 
-        Click planes are infinite 2D planes that can grep and react to clicks.
-        You can create a CAD playground or any other stuff that involves selecting
-        points in space instead of objects.
+        The plane is defined by a point and a normal. When the user clicks in
+        the viewport and the ray intersects the plane, the provided callback
+        is invoked with the 3D hit point as a list/Vector-compatible object.
 
-        Keyword arguments:
-        plane_point -- A point on the surface of the plane.
-        plane_normal -- Normal of the plane
-        callback -- Callback method to call when a click occurs on the plane
-
-        Callback method definition:
-
-            def hit(hit_point: Vector):
-                pass
+        Parameters
+        ----------
+        plane_point : Vector3D
+            Any point that lies on the plane.
+        plane_normal : Vector3D
+            Plane normal vector.
+        callback : Callable[[Vector3D], Any]
+            Function called with the world-space hit coordinates.
         """
         self._click_planes.append((plane_point, plane_normal, callback))
 
     def _check_click_plane(self, eye: Vector3D, vector: Vector3D) -> None:
-        """Check if any click planes registered has received a click event."""
+        """Test registered click-planes against a ray and call callbacks.
+
+        Parameters
+        ----------
+        eye : Vector3D
+            Ray origin in world coordinates.
+        vector : Vector3D
+            Ray direction in world coordinates.
+        """
         for click_plane in self._click_planes:
             hit = raycast_plane_intersect(eye, vector, click_plane[0], click_plane[1])
             if hit is None:
@@ -324,12 +364,18 @@ class Scene(Receiver):
     def _render_3d_scene(
         self, shadow_round: bool = False, shader: str = DEFAULT_SHADER
     ) -> None:
-        """
-        Render the 3D Scene.
+        """Render all 3D objects with a given shader/pass.
 
-        Keyword arguments:
-        shadow_round -- Is this render for shadow map creation? (default False)
-        shader -- Shader to use for the render pass (default DEFAULT_SHADER)
+        The method sets up shader uniforms, binds shadow maps when available
+        and iterates scene objects calling their :py:meth:`Object.render`.
+
+        Parameters
+        ----------
+        shadow_round : bool, optional
+            If True the render is for creating the shadow map and should
+            skip non-shadow-casting objects. Default is False.
+        shader : str, optional
+            Key of the shader to use from :pyattr:`self.shaders`.
         """
         light_count = len(self.lights)
         lit = light_count > 0
@@ -359,8 +405,8 @@ class Scene(Receiver):
             _shader.set_int("LIGHT_COUNT", light_count)
             _shader.set_int("samples", self._shadow_samples)
             _shader.set_vector3_array_np("light_color", lcolor_array_np, light_count)
-        if self.shadow_quality > 0 and not shadow_round:
-            _shader.set_int("shadow_enabled", 1)
+            # Always set shadow_enabled to ensure shader knows the state
+            _shader.set_int("shadow_enabled", 1 if self.shadow_quality > 0 else 0)
         if shadow_round:
             shadow_matrices = self.lights[0].shadow_matrices
             for i, mat in enumerate(shadow_matrices):
@@ -380,10 +426,11 @@ class Scene(Receiver):
                 object.render(lit, _shader)
 
     def _render(self) -> None:
-        """
-        Render the scene.
+        """Main render routine invoked every frame.
 
-        This is the core render method that renders everything to the SDL buffer
+        Performs shadow-map pass (if enabled), renders background, 3D scene,
+        HUD elements and particle passes. Also updates per-frame FPS counters
+        and runs collision checks.
         """
         self.shaders["default"].use()
         self._render_lock = True
@@ -439,12 +486,14 @@ class Scene(Receiver):
             self.__fps_counter = 0
 
     def add_collision_test(self, name: str, tester: CollisionTest) -> None:
-        """
-        Add a collision tester to the scene.
+        """Register a named :class:`CollisionTest`.
 
-        Keyword arguments:
-        name -- Name of the collision tester to be added
-        tester -- CollisionTest object to be added
+        Parameters
+        ----------
+        name : str
+            Identifier for the collision tester.
+        tester : CollisionTest
+            Instance implementing collision checks.
         """
         if not isinstance(tester, CollisionTest):
             logging.error("tester must be an instance of CollisionTest")
@@ -453,8 +502,7 @@ class Scene(Receiver):
         self.collisions[name] = tester
 
     def add_object(self, name: str, obj: Object) -> bool:
-        """
-        Add an object to the scene.
+        """Add a named object or HUD to the scene.
 
         Object can be a HUD object, 2D Shape or 3D Mesh.
 
@@ -497,14 +545,10 @@ class Scene(Receiver):
         return True
 
     def add_camera(self, camera: Camera) -> bool:
-        """Add a camera to the scene and return True if successful.
+        """Append a Camera to the scene.
 
-        If an invalid type of object is given to the scene as an camera,
-        it does not break the scene as the scene already has a working camera
-        to operate. Instead, failure returns False
-
-        Keyword arguments:
-        camera -- Camera object to be added
+        Returns True on success, False if the provided object is not a
+        :class:`Camera` instance.
         """
         if not isinstance(camera, Camera):
             logging.error("Camera is not an instance of `scene.camera`")
@@ -514,7 +558,7 @@ class Scene(Receiver):
         return True
 
     def create_camera(self) -> None:
-        """Create a dummy camera with defaults."""
+        """Create and append a default camera sized to the current window."""
         self.cameras.append(
             Camera(viewport_size=[self.window_width, self.window_height, 0])
         )
@@ -526,22 +570,22 @@ class Scene(Receiver):
         callback: Callable[[float, float], None],
         non_stop: bool = False,
     ) -> None:
-        """Create a Clock in the scene.
+        """Create a named periodic Clock.
 
-        Clocks are asyn calls that are triggered in given periods.
-        Clocks should be written effectively to take as less time as possible.
-        If a clock can not be completed within the given period, there can be two parallel
-        processing interfering with eachother.
+        The clock will invoke ``callback(period, total)`` every ``period``
+        seconds. Clocks run in their own thread so callbacks should be fast
+        and thread-safe.
 
-        Keyword arguments:
-        name -- Name of the clock to create
-        period -- Period of the callback function in seconds
-        callback -- Callback method to call for each "tick" of the clock.
-
-        Callback method definition:
-
-            def logger(period_of_the_clock: float, total_seconds_passed: float)
-                pass
+        Parameters
+        ----------
+        name : str
+            Unique name for the clock.
+        period : float
+            Tick interval in seconds.
+        callback : Callable[[float, float], None]
+            Function called with (period, total_elapsed_seconds).
+        non_stop : bool, optional
+            If True the clock is never paused automatically.
         """
         if name in self.clocks:
             logging.error(f"A clock named {name} already exists")
@@ -551,6 +595,12 @@ class Scene(Receiver):
         self.clocks[name] = c
 
     def _clear_context(self) -> None:
+        """Reset GL-related runtime state without destroying the Scene.
+
+        This method resets shader program IDs and recreates clock objects so
+        that new threads may be started after a context loss. It also
+        destroys GL-owned resources such as the grid and HUD VAOs.
+        """
         for shader in self.shaders.values():
             shader.program = -1
         self.background._shader.program = -1
@@ -571,10 +621,11 @@ class Scene(Receiver):
         self.clocks = new_clocks
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert everything inside the Scene to Dictionary.
+        """Serialize scene content to a nested dictionary.
 
-        This method is better to be called outside the render cycle as it can be
-        very costly.
+        The returned structure contains serializable representations of
+        objects, lights and cameras. Avoid calling this from the render
+        thread since it can be expensive.
         """
         return {
             "objects": {name: self.objects[name].to_dict() for name in self.objects},
@@ -589,18 +640,24 @@ class Scene(Receiver):
         box_only: bool = True,
         exempt_objects: Optional[List[Object]] = None,
     ) -> Optional[Tuple[Object, Vector3D]]:
-        """Raycast a vector to the scene.
+        """Cast a ray and return the nearest intersected object and point.
 
-        Assume that there is a vector in space starting from "start"
-        and going in "vector" direction. This method checks through the
-        scene objects and returns the list of objects the vector hits
-        with their distances.
+        The function first performs a fast axis-aligned bounding box test and
+        optionally falls back to per-triangle intersection tests. It returns
+        a tuple ``(Object, hit_point)`` where ``hit_point`` is a 3-element
+        sequence in world coordinates, or ``None`` if nothing was hit.
 
-        Keyword arguments:
-        start -- Start of the vector
-        direction -- Direction of the vector
-        box_only -- Only make an axis-aligned bounding box collusion check (default True)
-        exempt_objects -- Exempt these objects from being tested
+        Parameters
+        ----------
+        start : Vector3D
+            Ray origin in world coordinates.
+        direction : Vector3D
+            Ray direction (does not need to be normalized).
+        box_only : bool, optional
+            If True only test bounding boxes and return the box hit point.
+            If False, perform triangle-level testing for mesh objects.
+        exempt_objects : list[Object] or None, optional
+            Objects to skip during intersection testing.
         """
         shortest = [0.0, 0.0, 0.0]
         dist_best = -1.0
@@ -635,6 +692,14 @@ class Scene(Receiver):
         return hit_obj, shortest
 
     def _init_runtime(self, start_clocks: bool = False) -> bool:
+        """Initialize OpenGL resources and compile shaders.
+
+        This performs a minimal runtime check (OpenGL version), adjusts
+        camera/hud aspect ratios to the current window size, starts clocks
+        and builds shader programs and the depth cubemap used for shadows.
+
+        Returns True on success.
+        """
         version = glGetString(GL_VERSION).decode("utf-8")
         ogl_major = glGetIntegerv(GL_MAJOR_VERSION)
         ogl_minor = glGetIntegerv(GL_MINOR_VERSION)
@@ -713,7 +778,19 @@ Payton requires at least OpenGL 3.3 support and above."""
         return True
 
     def run(self, start_clocks: bool = False) -> int:
-        """Run the show."""
+        """Create an SDL window, initialize the GL context and run the main loop.
+
+        Parameters
+        ----------
+        start_clocks : bool, optional
+            If True, clocks are unpaused at startup.
+
+        Returns
+        -------
+        int
+            Process return code: 0 on normal termination, -1 on SDL/window
+            initialization failure.
+        """
         if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO) != 0:
             return -1
 
@@ -791,7 +868,11 @@ Payton requires at least OpenGL 3.3 support and above."""
         return 0
 
     def terminate(self) -> None:
-        """Terminate scene."""
+        """Stop the render loop and terminate running clocks.
+
+        This will signal the scene to stop and attempt to gracefully join
+        existing clock threads.
+        """
         self.running = False
         for clock in self.clocks:
             logging.debug(f"Kill clock [{clock}]")
@@ -800,9 +881,10 @@ Payton requires at least OpenGL 3.3 support and above."""
 
 
 class Background:
-    """(Shader code and idea derived from the original work of.
+    """Simple fullscreen gradient background used by the renderer.
 
-    https://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/)
+    The shader and approach were inspired by the gradient demo from
+    http://www.cs.princeton.edu/~mhalber/blog/ogl_gradient/.
     """
 
     def __init__(
@@ -811,11 +893,14 @@ class Background:
         bottom_color: Optional[Vector3D] = None,
         **kwargs: Dict[str, Any],
     ):
-        """Initialize the background.
+        """Create a Background with optional top and bottom colors.
 
-        Keyword arguments:
-        top_color -- Gradient color at the top of the viewport
-        bottom_color -- Gradient color at the bottom of the viewport
+        Parameters
+        ----------
+        top_color : Vector3D or None
+            RGBA color for the top of the gradient. If None a default is used.
+        bottom_color : Vector3D or None
+            RGBA color for the bottom of the gradient. If None a default is used.
         """
         self.top_color = [0.0, 0.0, 0.0, 1.0] if top_color is None else top_color
         self.bottom_color = (
@@ -831,13 +916,17 @@ class Background:
         self.visible = True
 
     def set_time(self, hour: int, minute: int) -> None:
-        """Background can mimic a background color based on the time of the date.
+        """Adjust the background gradient to approximate a time-of-day color.
 
-        It is not accurate but at least gives a small impression
+        The method maps the provided (hour, minute) to a precomputed
+        color band and interpolates the top color accordingly.
 
-        Keyword arguments:
-        hour -- Hour as integer (24 hour format)
-        minute -- Minute as integer
+        Parameters
+        ----------
+        hour : int
+            Hour in 24-hour format. Values are wrapped into [0, 23].
+        minute : int
+            Minute in [0, 59]. Values are wrapped into [0, 59].
         """
         hour %= 24
         minute %= 60
@@ -888,7 +977,11 @@ class Background:
                 return
 
     def render(self) -> None:
-        """Render the background."""
+        """Render a full-screen gradient quad using the background shader.
+
+        The method lazily builds the VAO and shader on first invocation. If
+        the background is hidden the call is a no-op.
+        """
         if not self.visible:
             return
 

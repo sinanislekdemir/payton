@@ -1,15 +1,25 @@
 # Payton 3D SDK
 [Payton 3D SDK Screencast](https://github.com/sinanislekdemir/payton/assets/1842484/a18c8e43-61e9-48c3-a92a-4988716a1919)
 
-![example workflow](https://github.com/sinanislekdemir/payton/actions/workflows/pythonpackage.yml/badge.svg)
+![example workflow](https://github.com/sinanislekdemir/p## Examples
+
+Personally, I don't really read long descriptive documentation unless necessary. I prefer things simple and self-explanatory. Therefore, instead of writing lengthy documentation, I create simple examples to demonstrate each feature of Payton without requiring deep dives into the internals.
+
+Examples can be downloaded from the [Payton Github Page](https://github.com/sinanislekdemir/payton/tree/master/examples).
+
+You can either download the entire repository [as a zip file](https://github.com/sinanislekdemir/payton/archive/master.zip) or you can simply `git clone` it.ctions/workflows/pythonpackage.yml/badge.svg)
 [![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
 [![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
 
-Payton is a 3D Software Development Kit that serves as a general-purpose playground for programming. With Payton, users can quickly and easily kickstart their ideas and create tools for the next step, such as map editors, small animations, small algorithms, or artificial intelligence for games. Unlike game engines and other libraries that can be too complex and time-consuming to start, Payton comes with pre-set defaults, making it unique and simple to use.
+## 🎭 Motion Capture Data
 
-Payton is not intended to be a game engine or a full-featured 3D environment as there are already plenty of tools available for those purposes. However, it excels at tools programming and allows users to easily visualize their goals and achieve them. Users can also move forward from Payton to any other place if they desire.
+Payton includes support for BVH (Biovision Hierarchy) motion capture files. For extensive motion capture datasets, you can find thousands of BVH files from the [Bandai Namco Research Motion Dataset](https://github.com/BandaiNamcoResearchInc/Bandai-Namco-Research-Motiondataset). The example BVH files included with Payton are sourced from this dataset.
 
-While 2D graphs and charts are useful in reports, some cases require visualizing data in 3 or 4 dimensions. Payton enables users to extend their graphics into 4 dimensions and read real-time data from sensors, cameras, or any other data source. These sources can be anything that generates time-based 3D data, including thermometers, random number generators, toy cars connected to speed sensors, maps, or vehicle ports. Payton can even handle time-based formulas. Although it can get complex, Payton is designed to be easy to use, even for beginners who can follow the tutorials to kick-start their programming skills.
+Payton is a 3D Software Development Kit designed as a general-purpose playground for programming. With Payton, users can quickly kickstart their ideas and create tools for next-level development, including map editors, small animations, algorithms, or artificial intelligence for games. Unlike complex game engines and libraries that can be time-consuming to set up, Payton comes with sensible pre-configured defaults, making it unique and simple to use.
+
+Payton is not intended to be a full-featured game engine or complete 3D environment, as there are already plenty of excellent tools available for those purposes. Instead, it excels at rapid prototyping and tool development, allowing users to easily visualize their concepts and achieve their goals. Users can seamlessly transition from Payton to other platforms when their projects outgrow its scope.
+
+While 2D graphs and charts are useful for reports, many scenarios require visualizing data in 3 or 4 dimensions. Payton enables users to extend their graphics into higher dimensions and process real-time data from sensors, cameras, or any other data source. These sources can include thermometers, random number generators, IoT devices with speed sensors, maps, vehicle diagnostic ports, or even time-based mathematical formulas. Although projects can become complex, Payton is designed to remain accessible to beginners who can follow the tutorials to develop their programming skills.
 
 ## Contents of this Document:
 
@@ -79,10 +89,10 @@ While 2D graphs and charts are useful in reports, some cases require visualizing
 
 ### Requirements:
 
-- LibSDL2 `sudo apt install libsdl2-dev` for debian/ubuntu based linux distros. For other platforms, you can see your favourite package manager.
-- imagemagick `sudo apt install imagemagick` for debian/ubuntu based linux distros. For other platforms, you can see your favourite package manager.
+- LibSDL2 `sudo apt install libsdl2-dev` for Debian/Ubuntu-based Linux distributions. For other platforms, please consult your preferred package manager.
+- ImageMagick `sudo apt install imagemagick` for Debian/Ubuntu-based Linux distributions. For other platforms, please consult your preferred package manager.
 - Python 3.10+
-- A Graphics card that supports OpenGL 3.3+
+- A graphics card that supports OpenGL 3.3+
 
 ### Install using Pip:
 
@@ -91,7 +101,7 @@ From a bash terminal:
 pip install payton
 ```
 
-This should install all dependencies. If you get any permission errors, you are probably installing the library to system-global so missing some permissions. If you do not want to use pipenv or virtualenv, then you might want to run above command as `sudo pip3 install payton`
+This should install all dependencies. If you encounter permission errors, you are likely installing the library system-wide and may be missing some permissions. If you prefer not to use pipenv or virtualenv, you might want to run the above command as `sudo pip3 install payton`.
 
 ### Optional Bullet Physics Integration
 
@@ -101,7 +111,7 @@ Payton supports Bullet Physics at a basic level for solid geometries.
 pip install pybullet
 ```
 
-Once Bullet Physics is successfully installed in the same environment as Payton, it will be automatically activated and you will be able to use its basic properties.
+Once Bullet Physics is successfully installed in the same environment as Payton, it will be automatically activated, and you will be able to use its basic properties.
 Check out the relevant examples.
 
 ### Optional GTK3 Integration
@@ -119,25 +129,25 @@ AWP3D is simply a ZIP file containing every frame as a Wavefront object. To expo
 
 #### Using Payton with Anaconda
 
-As of version `0.0.10`, Payton is installable on Anaconda. From Anaconda Prompt:
+As of version `0.0.10`, Payton is installable on Anaconda. From the Anaconda Prompt:
 
 ```bash
 pip install payton
 ```
 
-Is sufficient to install Payton and it's dependencies on Anaconda.
+This is sufficient to install Payton and its dependencies on Anaconda.
 
-Payton will be available to use with Spyder or JupyterLab on local.
+Payton will be available for use with Spyder or JupyterLab locally.
 
 ![](https://islekdemir.com/payton/anaconda.png)
 
 ### Upgrade to the latest version:
 
-Payton is under active maintenance. This means I am spending some time to fix the bugs or make it better. So you might want to upgrade it occasionally.
+Payton is under active maintenance. This means I am spending time fixing bugs and making improvements. Therefore, you might want to upgrade it occasionally.
 
     pip3 install payton --upgrade
     
-should do the trick!
+This should do the trick!
 
 ## Getting Started
 
@@ -170,20 +180,20 @@ This will create your first empty scene and show it inside an SDL window.
 
 ## Environment variables
 
-Some options can be configured from the environment variables.
+Some options can be configured using environment variables.
 
 - `SDL_WINDOW_WIDTH`: Set window width.
 - `SDL_WINDOW_HEIGHT`: Set window height.
-- `GL_MULTISAMPLEBUFFERES`: Set OpenGL multisample buffer count for antialiasing. (usually 1 or 2)
+- `GL_MULTISAMPLEBUFFERS`: Set OpenGL multisample buffer count for antialiasing. (usually 1 or 2)
 - `GL_MULTISAMPLESAMPLES`: Set OpenGL multisample sampling count for antialiasing. (usually 1-16)
 
-Without `GL_MULTISAMPLEBUFFERS` AND `GL_MULTISAMPLESAMPLES`, you may notice pixelated graphics. There is no default set for those values because they can vary between graphic cards.
+Without `GL_MULTISAMPLEBUFFERS` AND `GL_MULTISAMPLESAMPLES`, you may notice pixelated graphics. There are no default values set for these because they can vary between graphics cards.
 
 ## Troubleshooting
 
-In some older systems or where a decent graphics driver is not installed, you can try running Payton code with MESA. It runs fine. There will be some performance decrease. But it will not be noticeable for basic applications.
+On some older systems or where decent graphics drivers are not installed, you can try running Payton code with MESA. It runs fine, though there will be some performance decrease. However, this will not be noticeable for basic applications.
 
-To enforce MESA 3.3, you can run payton with:
+To enforce MESA 3.3, you can run Payton with:
 
 ```
 MESA_GL_VERSION_OVERRIDE=3.3 python <path-to-your-payton-code>
@@ -197,10 +207,10 @@ Examples can be downloaded from [Payton Github Page](https://github.com/sinanisl
 
 You can either download the whole repository [as a zip file](https://github.com/sinanislekdemir/payton/archive/master.zip) or you can just `git clone` it.
 
-*Tested in Windows 10 Paperspace, seems to be working as expected*
+*Tested on Windows 10 Paperspace, seems to be working as expected*
 ![https://user-images.githubusercontent.com/1842484/84317888-38767780-ab76-11ea-8337-a102d7c59275.png](https://user-images.githubusercontent.com/1842484/84317888-38767780-ab76-11ea-8337-a102d7c59275.png)
 
-*Supports pyBullet solid geometry physics*
+*Supports PyBullet solid geometry physics*
 [![https://www.youtube.com/watch?v=Zt2vnUMLYVs](https://www.islekdemir.com/snapshot.jpg)](https://www.youtube.com/watch?v=Zt2vnUMLYVs)
 
 ## Example Index
@@ -266,13 +276,13 @@ You can either download the whole repository [as a zip file](https://github.com/
 
 * Please keep using type hints in the main library.
 * Type hinting can be ignored for examples.
-* Example codes should be plain and simple.
-* Every new features should include sensible defaults.
+* Example code should be plain and simple.
+* Every new feature should include sensible defaults.
   * Nothing should be too verbose to use.
-* Make sure that `make check` is clear before pushing your code.
+* Make sure that `make check` passes before pushing your code.
 * Running `isort .` is not mandatory but highly encouraged.
-* Ever new feature should have an example code.
-* There is a reason why some methods are longer than they should and complex.
+* Every new feature should have example code.
+* There is a reason why some methods are longer than they should be and complex.
   * To reduce code jumps and stack switches.
   * To run faster.
 
@@ -298,11 +308,11 @@ You can either download the whole repository [as a zip file](https://github.com/
 ![https://github.com/sinanislekdemir/payton/blob/assets/assets/ripple.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/ripple.jpg?raw=true)
 ![https://github.com/sinanislekdemir/payton/blob/assets/assets/spot.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/spot.jpg?raw=true)
 
-## Some free-thoughts and decisions:
+## Some free thoughts and decisions:
 
-I've choosen to use `List[float]` type for Vectors because:
+I've chosen to use `List[float]` type for Vectors because:
 
-* I needed something mutable. Otherwise, the number of memory copy and swaps would be too much. So, I've crossed out `Tuple` and `NamedTuple`.
-* `dataclass` has an overhead to convert to C-type floats and arrays in memory.
+* I needed something mutable. Otherwise, the number of memory copies and swaps would be too much. So, I've ruled out `Tuple` and `NamedTuple`.
+* `dataclass` has overhead when converting to C-type floats and arrays in memory.
 
-So, to gain some performance, I have created the main library with a risk of non-strict vector lengths.
+So, to gain some performance, I have created the main library with the risk of non-strict vector lengths.
