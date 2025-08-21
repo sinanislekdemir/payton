@@ -1,7 +1,54 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Payton"
+version = "1.4.0"
+description = "3D Graphics Programming Toolkit"
+readme = "README.md"
+license = "BSD-3-Clause"
+authors = [
+    {name = "Sinan Islekdemir", email = "sinan@islekdemir.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "Pillow>=10.3.0",
+    "PyOpenGL>=3.1.7",
+    "pyrr>=0.10.3",
+    "PySDL2>=0.9.16",
+    "Cython>=3.0.5",
+    "numpy>=1.26.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/sinanislekdemir/payton"
+Repository = "https://github.com/sinanislekdemir/payton"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["payton*"]
+
+[tool.setuptools]
+include-package-data = true
+
 [tool.black]
 target-version = ['py37']
 line-length = 120
 skip-string-normalization = true
+
+[tool.flake8]
+max-line-length = 120
+ignore = ["E203", "W503"]
+max-complexity = 25
+
+[tool.pylama.pycodestyle]
+max_line_length = 120
+ignore = ["E203", "C901"]
 
 [tool.pylint.messages_control]
 disable = [
