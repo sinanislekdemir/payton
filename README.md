@@ -1,15 +1,21 @@
 # Payton 3D SDK
-[Payton 3D SDK Screencast](https://github.com/sinanislekdemir/payton/assets/1842484/a18c8e43-61e9-48c3-a92a-4988716a1919)
 
-![example workflow](https://github.com/sinanislekdemir/p## Examples
+
+https://github.com/user-attachments/assets/3904c4a3-d683-4816-a31d-3af958e42813
+
+
+
+[![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
+[![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
+
+
+[Payton 3D SDK Screencast](https://github.com/sinanislekdemir/payton/assets/1842484/a18c8e43-61e9-48c3-a92a-4988716a1919)
 
 Personally, I don't really read long descriptive documentation unless necessary. I prefer things simple and self-explanatory. Therefore, instead of writing lengthy documentation, I create simple examples to demonstrate each feature of Payton without requiring deep dives into the internals.
 
 Examples can be downloaded from the [Payton Github Page](https://github.com/sinanislekdemir/payton/tree/master/examples).
 
-You can either download the entire repository [as a zip file](https://github.com/sinanislekdemir/payton/archive/master.zip) or you can simply `git clone` it.ctions/workflows/pythonpackage.yml/badge.svg)
-[![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
-[![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
+You can either download the entire repository [as a zip file](https://github.com/sinanislekdemir/payton/archive/master.zip) or you can simply `git clone` it.
 
 ## 🎭 Motion Capture Data
 
