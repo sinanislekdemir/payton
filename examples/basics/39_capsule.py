@@ -15,8 +15,9 @@ Features:
 """
 
 from payton.scene import Scene
-from payton.scene.geometry.capsule import Capsule
 from payton.scene.geometry import Plane
+from payton.scene.geometry.capsule import Capsule
+
 
 def main():
     # Create scene

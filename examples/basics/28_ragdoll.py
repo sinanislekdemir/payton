@@ -2,13 +2,14 @@
 
 """Interactive ragdoll animation switcher with keyboard controls."""
 
-import sdl2
 import os
 
+import sdl2
+
 from payton.scene import Scene
+from payton.scene.controller import GUIController
 from payton.scene.geometry import Plane
 from payton.scene.geometry.ragdoll import RagDoll
-from payton.scene.controller import GUIController
 
 # Define skin colors
 SKIN_LIGHT = [0.96, 0.80, 0.69]  # Light skin tone

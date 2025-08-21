@@ -10,17 +10,7 @@ import os
 import struct
 import time
 from copy import deepcopy
-from typing import (
-    Any,
-    BinaryIO,
-    Dict,
-    Generator,
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    cast,
-)
+from typing import Any, BinaryIO, Dict, Generator, List, NamedTuple, Optional, Tuple, cast
 
 import numpy as np
 

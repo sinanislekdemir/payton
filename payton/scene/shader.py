@@ -473,15 +473,36 @@ class Shader:
 
         # Enhanced default variables for improved visual quality
         default_vars = [
-            "model", "view", "projection", "light_space_matrix",
-            "object_color", "opacity", "metallic", "roughness", "ao",
-            "camera_pos", "light_pos", "light_color", "LIGHT_COUNT",
-            "material_mode", "lit", "shadow_enabled", "samples",
-            "far_plane", "time", "resolution", "top_color", "bot_color",
-            "particle_size", "tex_unit", "depthMap"
+            "model",
+            "view",
+            "projection",
+            "light_space_matrix",
+            "object_color",
+            "opacity",
+            "metallic",
+            "roughness",
+            "ao",
+            "camera_pos",
+            "light_pos",
+            "light_color",
+            "LIGHT_COUNT",
+            "material_mode",
+            "lit",
+            "shadow_enabled",
+            "samples",
+            "far_plane",
+            "time",
+            "resolution",
+            "top_color",
+            "bot_color",
+            "particle_size",
+            "tex_unit",
+            "depthMap",
         ]
-        
-        self.variables: List[str] = default_vars if variables is None else variables + default_vars
+
+        self.variables: List[str] = (
+            default_vars if variables is None else variables + default_vars
+        )
         self._stack: Dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
         self._depth_shader = False
@@ -593,7 +614,7 @@ class Shader:
         if location == -1:
             return False
         # Send count * 3 values (3 components per vector)
-        glUniform3fv(location, count, value[:count * 3])
+        glUniform3fv(location, count, value[: count * 3])
         return True
 
     def set_vector3_np(self, variable: str, value: np.ndarray) -> bool:
@@ -659,9 +680,11 @@ class Shader:
         glUniform1f(location, ctypes.c_float(value))
         return True
 
-    def set_material_properties(self, metallic: float = 0.0, roughness: float = 0.5, ao: float = 1.0) -> None:
+    def set_material_properties(
+        self, metallic: float = 0.0, roughness: float = 0.5, ao: float = 1.0
+    ) -> None:
         """Set PBR material properties
-        
+
         Keyword arguments:
         metallic -- Metallic factor (0.0 = dielectric, 1.0 = metallic)
         roughness -- Surface roughness (0.0 = mirror, 1.0 = completely rough)
@@ -671,7 +694,7 @@ class Shader:
         if self.get_location("metallic") == -1:
             # If uniform doesn't exist, shader might not use PBR
             return
-            
+
         self.set_float("metallic", metallic)
         self.set_float("roughness", max(0.04, roughness))  # Prevent roughness of 0
         self.set_float("ao", ao)
@@ -682,7 +705,7 @@ class Shader:
 
     def set_time(self, time: float) -> bool:
         """Set time uniform for animated shaders
-        
+
         Keyword arguments:
         time -- Time value in seconds
         """
@@ -690,7 +713,7 @@ class Shader:
 
     def set_resolution(self, width: float, height: float) -> bool:
         """Set screen resolution for shaders that need it
-        
+
         Keyword arguments:
         width -- Screen width
         height -- Screen height
@@ -698,8 +721,9 @@ class Shader:
         location = self.get_location("resolution")
         if location == -1:
             return False
-        
+
         import numpy as np
+
         resolution = np.array([width, height], dtype=np.float32)
         glUniform2fv(location, 1, resolution)
         return True
