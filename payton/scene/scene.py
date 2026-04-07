@@ -797,6 +797,8 @@ Payton requires at least OpenGL 3.3 support and above."""
         sdl2.SDL_GL_SetAttribute(
             sdl2.SDL_GL_CONTEXT_PROFILE_MASK, sdl2.SDL_GL_CONTEXT_PROFILE_CORE
         )
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_CONTEXT_MINOR_VERSION, 3)
         multisample_buffers = os.getenv("GL_MULTISAMPLEBUFFERS", None)
         multisample_samples = os.getenv("GL_MULTISAMPLESAMPLES", None)
         if multisample_buffers:
@@ -821,6 +823,14 @@ Payton requires at least OpenGL 3.3 support and above."""
             return -1
 
         self._context = sdl2.SDL_GL_CreateContext(self.window)
+        if not self._context:
+            logging.error(
+                f"Failed to create OpenGL context: {sdl2.SDL_GetError().decode()}"
+            )
+            sdl2.SDL_DestroyWindow(self.window)
+            sdl2.SDL_Quit()
+            return -1
+        sdl2.SDL_GL_MakeCurrent(self.window, self._context)
         sdl2.SDL_GL_SetSwapInterval(0)
         self.event = sdl2.SDL_Event()
         self.running = True

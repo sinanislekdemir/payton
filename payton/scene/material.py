@@ -187,7 +187,7 @@ class Material:
         img -- Image to load
         particle -- Is this a particle material?
         """
-        img_data = np.fromstring(img.tobytes(), np.uint8)  # type: ignore
+        img_data = np.frombuffer(img.tobytes(), np.uint8)  # type: ignore
         width, height = img.size
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         if particle:
@@ -206,7 +206,7 @@ class Material:
             mode = GL_RGB
         if img.mode == "P":
             img = img.convert("RGB")
-            img_data = np.fromstring(img.tobytes(), np.uint8)  # type: ignore
+            img_data = np.frombuffer(img.tobytes(), np.uint8)  # type: ignore
             mode = GL_RGB
         glTexImage2D(
             GL_TEXTURE_2D,

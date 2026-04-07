@@ -1,0 +1,154 @@
+HIERARCHY
+ROOT joint_Root
+{
+  OFFSET 0 0 0
+  CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+  JOINT Hips
+  {
+    OFFSET 0.847027 93.984 -452.225
+    CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+    JOINT Spine
+    {
+      OFFSET 15.7357 0 0
+      CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+      JOINT Chest
+      {
+        OFFSET 8.98455 -0.406207 0
+        CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+        JOINT Neck
+        {
+          OFFSET 16.3773 0 0
+          CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+          JOINT Head
+          {
+            OFFSET 6.45672 0 0
+            CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+            End Site
+            {
+              OFFSET 0 0 0
+            }
+          }
+        }
+        JOINT Shoulder_L
+        {
+          OFFSET 12.9942 -0.242716 4.98039
+          CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+          JOINT UpperArm_L
+          {
+            OFFSET 5.34809 0 0
+            CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+            JOINT LowerArm_L
+            {
+              OFFSET 24.3286 1.87007e-05 0
+              CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+              JOINT Hand_L
+              {
+                OFFSET 22.2916 0 0
+                CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+                End Site
+                {
+                  OFFSET 0 0 0
+                }
+              }
+            }
+          }
+        }
+        JOINT Shoulder_R
+        {
+          OFFSET 12.9945 -0.242716 -4.98039
+          CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+          JOINT UpperArm_R
+          {
+            OFFSET -5.34813 0 0
+            CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+            JOINT LowerArm_R
+            {
+              OFFSET -24.3289 0.000322201 0
+              CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+              JOINT Hand_R
+              {
+                OFFSET -22.2915 -0.000108084 0
+                CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+                End Site
+                {
+                  OFFSET 0 0 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    JOINT UpperLeg_L
+    {
+      OFFSET -2.19248 -6.46944 0
+      CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+      JOINT LowerLeg_L
+      {
+        OFFSET 39.0811 0 -1.23785e-05
+        CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+        JOINT Foot_L
+        {
+          OFFSET 40.9854 0 -1.26872e-05
+          CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+          JOINT Toes_L
+          {
+            OFFSET 11.7543 0 0
+            CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+            End Site
+            {
+              OFFSET 0 0 0
+            }
+          }
+        }
+      }
+    }
+    JOINT UpperLeg_R
+    {
+      OFFSET -2.19251 6.46944 0
+      CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+      JOINT LowerLeg_R
+      {
+        OFFSET -39.0811 -0.00228153 -0.0401928
+        CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+        JOINT Foot_R
+        {
+          OFFSET -40.9854 0 0
+          CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+          JOINT Toes_R
+          {
+            OFFSET -11.7543 0 0
+            CHANNELS 6 Xposition Yposition Zposition Zrotation Xrotation Yrotation
+            End Site
+            {
+              OFFSET 0 0 0
+            }
+          }
+        }
+      }
+    }
+  }
+}
+MOTION
+
+# Realistic jump motion: idle, crouch, takeoff, air, land, recover
+Frames:	12
+Frame Time:	0.0333333
+# Idle
+0 90 0 0 0 0 0.847027 93.984 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 0 0 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 0 0 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
+# Crouch
+0 90 0 0 0 0 0.847027 88.984 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 0 0 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 0 0 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
+# Crouch deeper (bend knees/hips)
+0 90 0 0 0 0 0.847027 87.484 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 0 0 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 0 0 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
+# Takeoff (extend, arms swing up, knees/hips extend)
+0 100 0 0 0 0 0.847027 92.984 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 -30 60 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 30 60 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
+# Air (arms up, legs straight)
+0 110 0 0 0 0 0.847027 97.984 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 -10 10 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 10 10 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
+# Air (hold)
+0 110 0 0 0 0 0.847027 97.984 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 -10 10 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 10 10 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
+# Land (bend knees/hips, arms forward)
+0 90 0 0 0 0 0.847027 88.984 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 -40 80 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 40 80 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
+# Recover (stand up)
+0 90 0 0 0 0 0.847027 93.984 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 0 0 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 0 0 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
+# Idle
+0 90 0 0 0 0 0.847027 93.984 -452.225 0 0 0 15.7357 0 0 0 0 0 8.98455 -0.406207 0 0 0 0 16.3773 0 0 0 0 0 6.45672 0 0 0 0 0 12.9942 -0.242716 4.98039 0 0 0 5.34809 0 0 0 0 0 24.3286 0 0 0 0 0 22.2916 0 0 0 0 0 12.9945 -0.242716 -4.98039 0 0 0 -5.34813 0 0 0 0 0 -24.3289 0 0 0 0 0 -22.2915 0 0 0 0 0 -2.19248 -6.46944 0 0 0 0 39.0811 0 0 0 0 0 40.9854 0 0 0 0 0 11.7543 0 0 0 0 0 -2.19251 6.46944 0 0 0 0 -39.0811 0 0 0 0 0 -40.9854 0 0 0 0 0 -11.7543 0 0 0 0 0
