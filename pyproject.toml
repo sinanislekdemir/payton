@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Payton"
-version = "1.4.2"
+version = "1.4.3"
 description = "3D Graphics Programming Toolkit"
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "Pillow>=10.3.0",
     "PyOpenGL>=3.1.7",
