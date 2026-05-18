@@ -47,6 +47,7 @@ from OpenGL.GL import (
     GL_TEXTURE_WRAP_R,
     GL_TEXTURE_WRAP_S,
     GL_TEXTURE_WRAP_T,
+    GL_MULTISAMPLE,
     GL_TRIANGLES,
     GL_VERSION,
     glActiveTexture,
@@ -148,6 +149,7 @@ class Scene(Receiver):
         on_select: Optional[Callable] = None,
         physics_force_continuous: bool = False,
         theme: Optional[SceneTheme] = None,
+        antialiasing: Optional[int] = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Scene.
@@ -168,11 +170,20 @@ class Scene(Receiver):
             (``THEME_BLENDER``, ``THEME_STUDIO``, ``THEME_GAMEENGINE``) or a
             custom :class:`~payton.scene.theme.SceneTheme` instance.
             Defaults to :data:`~payton.scene.theme.THEME_STUDIO`.
+        antialiasing : int or None, optional
+            Multisampling antialiasing (MSAA) level.  ``None`` (default) lets
+            Payton request the best level the driver supports automatically.
+            ``0`` disables MSAA entirely.  Explicit values (``2``, ``4``,
+            ``8``, ``16``) request a specific sample count.  Environment
+            variables ``GL_MULTISAMPLEBUFFERS`` / ``GL_MULTISAMPLESAMPLES``
+            take precedence over this parameter when both are set.
         **kwargs
             Ignored; kept for backward compatibility.
         """
         self.__fps_counter = 0
         self.fps = 0
+        self._antialiasing = antialiasing
+        self._active_msaa_samples: int = 0
         _env_width = os.getenv("SDL_WINDOW_WIDTH", None)
         _env_height = os.getenv("SDL_WINDOW_HEIGHT", None)
         if _env_width:
@@ -294,6 +305,27 @@ class Scene(Receiver):
         self._shadow_quality = SHADOW_MID
         self._shadow_samples = 20
 
+        # Fog settings (1 unit == 1 metre)
+        self.fog_enabled: bool = False
+        """Whether fog is applied to the 3-D scene.  Use :meth:`enable_fog`
+        and :meth:`disable_fog` as a convenient shorthand."""
+        self.fog_mode: int = 0
+        """Fog attenuation mode.
+        ``0`` – linear (uses :attr:`fog_near` / :attr:`fog_far`),
+        ``1`` – exponential (uses :attr:`fog_density`),
+        ``2`` – exponential-squared (smoother, uses :attr:`fog_density`)."""
+        self.fog_color: List[float] = [0.7, 0.7, 0.75]
+        """RGB fog colour (neutral grey-blue).  Should match or complement
+        the background colour for a natural look."""
+        self.fog_near: float = 20.0
+        """Distance in metres at which linear fog begins (``fog_mode == 0``)."""
+        self.fog_far: float = 100.0
+        """Distance in metres at which linear fog reaches full opacity
+        (``fog_mode == 0``)."""
+        self.fog_density: float = 0.02
+        """Density coefficient for exponential fog modes
+        (``fog_mode`` 1 or 2).  Smaller values = thinner haze."""
+
     # ------------------------------------------------------------------
     # Theme helpers
     # ------------------------------------------------------------------
@@ -362,6 +394,32 @@ class Scene(Receiver):
         >>> scene.theme_gameengine()
         """
         self.apply_theme(THEME_GAMEENGINE)
+
+    # ------------------------------------------------------------------
+    # Fog helpers
+    # ------------------------------------------------------------------
+
+    def enable_fog(self) -> None:
+        """Enable atmospheric fog rendering.
+
+        Example
+        -------
+        >>> scene = Scene()
+        >>> scene.enable_fog()
+        >>> scene.fog_near = 10.0
+        >>> scene.fog_far = 60.0
+        """
+        self.fog_enabled = True
+
+    def disable_fog(self) -> None:
+        """Disable atmospheric fog rendering.
+
+        Example
+        -------
+        >>> scene = Scene()
+        >>> scene.disable_fog()
+        """
+        self.fog_enabled = False
 
     def _step_physics(self, period: float, total: float) -> None:
         """Advance the physics simulation one step.
@@ -509,6 +567,14 @@ class Scene(Receiver):
             _shader.set_vector3_array_np("light_color", lcolor_array_np, light_count)
             # Always set shadow_enabled to ensure shader knows the state
             _shader.set_int("shadow_enabled", 1 if self.shadow_quality > 0 else 0)
+            # Fog uniforms (only meaningful for the default 3-D shader)
+            if shader == DEFAULT_SHADER:
+                _shader.set_int("fog_enabled", 1 if self.fog_enabled else 0)
+                _shader.set_int("fog_mode", self.fog_mode)
+                _shader.set_vector3("fog_color", self.fog_color)
+                _shader.set_float("fog_near", self.fog_near)
+                _shader.set_float("fog_far", self.fog_far)
+                _shader.set_float("fog_density", self.fog_density)
         if shadow_round:
             shadow_matrices = self.lights[0].shadow_matrices
             for i, mat in enumerate(shadow_matrices):
@@ -825,6 +891,9 @@ Payton requires at least OpenGL 3.3 support and above."""
         for camera in self.cameras:
             camera.aspect_ratio = self.window_width / self.window_height * 1.0
 
+        if self._active_msaa_samples > 1:
+            glEnable(GL_MULTISAMPLE)
+
         for hud in self.huds.values():
             hud.set_size(self.window_width, self.window_height)
 
@@ -913,6 +982,14 @@ Payton requires at least OpenGL 3.3 support and above."""
             sdl2.SDL_GL_SetAttribute(
                 sdl2.SDL_GL_MULTISAMPLESAMPLES, int(multisample_samples)
             )
+        elif self._antialiasing is None:
+            # Auto-detect: request the highest level and let SDL2 negotiate
+            # down to the best available sample count on this driver/hardware.
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
+        elif self._antialiasing > 0:
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, self._antialiasing)
 
         self.window = sdl2.SDL_CreateWindow(
             b"Payton Scene",
@@ -936,6 +1013,18 @@ Payton requires at least OpenGL 3.3 support and above."""
             return -1
         sdl2.SDL_GL_MakeCurrent(self.window, self._context)
         sdl2.SDL_GL_SetSwapInterval(0)
+
+        # Query the actual MSAA sample count granted by the driver.
+        _actual_samples = ctypes.c_int(0)
+        sdl2.SDL_GL_GetAttribute(
+            sdl2.SDL_GL_MULTISAMPLESAMPLES, ctypes.byref(_actual_samples)
+        )
+        self._active_msaa_samples = _actual_samples.value
+        if self._active_msaa_samples > 1:
+            logging.info(f"Antialiasing enabled: {self._active_msaa_samples}x MSAA")
+        else:
+            logging.info("Antialiasing disabled (0 samples granted by driver)")
+
         self.event = sdl2.SDL_Event()
         self.running = True
 

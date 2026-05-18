@@ -227,6 +227,14 @@ uniform float ao;
 uniform sampler2D tex_unit;
 uniform samplerCube depthMap;
 
+// Fog parameters (1 unit == 1 metre)
+uniform int   fog_enabled;   // 0 = off, 1 = on
+uniform int   fog_mode;      // 0 = linear, 1 = exponential, 2 = exp-squared
+uniform vec3  fog_color;
+uniform float fog_near;      // linear mode: distance at which fog begins (metres)
+uniform float fog_far;       // linear mode: distance at which fog is fully opaque (metres)
+uniform float fog_density;   // exp / exp2 mode density factor
+
 // Improved sampling pattern for shadows
 vec3 gridSamplingDisk[20] = vec3[]
 (
@@ -326,6 +334,22 @@ void main()
     
     // Gamma correction
     result = pow(result, vec3(1.0/2.2));
+
+    // Fog blending (applied after gamma so fog_color stays perceptually correct)
+    if (fog_enabled == 1) {
+        float dist = length(camera_pos - l_fragpos);
+        float fog_factor;
+        if (fog_mode == 0) {
+            fog_factor = (fog_far - dist) / max(fog_far - fog_near, 0.0001);
+        } else if (fog_mode == 1) {
+            fog_factor = exp(-fog_density * dist);
+        } else {
+            float fd = fog_density * dist;
+            fog_factor = exp(-fd * fd);
+        }
+        fog_factor = clamp(fog_factor, 0.0, 1.0);
+        result = mix(fog_color, result, fog_factor);
+    }
     
     FragColor = vec4(result, alpha);
 }"""  # type: str
@@ -515,6 +539,12 @@ class Shader:
             "particle_size",
             "tex_unit",
             "depthMap",
+            "fog_enabled",
+            "fog_mode",
+            "fog_color",
+            "fog_near",
+            "fog_far",
+            "fog_density",
         ]
 
         self.variables: List[str] = (
