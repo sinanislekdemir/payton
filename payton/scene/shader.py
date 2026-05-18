@@ -40,8 +40,11 @@ uniform vec3 light_pos[100];
 void main()
 {
     float lightDistance = length(FragPos.xyz - light_pos[0]);
-    lightDistance = lightDistance / far_plane;
-    gl_FragDepth = lightDistance;
+    // Push the stored depth slightly away from the light so that a surface
+    // does not shadow itself (polygon offset has no effect when gl_FragDepth
+    // is written manually, so the offset must be baked in here).
+    lightDistance += 0.08;
+    gl_FragDepth = lightDistance / far_plane;
 }
 """
 
@@ -238,30 +241,13 @@ vec3 gridSamplingDisk[20] = vec3[]
 float ShadowCalculation(vec3 fragPos)
 {
     if (LIGHT_COUNT == 0) return 0.0;
-    
+
     vec3 fragToLight = fragPos - light_pos[0];
     float currentDepth = length(fragToLight);
-    float shadow = 0.0;
-    
-    // Improved bias calculation
-    vec3 normal = normalize(l_normal);
-    vec3 lightDir = normalize(light_pos[0] - fragPos);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-
-    float viewDistance = length(camera_pos - fragPos);
-    float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
-
-    int valid_samples = min(samples, 20);
-    for(int i = 0; i < valid_samples; ++i)
-    {
-        float closestDepth = texture(depthMap, fragToLight +
-                                     gridSamplingDisk[i] * diskRadius).r;
-        closestDepth *= far_plane;
-        if(currentDepth - bias > closestDepth)
-             shadow += 1.0;
-    }
-
-    return shadow / float(valid_samples);
+    // The depth map already has a world-space offset baked in at write time,
+    // so a straight compare is sufficient here.
+    float closestDepth = texture(depthMap, fragToLight).r * far_plane;
+    return currentDepth > closestDepth ? 1.0 : 0.0;
 }
 
 void main()
@@ -299,22 +285,20 @@ void main()
     
     // Check for invalid normals
     if (length(l_normal) < 0.1) {
-        FragColor = vec4(color * 0.5, alpha); // Fallback for invalid normals
+        FragColor = vec4(color, alpha);
         return;
     }
     
     vec3 viewDir = normalize(camera_pos - l_fragpos);
-    vec3 result = vec3(0.0);
+    vec3 result = 0.12 * color * ao;
     
     for (int i = 0; i < min(LIGHT_COUNT, 100); i++) {
-        vec3 lightDir = normalize(light_pos[i] - l_fragpos);
-        float distance = length(light_pos[i] - l_fragpos);
+        vec3 lightVector = light_pos[i] - l_fragpos;
+        float distance = length(lightVector);
+        vec3 lightDir = lightVector / max(distance, 0.0001);
         
-        // Enhanced attenuation
-        float attenuation = 1.0 / (1.0 + 0.045 * distance + 0.0075 * distance * distance);
-        
-        // Ambient
-        vec3 ambient = 0.15 * color * ao;
+        // Use a gentler falloff so the default scene scale doesn't look underlit.
+        float attenuation = 1.0 / (1.0 + 0.02 * distance + 0.001 * distance * distance);
         
         // Diffuse
         float diff = max(dot(norm, lightDir), 0.0);
@@ -322,8 +306,8 @@ void main()
         
         // Specular (Blinn-Phong)
         vec3 halfwayDir = normalize(lightDir + viewDir);
-        float spec_strength = mix(0.5, 1.0, metallic); // Use metallic to control specular strength
-        float shininess = mix(32.0, 128.0, 1.0 - roughness); // Use roughness to control shininess
+        float spec_strength = mix(0.35, 0.9, metallic);
+        float shininess = mix(32.0, 96.0, 1.0 - roughness);
         float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
         vec3 specular = spec_strength * spec * light_color[i];
         
@@ -331,12 +315,14 @@ void main()
         float shadow = (i == 0 && shadow_enabled) ? ShadowCalculation(l_fragpos) : 0.0;
         
         // Combine results
-        vec3 lighting = ambient + (1.0 - shadow) * (diffuse + specular);
-        result += lighting * attenuation;
+        result += (1.0 - shadow) * (diffuse + specular) * attenuation;
     }
     
-    // Simple tone mapping
-    result = result / (result + vec3(1.0));
+    float peak = max(result.r, max(result.g, result.b));
+    if (peak > 1.0) {
+        result = result / (result + vec3(1.0));
+    }
+    result = clamp(result, 0.0, 1.0);
     
     // Gamma correction
     result = pow(result, vec3(1.0/2.2));
