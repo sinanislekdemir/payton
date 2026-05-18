@@ -416,28 +416,58 @@ uniform vec4 top_color;
 uniform vec4 bot_color;
 uniform float time;
 uniform vec2 resolution;
-in vec2 v_uv;
 
+// 0 = clean gradient (Blender-style)
+// 1 = gradient + radial vignette (Studio)
+// 2 = gradient + camera-aware horizon glow (Game-engine)
+uniform int background_mode;
+
+// Camera matrices for world-space horizon reconstruction (mode 2)
+uniform mat4 inv_proj;
+uniform mat4 inv_view;
+
+in vec2 v_uv;
 out vec4 frag_color;
 
 void main()
 {
-    // Enhanced gradient with subtle animation
     float gradient_factor = smoothstep(0.0, 1.0, v_uv.y);
-    
-    // Add subtle color variation over time (optional)
+
+    // Subtle continuous colour oscillation (time wired up from Python)
     float time_variation = sin(time * 0.1) * 0.02 + 1.0;
-    
-    vec4 mixed_color = mix(bot_color, top_color, gradient_factor) * time_variation;
-    
-    // Add subtle noise for more natural look
-    float noise = fract(sin(dot(v_uv, vec2(12.9898, 78.233))) * 43758.5453) * 0.02 - 0.01;
-    mixed_color.rgb += noise;
-    
-    // Ensure colors stay in valid range
-    mixed_color = clamp(mixed_color, 0.0, 1.0);
-    
-    frag_color = mixed_color;
+
+    vec4 base = mix(bot_color, top_color, gradient_factor) * time_variation;
+
+    if (background_mode == 1) {
+        // --- Studio: radial vignette ---
+        vec2 center = v_uv - vec2(0.5, 0.5);
+        float vignette = 1.0 - dot(center, center) * 2.2;
+        vignette = clamp(vignette, 0.0, 1.0);
+        base.rgb *= vignette;
+
+    } else if (background_mode == 2) {
+        // --- Game-engine: camera-aware horizon glow ---
+        // Reconstruct view-space ray direction from NDC
+        vec4 ndc = vec4(v_uv * 2.0 - 1.0, 0.0, 1.0);
+        vec4 view_dir4 = inv_proj * ndc;
+        // Rotate to world space using only the camera's orientation (no translation)
+        vec3 world_dir = normalize(mat3(inv_view) * view_dir4.xyz);
+
+        // Horizon is where world_dir.z == 0 (Z-up system: ground plane is Z=0)
+        float horizon = 1.0 - abs(world_dir.z) * 4.5;
+        horizon = clamp(horizon, 0.0, 1.0);
+        horizon = pow(horizon, 2.0);
+        // Animate glow intensity slightly over time
+        float glow_strength = 0.28 + sin(time * 0.05) * 0.04;
+        vec3 glow = vec3(0.38, 0.52, 0.82) * horizon * glow_strength;
+        base.rgb += glow;
+    }
+
+    // Subtle noise to break up colour banding
+    float noise = fract(sin(dot(v_uv, vec2(12.9898, 78.233))) * 43758.5453) * 0.015 - 0.0075;
+    base.rgb += noise;
+
+    frag_color = clamp(base, 0.0, 1.0);
 }
 """  # type: str
 
@@ -493,6 +523,7 @@ class Shader:
             "far_plane",
             "time",
             "resolution",
+            "background_mode",
             "top_color",
             "bot_color",
             "particle_size",

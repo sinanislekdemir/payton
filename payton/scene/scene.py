@@ -106,6 +106,7 @@ from payton.scene.shader import (
     particle_geometry_shader,
     particle_vertex_shader,
 )
+from payton.scene.theme import THEME_BLENDER, THEME_GAMEENGINE, THEME_STUDIO, SceneTheme
 from payton.scene.types import CPlane
 
 try:
@@ -145,6 +146,7 @@ class Scene(Receiver):
         height: int = 600,
         on_select: Optional[Callable] = None,
         physics_force_continuous: bool = False,
+        theme: Optional[SceneTheme] = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Scene.
@@ -160,6 +162,11 @@ class Scene(Receiver):
             callback receives a list of selected :class:`Object` instances.
         physics_force_continuous : bool, optional
             If True, forces the physics clock to run continuously.
+        theme : SceneTheme or None, optional
+            Visual theme for the scene.  Pass one of the built-in presets
+            (``THEME_BLENDER``, ``THEME_STUDIO``, ``THEME_GAMEENGINE``) or a
+            custom :class:`~payton.scene.theme.SceneTheme` instance.
+            Defaults to :data:`~payton.scene.theme.THEME_STUDIO`.
         **kwargs
             Ignored; kept for backward compatibility.
         """
@@ -214,14 +221,29 @@ class Scene(Receiver):
 
         self.active_camera = self.cameras[0]
 
-        self.lights: List[Light] = []
-        self.lights.append(Light())
+        _theme: SceneTheme = theme if theme is not None else THEME_STUDIO
 
-        self.grid = Grid()
+        self.lights: List[Light] = []
+        self.lights.append(
+            Light(
+                position=list(_theme.light_position),
+                color=list(_theme.light_color),
+            )
+        )
+
+        self.grid = Grid(
+            color=list(_theme.grid_color),
+            major_color=(
+                list(_theme.grid_major_color)
+                if _theme.grid_major_color is not None
+                else None
+            ),
+            major_interval=_theme.grid_major_interval,
+        )
         self.controller = Controller()
         self.controller.add_controller(GUIController())
         self.controller.add_controller(SceneController())
-        self.background = Background()
+        self.background = Background(theme=_theme)
         self.shaders: Dict[str, Shader] = {
             DEFAULT_SHADER: Shader(
                 fragment=default_fragment_shader, vertex=default_vertex_shader
@@ -260,6 +282,75 @@ class Scene(Receiver):
         self._render_lock = False
         self._shadow_quality = SHADOW_MID
         self._shadow_samples = 20
+
+    # ------------------------------------------------------------------
+    # Theme helpers
+    # ------------------------------------------------------------------
+
+    def apply_theme(self, theme: SceneTheme) -> None:
+        """Apply a :class:`~payton.scene.theme.SceneTheme` at any time.
+
+        Updates the background colours and mode, the grid colours, and the
+        first light's position and colour instantly — no need to recreate the
+        scene.
+
+        Parameters
+        ----------
+        theme : SceneTheme
+            Any :class:`SceneTheme` instance, including the built-in presets.
+
+        Example
+        -------
+        >>> from payton.scene import Scene, THEME_STUDIO
+        >>> scene = Scene()
+        >>> scene.apply_theme(THEME_STUDIO)
+        """
+        self.background.top_color = list(theme.background_top_color)
+        self.background.bottom_color = list(theme.background_bottom_color)
+        self.background._background_mode = theme.background_mode
+
+        self.grid._color = list(theme.grid_color)
+        self.grid._material.color = list(theme.grid_color)
+        self.grid._major_color = (
+            list(theme.grid_major_color) if theme.grid_major_color is not None else None
+        )
+        self.grid._major_interval = theme.grid_major_interval
+        # Rebuild grid geometry to reflect new colours
+        self.grid.resize(self.grid._xres, self.grid._yres)
+
+        if self.lights:
+            self.lights[0].position = list(theme.light_position)
+            self.lights[0].color = list(theme.light_color)
+
+    def theme_blender(self) -> None:
+        """Switch to the Blender-style neutral mid-gray viewport theme.
+
+        Example
+        -------
+        >>> scene = Scene()
+        >>> scene.theme_blender()
+        """
+        self.apply_theme(THEME_BLENDER)
+
+    def theme_studio(self) -> None:
+        """Switch to the Studio theme: warm charcoal background with vignette.
+
+        Example
+        -------
+        >>> scene = Scene()
+        >>> scene.theme_studio()
+        """
+        self.apply_theme(THEME_STUDIO)
+
+    def theme_gameengine(self) -> None:
+        """Switch to the Game-engine theme: sky-blue horizon with glow.
+
+        Example
+        -------
+        >>> scene = Scene()
+        >>> scene.theme_gameengine()
+        """
+        self.apply_theme(THEME_GAMEENGINE)
 
     def _step_physics(self, period: float, total: float) -> None:
         """Advance the physics simulation one step.
@@ -453,7 +544,9 @@ class Scene(Receiver):
         # Render background
         glViewport(0, 0, self.window_width, self.window_height)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        self.background.render()
+        self.background.render(
+            self.window_width, self.window_height, self.active_camera
+        )
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
 
@@ -901,6 +994,7 @@ class Background:
         self,
         top_color: Optional[Vector3D] = None,
         bottom_color: Optional[Vector3D] = None,
+        theme: Optional[SceneTheme] = None,
         **kwargs: Dict[str, Any],
     ):
         """Create a Background with optional top and bottom colors.
@@ -908,15 +1002,39 @@ class Background:
         Parameters
         ----------
         top_color : Vector3D or None
-            RGBA color for the top of the gradient. If None a default is used.
+            RGBA color for the top of the gradient.  When provided this
+            overrides any value from *theme*.
         bottom_color : Vector3D or None
-            RGBA color for the bottom of the gradient. If None a default is used.
+            RGBA color for the bottom of the gradient.  When provided this
+            overrides any value from *theme*.
+        theme : SceneTheme or None
+            Visual theme to initialise colors and background mode from.
+            Explicit *top_color* / *bottom_color* arguments take precedence.
         """
-        self.top_color = [0.0, 0.0, 0.0, 1.0] if top_color is None else top_color
-        self.bottom_color = (
-            [0.0, 0.1, 0.2, 1.0] if bottom_color is None else bottom_color
-        )
-        variables = ["top_color", "bot_color"]
+        if theme is not None:
+            self.top_color = list(theme.background_top_color)
+            self.bottom_color = list(theme.background_bottom_color)
+            self._background_mode: int = theme.background_mode
+        else:
+            self.top_color = [0.0, 0.0, 0.0, 1.0]
+            self.bottom_color = [0.0, 0.1, 0.2, 1.0]
+            self._background_mode = 0
+
+        # Explicit arguments override the theme
+        if top_color is not None:
+            self.top_color = list(top_color)
+        if bottom_color is not None:
+            self.bottom_color = list(bottom_color)
+
+        variables = [
+            "top_color",
+            "bot_color",
+            "time",
+            "resolution",
+            "background_mode",
+            "inv_proj",
+            "inv_view",
+        ]
         self._shader = Shader(
             fragment=background_fragment_shader,
             vertex=background_vertex_shader,
@@ -924,6 +1042,7 @@ class Background:
         )
         self._vao = None
         self.visible = True
+        self._start_time: float = time.time()
 
     def set_time(self, hour: int, minute: int) -> None:
         """Adjust the background gradient to approximate a time-of-day color.
@@ -986,11 +1105,25 @@ class Background:
                 ]
                 return
 
-    def render(self) -> None:
+    def render(
+        self, width: int = 0, height: int = 0, camera: Optional["Camera"] = None
+    ) -> None:
         """Render a full-screen gradient quad using the background shader.
 
         The method lazily builds the VAO and shader on first invocation. If
         the background is hidden the call is a no-op.
+
+        Parameters
+        ----------
+        width : int
+            Current viewport width in pixels (used for the *resolution*
+            shader uniform).
+        height : int
+            Current viewport height in pixels.
+        camera : Camera or None
+            Active camera. When provided and background_mode == 2 (game-engine),
+            the inverse projection and view matrices are passed to the shader so
+            the horizon glow follows the camera's actual look direction.
         """
         if not self.visible:
             return
@@ -1003,6 +1136,8 @@ class Background:
 
         glDisable(GL_DEPTH_TEST)
 
+        elapsed = time.time() - self._start_time
+
         self._shader.use()
         self._shader.set_vector4_np(
             "top_color", np.array(self.top_color, dtype=np.float32)
@@ -1010,6 +1145,19 @@ class Background:
         self._shader.set_vector4_np(
             "bot_color", np.array(self.bottom_color, dtype=np.float32)
         )
+        self._shader.set_float("time", elapsed)
+        self._shader.set_int("background_mode", self._background_mode)
+        if width > 0 and height > 0:
+            self._shader.set_resolution(float(width), float(height))
+
+        if self._background_mode == 2 and camera is not None:
+            proj, view = camera.render()
+            if proj is not None and view is not None:
+                inv_proj = np.asfortranarray(np.linalg.inv(proj), dtype=np.float32)
+                inv_view = np.asfortranarray(np.linalg.inv(view), dtype=np.float32)
+                self._shader.set_matrix4x4_np("inv_proj", inv_proj)
+                self._shader.set_matrix4x4_np("inv_view", inv_view)
+
         glBindVertexArray(self._vao)
         glDrawArrays(GL_TRIANGLES, 0, 3)
         glBindVertexArray(0)

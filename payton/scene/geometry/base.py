@@ -49,9 +49,21 @@ from payton.math.functions import (
     vector_transform,
 )
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import IDENTITY_MATRIX, Matrix, matrix_to_position_and_quaternion
+from payton.math.matrix import (
+    IDENTITY_MATRIX,
+    Matrix,
+    matrix_to_position_and_quaternion,
+)
 from payton.math.vector import Vector2D, Vector3D
-from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
+from payton.scene.material import (
+    DEFAULT,
+    NO_INDICE,
+    NO_VERTEX_ARRAY,
+    POINTS,
+    SOLID,
+    WIREFRAME,
+    Material,
+)
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.scene.types import IList, VList
 
