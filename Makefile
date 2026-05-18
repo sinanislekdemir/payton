@@ -20,7 +20,6 @@ lint:
 	@ruff check payton
 
 fmt:
-	isort .
 	ruff check payton --fix
 	ruff format payton
 

@@ -837,11 +837,11 @@ class Object:
 
         for material in self.materials.values():
             if len(material._indices) == 0:
-                material._vao == NO_INDICE
+                material._vao = NO_INDICE
                 continue
 
-            if material._vao == NO_VERTEX_ARRAY:
-                # Generate Vertex Array
+            if material._vao == NO_VERTEX_ARRAY or material._vao == NO_INDICE:
+                # Generate Vertex Array (also handles transition from NO_INDICE when indices are added later)
                 material._vao = glGenVertexArrays(1)
                 # We need 1 buffer for material as indices
                 material._vbos = [glGenBuffers(1)]

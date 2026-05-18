@@ -85,9 +85,10 @@ class Mesh(Object):
         normal = plane_normal(v1, v2, v3)
         if reverse:
             normal = invert_vector(normal)
-        self._normals[i1] = normal
-        self._normals[i2] = normal
-        self._normals[i3] = normal
+        # Assign independent copies so vertices don't share the same list object
+        self._normals[i1] = list(normal)
+        self._normals[i2] = list(normal)
+        self._normals[i3] = list(normal)
         return True
 
     def fix_normals(self, reverse: bool = False) -> None:
@@ -99,7 +100,7 @@ class Mesh(Object):
         Keyword arguments:
         reverse -- Force reversing the normal directions.
         """
-        self._normals = [[0, 0, 1.0]] * len(self._vertices)
+        self._normals = [[0.0, 0.0, 1.0] for _ in range(len(self._vertices))]
 
         [
             self._calc_normal(face[0], face[1], face[2], reverse)
@@ -118,9 +119,10 @@ class Mesh(Object):
         self._calc_bounds()
         bbox = self.bounding_box
         vmin, vmax = bbox[0], bbox[1]
-        width = vmax[0] - vmin[0]
-        depth = vmax[1] - vmin[1]
-        height = vmax[2] - vmin[2]
+        # Guard against division-by-zero on flat/degenerate meshes
+        width = max(vmax[0] - vmin[0], 1e-10)
+        depth = max(vmax[1] - vmin[1], 1e-10)
+        height = max(vmax[2] - vmin[2], 1e-10)
         normals = [
             [0.0, -1.0, 0.0],  # front
             [1.0, 0.0, 0.0],  # right
@@ -233,9 +235,9 @@ class Mesh(Object):
             for color in colors:
                 self._vertex_colors.append(color)
 
+        i = len(self._vertices)
         self._vertices += vertices
 
-        i = len(self._indices) * 3
         self._indices.append([i, i + 1, i + 2])
         self.materials[material]._indices.append([i, i + 1, i + 2])
         for normal in normals:
