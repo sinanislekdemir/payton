@@ -1,11 +1,14 @@
 import math
 import random
+
 import sdl2
+
+from payton.math.functions import distance
 from payton.scene import Scene
+from payton.scene.controller import Controller
 from payton.scene.geometry import Cube
 from payton.scene.gui import info_box
-from payton.scene.controller import Controller
-from payton.math.functions import distance
+
 
 class MinecraftApp(Scene):
     def __init__(self, **kwargs):

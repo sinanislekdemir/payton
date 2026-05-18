@@ -598,7 +598,13 @@ class RagDoll(Object):
             self._current_frame = frame_number
             self.set_keyframe(frame_number)
 
-    def render(self, lit: bool, shader: Shader, parent_matrix: Optional[np.ndarray] = None, _primitive: Optional[int] = None) -> None:
+    def render(
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: Optional[int] = None,
+    ) -> None:
         """Render with animation update."""
         if not self._visible:
             return

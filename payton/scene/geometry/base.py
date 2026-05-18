@@ -49,9 +49,21 @@ from payton.math.functions import (
     vector_transform,
 )
 from payton.math.geometry import raycast_sphere_intersect
-from payton.math.matrix import IDENTITY_MATRIX, Matrix, matrix_to_position_and_quaternion
+from payton.math.matrix import (
+    IDENTITY_MATRIX,
+    Matrix,
+    matrix_to_position_and_quaternion,
+)
 from payton.math.vector import Vector2D, Vector3D
-from payton.scene.material import DEFAULT, NO_INDICE, NO_VERTEX_ARRAY, POINTS, SOLID, WIREFRAME, Material
+from payton.scene.material import (
+    DEFAULT,
+    NO_INDICE,
+    NO_VERTEX_ARRAY,
+    POINTS,
+    SOLID,
+    WIREFRAME,
+    Material,
+)
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.scene.types import IList, VList
 
@@ -825,11 +837,11 @@ class Object:
 
         for material in self.materials.values():
             if len(material._indices) == 0:
-                material._vao == NO_INDICE
+                material._vao = NO_INDICE
                 continue
 
-            if material._vao == NO_VERTEX_ARRAY:
-                # Generate Vertex Array
+            if material._vao == NO_VERTEX_ARRAY or material._vao == NO_INDICE:
+                # Generate Vertex Array (also handles transition from NO_INDICE when indices are added later)
                 material._vao = glGenVertexArrays(1)
                 # We need 1 buffer for material as indices
                 material._vbos = [glGenBuffers(1)]

@@ -43,6 +43,8 @@ class Grid:
         xres: int = 20,
         yres: int = 20,
         color: Optional[Vector3D] = None,
+        major_color: Optional[Vector3D] = None,
+        major_interval: int = 5,
         **kwargs: Any,
     ) -> None:
         """Initialize the Grid
@@ -50,9 +52,14 @@ class Grid:
         Keyword arguments:
         xres -- Number of steps in X direction
         yres -- Number of steps in Y direction
-        color -- Color of the grid.
+        color -- Color of the minor grid lines.
+        major_color -- Color of the major grid lines (every *major_interval*
+            units).  ``None`` disables major-line differentiation.
+        major_interval -- Unit interval between major grid lines (default 5).
         """
-        self._color = [0.4, 0.4, 0.4, 1.0] if color is None else color
+        self._color = [0.35, 0.35, 0.35, 1.0] if color is None else color
+        self._major_color: Optional[Vector3D] = major_color
+        self._major_interval: int = max(1, major_interval)
         self.static: bool = True
         self.matrix: List[float] = [
             1.0,
@@ -78,7 +85,9 @@ class Grid:
         self._model_matrix: Optional[np.ndarray] = None
         self._material: Material = Material(display=1, lights=False)
         self._material.color = self._color
-        self._lines: List[Line] = [
+        self._xres: int = xres
+        self._yres: int = yres
+        self._axis_lines: List[Line] = [
             Line(
                 vertices=[
                     [0.0, 0.0, 0.01],
@@ -101,6 +110,8 @@ class Grid:
                 color=[0.0, 0.0, 1.0],
             ),
         ]
+        self._major_lines: List[Line] = []
+        self._lines: List[Line] = self._axis_lines  # kept for back-compat
 
         # Vertex Array Object pointer
         self._vao: int = -1
@@ -113,7 +124,9 @@ class Grid:
         if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
             self._vao = -1
-        for line in self._lines:
+        for line in self._axis_lines:
+            line.destroy()
+        for line in self._major_lines:
             line.destroy()
         return True
 
@@ -148,7 +161,9 @@ class Grid:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
 
-        for line in self._lines:
+        for line in self._major_lines:
+            line.render(False, shader, None)
+        for line in self._axis_lines:
             line.render(False, shader, None)
         return True
 
@@ -160,11 +175,15 @@ class Grid:
         yres -- Number of steps in Y direction
         spacing -- Grid spacing
         """
+        self._xres = xres
+        self._yres = yres
         self._vertices = []
         self._indices = []
         self._vertex_count = 0
         ystart = -(yres * spacing / 2.0)
         xstart = -(xres * spacing / 2.0)
+        xend = xres * spacing / 2.0
+        yend = yres * spacing / 2.0
         self._model_matrix = np.asfortranarray(
             np.array(self.matrix, dtype=np.float32), dtype=np.float32
         )
@@ -193,6 +212,36 @@ class Grid:
         if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
         self._vao = -1
+
+        # Rebuild major grid lines if a major colour is configured
+        for line in self._major_lines:
+            line.destroy()
+        self._major_lines = []
+
+        if self._major_color is not None:
+            mc = list(self._major_color)
+            # Vertical major lines (parallel to Y axis)
+            x = xstart
+            while x <= xend + spacing * 0.01:
+                if abs(round(x / spacing) % self._major_interval) < 0.01:
+                    self._major_lines.append(
+                        Line(
+                            vertices=[[x, ystart, 0.01], [x, yend, 0.01]],
+                            color=mc,
+                        )
+                    )
+                x += spacing
+            # Horizontal major lines (parallel to X axis)
+            y = ystart
+            while y <= yend + spacing * 0.01:
+                if abs(round(y / spacing) % self._major_interval) < 0.01:
+                    self._major_lines.append(
+                        Line(
+                            vertices=[[xstart, y, 0.01], [xend, y, 0.01]],
+                            color=mc,
+                        )
+                    )
+                y += spacing
 
     @property
     def color(self) -> Vector3D:

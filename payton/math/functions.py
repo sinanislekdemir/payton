@@ -197,7 +197,9 @@ def vector_angle(v1: Vector3D, v2: Vector3D) -> float:
     """
     v1_n = normalize_vector(v1)
     v2_n = normalize_vector(v2)
-    return math.acos(dot_product(v1_n, v2_n) / (vector_norm(v1_n) * vector_norm(v2_n)))
+    # Clamp to [-1, 1] to guard against floating-point drift causing math domain error
+    dot = max(-1.0, min(1.0, dot_product(v1_n, v2_n)))
+    return math.acos(dot)
 
 
 def mid_point(v1: Vector3D, v2: Vector3D) -> Vector3D:

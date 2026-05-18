@@ -23,11 +23,17 @@ F2: Previous Camera F3: Next Camera
     help_window = Window(
         align=WindowAlignment.RIGHT,
         title="How to use Payton Scene",
-        height=10000,
+        height=500,
         width=520,
     )
     help_window.add_child(
-        "text", Button(width=500, height=400, left=10, top=40, label=text)
+        "text",
+        Text(
+            position=[10, 40],
+            size=[500, 440],
+            label=text,
+            color=[0.95, 0.95, 0.95],
+        ),
     )
     return help_window
 
