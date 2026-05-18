@@ -141,7 +141,7 @@ class Shape2D(Mesh):
             for child in self.children:
                 c = cast(Mesh, self.children[child]).click(x, y)
                 if c:
-                    return cast(Mesh, self.children[child])
+                    return c
             return None
 
         if self._model_matrix is None:
@@ -343,19 +343,20 @@ class Hud(Object):
         self._fontname: str = font
         self.children: Dict[str, Object] = {}
         self._font_size: int = font_size
-        if self._fontname != "":
-            self.set_font(self._fontname, self._font_size)
         self._font: ImageFont | None = None
         self._projection_matrix: Optional[np.ndarray] = None
-        try:
-            self.set_font(
-                os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)), "monofonto.ttf"
+        if self._fontname != "":
+            self.set_font(self._fontname, self._font_size)
+        else:
+            try:
+                self.set_font(
+                    os.path.join(
+                        os.path.dirname(os.path.abspath(__file__)), "monofonto.ttf"
+                    )
                 )
-            )
-        except OSError:
-            # font not found but pillow has better than nothinf font
-            pass
+            except OSError:
+                # font not found but pillow has a fallback font
+                pass
 
     @property
     def font(self) -> ImageFont | None:

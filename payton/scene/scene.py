@@ -87,6 +87,7 @@ from payton.scene.geometry.base import Object
 from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
 from payton.scene.gui.help import help_win
+from payton.scene.gui.window import Theme
 from payton.scene.light import Light
 from payton.scene.physics import physics_client
 from payton.scene.receiver import Receiver
@@ -222,6 +223,16 @@ class Scene(Receiver):
         self.active_camera = self.cameras[0]
 
         _theme: SceneTheme = theme if theme is not None else THEME_STUDIO
+
+        self.ui_theme: Theme = Theme.from_scene_theme(_theme)
+        """UI Theme derived from the scene's SceneTheme.
+
+        Pass this to :class:`~payton.scene.gui.window.Window` or other UI
+        elements to get a palette that is coherent with the 3-D scene::
+
+            scene = Scene(theme=THEME_STUDIO)
+            win   = Window("My Window", theme=scene.ui_theme)
+        """
 
         self.lights: List[Light] = []
         self.lights.append(
