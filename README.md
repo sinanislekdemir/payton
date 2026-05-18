@@ -277,6 +277,7 @@ You can either download the whole repository [as a zip file](https://github.com/
   * Multiplayer
     * [Server backend for a multiplayer game](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/server.py)
     * [3D Blocks building game multiplayer](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/client3D.py)
+  * [3D object designer tool](https://github.com/sinanislekdemir/payton/blob/master/examples/designer/main.py)
 
 ## Contribution
 

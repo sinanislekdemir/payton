@@ -469,7 +469,7 @@ class Button(Panel):
         yi = max(int(self.size[1] / 2.0 - cy), 0)
 
         self.text.label = self._label
-        crop: List[int] = [0, 0, 0, 0]
+        crop: List[int] = [0, 0, img_w, img_h]
 
         # If text image is wider than the button, centre-crop horizontally.
         if img_w > self.size[0]:
