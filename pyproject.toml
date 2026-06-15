@@ -17,12 +17,12 @@ classifiers = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "Pillow>=10.3.0",
-    "PyOpenGL>=3.1.7",
+    "Pillow>=12.2.0",
+    "PyOpenGL>=3.1.10",
     "pyrr>=0.10.3",
-    "PySDL2>=0.9.16",
-    "Cython>=3.0.5",
-    "numpy>=2.4",
+    "PySDL2>=0.9.17",
+    "Cython>=3.2.5",
+    "numpy>=2.4.6",
 ]
 
 [project.urls]
