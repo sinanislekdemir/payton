@@ -5,7 +5,7 @@ from typing import Any, List, Optional
 import sdl2
 
 from payton.scene.camera import BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
-from payton.scene.gui import EditBox
+from payton.scene.gui import EditBox, Window
 
 
 class BaseController:
@@ -27,6 +27,7 @@ class GUIController(BaseController):
     def __init__(self) -> None:
         super().__init__()
         self._active_object: Optional[EditBox] = None
+        self._drag_window: Optional[Window] = None
 
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> bool:
         """
@@ -82,6 +83,17 @@ class GUIController(BaseController):
                     focus_element = h.children[shape].click(mx, my)
                     if focus_element:
                         if (
+                            isinstance(focus_element, Window)
+                            and focus_element._dragging
+                        ):
+                            self._drag_window = focus_element
+                            if self._active_object is not None:
+                                self._active_object._exit()
+                                self._active_object = None
+                                sdl2.SDL_ShowCursor(True)
+                                sdl2.SDL_StopTextInput()
+                            return True
+                        if (
                             self._active_object is not None
                             and self._active_object != focus_element
                         ):
@@ -89,11 +101,21 @@ class GUIController(BaseController):
                             self._active_object = None
                             sdl2.SDL_ShowCursor(True)
                             sdl2.SDL_StopTextInput()
-                        if hasattr(focus_element, "_on_keypress"):
+                        if isinstance(focus_element, EditBox):
                             self._active_object = focus_element
                             sdl2.SDL_ShowCursor(False)
                             sdl2.SDL_StartTextInput()
                         return True
+
+        if event.type == sdl2.SDL_MOUSEMOTION and self._drag_window is not None:
+            self._drag_window.drag_to(event.motion.x, event.motion.y)
+            return True
+
+        if event.type == sdl2.SDL_MOUSEBUTTONUP and self._drag_window is not None:
+            self._drag_window.stop_drag()
+            self._drag_window = None
+            return True
+
         return False
 
 

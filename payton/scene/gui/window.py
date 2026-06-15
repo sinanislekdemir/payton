@@ -6,13 +6,14 @@ Anyone without any UI coding experience should be able to get started
 with the basic stuff"""
 
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, cast
 
 import numpy as np
 from PIL import Image, ImageDraw
 
 from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
+from payton.scene.geometry.mesh import Mesh
 from payton.scene.gui.base import Shape2D, Text
 from payton.scene.shader import Shader
 from payton.scene.theme import SceneTheme
@@ -250,6 +251,48 @@ class Window(WindowElement):
                 opacity=0.8,
             ),
         )
+        self._dragging: bool = False
+        self._drag_offset_x: float = 0.0
+        self._drag_offset_y: float = 0.0
+
+    def start_drag(self, x: int, y: int) -> None:
+        self._dragging = True
+        self.align = WindowAlignment.FREE
+        self._drag_offset_x = x - self.position[0]
+        self._drag_offset_y = y - self.position[1]
+
+    def drag_to(self, x: int, y: int) -> None:
+        if not self._dragging:
+            return
+        self.position = [
+            x - self._drag_offset_x,
+            y - self._drag_offset_y,
+            self.position[2],
+        ]
+
+    def stop_drag(self) -> None:
+        self._dragging = False
+
+    def click(self, x: int, y: int) -> Optional[Mesh]:
+        if self._model_matrix is None or len(self._model_matrix) == 0:
+            return None
+        mm = self._model_matrix[3]
+        inside = (
+            x > mm[0]
+            and x < mm[0] + self.size[0]
+            and y > mm[1]
+            and y < mm[1] + self.size[1]
+        )
+        if not inside:
+            return None
+        if y - mm[1] < TITLE_BAR_HEIGHT:
+            self.start_drag(x, y)
+            return self
+        for child in self.children:
+            c = cast(Mesh, self.children[child]).click(x, y)
+            if c:
+                return c
+        return None
 
     def draw(self) -> None:
         """Create the frame polygons"""
