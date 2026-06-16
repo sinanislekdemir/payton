@@ -30,13 +30,14 @@ def extrude_line(line: Line, direction: Vector3D, distance: float) -> Mesh:
     mesh = Mesh()
     for i in range(len(vertices) - 1):
         mesh.add_triangle(
-            vertices=[vertices[i], vertices[i + 1], mirror_vertices[i]],
-            texcoords=[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]],
+            vertices=[mirror_vertices[i], vertices[i + 1], vertices[i]],
+            texcoords=[[0.0, 1.0], [1.0, 0.0], [0.0, 0.0]],
         )
         mesh.add_triangle(
-            vertices=[vertices[i + 1], mirror_vertices[i + 1], mirror_vertices[i]],
-            texcoords=[[1.0, 0.0], [1.0, 1.0], [0.0, 1.0]],
+            vertices=[mirror_vertices[i], mirror_vertices[i + 1], vertices[i + 1]],
+            texcoords=[[0.0, 1.0], [1.0, 1.0], [1.0, 0.0]],
         )
+    mesh.fix_normals()
     return mesh
 
 
