@@ -5,6 +5,8 @@ I tried to make the whole mechanism as basic as possible.
 Anyone without any UI coding experience should be able to get started
 with the basic stuff"""
 
+import logging
+import time
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, cast
 
@@ -14,7 +16,7 @@ from PIL import Image, ImageDraw
 from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
 from payton.scene.geometry.mesh import Mesh
-from payton.scene.gui.base import Shape2D, Text
+from payton.scene.gui.base import Shape2D, Text, Rectangle, text_size
 from payton.scene.shader import Shader
 from payton.scene.theme import SceneTheme
 
@@ -433,6 +435,395 @@ class Panel(WindowElement):
             self._init = True
 
 
+class ProgressBar(Panel):
+    def __init__(
+        self,
+        label: str = "",
+        width: int = 400,
+        height: int = 300,
+        left: int = 10,
+        top: int = 10,
+        align: WindowAlignment = WindowAlignment.FREE,
+        theme: Optional[Theme] = None,
+        value: float = 0.0,
+        min_value: float = 0.0,
+        max_value: float = 100.0,
+        **kwargs: Any,
+    ):
+        kwargs["on_click"] = None
+        height = max(height, 30)
+        super().__init__(
+            width=width,
+            height=height,
+            left=left,
+            top=top,
+            align=align,
+            theme=theme,
+            **kwargs,
+        )
+
+        self._label = label
+        self._min_value = min_value
+        self._max_value = max_value
+        self._value = max(min_value, min(max_value, value))
+        self._bar_init: bool = False
+
+        self.text = Text(
+            position=[0, 0, 1],
+            size=[10, 10],
+            label=self._make_label(),
+            color=self.theme.text_color,
+        )
+        self.add_child("label", self.text)
+
+    def _make_label(self) -> str:
+        pct = (
+            (self._value - self._min_value)
+            / max(self._max_value - self._min_value, 1.0)
+            * 100.0
+        )
+        if self._label:
+            return f"{self._label}: {pct:.0f}%"
+        return f"{pct:.0f}%"
+
+    def _update_label(self) -> None:
+        self.text.label = self._make_label()
+        self.text._init_text = False
+
+    @property
+    def value(self) -> float:
+        return self._value
+
+    @value.setter
+    def value(self, val: float) -> None:
+        clamped = max(self._min_value, min(self._max_value, val))
+        if clamped == self._value:
+            return
+        self._value = clamped
+        self._update_label()
+        self._init = False
+        self._bar_init = False
+
+    @property
+    def min_value(self) -> float:
+        return self._min_value
+
+    @min_value.setter
+    def min_value(self, val: float) -> None:
+        self._min_value = val
+        self._update_label()
+        self._init = False
+        self._bar_init = False
+
+    @property
+    def max_value(self) -> float:
+        return self._max_value
+
+    @max_value.setter
+    def max_value(self, val: float) -> None:
+        self._max_value = val
+        self._update_label()
+        self._init = False
+        self._bar_init = False
+
+    def draw(self, **kwargs: Any) -> None:
+        super().draw()
+        w, h = self.size[0], self.size[1]
+        if not self._bar_init:
+            ratio = (self._value - self._min_value) / max(
+                self._max_value - self._min_value, 1.0
+            )
+            ratio = max(0.0, min(1.0, ratio))
+            bar_w = (w - 4) * ratio
+            if bar_w > 0:
+                self.add_triangle(
+                    [[2, 2, 1], [2 + bar_w, h - 2, 1], [2 + bar_w, 2, 1]],
+                    texcoords=[[0, 0], [1, 1], [1, 0]],
+                    colors=[
+                        self.theme.title_background_color,
+                        self.theme.title_background_color,
+                        self.theme.title_background_color,
+                    ],
+                )
+                self.add_triangle(
+                    [[2, 2, 1], [2, h - 2, 1], [2 + bar_w, h - 2, 1]],
+                    texcoords=[[0, 0], [0, 1], [1, 1]],
+                    colors=[
+                        self.theme.title_background_color,
+                        self.theme.title_background_color,
+                        self.theme.title_background_color,
+                    ],
+                )
+                # Bar top-edge highlight
+                if bar_w > 4:
+                    self.add_triangle(
+                        [[4, 4, 1], [2 + bar_w - 2, 5, 1], [2 + bar_w - 2, 4, 1]],
+                        texcoords=[[0, 0], [1, 1], [1, 0]],
+                        colors=[
+                            self.theme.highlight_color,
+                            self.theme.highlight_color,
+                            self.theme.highlight_color,
+                        ],
+                    )
+                    self.add_triangle(
+                        [[4, 4, 1], [4, 5, 1], [2 + bar_w - 2, 5, 1]],
+                        texcoords=[[0, 0], [0, 1], [1, 1]],
+                        colors=[
+                            self.theme.highlight_color,
+                            self.theme.highlight_color,
+                            self.theme.highlight_color,
+                        ],
+                    )
+            self._bar_init = True
+
+
+class Slider(Panel):
+    TRACK_HEIGHT = 8
+    THUMB_WIDTH = 16
+    THUMB_HEIGHT = 22
+
+    def __init__(
+        self,
+        label: str = "",
+        width: int = 400,
+        height: int = 300,
+        left: int = 10,
+        top: int = 10,
+        align: WindowAlignment = WindowAlignment.FREE,
+        theme: Optional[Theme] = None,
+        on_change: Optional[Callable] = None,
+        min_value: float = 0.0,
+        max_value: float = 100.0,
+        value: Optional[float] = None,
+        **kwargs: Any,
+    ):
+        kwargs["on_click"] = self._start_slide
+        height = max(height, 30)
+        super().__init__(
+            width=width,
+            height=height,
+            left=left,
+            top=top,
+            align=align,
+            theme=theme,
+            **kwargs,
+        )
+
+        self._label = label
+        self._raw_on_change = on_change
+        self.on_change_call = self._safe_on_change
+        self._min_value = min_value
+        self._max_value = max_value
+        if value is None:
+            value = min_value
+        self._value = max(min_value, min(max_value, value))
+        self._dragging = False
+        self._drag_offset_x: float = 0.0
+        self._slider_init: bool = False
+
+        self.text = Text(
+            position=[0, 0, 1],
+            size=[10, 10],
+            label=self._make_label(),
+            color=self.theme.text_color,
+        )
+        self.add_child("label", self.text)
+
+    def _make_label(self) -> str:
+        if self._label:
+            return f"{self._label}: {self._value:.2f}"
+        return f"{self._value:.2f}"
+
+    def _update_label(self) -> None:
+        self.text.label = self._make_label()
+        self.text._init_text = False
+
+    def _safe_on_change(self, val: float) -> None:
+        if callable(self._raw_on_change):
+            try:
+                self._raw_on_change(val)
+            except Exception:
+                logging.exception("Slider on_change callback failed")
+
+    @property
+    def value(self) -> float:
+        return self._value
+
+    @value.setter
+    def value(self, val: float) -> None:
+        clamped = max(self._min_value, min(self._max_value, val))
+        if clamped == self._value:
+            return
+        self._value = clamped
+        self._update_label()
+        self.on_change_call(self._value)
+        self._init = False
+        self._slider_init = False
+
+    @property
+    def min_value(self) -> float:
+        return self._min_value
+
+    @min_value.setter
+    def min_value(self, val: float) -> None:
+        self._min_value = val
+        if self._value < val:
+            self.value = val
+
+    @property
+    def max_value(self) -> float:
+        return self._max_value
+
+    @max_value.setter
+    def max_value(self, val: float) -> None:
+        self._max_value = val
+        if self._value > val:
+            self.value = val
+
+    def _value_to_x(self) -> float:
+        track_pad = self.THUMB_WIDTH / 2 + 2
+        track_w = self.size[0] - track_pad * 2
+        if track_w <= 0:
+            return track_pad
+        ratio = (self._value - self._min_value) / (self._max_value - self._min_value)
+        return track_pad + ratio * track_w - self.THUMB_WIDTH / 2
+
+    def _x_to_value(self, x: float) -> float:
+        track_pad = self.THUMB_WIDTH / 2 + 2
+        track_w = self.size[0] - track_pad * 2
+        if track_w <= 0:
+            return self._min_value
+        ratio = max(0.0, min(1.0, (x - track_pad) / track_w))
+        return self._min_value + ratio * (self._max_value - self._min_value)
+
+    def _start_slide(self) -> None:
+        self._dragging = True
+        self._drag_offset_x = 0.0
+
+    def drag_to(self, global_x: int, global_y: int) -> None:
+        if (
+            not self._dragging
+            or self._model_matrix is None
+            or len(self._model_matrix) == 0
+        ):
+            return
+        mm = self._model_matrix[3]
+        local_x = global_x - mm[0]
+        self.value = self._x_to_value(local_x - self._drag_offset_x)
+
+    def stop_drag(self) -> None:
+        self._dragging = False
+
+    def click(self, x: int, y: int) -> Optional[Mesh]:
+        if self._model_matrix is None or len(self._model_matrix) == 0:
+            return None
+        mm = self._model_matrix[3]
+        inside_me = (
+            x > mm[0]
+            and x < mm[0] + self.size[0]
+            and y > mm[1]
+            and y < mm[1] + self.size[1]
+        )
+        if not inside_me:
+            return None
+
+        local_x = x - mm[0]
+        thumb_x = self._value_to_x()
+        on_thumb = local_x >= thumb_x and local_x <= thumb_x + self.THUMB_WIDTH
+
+        if on_thumb:
+            self._dragging = True
+            self._drag_offset_x = local_x - (thumb_x + self.THUMB_WIDTH / 2)
+        else:
+            self.value = self._x_to_value(local_x)
+            self._dragging = True
+            self._drag_offset_x = 0.0
+
+        self._init = False
+        self._slider_init = False
+        return self
+
+    def draw(self, **kwargs: Any) -> None:
+        super().draw()
+        w, h = self.size[0], self.size[1]
+        if not self._slider_init:
+            # Track
+            track_y = (h - self.TRACK_HEIGHT) / 2
+            pad = self.THUMB_WIDTH / 2 + 2
+            self.add_triangle(
+                [
+                    [pad, track_y, 1],
+                    [w - pad, track_y + self.TRACK_HEIGHT, 1],
+                    [w - pad, track_y, 1],
+                ],
+                texcoords=[[0, 0], [1, 1], [1, 0]],
+                colors=[
+                    self.theme.border_color,
+                    self.theme.border_color,
+                    self.theme.border_color,
+                ],
+            )
+            self.add_triangle(
+                [
+                    [pad, track_y, 1],
+                    [pad, track_y + self.TRACK_HEIGHT, 1],
+                    [w - pad, track_y + self.TRACK_HEIGHT, 1],
+                ],
+                texcoords=[[0, 0], [0, 1], [1, 1]],
+                colors=[
+                    self.theme.border_color,
+                    self.theme.border_color,
+                    self.theme.border_color,
+                ],
+            )
+            # Thumb
+            thumb_x = self._value_to_x()
+            thumb_y = (h - self.THUMB_HEIGHT) / 2
+            tx, ty, tw, th = thumb_x, thumb_y, self.THUMB_WIDTH, self.THUMB_HEIGHT
+            self.add_triangle(
+                [[tx, ty, 1], [tx + tw, ty + th, 1], [tx + tw, ty, 1]],
+                texcoords=[[0, 0], [1, 1], [1, 0]],
+                colors=[
+                    self.theme.title_background_color,
+                    self.theme.title_background_color,
+                    self.theme.title_background_color,
+                ],
+            )
+            self.add_triangle(
+                [[tx, ty, 1], [tx, ty + th, 1], [tx + tw, ty + th, 1]],
+                texcoords=[[0, 0], [0, 1], [1, 1]],
+                colors=[
+                    self.theme.title_background_color,
+                    self.theme.title_background_color,
+                    self.theme.title_background_color,
+                ],
+            )
+            # Thumb top-edge highlight
+            self.add_triangle(
+                [
+                    [tx + 2, ty + 2, 1],
+                    [tx + tw - 2, ty + 3, 1],
+                    [tx + tw - 2, ty + 2, 1],
+                ],
+                texcoords=[[0, 0], [1, 1], [1, 0]],
+                colors=[
+                    self.theme.highlight_color,
+                    self.theme.highlight_color,
+                    self.theme.highlight_color,
+                ],
+            )
+            self.add_triangle(
+                [[tx + 2, ty + 2, 1], [tx + 2, ty + 3, 1], [tx + tw - 2, ty + 3, 1]],
+                texcoords=[[0, 0], [0, 1], [1, 1]],
+                colors=[
+                    self.theme.highlight_color,
+                    self.theme.highlight_color,
+                    self.theme.highlight_color,
+                ],
+            )
+            self._slider_init = True
+
+
 class Button(Panel):
     def __init__(
         self,
@@ -551,6 +942,8 @@ class Button(Panel):
 
 
 class EditBox(Panel):
+    BLINK_PERIOD = 0.53
+
     def __init__(
         self,
         value: str,
@@ -562,6 +955,7 @@ class EditBox(Panel):
         theme: Optional[Theme] = None,
         on_change: Optional[Callable] = None,
         multiline: bool = False,
+        placeholder: str = "",
         **kwargs: Any,
     ):
         """Initialize the edit box element
@@ -574,6 +968,8 @@ class EditBox(Panel):
         align -- Alignment of the editbox
         theme -- Theme to be used
         on_change -- On change callback method (expects a string argument) `def on_change(text: str)`
+        multiline -- If True, enables multi-line text editing
+        placeholder -- Placeholder text shown when value is empty and unfocused
         """
         kwargs["on_click"] = self._focus
         height = max(height, 30)
@@ -590,8 +986,10 @@ class EditBox(Panel):
 
         self.multiline = multiline
         self.theme.secondary()
-        self.on_change = on_change
+        self._raw_on_change = on_change
+        self.on_change = self._safe_on_change
         self._value = value
+        self._placeholder = placeholder
         self.text = Text(
             position=[0, 0, 0],
             size=[width, height],
@@ -600,69 +998,229 @@ class EditBox(Panel):
         )
         self.add_child("label", self.text)
         self._cursor = -1
+        self._blink_on = True
+        self._last_blink = time.time()
+        self._scroll_x = 0
+        self._scroll_y = 0
+        self._cursor_rect = Rectangle([0, 0], [2, 10])
+        self._cursor_rect.material.color = self.theme.highlight_color
+        self._cursor_rect.material.opacity = 1.0
+        self._cursor_rect.hide()
+        self.add_child("_cursor", self._cursor_rect)
+
+    def _safe_on_change(self, text: str) -> None:
+        if callable(self._raw_on_change):
+            try:
+                self._raw_on_change(text)
+            except Exception:
+                logging.exception("EditBox on_change callback failed")
 
     def _on_keypress(self, instr: str) -> None:
-        new = self.value[0 : self._cursor] + instr + self.value[self._cursor :]
-        self._cursor = len(self.value[0 : self._cursor] + instr)
+        new = self._value[: self._cursor] + instr + self._value[self._cursor :]
+        self._cursor = self._cursor + len(instr)
         self.value = new
 
     def _focus(self) -> None:
-        self._cursor = len(self.value)
+        self._cursor = len(self._value)
+        self._blink_on = True
+        self._last_blink = time.time()
         self._init = False
 
     def cursor_left(self) -> None:
         """Move the cursor to the left"""
-        self._cursor -= 1
-        self._cursor = max(self._cursor, 0)
-        self._init = False
+        if self._cursor > 0:
+            self._cursor -= 1
+            self._init = False
 
     def cursor_right(self) -> None:
         """Move the cursor to the right"""
-        self._cursor += 1
-        self._cursor = min(self._cursor, len(self.value))
-        self._init = False
+        if self._cursor < len(self._value):
+            self._cursor += 1
+            self._init = False
 
     def backspace(self) -> None:
-        """Delete the previous character"""
+        """Delete the character before the cursor"""
         if self._cursor == 0:
             return
-        self.value = self.value[0 : self._cursor - 1] + self.value[self._cursor :]
+        self.value = self._value[: self._cursor - 1] + self._value[self._cursor :]
         self.cursor_left()
+
+    def delete(self) -> None:
+        """Delete the character after the cursor (forward delete)"""
+        if self._cursor >= len(self._value):
+            return
+        self.value = self._value[: self._cursor] + self._value[self._cursor + 1 :]
+
+    def home(self) -> None:
+        """Move cursor to the start of the text"""
+        self._cursor = 0
+        self._scroll_x = 0
+        self._init = False
+
+    def end(self) -> None:
+        """Move cursor to the end of the text"""
+        self._cursor = len(self._value)
+        self._init = False
+
+    def select_all(self) -> None:
+        """Select all text (sets cursor to end for Ctrl+A).
+        The value is preserved; use in combination with paste/replace."""
+        self._cursor = len(self._value)
+
+    def paste(self, text: str) -> None:
+        """Insert text at the cursor position
+
+        Keyword arguments:
+        text -- Text to paste at cursor position
+        """
+        if not text:
+            return
+        self._on_keypress(text)
+
+    def _find_closest_char(self, target_x: float, line_text: str) -> int:
+        """Find the character index closest to target_x pixels within line_text."""
+        if self.font is None:
+            return len(line_text)
+        best_pos = 0
+        best_dist = abs(text_size(line_text[:0], self.font)[0] - target_x)
+        for i in range(1, len(line_text) + 1):
+            w, _ = text_size(line_text[:i], self.font)
+            dist = abs(w - target_x)
+            if dist < best_dist:
+                best_dist = dist
+                best_pos = i
+        return best_pos
+
+    def set_cursor_from_global(self, global_x: int, global_y: int) -> None:
+        """Set the cursor position based on a global mouse click coordinate.
+
+        Keyword arguments:
+        global_x -- Global X coordinate of the click
+        global_y -- Global Y coordinate of the click
+        """
+        if self.font is None:
+            return
+        if self._model_matrix is None or len(self._model_matrix) == 0:
+            return
+        mm = self._model_matrix[3]
+        local_x = global_x - mm[0] - 3
+        local_y = global_y - mm[1] - 3
+
+        text_str = self._value
+        if not text_str:
+            self._cursor = 0
+            self._init = False
+            return
+
+        if self.multiline:
+            lines = text_str.split("\n")
+            line_h = text_size("Ag", self.font)[1]
+            if line_h <= 0:
+                line_h = 16
+            target_line = max(0, min(len(lines) - 1, int(local_y / line_h)))
+            pos = 0
+            for i in range(target_line):
+                pos += len(lines[i]) + 1
+            col = self._find_closest_char(local_x, lines[target_line])
+            self._cursor = pos + col
+        else:
+            self._cursor = self._find_closest_char(local_x, text_str)
+        self._init = False
+
+    def _update_scroll(self) -> None:
+        """Adjust scroll offsets so the cursor stays visible."""
+        if self.font is None:
+            return
+        vis_w = max(self.size[0] - 6, 10)
+        cursor_x = text_size(self._value[: self._cursor], self.font)[0]
+
+        if cursor_x < self._scroll_x:
+            self._scroll_x = max(0, cursor_x - 4)
+        elif cursor_x > self._scroll_x + vis_w:
+            self._scroll_x = cursor_x - vis_w + 4
 
     def _exit(self) -> None:
         self._cursor = -1
-        if callable(self.on_change):
-            self.on_change(self._value)
+        self.on_change(self._value)
         self._init = False
 
     def draw(self, **kwargs: Any) -> None:
         """Create the editbox polygons and texture along with cropping"""
         super().draw()
-        if self._cursor > -1:
-            label = self._value[0 : self._cursor] + "|" + self._value[self._cursor :]
+        focused = self._cursor > -1
+        if focused:
+            label = self._value
+            self.text.color = self.theme.text_color
+        elif self._value == "" and self._placeholder:
+            label = self._placeholder
+            c = self.theme.text_color
+            self.text.color = [c[0] * 0.4, c[1] * 0.4, c[2] * 0.4]
         else:
             label = self._value
+            self.text.color = self.theme.text_color
         self.text.label = label
         if self.multiline:
             self.text.wrap(self.size[0])
-        text_size = list(self.text.text_size)
-        x = 1
-        y = (self.size[1] - text_size[1]) / 2
+        tsz = list(self.text.text_size)
+        x = 3
+        y = (self.size[1] - tsz[1]) / 2
         y = max(y, 0)
         y += 4
         self.text.position = [x, y]
-        crop = [0, 0, text_size[0], text_size[1] + 4]
-        if text_size[0] > self.size[0]:
-            crop[0] = text_size[0] - self.size[0]
-            crop[2] = text_size[0]
+        crop = [0, 0, tsz[0], tsz[1] + 4]
 
-        if text_size[1] > self.size[1]:
-            crop[1] = text_size[1] - self.size[1]
-            crop[3] = self.text.text_size[1]
+        if tsz[0] > self.size[0]:
+            self._update_scroll()
+            crop[0] = self._scroll_x
+            crop[2] = self._scroll_x + self.size[0] - 2
+
+        if tsz[1] > self.size[1]:
+            crop[1] = tsz[1] - self.size[1] + 4
+            crop[3] = tsz[1]
 
         self.text.crop = crop
         self.text._init = False
         self.text._init_text = False
+
+        # Update cursor rectangle position and size
+        if focused and self.font is not None:
+            cursor_x = max(
+                1,
+                text_size(self._value[: self._cursor], self.font)[0]
+                - self._scroll_x
+                + 1,
+            )
+            font_h = text_size("Ag", self.font)[1]
+            cursor_h = max(font_h, 10)
+            cursor_y = (self.size[1] - cursor_h) / 2 + 3
+            self._cursor_rect.position = [cursor_x, max(0, int(cursor_y))]
+            self._cursor_rect.size = [2, cursor_h]
+            self._cursor_rect._init = False
+            self._cursor_rect.draw()
+            self._cursor_rect.material.color = self.theme.highlight_color
+        else:
+            self._cursor_rect.hide()
+
+    def render(
+        self,
+        lit: bool,
+        shader: Shader,
+        parent_matrix: Optional[np.ndarray] = None,
+        _primitive: Optional[int] = None,
+    ) -> None:
+        """Override render to handle cursor blinking each frame."""
+        now = time.time()
+        if self._cursor > -1:
+            if now - self._last_blink > self.BLINK_PERIOD:
+                self._blink_on = not self._blink_on
+                self._last_blink = now
+            if self._blink_on:
+                self._cursor_rect.show()
+            else:
+                self._cursor_rect.hide()
+        else:
+            self._cursor_rect.hide()
+        super().render(lit, shader, parent_matrix, _primitive)
 
     @property
     def value(self) -> str:
@@ -680,7 +1238,20 @@ class EditBox(Panel):
         self.text.label = self._value
         if self.text.text_size[0] > self.size[0] and self.multiline:
             self.text.wrap(self.size[0])
+        self._scroll_x = 0
+        self._scroll_y = 0
         self.refresh()
+        self._init = False
+
+    @property
+    def placeholder(self) -> str:
+        """Return the placeholder text shown when value is empty."""
+        return self._placeholder
+
+    @placeholder.setter
+    def placeholder(self, text: str) -> None:
+        """Set the placeholder text."""
+        self._placeholder = text
         self._init = False
 
 

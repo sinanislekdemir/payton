@@ -43,6 +43,27 @@ class GUIController(BaseController):
             self._active_object._on_keypress(event.text.text.decode("utf-8"))
             return True
 
+        if event.type == sdl2.SDL_KEYDOWN and self._active_object is not None:
+            key = event.key.keysym.sym
+            mod = event.key.keysym.mod
+            ctrl = bool(mod & (sdl2.KMOD_LCTRL | sdl2.KMOD_RCTRL))
+
+            if ctrl and key == sdl2.SDLK_a:
+                self._active_object.select_all()
+                return True
+            if ctrl and key == sdl2.SDLK_v:
+                cb = sdl2.SDL_GetClipboardText()
+                if cb:
+                    self._active_object.paste(cb.decode("utf-8", errors="replace"))
+                return True
+            if ctrl and key == sdl2.SDLK_c:
+                sdl2.SDL_SetClipboardText(self._active_object.value.encode("utf-8"))
+                return True
+            if ctrl and key == sdl2.SDLK_x:
+                sdl2.SDL_SetClipboardText(self._active_object.value.encode("utf-8"))
+                self._active_object.value = ""
+                return True
+
         if event.type == sdl2.SDL_KEYUP and self._active_object is not None:
             key = event.key.keysym.sym
             if key == sdl2.SDLK_ESCAPE or (
@@ -54,6 +75,12 @@ class GUIController(BaseController):
                 sdl2.SDL_StopTextInput()
             if self._active_object and key == sdl2.SDLK_BACKSPACE:
                 self._active_object.backspace()
+            if self._active_object and key == sdl2.SDLK_DELETE:
+                self._active_object.delete()
+            if self._active_object and key == sdl2.SDLK_HOME:
+                self._active_object.home()
+            if self._active_object and key == sdl2.SDLK_END:
+                self._active_object.end()
             if (
                 key == sdl2.SDLK_RETURN
                 and self._active_object is not None
@@ -83,7 +110,7 @@ class GUIController(BaseController):
                     focus_element = h.children[shape].click(mx, my)
                     if focus_element:
                         if (
-                            isinstance(focus_element, Window)
+                            hasattr(focus_element, "_dragging")
                             and focus_element._dragging
                         ):
                             self._drag_window = focus_element
@@ -103,6 +130,7 @@ class GUIController(BaseController):
                             sdl2.SDL_StopTextInput()
                         if isinstance(focus_element, EditBox):
                             self._active_object = focus_element
+                            focus_element.set_cursor_from_global(mx, my)
                             sdl2.SDL_ShowCursor(False)
                             sdl2.SDL_StartTextInput()
                         return True

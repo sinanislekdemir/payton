@@ -1,4 +1,4 @@
-from payton.scene.gui import Button, EditBox, Hud, Window, WindowAlignment
+from payton.scene.gui import Button, EditBox, Hud, Slider, Window, WindowAlignment
 
 from designer_io import DEFAULT_EXPORT_FILE, DEFAULT_SCENE_FILE
 
@@ -129,84 +129,148 @@ def build_designer_ui(scene):
     )
     widgets["inspector_window"] = inspector
 
+    inp_w = 290
+    inp_l = 15
+    itop = 40
+
     inspector.add_child(
         "selected_label",
-        Button("Selected Object", width=290, height=30, left=15, top=40),
+        Button("Selected Object", width=inp_w, height=30, left=inp_l, top=itop),
     )
+    itop += 40
     widgets["selected_name"] = Button(
         "None",
-        width=290,
+        width=inp_w,
         height=30,
-        left=15,
-        top=80,
+        left=inp_l,
+        top=itop,
     )
     inspector.add_child("selected_name", widgets["selected_name"])
+    itop += 40
 
     inspector.add_child(
         "selected_type_label",
-        Button("Primitive Type", width=290, height=30, left=15, top=120),
+        Button("Primitive Type", width=inp_w, height=30, left=inp_l, top=itop),
     )
+    itop += 40
     widgets["selected_type"] = Button(
         "-",
-        width=290,
+        width=inp_w,
         height=30,
-        left=15,
-        top=160,
+        left=inp_l,
+        top=itop,
     )
     inspector.add_child("selected_type", widgets["selected_type"])
+    itop += 40
 
+    # --- Position ---
     inspector.add_child(
         "position_label",
-        Button("Position (x, y, z)", width=290, height=30, left=15, top=200),
+        Button("Position (x, y, z)", width=inp_w, height=30, left=inp_l, top=itop),
     )
+    itop += 40
     widgets["position"] = EditBox(
         "0.000, 0.000, 0.500",
-        width=290,
+        width=inp_w,
         height=30,
-        left=15,
-        top=240,
+        left=inp_l,
+        top=itop,
         on_change=scene.set_position_text,
     )
     inspector.add_child("position", widgets["position"])
+    itop += 40
 
+    for axis, label in [("x", "X"), ("y", "Y"), ("z", "Z")]:
+        name = f"slider_p_{axis}"
+        widgets[name] = Slider(
+            f"Pos {label}",
+            width=inp_w,
+            height=30,
+            left=inp_l,
+            top=itop,
+            min_value=-20.0,
+            max_value=20.0,
+            on_change=getattr(scene, f"set_position_{axis}"),
+        )
+        inspector.add_child(name, widgets[name])
+        itop += 40
+
+    # --- Rotation ---
     inspector.add_child(
         "rotation_label",
-        Button("Rotation Degrees (x, y, z)", width=290, height=30, left=15, top=280),
+        Button("Rotation Degrees (x, y, z)", width=inp_w, height=30, left=inp_l, top=itop),
     )
+    itop += 40
     widgets["rotation"] = EditBox(
         "0.000, 0.000, 0.000",
-        width=290,
+        width=inp_w,
         height=30,
-        left=15,
-        top=320,
+        left=inp_l,
+        top=itop,
         on_change=scene.set_rotation_text,
     )
     inspector.add_child("rotation", widgets["rotation"])
+    itop += 40
 
+    for axis, label in [("x", "X"), ("y", "Y"), ("z", "Z")]:
+        name = f"slider_r_{axis}"
+        widgets[name] = Slider(
+            f"Rot {label}",
+            width=inp_w,
+            height=30,
+            left=inp_l,
+            top=itop,
+            min_value=-360.0,
+            max_value=360.0,
+            on_change=getattr(scene, f"set_rotation_{axis}"),
+        )
+        inspector.add_child(name, widgets[name])
+        itop += 40
+
+    # --- Scale ---
     inspector.add_child(
         "scale_label",
-        Button("Scale (x, y, z)", width=290, height=30, left=15, top=360),
+        Button("Scale (x, y, z)", width=inp_w, height=30, left=inp_l, top=itop),
     )
+    itop += 40
     widgets["scale"] = EditBox(
         "1.000, 1.000, 1.000",
-        width=290,
+        width=inp_w,
         height=30,
-        left=15,
-        top=400,
+        left=inp_l,
+        top=itop,
         on_change=scene.set_scale_text,
     )
     inspector.add_child("scale", widgets["scale"])
+    itop += 40
 
+    for axis, label in [("x", "X"), ("y", "Y"), ("z", "Z")]:
+        name = f"slider_s_{axis}"
+        widgets[name] = Slider(
+            f"Scl {label}",
+            width=inp_w,
+            height=30,
+            left=inp_l,
+            top=itop,
+            min_value=0.1,
+            max_value=10.0,
+            on_change=getattr(scene, f"set_scale_{axis}"),
+        )
+        inspector.add_child(name, widgets[name])
+        itop += 40
+
+    # --- Color ---
     inspector.add_child(
         "color_label",
-        Button("Color RGB 0-1", width=290, height=30, left=15, top=440),
+        Button("Color RGB 0-1", width=inp_w, height=30, left=inp_l, top=itop),
     )
+    itop += 40
     widgets["color"] = EditBox(
         "0.400, 0.700, 1.000",
-        width=290,
+        width=inp_w,
         height=30,
-        left=15,
-        top=480,
+        left=inp_l,
+        top=itop,
         on_change=scene.set_color_text,
     )
     inspector.add_child("color", widgets["color"])

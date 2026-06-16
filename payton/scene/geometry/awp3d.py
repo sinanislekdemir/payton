@@ -10,7 +10,7 @@ Add-On.
 
 import os
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from zipfile import ZipFile
 
 import numpy as np
@@ -41,8 +41,20 @@ class AWP3D(Wavefront):
     key frames in Payton
     """
 
-    def __init__(self, filename: str = "", fps: int = 30, **kwargs: Any) -> None:
-        """Initialize AWP3D."""
+    def __init__(
+        self,
+        filename: str = "",
+        fps: int = 30,
+        progress_callback: Optional[Callable[[int, int], None]] = None,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize AWP3D.
+
+        Keyword arguments:
+        filename -- File name to load
+        fps -- Frames per second
+        progress_callback -- Optional callback receiving (current, total) during loading
+        """
         super().__init__(**kwargs)
         self.frames: List[Wavefront] = []
         self._frame: int = 0
@@ -61,7 +73,7 @@ class AWP3D(Wavefront):
         self._needs_update = True
 
         if os.path.exists(filename):
-            self.load_file(filename)
+            self.load_file(filename, progress_callback=progress_callback)
 
     def start(self) -> None:
         """Manually start animation."""
@@ -123,15 +135,16 @@ class AWP3D(Wavefront):
             self._needs_update = False
         return True
 
-    def load_file(self, filename: str) -> bool:
+    def load_file(
+        self,
+        filename: str,
+        progress_callback: Optional[Callable[[int, int], None]] = None,
+    ) -> bool:
         """Load file into system.
-
-        NOTE: This takes a while, that's why there is a loading
-        indicator here. If it is annoying for you, ping me thus
-        I can remove ;)
 
         Keyword arguments:
         filename -- File name to load
+        progress_callback -- Optional callback receiving (current, total) during loading
         """
         if not os.path.exists(filename):
             raise BaseException(f"File not found: {filename}")
@@ -140,8 +153,12 @@ class AWP3D(Wavefront):
         files = archive.namelist()
         max_frame = max([int(f.split(".")[0]) for f in files]) + 1
         min_frame = min(int(f.split(".")[0]) for f in files)
+        total = max_frame - 1
         for f in range(min_frame, max_frame):
-            progress(f, max_frame - 1)
+            if progress_callback is not None:
+                progress_callback(f, total)
+            else:
+                progress(f, total)
             wobj = Wavefront()
             wobj.path = self._path
             data = archive.read(f"{f}.obj").decode("utf-8")
@@ -152,6 +169,56 @@ class AWP3D(Wavefront):
         self._active_framecount = max_frame - min_frame
         self.num_frames = max_frame - min_frame
         archive.close()
+        return True
+
+    def begin_incremental_load(self, filename: str) -> int:
+        """Prepare for incremental loading. Returns the total frame count.
+
+        Call load_next_frame() repeatedly, then finish_incremental_load() when done.
+
+        Keyword arguments:
+        filename -- File name to load
+        """
+        if not os.path.exists(filename):
+            raise BaseException(f"File not found: {filename}")
+        self._path = os.path.dirname(os.path.abspath(filename))
+        self._load_archive = ZipFile(filename, "r")
+        files = self._load_archive.namelist()
+        self._load_current = min(int(f.split(".")[0]) for f in files)
+        self._load_max = max([int(f.split(".")[0]) for f in files]) + 1
+        self._load_min = self._load_current
+        return self._load_max - self._load_min
+
+    def load_next_frame(
+        self, progress_callback: Optional[Callable[[int, int], None]] = None
+    ) -> bool:
+        """Load the next frame during incremental loading.
+
+        Returns True if there are more frames to load, False when complete.
+
+        Keyword arguments:
+        progress_callback -- Optional callback receiving (current, total) during loading
+        """
+        if self._load_current >= self._load_max:
+            return False
+        total = self._load_max - 1
+        if progress_callback is not None:
+            progress_callback(self._load_current, total)
+        wobj = Wavefront()
+        wobj.path = self._path
+        data = self._load_archive.read(f"{self._load_current}.obj").decode("utf-8")
+        material = self._load_archive.read(f"{self._load_current}.mtl").decode("utf-8")
+        wobj.load_material(material)
+        wobj.load(data)
+        self.frames.append(wobj)
+        self._load_current += 1
+        return self._load_current < self._load_max
+
+    def finish_incremental_load(self) -> bool:
+        """Finalize incremental loading. Must be called after all frames are loaded."""
+        self._active_framecount = self._load_max - self._load_min
+        self.num_frames = self._load_max - self._load_min
+        self._load_archive.close()
         return True
 
     def render(

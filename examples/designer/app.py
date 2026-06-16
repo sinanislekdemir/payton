@@ -319,8 +319,48 @@ class DesignerScene(Scene):
         self._apply_selected_spec()
         self.set_status(f"Updated color for {self.selected_name}")
 
+    def _set_spec_axis(self, key, axis, value):
+        spec = self._selected_spec()
+        if spec is None:
+            return
+        spec[key][axis] = value
+        self._apply_selected_spec()
+
+    def set_position_x(self, val):
+        self._set_spec_axis("position", 0, val)
+
+    def set_position_y(self, val):
+        self._set_spec_axis("position", 1, val)
+
+    def set_position_z(self, val):
+        self._set_spec_axis("position", 2, val)
+
+    def set_rotation_x(self, val):
+        self._set_spec_axis("rotation", 0, val)
+
+    def set_rotation_y(self, val):
+        self._set_spec_axis("rotation", 1, val)
+
+    def set_rotation_z(self, val):
+        self._set_spec_axis("rotation", 2, val)
+
+    def set_scale_x(self, val):
+        self._set_spec_axis("scale", 0, val)
+
+    def set_scale_y(self, val):
+        self._set_spec_axis("scale", 1, val)
+
+    def set_scale_z(self, val):
+        self._set_spec_axis("scale", 2, val)
+
     def _format_vector(self, values):
         return ", ".join(f"{value:.3f}" for value in values)
+
+    def _update_slider_values(self, spec):
+        for axis, idx in [("x", 0), ("y", 1), ("z", 2)]:
+            self.widgets[f"slider_p_{axis}"].value = spec["position"][idx]
+            self.widgets[f"slider_r_{axis}"].value = spec["rotation"][idx]
+            self.widgets[f"slider_s_{axis}"].value = spec["scale"][idx]
 
     def update_inspector(self):
         if self.selected_name is None:
@@ -330,6 +370,10 @@ class DesignerScene(Scene):
             self.widgets["rotation"].value = "0.000, 0.000, 0.000"
             self.widgets["scale"].value = "1.000, 1.000, 1.000"
             self.widgets["color"].value = "0.400, 0.700, 1.000"
+            for axis in ["x", "y", "z"]:
+                self.widgets[f"slider_p_{axis}"].value = 0.0
+                self.widgets[f"slider_r_{axis}"].value = 0.0
+                self.widgets[f"slider_s_{axis}"].value = 1.0
             return
 
         spec = self.design_specs[self.selected_name]
@@ -339,6 +383,7 @@ class DesignerScene(Scene):
         self.widgets["rotation"].value = self._format_vector(spec["rotation"])
         self.widgets["scale"].value = self._format_vector(spec["scale"])
         self.widgets["color"].value = self._format_vector(spec["color"])
+        self._update_slider_values(spec)
 
     def _scene_filename(self):
         return self.widgets["scene_file"].value.strip()
