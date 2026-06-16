@@ -13,6 +13,7 @@ import ctypes
 import logging
 import os
 import sys
+import threading
 import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
@@ -301,7 +302,8 @@ class Scene(Receiver):
         self.depth_map_fbo = 0
         # Main running state
         self.running = False
-        self._render_lock = False
+        self._objects_lock = threading.Lock()
+        self._pending_destroy: List[Object] = []
         self._shadow_quality = SHADOW_MID
         self._shadow_samples = 20
 
@@ -436,8 +438,10 @@ class Scene(Receiver):
             Accumulated time since clock start (seconds).
         """
         pybullet.stepSimulation()
-        for child in self.objects:
-            self.objects[child]._bullet_physics()
+        with self._objects_lock:
+            objects_snapshot = list(self.objects.values())
+        for child in objects_snapshot:
+            child._bullet_physics()
 
     @property
     def shadow_samples(self) -> int:
@@ -522,7 +526,10 @@ class Scene(Receiver):
             click_plane[2](cast(list[float], _hit[:3]))
 
     def _render_3d_scene(
-        self, shadow_round: bool = False, shader: str = DEFAULT_SHADER
+        self,
+        shadow_round: bool = False,
+        shader: str = DEFAULT_SHADER,
+        objects_snapshot: Optional[List[Object]] = None,
     ) -> None:
         """Render all 3D objects with a given shader/pass.
 
@@ -536,6 +543,9 @@ class Scene(Receiver):
             skip non-shadow-casting objects. Default is False.
         shader : str, optional
             Key of the shader to use from :pyattr:`self.shaders`.
+        objects_snapshot : list, optional
+            Pre-snapshot object list from _render() to avoid repeated copies.
+            If None, the live dict view is used (backward-compatible fallback).
         """
         light_count = len(self.lights)
         lit = light_count > 0
@@ -587,7 +597,10 @@ class Scene(Receiver):
         if not shadow_round and shader == DEFAULT_SHADER:
             self.grid.render(lit, self.shaders[DEFAULT_SHADER])
 
-        for object in self.objects.values():
+        objects = (
+            objects_snapshot if objects_snapshot is not None else self.objects.values()
+        )
+        for object in objects:
             if object.shader == shader or (
                 shadow_round and object.shader != PARTICLE_SHADER
             ):
@@ -601,7 +614,21 @@ class Scene(Receiver):
         and runs collision checks.
         """
         self.shaders["default"].use()
-        self._render_lock = True
+
+        # Free GL resources for objects removed from clock threads
+        with self._objects_lock:
+            if self._pending_destroy:
+                pending = list(self._pending_destroy)
+                self._pending_destroy.clear()
+            else:
+                pending = []
+        for obj in pending:
+            obj.destroy()
+
+        # Snapshot objects once under lock for all render passes
+        with self._objects_lock:
+            objects_snapshot = list(self.objects.values())
+
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
 
@@ -614,7 +641,7 @@ class Scene(Receiver):
             glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
             glClear(GL_DEPTH_BUFFER_BIT)
             self.shaders[SHADOW_SHADER].use()
-            self._render_3d_scene(True, SHADOW_SHADER)
+            self._render_3d_scene(True, SHADOW_SHADER, objects_snapshot)
             glBindFramebuffer(GL_FRAMEBUFFER, default_id)
             self.shaders[SHADOW_SHADER].end()
 
@@ -630,18 +657,18 @@ class Scene(Receiver):
         # Render scene
         lit = len(self.lights) > 0
         self.shaders[DEFAULT_SHADER].use()
-        self._render_3d_scene(False, DEFAULT_SHADER)
+        self._render_3d_scene(False, DEFAULT_SHADER, objects_snapshot)
 
         # Render HUD
-        for object in self.huds:
-            self.huds[object].render(lit, self.shaders[DEFAULT_SHADER])
+        with self._objects_lock:
+            huds_snapshot = list(self.huds.items())
+        for name, hud_obj in huds_snapshot:
+            hud_obj.render(lit, self.shaders[DEFAULT_SHADER])
         self.shaders[DEFAULT_SHADER].end()
 
         self.shaders[PARTICLE_SHADER].use()
-        self._render_3d_scene(False, PARTICLE_SHADER)
+        self._render_3d_scene(False, PARTICLE_SHADER, objects_snapshot)
         self.shaders[PARTICLE_SHADER].end()
-
-        self._render_lock = False
 
         for test in self.collisions.values():
             test.check()
@@ -684,10 +711,6 @@ class Scene(Receiver):
             logging.error("Given object is not an instance of `scene.Object`")
             return False
 
-        if name in self.objects:
-            logging.error(f"Given object name [{name}] already exists")
-            return False
-
         if isinstance(obj, Shape2D):
             logging.error("2D Shapes can't be added directly to the scene")
             return False
@@ -695,24 +718,45 @@ class Scene(Receiver):
         if isinstance(obj, Hud):
             """Huds must be rendered in a different loop after rendering
             all objects"""
-            if self._render_lock:
-                while self._render_lock:
-                    # Wait for render loop to release the lock
-                    # TODO: This can cause a possible deadlock.
-                    continue
-            self.huds[name] = obj
+            with self._objects_lock:
+                if name in self.huds:
+                    logging.error(f"Given HUD name [{name}] already exists")
+                    return False
+                self.huds[name] = obj
             obj.name = name
             obj.set_size(self.window_width, self.window_height)
             return True
 
-        if self._render_lock:
-            while self._render_lock:
-                # Wait for render loop to release the lock
-                # TODO: This can cause a possible deadlock.
-                continue
-        self.objects[name] = obj
+        with self._objects_lock:
+            if name in self.objects:
+                logging.error(f"Given object name [{name}] already exists")
+                return False
+            self.objects[name] = obj
         obj.name = name
         return True
+
+    def remove_object(self, name: str) -> Optional[Object]:
+        """Remove a named object from the scene.
+
+        The object's OpenGL resources are freed on the next render cycle
+        in the main thread, making this call safe from clock callbacks.
+
+        Parameters
+        ----------
+        name : str
+            Name of the object to remove.
+
+        Returns
+        -------
+        Object or None
+            The removed object, or None if not found.
+        """
+        with self._objects_lock:
+            if name not in self.objects:
+                return None
+            obj = self.objects.pop(name)
+            self._pending_destroy.append(obj)
+        return obj
 
     def add_camera(self, camera: Camera) -> bool:
         """Append a Camera to the scene.
@@ -798,7 +842,9 @@ class Scene(Receiver):
         thread since it can be expensive.
         """
         return {
-            "objects": {name: self.objects[name].to_dict() for name in self.objects},
+            "objects": {
+                name: self.objects[name].to_dict() for name in list(self.objects)
+            },
             "lights": [light.to_dict() for light in self.lights],
             "cameras": [camera.to_dict() for camera in self.cameras],
         }
@@ -832,7 +878,9 @@ class Scene(Receiver):
         shortest = [0.0, 0.0, 0.0]
         dist_best = -1.0
         hit_obj = None
-        for obj in self.objects.values():
+        with self._objects_lock:
+            objects_snapshot = list(self.objects.values())
+        for obj in objects_snapshot:
             if exempt_objects is not None and obj in exempt_objects:
                 continue
             box_hit = raycast_box_intersect(
@@ -1046,8 +1094,10 @@ Payton requires at least OpenGL 3.3 support and above."""
                     for ob in self.cameras:
                         ob.aspect_ratio = self.window_width / self.window_height
                         ob._viewport_size = [self.window_width, self.window_height, 0]
-                    for hud in self.huds:
-                        self.huds[hud].set_size(self.window_width, self.window_height)
+                    with self._objects_lock:
+                        huds_snapshot = list(self.huds.items())
+                    for hud_name, hud_obj in huds_snapshot:
+                        hud_obj.set_size(self.window_width, self.window_height)
                 self.controller.keyboard(self.event, self)
                 self.controller.mouse(self.event, self)
 
@@ -1056,8 +1106,8 @@ Payton requires at least OpenGL 3.3 support and above."""
             sdl2.SDL_GL_SwapWindow(self.window)
             sdl2.SDL_Delay(1)
 
-        for obj in self.objects:
-            self.objects[obj].destroy()
+        for obj in list(self.objects.values()):
+            obj.destroy()
 
         for clock in self.clocks:
             self.clocks[clock].kill()
