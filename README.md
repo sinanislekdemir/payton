@@ -54,10 +54,11 @@ While 2D graphs and charts are useful for reports, many scenarios require visual
 -   3D Math Library
 -   Various base geometries:
     -   Cube
-    -   Cylinder
+    -   Cylinder (tapered support)
+    -   Capsule (tapered support)
     -   Triangular Mesh
-    -   Plane
-    -   Lines
+    -   Plane / MatrixPlane
+    -   Lines / Better Lines
     -   Particle System
     -   Sphere
     -   Dynamic Grid
@@ -67,28 +68,52 @@ While 2D graphs and charts are useful for reports, many scenarios require visual
 -   Clock system for parallel tasks and time-based operations
 -   Simple collision detection
 -   Optional Physics Engine
-    -   Basic support for Bullet Physics (to be extended)
+    -   Bullet Physics integration (cubes, joints, ragdoll, bouncing ball)
 -   Extendable controllers
--   Pre-defined lighting with shadows
+-   Pre-defined lighting with shadows (spotlight support)
 -   Material support
 -   Clickable objects and virtual planes
--   Shader support
--   Basic GUI Support
-    -   Window
+-   Shader support (custom shaders, particle shader)
+-   Scene theme system with presets
+    -   THEME_BLENDER
+    -   THEME_STUDIO
+    -   THEME_GAMEENGINE
+-   GUI System with theme support
+    -   HUD (heads-up display)
+    -   Window (draggable, alignable)
     -   Panel
     -   Button
-    -   EditBox (with multi-line support)
+    -   EditBox (multi-line, placeholder, cursor, clipboard)
+    -   ProgressBar
+    -   Slider
+    -   Text / Rectangle / Shape2D
+    -   UI theme presets (UI_THEME_BLENDER, UI_THEME_STUDIO, UI_THEME_GAMEENGINE)
 -   3D File formats:
     -   AWP3D Animated High-Poly 3D Object
     -   Wavefront OBJ
     -   Quake 2 MD2 with Animations
+    -   JSON scene export/import
 -   Mesh Generation Tools
     -   Extrude Line in 3D
     -   Rotate Line around an axis in 3D
-    -   Fill between lines
+    -   Fill between lines (lines_to_mesh)
+    -   Sweep path along 3D curve
+    -   Tube generation
+    -   Loft between profiles
 -   Mesh modifiers:
     -   Merge Mesh
     -   Subdivide Mesh
+    -   Mirror
+    -   Extrude Face
+    -   Laplacian Smooth
+    -   Decimate
+-   Constructive Solid Geometry (CSG)
+    -   Union
+    -   Difference
+    -   Intersection
+-   Motion capture data (BVH file support)
+-   Fog effects
+-   World-to-screen coordinate projection
 -   Extensive examples for every feature
 
 ## Install
@@ -228,6 +253,7 @@ You can either download the whole repository [as a zip file](https://github.com/
     * [Adding multiple cubes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/03_cubes.py)
     * [Object parent-child relations](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/05_children.py)
     * [Cylinder object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/18_cylinder.py)
+    * [Capsule object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/39_capsule.py)
     * [How to load complex triangular objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/06_monkey.py)
     * [Complex meshes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/09_mesh.py)
     * [Point cloud](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/11_point_cloud.py)
@@ -248,6 +274,8 @@ You can either download the whole repository [as a zip file](https://github.com/
   * Physics Engine
     * [Cubes example](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/01_bullet_hello.py)
     * [Joint example](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/02_joint_p2p.py)
+    * [Bullet Cubes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/37_bullet_cubes.py)
+    * [Bouncing Ball](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/38_bouncingball.py)
   * [GTK3 Python OpenGL Payton Integration](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/03_gtk.py)
   * [Rotating Objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/14_rotate.py)
   * [Graphical User Interface (GUI)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/15_gui.py)
@@ -256,6 +284,8 @@ You can either download the whole repository [as a zip file](https://github.com/
   * [Changing background](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/20_background.py)
   * [Click plane (get cursor location in world coordinates)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/21_click_plane.py)
   * [Using object motion history](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/22_go_back.py)
+  * [Motion Capture (BVH)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/23_motion.py)
+  * [BVH Viewer](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/bvh_viewer.py)
   * [Object Oriented Approach](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/24_object_oriented.py)
   * [Materials](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/25_materials.py)
   * [Exporting and importing your scene to json](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/27_json.py)
@@ -265,6 +295,23 @@ You can either download the whole repository [as a zip file](https://github.com/
   * [Mesh Plane Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/32_mesh_playne.py)
   * [AWP3D Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/34_awp3d.py)
   * [AWP3D Example Ranges](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/35_awp3d_range.py)
+  * [World to Screen Projection](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/36_world_to_screen.py)
+  * [Fog Effect](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/41_fog.py)
+  * [Minecraft-like Scene](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/40_minecraft_like.py)
+* Mesh Tools
+  * [Extrude Line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/01_extrude_line.py)
+  * [Rotate Line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/02_rotate_line.py)
+  * [Lines to Mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/03_lines_to_mesh.py)
+  * [Merge Mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/04_merge_mesh.py)
+  * [Subdivide Mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/05_subdivide.py)
+  * [Sweep](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/06_sweep.py)
+  * [Loft](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/07_loft.py)
+  * [Tube](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/08_tube.py)
+  * [Mirror](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/09_mirror.py)
+  * [Extrude Face](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/10_extrude_face.py)
+  * [Laplacian Smooth](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/11_laplacian_smooth.py)
+  * [Decimate](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/12_decimate.py)
+  * [CSG Operations](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/13_csg.py)
 * Mid Level
   * [Popping the baloons game](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/balloon.py)
   * [Build mesh using heightmap](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/engrave.py)

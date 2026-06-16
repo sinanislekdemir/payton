@@ -1,7 +1,7 @@
 """Sweep and tube mesh generation tools."""
 
 import math
-from typing import List
+from typing import List, Optional
 
 from payton.math.functions import (
     add_vectors,
@@ -15,10 +15,12 @@ from payton.scene.geometry import Line, Mesh
 
 
 def _frenet_frame(
-    p: List[float], p_next: List[float], prev_frame: List[List[float]]
+    p: List[float], p_next: List[float], prev_frame: Optional[List[List[float]]]
 ) -> List[List[float]]:
     tangent = normalize_vector(sub_vector(p_next, p))
     if vector_norm(tangent) < 1e-10:
+        if prev_frame is None:
+            prev_frame = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
         return prev_frame
     if prev_frame is None:
         if abs(tangent[0]) < 0.9:
