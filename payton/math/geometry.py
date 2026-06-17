@@ -243,6 +243,219 @@ def raycast_triangle_intersect(
     return ip, inor
 
 
+def ray_intersect_neg_z(
+    ox: float,
+    oy: float,
+    oz: float,
+    p1: Vector3D,
+    p2: Vector3D,
+    p3: Vector3D,
+) -> Optional[float]:
+    """Möller–Trumbore specialized for ray direction ``[0, 0, -1]``.
+
+    Tests a ray cast from ``(ox, oy, oz)`` straight down the negative-Z
+    axis against triangle ``(p1, p2, p3)``.
+
+    Returns the Z coordinate of the hit point, or ``None`` when there is
+    no intersection.
+
+    Parameters
+    ----------
+    ox : float
+        Ray origin X
+    oy : float
+        Ray origin Y
+    oz : float
+        Ray origin Z
+    p1 : Vector3D
+        First triangle vertex
+    p2 : Vector3D
+        Second triangle vertex
+    p3 : Vector3D
+        Third triangle vertex
+
+    Returns
+    -------
+    Optional[float]
+        Intersection Z, or None
+    """
+    v10 = p2[0] - p1[0]
+    v11 = p2[1] - p1[1]
+    v12 = p2[2] - p1[2]
+    v20 = p3[0] - p1[0]
+    v21 = p3[1] - p1[1]
+    v22 = p3[2] - p1[2]
+
+    det = v10 * v21 - v11 * v20
+    if -DIFF < det < DIFF:
+        return None
+
+    inv_det = 1.0 / det
+    t0 = ox - p1[0]
+    t1 = oy - p1[1]
+    t2 = oz - p1[2]
+
+    u = (t0 * v21 - t1 * v20) * inv_det
+    if u < 0.0 or u > 1.0:
+        return None
+
+    q0 = t1 * v12 - t2 * v11
+    q1 = t2 * v10 - t0 * v12
+    q2 = t0 * v11 - t1 * v10
+
+    v = -q2 * inv_det
+    if v < 0.0 or u + v > 1.0:
+        return None
+
+    t = (v20 * q0 + v21 * q1 + v22 * q2) * inv_det
+    if t <= 0:
+        return None
+
+    return oz - t
+
+
+def ray_intersect_pos_x(
+    ox: float,
+    oy: float,
+    oz: float,
+    p1: Vector3D,
+    p2: Vector3D,
+    p3: Vector3D,
+) -> Optional[float]:
+    """Möller–Trumbore specialized for ray direction ``[1, 0, 0]``.
+
+    Tests a ray cast from ``(ox, oy, oz)`` along the positive-X axis
+    against triangle ``(p1, p2, p3)``.
+
+    Returns the X coordinate of the hit point, or ``None`` when there is
+    no intersection.
+
+    Parameters
+    ----------
+    ox : float
+        Ray origin X
+    oy : float
+        Ray origin Y
+    oz : float
+        Ray origin Z
+    p1 : Vector3D
+        First triangle vertex
+    p2 : Vector3D
+        Second triangle vertex
+    p3 : Vector3D
+        Third triangle vertex
+
+    Returns
+    -------
+    Optional[float]
+        Intersection X, or None
+    """
+    v10 = p2[0] - p1[0]
+    v11 = p2[1] - p1[1]
+    v12 = p2[2] - p1[2]
+    v20 = p3[0] - p1[0]
+    v21 = p3[1] - p1[1]
+    v22 = p3[2] - p1[2]
+
+    det = v12 * v21 - v11 * v22
+    if -DIFF < det < DIFF:
+        return None
+
+    inv_det = 1.0 / det
+    t0 = ox - p1[0]
+    t1 = oy - p1[1]
+    t2 = oz - p1[2]
+
+    u = (t2 * v21 - t1 * v22) * inv_det
+    if u < 0.0 or u > 1.0:
+        return None
+
+    q0 = t1 * v12 - t2 * v11
+    q1 = t2 * v10 - t0 * v12
+    q2 = t0 * v11 - t1 * v10
+
+    v = q0 * inv_det
+    if v < 0.0 or u + v > 1.0:
+        return None
+
+    t = (v20 * q0 + v21 * q1 + v22 * q2) * inv_det
+    if t <= 0:
+        return None
+
+    return ox + t
+
+
+def ray_intersect_pos_y(
+    ox: float,
+    oy: float,
+    oz: float,
+    p1: Vector3D,
+    p2: Vector3D,
+    p3: Vector3D,
+) -> Optional[float]:
+    """Möller–Trumbore specialized for ray direction ``[0, 1, 0]``.
+
+    Tests a ray cast from ``(ox, oy, oz)`` along the positive-Y axis
+    against triangle ``(p1, p2, p3)``.
+
+    Returns the Y coordinate of the hit point, or ``None`` when there is
+    no intersection.
+
+    Parameters
+    ----------
+    ox : float
+        Ray origin X
+    oy : float
+        Ray origin Y
+    oz : float
+        Ray origin Z
+    p1 : Vector3D
+        First triangle vertex
+    p2 : Vector3D
+        Second triangle vertex
+    p3 : Vector3D
+        Third triangle vertex
+
+    Returns
+    -------
+    Optional[float]
+        Intersection Y, or None
+    """
+    v10 = p2[0] - p1[0]
+    v11 = p2[1] - p1[1]
+    v12 = p2[2] - p1[2]
+    v20 = p3[0] - p1[0]
+    v21 = p3[1] - p1[1]
+    v22 = p3[2] - p1[2]
+
+    det = v10 * v22 - v12 * v20
+    if -DIFF < det < DIFF:
+        return None
+
+    inv_det = 1.0 / det
+    t0 = ox - p1[0]
+    t1 = oy - p1[1]
+    t2 = oz - p1[2]
+
+    u = (t0 * v22 - t2 * v20) * inv_det
+    if u < 0.0 or u > 1.0:
+        return None
+
+    q0 = t1 * v12 - t2 * v11
+    q1 = t2 * v10 - t0 * v12
+    q2 = t0 * v11 - t1 * v10
+
+    v = q1 * inv_det
+    if v < 0.0 or u + v > 1.0:
+        return None
+
+    t = (v20 * q0 + v21 * q1 + v22 * q2) * inv_det
+    if t <= 0:
+        return None
+
+    return oy + t
+
+
 def line_triangle_intersect(
     start: np.ndarray,
     end: np.ndarray,
