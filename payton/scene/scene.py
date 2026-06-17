@@ -30,6 +30,7 @@ from OpenGL.GL import (
     GL_FLOAT,
     GL_FRAMEBUFFER,
     GL_FRAMEBUFFER_BINDING,
+    GL_FRAMEBUFFER_COMPLETE,
     GL_LESS,
     GL_MAJOR_VERSION,
     GL_MINOR_VERSION,
@@ -37,17 +38,10 @@ from OpenGL.GL import (
     GL_NONE,
     GL_PACK_ALIGNMENT,
     GL_RGBA,
-    GL_TEXTURE1,
-    GL_TEXTURE_CUBE_MAP,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    GL_TEXTURE2,
+    GL_TEXTURE_2D,
     GL_TEXTURE_MAG_FILTER,
     GL_TEXTURE_MIN_FILTER,
-    GL_TEXTURE_WRAP_R,
     GL_TEXTURE_WRAP_S,
     GL_TEXTURE_WRAP_T,
     GL_MULTISAMPLE,
@@ -59,13 +53,16 @@ from OpenGL.GL import (
     glBindTexture,
     glBindVertexArray,
     glClear,
+    glCheckFramebufferStatus,
     glClearColor,
     glDepthFunc,
     glDisable,
     glDrawArrays,
     glDrawBuffer,
     glEnable,
-    glFramebufferTexture,
+    glDeleteFramebuffers,
+    glDeleteTextures,
+    glFramebufferTexture2D,
     glGenFramebuffers,
     glGenTextures,
     glGenVertexArrays,
@@ -101,18 +98,17 @@ from payton.scene.receiver import Receiver
 from payton.scene.shader import (
     DEFAULT_SHADER,
     PARTICLE_SHADER,
-    SHADOW_SHADER,
+    SHADOW_DEPTH,
     Shader,
     background_fragment_shader,
     background_vertex_shader,
     default_fragment_shader,
     default_vertex_shader,
-    depth_fragment_shader,
-    depth_geometry_shader,
-    depth_vertex_shader,
     particle_fragment_shader,
     particle_geometry_shader,
     particle_vertex_shader,
+    simple_depth_fragment_shader,
+    simple_depth_vertex_shader,
 )
 from payton.scene.theme import THEME_BLENDER, THEME_GAMEENGINE, THEME_STUDIO, SceneTheme
 from payton.scene.types import CPlane
@@ -281,13 +277,12 @@ class Scene(Receiver):
                 vertex=particle_vertex_shader,
                 geometry=particle_geometry_shader,
             ),
-            SHADOW_SHADER: Shader(
-                fragment=depth_fragment_shader,
-                vertex=depth_vertex_shader,
-                geometry=depth_geometry_shader,
+            SHADOW_DEPTH: Shader(
+                fragment=simple_depth_fragment_shader,
+                vertex=simple_depth_vertex_shader,
             ),
         }
-        self.shaders["depth"]._depth_shader = True
+        self.shaders[SHADOW_DEPTH]._depth_pass = True
 
         # SDL Related Stuff
 
@@ -303,8 +298,8 @@ class Scene(Receiver):
         self._click_planes: List[CPlane] = []
 
         self.on_select = on_select
-        self.depth_map = 0
-        self.depth_map_fbo = 0
+        self.depth_prepass_tex = 0
+        self.depth_prepass_fbo = 0
         self._screenshot_requested: Optional[str] = None
         # Main running state
         self.running = False
@@ -539,24 +534,29 @@ class Scene(Receiver):
     ) -> None:
         """Render all 3D objects with a given shader/pass.
 
-        The method sets up shader uniforms, binds shadow maps when available
-        and iterates scene objects calling their :py:meth:`Object.render`.
+        The method sets up shader uniforms, binds the depth pre-pass texture
+        for screen-space shadows (when not a shadow round), and iterates
+        scene objects calling their :py:meth:`Object.render`.
 
         Parameters
         ----------
         shadow_round : bool, optional
-            If True the render is for creating the shadow map and should
-            skip non-shadow-casting objects. Default is False.
+            If True the render is for the depth pre-pass and should skip
+            particles. Default is False.
         shader : str, optional
             Key of the shader to use from :pyattr:`self.shaders`.
         objects_snapshot : list, optional
             Pre-snapshot object list from _render() to avoid repeated copies.
             If None, the live dict view is used (backward-compatible fallback).
         """
-        light_count = len(self.lights)
-        lit = light_count > 0
-        if not lit:
-            return
+        if not shadow_round:
+            light_count = len(self.lights)
+            lit = light_count > 0
+            if not lit:
+                return
+        else:
+            light_count = 0
+            lit = False
 
         proj, view = self.active_camera.render()
         _shader = self.shaders[shader]
@@ -569,20 +569,19 @@ class Scene(Receiver):
             if not shadow_round:
                 _shader.set_int("view_mode", 0)
 
-        _shader.set_float("far_plane", self.lights[0].shadow_far_plane)
-        _shader.set_matrix4x4_np("projection", proj)
-        light_array = [light.position for light in self.lights]
-        lcolor_array = [light.color for light in self.lights]
-        light_array_np = np.array(light_array, dtype=np.float32)
-        lcolor_array_np = np.array(lcolor_array, dtype=np.float32)
-        _shader.set_vector3_array_np("light_pos", light_array_np, light_count)
-
         if not shadow_round:
+            _shader.set_matrix4x4_np("projection", proj)
+            light_array = [light.position for light in self.lights]
+            lcolor_array = [light.color for light in self.lights]
+            light_array_np = np.array(light_array, dtype=np.float32)
+            lcolor_array_np = np.array(lcolor_array, dtype=np.float32)
+            _shader.set_vector3_array_np("light_pos", light_array_np, light_count)
             _shader.set_int("LIGHT_COUNT", light_count)
-            _shader.set_int("samples", self._shadow_samples)
+            _shader.set_int("shadow_steps", self._shadow_samples)
             _shader.set_vector3_array_np("light_color", lcolor_array_np, light_count)
-            # Always set shadow_enabled to ensure shader knows the state
             _shader.set_int("shadow_enabled", 1 if self.shadow_quality > 0 else 0)
+            _shader.set_matrix4x4_np("ss_proj", proj)
+            _shader.set_matrix4x4_np("ss_view", view)
             # Fog uniforms (only meaningful for the default 3-D shader)
             if shader == DEFAULT_SHADER:
                 _shader.set_int("fog_enabled", 1 if self.fog_enabled else 0)
@@ -591,14 +590,13 @@ class Scene(Receiver):
                 _shader.set_float("fog_near", self.fog_near)
                 _shader.set_float("fog_far", self.fog_far)
                 _shader.set_float("fog_density", self.fog_density)
-        if shadow_round:
-            shadow_matrices = self.lights[0].shadow_matrices
-            for i, mat in enumerate(shadow_matrices):
-                _shader.set_matrix4x4_np("shadowMatrices[{}]".format(i), mat)
-        elif self.depth_map > -1:
-            glActiveTexture(GL_TEXTURE1)
-            glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
-            _shader.set_int("depthMap", 1)
+            # Bind depth pre-pass texture for screen-space shadows
+            if self.shadow_quality > 0 and self.depth_prepass_tex > 0:
+                glActiveTexture(GL_TEXTURE2)
+                glBindTexture(GL_TEXTURE_2D, self.depth_prepass_tex)
+                _shader.set_int("sceneDepth", 2)
+        else:
+            _shader.set_matrix4x4_np("projection", proj)
 
         if not shadow_round and shader == DEFAULT_SHADER:
             self.grid.render(lit, self.shaders[DEFAULT_SHADER])
@@ -612,12 +610,93 @@ class Scene(Receiver):
             ):
                 object.render(lit, _shader)
 
+    def _depth_prepass(self, objects_snapshot: List[Object]) -> None:
+        """Render depth pre-pass for screen-space shadow computation.
+
+        Renders all solid 3D objects (skipping particles) to a depth-only FBO
+        using a minimal shader. The resulting depth texture is later sampled
+        by the ScreenSpaceShadow() function in the main fragment shader.
+        """
+        if self.depth_prepass_tex <= 0 or self.depth_prepass_fbo <= 0:
+            return
+
+        proj, view = self.active_camera.render()
+        if proj is None or view is None:
+            return
+
+        default_id = glGetIntegerv(GL_FRAMEBUFFER_BINDING)
+        glViewport(0, 0, self.window_width, self.window_height)
+        glBindFramebuffer(GL_FRAMEBUFFER, self.depth_prepass_fbo)
+        glClear(GL_DEPTH_BUFFER_BIT)
+
+        shader = self.shaders[SHADOW_DEPTH]
+        shader.use()
+        shader.set_matrix4x4_np("projection", proj)
+        shader.set_matrix4x4_np("view", view)
+
+        for obj in objects_snapshot:
+            if obj.shader != PARTICLE_SHADER and obj._visible:
+                obj.render(False, shader)
+
+        shader.end()
+        glBindFramebuffer(GL_FRAMEBUFFER, default_id)
+
+    def _create_depth_texture(self) -> None:
+        """Create (or recreate) the depth pre-pass texture and FBO.
+
+        This is called during initialisation and whenever the window is
+        resized so the depth texture always matches the current viewport.
+        """
+        if self.depth_prepass_tex > 0:
+            glDeleteTextures([self.depth_prepass_tex])
+        if self.depth_prepass_fbo > 0:
+            glDeleteFramebuffers(1, [self.depth_prepass_fbo])
+
+        self.depth_prepass_tex = glGenTextures(1)
+        self.depth_prepass_fbo = glGenFramebuffers(1)
+
+        w = max(self.window_width, 1)
+        h = max(self.window_height, 1)
+
+        glBindTexture(GL_TEXTURE_2D, self.depth_prepass_tex)
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_DEPTH_COMPONENT,
+            w,
+            h,
+            0,
+            GL_DEPTH_COMPONENT,
+            GL_FLOAT,
+            None,
+        )
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+
+        default_id = glGetIntegerv(GL_FRAMEBUFFER_BINDING)
+        glBindFramebuffer(GL_FRAMEBUFFER, self.depth_prepass_fbo)
+        glFramebufferTexture2D(
+            GL_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT,
+            GL_TEXTURE_2D,
+            self.depth_prepass_tex,
+            0,
+        )
+        glDrawBuffer(GL_NONE)
+        glReadBuffer(GL_NONE)
+        status = glCheckFramebufferStatus(GL_FRAMEBUFFER)
+        if status != GL_FRAMEBUFFER_COMPLETE:
+            logging.error(f"Depth pre-pass FBO incomplete: 0x{status:04X}")
+        glBindFramebuffer(GL_FRAMEBUFFER, default_id)
+
     def _render(self) -> None:
         """Main render routine invoked every frame.
 
-        Performs shadow-map pass (if enabled), renders background, 3D scene,
-        HUD elements and particle passes. Also updates per-frame FPS counters
-        and runs collision checks.
+        Performs depth pre-pass for screen-space shadows (if enabled),
+        renders background, 3D scene, HUD elements and particle passes.
+        Also updates per-frame FPS counters and runs collision checks.
         """
         self.shaders["default"].use()
 
@@ -641,15 +720,9 @@ class Scene(Receiver):
         glClearColor(0.1, 0.1, 0.1, 1.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+        # Depth pre-pass for screen-space shadows
         if self.shadow_quality > 0:
-            glViewport(0, 0, self._shadow_quality, self._shadow_quality)
-            default_id = glGetIntegerv(GL_FRAMEBUFFER_BINDING)
-            glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
-            glClear(GL_DEPTH_BUFFER_BIT)
-            self.shaders[SHADOW_SHADER].use()
-            self._render_3d_scene(True, SHADOW_SHADER, objects_snapshot)
-            glBindFramebuffer(GL_FRAMEBUFFER, default_id)
-            self.shaders[SHADOW_SHADER].end()
+            self._depth_prepass(objects_snapshot)
 
         # Render background
         glViewport(0, 0, self.window_width, self.window_height)
@@ -660,7 +733,7 @@ class Scene(Receiver):
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
 
-        # Render scene
+        # Render 3D scene
         lit = len(self.lights) > 0
         self.shaders[DEFAULT_SHADER].use()
         self._render_3d_scene(False, DEFAULT_SHADER, objects_snapshot)
@@ -956,49 +1029,8 @@ Payton requires at least OpenGL 3.3 support and above."""
             if start_clocks:
                 self.clocks[clock].pause()
 
-        # if shadows
-        # @TODO Creating the shadow cubemap here is not a good idea
-        self.depth_map_fbo = glGenFramebuffers(1)
-        self.depth_map = glGenTextures(1)
-        side_map = [
-            GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-        ]
-        glBindTexture(GL_TEXTURE_CUBE_MAP, self.depth_map)
-        for i in side_map:
-            glTexImage2D(
-                i,
-                0,
-                GL_DEPTH_COMPONENT,
-                self.shadow_quality,
-                self.shadow_quality,
-                0,
-                GL_DEPTH_COMPONENT,
-                GL_FLOAT,
-                None,
-            )
-
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE)
-
-        default_id = glGetIntegerv(GL_FRAMEBUFFER_BINDING)
-        glBindFramebuffer(GL_FRAMEBUFFER, self.depth_map_fbo)
-        glFramebufferTexture(
-            GL_FRAMEBUFFER,
-            GL_DEPTH_ATTACHMENT,
-            self.depth_map,
-            0,
-        )
-        glDrawBuffer(GL_NONE)
-        glReadBuffer(GL_NONE)
-        glBindFramebuffer(GL_FRAMEBUFFER, default_id)
+        # Depth pre-pass texture for screen-space shadows
+        self._create_depth_texture()
         for shader in self.shaders.values():
             shader.build()
 
@@ -1104,6 +1136,7 @@ Payton requires at least OpenGL 3.3 support and above."""
                         huds_snapshot = list(self.huds.items())
                     for hud_name, hud_obj in huds_snapshot:
                         hud_obj.set_size(self.window_width, self.window_height)
+                    self._create_depth_texture()
                 self.controller.keyboard(self.event, self)
                 self.controller.mouse(self.event, self)
 

@@ -71,7 +71,7 @@ While 2D graphs and charts are useful for reports, many scenarios require visual
 -   Optional Physics Engine
     -   Bullet Physics integration (cubes, joints, ragdoll, bouncing ball)
 -   Extendable controllers
--   Pre-defined lighting with shadows (spotlight support)
+-   Pre-defined lighting with screen-space shadows (multi-light support)
 -   Material support
 -   Clickable objects and virtual planes
 -   Shader support (custom shaders, particle shader)

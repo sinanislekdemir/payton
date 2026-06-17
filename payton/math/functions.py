@@ -4,7 +4,6 @@ from functools import lru_cache
 from typing import Iterable, List, Tuple
 
 import numpy as np
-import pyrr
 
 from payton.math.matrix import IDENTITY_MATRIX, Matrix
 from payton.math.vector import Vector3D
@@ -339,92 +338,3 @@ def ortho(left: float, right: float, bottom: float, top: float) -> np.ndarray:
         [-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0, 1],
     ]
     return np.array(result, dtype=np.float32)
-
-
-def cubemap_projection_matrices(
-    from_point: Vector3D, far_plane: float
-) -> List[np.ndarray]:
-    """
-    Create the required Cubemap projection matrices.
-
-    This method is suitable for generating a Shadow Map.
-
-    Simply speaking, this method generates 6 different camera matrices from the center of
-    an imaginary cube and covers all surfaces without conflicting.
-
-    Keyword arguments;
-    from_point -- Imaginary camera location
-    far_plane -- How far the camera is capable of seeing. (Effects performance!)
-    """
-
-    def a2np(a: List[float]) -> np.ndarray:
-        return np.array(a, dtype=np.float32)
-
-    shadow_proj = pyrr.matrix44.create_perspective_projection(
-        90.0, 1.0, 0.01, far_plane, np.float32
-    )
-    lightpos = np.array(list(from_point), dtype=np.float32)[:3]
-
-    nx = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(
-            lightpos + a2np([-1.0, 0, 0]),
-            dtype=np.float32,
-        ),
-        a2np([0, -1.0, 0]),
-        dtype=np.float32,
-    )
-    px = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(
-            lightpos + a2np([1, 0, 0]),
-            dtype=np.float32,
-        ),
-        a2np([0, -1.0, 0]),
-        dtype=np.float32,
-    )
-    ny = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(
-            lightpos + a2np([0, -1, 0]),
-            dtype=np.float32,
-        ),
-        a2np([0, 0, -1.0]),
-        dtype=np.float32,
-    )
-    py = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(
-            lightpos + a2np([0, 1, 0]),
-            dtype=np.float32,
-        ),
-        a2np([0, 0, 1.0]),
-        dtype=np.float32,
-    )
-    pz = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(
-            lightpos + a2np([0, 0, 1]),
-            dtype=np.float32,
-        ),
-        a2np([0, -1.0, 0]),
-        dtype=np.float32,
-    )
-    nz = pyrr.matrix44.create_look_at(
-        lightpos,
-        np.array(
-            lightpos + a2np([0, 0, -1]),
-            dtype=np.float32,
-        ),
-        a2np([0, -1.0, 0]),
-        dtype=np.float32,
-    )
-
-    return [
-        px.dot(shadow_proj),
-        nx.dot(shadow_proj),
-        py.dot(shadow_proj),
-        ny.dot(shadow_proj),
-        pz.dot(shadow_proj),
-        nz.dot(shadow_proj),
-    ]

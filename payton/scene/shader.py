@@ -28,60 +28,28 @@ from payton.math.vector import Vector3D
 
 DEFAULT_SHADER = "default"
 PARTICLE_SHADER = "particle"
-SHADOW_SHADER = "depth"
+SHADOW_DEPTH = "shadow_depth"
 
-depth_fragment_shader = """
+simple_depth_vertex_shader = """
 #version 330 core
-in vec4 FragPos;
-
-uniform float far_plane;
-uniform vec3 light_pos[100];
-
-void main()
-{
-    float lightDistance = length(FragPos.xyz - light_pos[0]);
-    // Push the stored depth slightly away from the light so that a surface
-    // does not shadow itself (polygon offset has no effect when gl_FragDepth
-    // is written manually, so the offset must be baked in here).
-    lightDistance += 0.08;
-    gl_FragDepth = lightDistance / far_plane;
-}
-"""
-
-depth_vertex_shader = """
-#version 330 core
-layout (location = 0) in vec3 aPos;
-
+layout(location = 0) in vec3 position;
 uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-    gl_Position = model * vec4(aPos, 1.0);
+    gl_Position = projection * view * model * vec4(position, 1.0);
 }
 """
 
-depth_geometry_shader = """
+simple_depth_fragment_shader = """
 #version 330 core
-layout (triangles) in;
-layout (triangle_strip, max_vertices=18) out;
-
-uniform mat4 shadowMatrices[6];
-
-out vec4 FragPos; // FragPos from GS (output per emitvertex)
+layout(location = 0) out vec4 outColor;
 
 void main()
 {
-    for(int face = 0; face < 6; ++face)
-    {
-        gl_Layer = face;
-        for(int i = 0; i < 3; ++i) // for each triangle's vertices
-        {
-            FragPos = gl_in[i].gl_Position;
-            gl_Position = shadowMatrices[face] * FragPos;
-            EmitVertex();
-        }
-        EndPrimitive();
-    }
+    outColor = vec4(0.0);
 }
 """
 
@@ -203,20 +171,18 @@ in vec3 frag_color;
 in vec3 l_fragpos;
 in vec3 l_normal;
 in vec3 view_pos;
-in vec4 frag_pos_light_space;
 
 uniform vec3 light_pos[100]; // assume 100 lights max.
 uniform vec3 light_color[100];
 uniform vec3 camera_pos;
 uniform bool shadow_enabled;
-uniform int samples;
+uniform int shadow_steps;
 
 uniform int LIGHT_COUNT;
 
 uniform vec3 object_color;
 uniform int material_mode;
 uniform float opacity;
-uniform float far_plane;
 uniform int lit;
 
 // Material properties for enhanced shading (with defaults to maintain compatibility)
@@ -225,7 +191,12 @@ uniform float roughness;
 uniform float ao;
 
 uniform sampler2D tex_unit;
-uniform samplerCube depthMap;
+uniform sampler2D sceneDepth;
+
+// Matrices needed for screen-space projection during ray-march
+// Use distinct names to avoid any cross-stage uniform conflicts
+uniform mat4 ss_proj;
+uniform mat4 ss_view;
 
 // Fog parameters (1 unit == 1 metre)
 uniform int   fog_enabled;   // 0 = off, 1 = on
@@ -235,34 +206,51 @@ uniform float fog_near;      // linear mode: distance at which fog begins (metre
 uniform float fog_far;       // linear mode: distance at which fog is fully opaque (metres)
 uniform float fog_density;   // exp / exp2 mode density factor
 
-// Improved sampling pattern for shadows
-vec3 gridSamplingDisk[20] = vec3[]
-(
-   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1),
-   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
-   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
-   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
-   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
-);
-
-// Enhanced shadow calculation with better bias
-float ShadowCalculation(vec3 fragPos)
+float ScreenSpaceShadow(vec3 worldPos, vec3 lightPos)
 {
-    if (LIGHT_COUNT == 0) return 0.0;
+    vec3 dir = lightPos - worldPos;
+    float dist = length(dir);
+    if (dist < 0.001) return 0.0;
+    dir /= dist;
 
-    vec3 fragToLight = fragPos - light_pos[0];
-    float currentDepth = length(fragToLight);
-    // The depth map already has a world-space offset baked in at write time,
-    // so a straight compare is sufficient here.
-    float closestDepth = texture(depthMap, fragToLight).r * far_plane;
-    return currentDepth > closestDepth ? 1.0 : 0.0;
+    int  kSteps     = max(shadow_steps, 1);
+    float bias      = 0.0002;
+    float startDist = 0.02;
+
+    // Per-pixel jitter on the starting offset to break up
+    // aliasing / Moire patterns between neighbouring pixels.
+    float hash  = fract(sin(dot(gl_FragCoord.xy, vec2(127.1, 311.7))) * 43758.5453);
+    float travelled = startDist + hash * 0.005;
+
+    float stepRatio = pow(dist / startDist, 1.0 / float(kSteps));
+
+    for (int s = 0; s < 20; s++) {
+        if (s >= kSteps) break;
+
+        vec3 pos   = worldPos + dir * travelled;
+        vec4 clip  = ss_proj * ss_view * vec4(pos, 1.0);
+        vec3 ndc   = clip.xyz / clip.w;
+        vec2 uv    = ndc.xy * 0.5 + 0.5;
+
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) break;
+        if (ndc.z < -1.0 || ndc.z > 1.0) break;
+
+        float storedDepth = texture(sceneDepth, uv).r;
+        float sampledZ    = ndc.z * 0.5 + 0.5;
+
+        if (sampledZ > storedDepth + bias) return 1.0;
+
+        travelled *= stepRatio;
+        if (travelled >= dist) break;
+    }
+    return 0.0;
 }
 
 void main()
 {
     vec3 color;
     float alpha;
-    
+
     // Material color determination
     if (material_mode == 0 || material_mode == 2) {
         color = object_color;
@@ -319,21 +307,15 @@ void main()
         float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
         vec3 specular = spec_strength * spec * light_color[i];
         
-        // Shadow calculation (only for first light to keep performance)
-        float shadow = (i == 0 && shadow_enabled) ? ShadowCalculation(l_fragpos) : 0.0;
-        
-        // Combine results
+        float shadow = shadow_enabled ? ScreenSpaceShadow(l_fragpos, light_pos[i]) : 0.0;
+
         result += (1.0 - shadow) * (diffuse + specular) * attenuation;
     }
     
-    float peak = max(result.r, max(result.g, result.b));
-    if (peak > 1.0) {
-        result = result / (result + vec3(1.0));
-    }
     result = clamp(result, 0.0, 1.0);
-    
+
     // Gamma correction
-    result = pow(result, vec3(1.0/2.2));
+    result = pow(result, vec3(1.0 / 2.2));
 
     // Fog blending (applied after gamma so fog_color stays perceptually correct)
     if (fog_enabled == 1) {
@@ -367,12 +349,10 @@ out vec3 frag_color;
 out vec3 l_fragpos;
 out vec3 l_normal;
 out vec3 view_pos;
-out vec4 frag_pos_light_space;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform mat4 light_space_matrix;
 uniform int view_mode;
 
 void main()
@@ -386,9 +366,6 @@ void main()
     
     // Calculate view position for PBR calculations
     view_pos = (view * world_pos).xyz;
-    
-    // Calculate light space position for shadow mapping
-    frag_pos_light_space = light_space_matrix * world_pos;
 
     if (view_mode == 0) {
         gl_Position = projection * view * world_pos;
@@ -516,7 +493,6 @@ class Shader:
             "model",
             "view",
             "projection",
-            "light_space_matrix",
             "object_color",
             "opacity",
             "metallic",
@@ -529,8 +505,7 @@ class Shader:
             "material_mode",
             "lit",
             "shadow_enabled",
-            "samples",
-            "far_plane",
+            "shadow_steps",
             "time",
             "resolution",
             "background_mode",
@@ -538,7 +513,9 @@ class Shader:
             "bot_color",
             "particle_size",
             "tex_unit",
-            "depthMap",
+            "sceneDepth",
+            "ss_proj",
+            "ss_view",
             "fog_enabled",
             "fog_mode",
             "fog_color",
@@ -552,7 +529,7 @@ class Shader:
         )
         self._stack: Dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
-        self._depth_shader = False
+        self._depth_pass = False
 
         self.program: int = -1
 

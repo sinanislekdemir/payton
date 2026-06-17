@@ -564,7 +564,7 @@ class Object:
             glDisable(GL_DEPTH_TEST)
 
         for material in self.materials.values():
-            if material.display != SOLID and shader._depth_shader:
+            if material.display != SOLID and shader._depth_pass:
                 continue
 
             material.render(

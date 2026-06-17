@@ -286,7 +286,7 @@ class Material:
                 glBindTexture(GL_TEXTURE_2D, self._particle_texture)
                 shader.set_int("tex_unit", 0)
 
-        if not shader._depth_shader:
+        if not shader._depth_pass:
             shader.set_vector3_np("object_color", self._color_np)
             shader.set_float("opacity", self.opacity)
             shader.set_int("material_mode", _mode)
