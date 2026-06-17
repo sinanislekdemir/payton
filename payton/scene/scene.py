@@ -35,6 +35,8 @@ from OpenGL.GL import (
     GL_MINOR_VERSION,
     GL_NEAREST,
     GL_NONE,
+    GL_PACK_ALIGNMENT,
+    GL_RGBA,
     GL_TEXTURE1,
     GL_TEXTURE_CUBE_MAP,
     GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -50,6 +52,7 @@ from OpenGL.GL import (
     GL_TEXTURE_WRAP_T,
     GL_MULTISAMPLE,
     GL_TRIANGLES,
+    GL_UNSIGNED_BYTE,
     GL_VERSION,
     glActiveTexture,
     glBindFramebuffer,
@@ -68,7 +71,9 @@ from OpenGL.GL import (
     glGenVertexArrays,
     glGetIntegerv,
     glGetString,
+    glPixelStorei,
     glReadBuffer,
+    glReadPixels,
     glTexImage2D,
     glTexParameteri,
     glViewport,
@@ -300,6 +305,7 @@ class Scene(Receiver):
         self.on_select = on_select
         self.depth_map = 0
         self.depth_map_fbo = 0
+        self._screenshot_requested: Optional[str] = None
         # Main running state
         self.running = False
         self._objects_lock = threading.Lock()
@@ -1103,6 +1109,10 @@ Payton requires at least OpenGL 3.3 support and above."""
 
             self._render()
 
+            if self._screenshot_requested is not None:
+                self._do_screenshot(self._screenshot_requested)
+                self._screenshot_requested = None
+
             sdl2.SDL_GL_SwapWindow(self.window)
             sdl2.SDL_Delay(1)
 
@@ -1119,6 +1129,46 @@ Payton requires at least OpenGL 3.3 support and above."""
         sdl2.SDL_Quit()
         self._clear_context()
         return 0
+
+    def screenshot(self, filename: Optional[str] = None) -> str:
+        """Request a screenshot of the current frame as a PNG file.
+
+        The actual capture happens on the main render thread during the next
+        frame. Safe to call from clock callbacks (any thread).
+
+        Parameters
+        ----------
+        filename : str or None, optional
+            Output filename. If None, the current Unix timestamp as an
+            integer is used (e.g. ``1718123456.png``).
+
+        Returns
+        -------
+        str
+            The filename the screenshot will be saved to.
+        """
+        if filename is None:
+            filename = f"{int(time.time())}.png"
+        self._screenshot_requested = filename
+        return filename
+
+    def _do_screenshot(self, filename: str) -> None:
+        """Perform the actual framebuffer read and PNG save on the main thread."""
+        from PIL import Image
+
+        glPixelStorei(GL_PACK_ALIGNMENT, 1)
+        data = glReadPixels(
+            0,
+            0,
+            self.window_width,
+            self.window_height,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+        )
+
+        image = Image.frombytes("RGBA", (self.window_width, self.window_height), data)
+        image = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+        image.save(filename, "PNG")
 
     def terminate(self) -> None:
         """Stop the render loop and terminate running clocks.

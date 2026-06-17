@@ -63,6 +63,7 @@ While 2D graphs and charts are useful for reports, many scenarios require visual
     -   Sphere
     -   Dynamic Grid
 -   Clean default scene
+-   Screenshot capture (programmatic or via F12 key)
 -   Pre-defined keyboard-mouse and camera controls
 -   Pre-defined environment
 -   Clock system for parallel tasks and time-based operations
@@ -207,6 +208,7 @@ This will create your first empty scene and show it inside an SDL window.
 | W | Change Display Mode (Solid / Wireframe / Points) |
 | F2 | Previous Camera |
 | F3 | Next Camera |
+| F12 | Take Screenshot (saves PNG in current directory) |
 | H | Open / Close Help Window |
 
 ## Environment variables

@@ -19,6 +19,7 @@ Space: Start/Pause Scene Animations/Clocks
 G: Show/Hide Grid
 W: Display mode (wireframe/solid)
 F2: Previous Camera F3: Next Camera
+F12: Capture a screenshot
     """
     help_window = Window(
         align=WindowAlignment.RIGHT,
