@@ -27,9 +27,20 @@ Payton is not intended to be a full-featured game engine or complete 3D environm
 
 While 2D graphs and charts are useful for reports, many scenarios require visualizing data in 3 or 4 dimensions. Payton enables users to extend their graphics into higher dimensions and process real-time data from sensors, cameras, or any other data source. These sources can include thermometers, random number generators, IoT devices with speed sensors, maps, vehicle diagnostic ports, or even time-based mathematical formulas. Although projects can become complex, Payton is designed to remain accessible to beginners who can follow the tutorials to develop their programming skills.
 
+## Why Payton?
+
+Python 3D libraries traditionally fall into two extremes: **too low-level** (where you must manually implement cameras, lighting, and scene management) or **too heavy** (where you fight a massive production engine's learning curve before seeing results). Payton sits deliberately in the sweet spot between them.
+
+**vs Pygame**: Pygame is strictly a 2D library. While you can initialize an OpenGL context within it, every standard 3D feature—camera orbit, lighting, shadows, material systems, scene hierarchies, collision detection, and UI—must be built entirely from scratch. Payton provides all of these out of the box. When your project requires true 3D (rather than 2D sprites in a 3D space), Payton saves you hundreds of lines of boilerplate code.
+
+**vs Panda3D**: Panda3D is a production-grade game engine featuring a steep learning curve, a complex deployment pipeline, and an architecture heavily rooted in C++ design patterns. Payton is the exact opposite: it requires just 3 lines of code to launch an interactive 3D scene, offers a purely Pythonic API, and works with zero-config defaults. This makes Payton ideal for *rapid prototyping, tool-building, data visualization, simulation, and education*—scenarios where you need results in minutes, not hours. If a project eventually outgrows Payton's scope, transitioning to Panda3D, Ursina, or Unity is the natural next step.
+
+Payton bridges the gap between "I need to see my 3D idea *right now*" and "I'm building a commercial game." It shines brightest when speed-to-visual, simplicity, and minimal boilerplate matter more than high-end rendering polish or deep engine extensibility.
+
 ## Contents of this Document:
 
 - [Payton 3D SDK](#payton-3d-sdk)
+  - [Why Payton?](#why-payton)
   - [Contents of this Document:](#contents-of-this-document)
   - [Features:](#features)
   - [Install](#install)
