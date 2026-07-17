@@ -232,7 +232,7 @@ if not os.path.exists("assets/thebot.awp3d"):
     print("Downloading the bot asset")
     print("The file is 123mb which can not fit into github")
     request.urlretrieve(
-        "https://www.islekdemir.com/thebot.awp3d", "assets/thebot.awp3d"
+        "https://www.islekdemir.com/uploads/thebot.awp3d", "assets/thebot.awp3d"
     )
     print("Download complete")
 
