@@ -1068,16 +1068,13 @@ Payton requires at least OpenGL 3.3 support and above."""
             sdl2.SDL_GL_SetAttribute(
                 sdl2.SDL_GL_MULTISAMPLESAMPLES, int(multisample_samples)
             )
-        elif self._antialiasing is None:
-            # Auto-detect: request the highest level and let SDL2 negotiate
-            # down to the best available sample count on this driver/hardware.
+        elif self._antialiasing is not None and self._antialiasing > 0:
             sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
-            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 16)
-        elif self._antialiasing > 0:
-            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
-            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, self._antialiasing)
+            sdl2.SDL_GL_SetAttribute(
+                sdl2.SDL_GL_MULTISAMPLESAMPLES, self._antialiasing
+            )
 
-        self.window = sdl2.SDL_CreateWindow(
+        _window_args = (
             b"Payton Scene",
             sdl2.SDL_WINDOWPOS_UNDEFINED,
             sdl2.SDL_WINDOWPOS_UNDEFINED,
@@ -1086,8 +1083,35 @@ Payton requires at least OpenGL 3.3 support and above."""
             sdl2.SDL_WINDOW_OPENGL | sdl2.SDL_WINDOW_RESIZABLE,
         )
 
+        if self._antialiasing is None and not multisample_samples:
+            # Auto-detect: probe descending MSAA levels until one sticks.
+            for samples in (16, 8, 4, 2):
+                sdl2.SDL_GL_SetAttribute(
+                    sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1
+                )
+                sdl2.SDL_GL_SetAttribute(
+                    sdl2.SDL_GL_MULTISAMPLESAMPLES, samples
+                )
+                self.window = sdl2.SDL_CreateWindow(*_window_args)
+                if self.window:
+                    break
+                logging.info(
+                    "MSAA %dx not available, trying next level", samples
+                )
+            else:
+                sdl2.SDL_GL_SetAttribute(
+                    sdl2.SDL_GL_MULTISAMPLEBUFFERS, 0
+                )
+                sdl2.SDL_GL_SetAttribute(
+                    sdl2.SDL_GL_MULTISAMPLESAMPLES, 0
+                )
+                logging.info("MSAA not available, disabling antialiasing")
+                self.window = sdl2.SDL_CreateWindow(*_window_args)
+        else:
+            self.window = sdl2.SDL_CreateWindow(*_window_args)
+
         if not self.window:
-            return -1
+            return -2
 
         self._context = sdl2.SDL_GL_CreateContext(self.window)
         if not self._context:
@@ -1096,7 +1120,7 @@ Payton requires at least OpenGL 3.3 support and above."""
             )
             sdl2.SDL_DestroyWindow(self.window)
             sdl2.SDL_Quit()
-            return -1
+            return -3
         sdl2.SDL_GL_MakeCurrent(self.window, self._context)
         sdl2.SDL_GL_SetSwapInterval(0)
 
