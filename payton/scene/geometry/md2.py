@@ -24,6 +24,8 @@ from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import POINTS
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 
+logger = logging.getLogger(__name__)
+
 _SIGNATURE = "IDP2"
 _VERSION = 8
 
@@ -133,7 +135,7 @@ def _read_block(b: BinaryIO, format_str: str, count: int) -> list[tuple]:
     total_length = struct_length * count
     data = b.read(total_length)
     if len(data) < total_length:
-        raise ValueError("MD2: Failed to read '%d' bytes" % (total_length))
+        raise ValueError(f"MD2: Failed to read '{total_length}' bytes")
     return [struct.unpack(format_str, chunk) for chunk in chunks(data, struct_length)]
 
 
@@ -224,14 +226,14 @@ class MD2(Mesh):
         steps -- Number of steps to interpolate.
         """
         if animation_name not in self.animations:
-            logging.error(f"Animation {animation_name} not found in object")
+            logger.error(f"Animation {animation_name} not found in object")
             return
         anim = self.animations[animation_name]
         if from_frame < anim[0] or from_frame > anim[1]:
-            logging.error("from_frame out of bounds")
+            logger.error("from_frame out of bounds")
             return
         if to_frame < anim[0] or to_frame > anim[1]:
-            logging.error("to_frame out of bounds")
+            logger.error("to_frame out of bounds")
             return
 
         frames = []
@@ -271,14 +273,14 @@ class MD2(Mesh):
         """
         self.animation = ""  # For thread safety
         if animation_name not in self.animations:
-            logging.error(f"Animation {animation_name} not found in object")
+            logger.error(f"Animation {animation_name} not found in object")
             return
         anim = self.animations[animation_name]
         if from_frame < anim[0] or from_frame > anim[1]:
-            logging.error("from_frame out of bounds")
+            logger.error("from_frame out of bounds")
             return
         if to_frame < anim[0] or to_frame > anim[1]:
-            logging.error("to_frame out of bounds")
+            logger.error("to_frame out of bounds")
             return
         self._loop = loop
         self._active_frame = from_frame
@@ -356,7 +358,7 @@ class MD2(Mesh):
         filaname -- MD2 Filaname to load.
         """
         if not os.path.exists(filename):
-            raise BaseException(f"File not found: {filename}")
+            raise ValueError(f"File not found: {filename}")
         self._path = os.path.dirname(os.path.abspath(filename))
         with open(filename, "rb") as f:
             self.load_buffer(f)
@@ -430,9 +432,9 @@ class MD2(Mesh):
         self.header = MD2Header._make(_read_block(f, "< 4s16l", 1)[0])
 
         if self.header.ident.decode("ascii") != _SIGNATURE:
-            raise BaseException("MD2 Identifier is incorrect")
+            raise ValueError("MD2 Identifier is incorrect")
         if self.header.version != _VERSION:
-            raise BaseException("Invalid Version")
+            raise ValueError("Invalid Version")
 
     def read_skin(self, f: BinaryIO) -> None:
         f.seek(self.header.offset_skins, os.SEEK_SET)
@@ -482,7 +484,7 @@ class MD2(Mesh):
         """Convert the MD2 Object to Dictionary"""
         animation = self.animation
         if animation == "":
-            animation = list(self.animations.keys())[0]
+            animation = next(iter(self.animations.keys()))
 
         frame_name = f"{animation}{self._active_frame}"
         result = self._frame_children[frame_name].to_dict()

@@ -7,6 +7,8 @@ import sdl2
 from payton.scene.camera import BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 from payton.scene.gui import EditBox, Window
 
+logger = logging.getLogger(__name__)
+
 
 class BaseController:
     def __init__(self) -> None:
@@ -158,7 +160,7 @@ class SceneController(BaseController):
         scene -- Active scene
         """
         if event.type == sdl2.SDL_QUIT:
-            logging.debug("Quit SDL Scene")
+            logger.debug("Quit SDL Scene")
             scene.terminate()
             return True
 
@@ -181,7 +183,7 @@ class SceneController(BaseController):
                 # below variable assignment is only for code style
                 p = scene.active_camera.perspective
                 scene.active_camera.perspective = not p
-                logging.debug(f"Camera Perspective={scene.active_camera.perspective}")
+                logger.debug(f"Camera Perspective={scene.active_camera.perspective}")
 
             if key == sdl2.SDLK_g:
                 scene.grid.visible = not scene.grid.visible
@@ -189,7 +191,7 @@ class SceneController(BaseController):
             if key == sdl2.SDLK_SPACE:
                 for clock in scene.clocks:
                     c = scene.clocks[clock]
-                    logging.debug(f"Pause clock [{clock}]")
+                    logger.debug(f"Pause clock [{clock}]")
                     c.pause()
 
             if key == sdl2.SDLK_h:

@@ -1,4 +1,3 @@
-import math
 import os
 from collections.abc import Callable
 from textwrap import wrap
@@ -276,7 +275,7 @@ class Text(Rectangle):
             return
         if self._max_char_width == 0.0:
             self._max_char_width = text_size("_", self.font)[0]
-        split_length = int(math.floor(width_in_pixels / self._max_char_width)) - 1
+        split_length = round(width_in_pixels / self._max_char_width) - 1
         parts = wrap(original, split_length)
         self.__label = "\n".join(parts)
 

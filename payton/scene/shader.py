@@ -26,6 +26,8 @@ from OpenGL.GL import (
 from payton.math.matrix import Matrix
 from payton.math.vector import Vector3D
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_SHADER = "default"
 PARTICLE_SHADER = "particle"
 SHADOW_DEPTH = "shadow_depth"
@@ -589,7 +591,7 @@ class Shader:
     def use(self) -> bool:
         """Use the shader (activate it in the pipeline)"""
         if self.program == -1:
-            logging.error("Shader not compiled")
+            logger.error("Shader not compiled")
             return False
         glUseProgram(self.program)
         glEnable(GL_PROGRAM_POINT_SIZE)

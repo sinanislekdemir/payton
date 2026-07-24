@@ -97,11 +97,11 @@ class AWP3D(Wavefront):
         to_frame -- Ending frame number
         """
         if from_frame >= self.num_frames:
-            raise BaseException("Frame range error - from_frame out of bounds")
+            raise ValueError("Frame range error - from_frame out of bounds")
         if to_frame >= self.num_frames:
-            raise BaseException("Frame range error - to_frame out of bounds")
+            raise ValueError("Frame range error - to_frame out of bounds")
         if from_frame < 0 or to_frame < 0:
-            raise BaseException("Frame range error - Negative value defined")
+            raise ValueError("Frame range error - Negative value defined")
         self._from_frame = from_frame
         self._to_frame = to_frame
         self._active_framecount = to_frame - from_frame
@@ -124,7 +124,7 @@ class AWP3D(Wavefront):
         name -- Name of the desired animation
         """
         if name not in self.animations:
-            raise BaseException("Animation not defined")
+            raise ValueError("Animation not defined")
         self.set_range(self.animations[name][0], self.animations[name][1])
 
     def build(self) -> bool:
@@ -148,7 +148,7 @@ class AWP3D(Wavefront):
         progress_callback -- Optional callback receiving (current, total) during loading
         """
         if not os.path.exists(filename):
-            raise BaseException(f"File not found: {filename}")
+            raise ValueError(f"File not found: {filename}")
         self._path = os.path.dirname(os.path.abspath(filename))
         archive = ZipFile(filename, "r")
         files = archive.namelist()
@@ -181,7 +181,7 @@ class AWP3D(Wavefront):
         filename -- File name to load
         """
         if not os.path.exists(filename):
-            raise BaseException(f"File not found: {filename}")
+            raise ValueError(f"File not found: {filename}")
         self._path = os.path.dirname(os.path.abspath(filename))
         self._load_archive = ZipFile(filename, "r")
         files = self._load_archive.namelist()

@@ -423,7 +423,7 @@ def decimate(mesh: Mesh, ratio: float = 0.5) -> Mesh:
     verts = mesh._vertices
     n_verts = len(verts)
     target = max(3, int(n_verts * ratio))
-    grid_size = max(2, int(round((n_verts / target) ** (1.0 / 3.0) * 5)))
+    grid_size = max(2, round((n_verts / target) ** (1.0 / 3.0) * 5))
 
     xs = [v[0] for v in verts]
     ys = [v[1] for v in verts]

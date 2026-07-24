@@ -21,6 +21,8 @@ from payton.scene.gui.base import Rectangle, Shape2D, Text, text_size
 from payton.scene.shader import Shader
 from payton.scene.theme import SceneTheme
 
+logger = logging.getLogger(__name__)
+
 # Height in pixels of the window title bar
 TITLE_BAR_HEIGHT: int = 28
 
@@ -644,7 +646,7 @@ class Slider(Panel):
             try:
                 self._raw_on_change(val)
             except Exception:
-                logging.exception("Slider on_change callback failed")
+                logger.exception("Slider on_change callback failed")
 
     @property
     def value(self) -> float:
@@ -1014,7 +1016,7 @@ class EditBox(Panel):
             try:
                 self._raw_on_change(text)
             except Exception:
-                logging.exception("EditBox on_change callback failed")
+                logger.exception("EditBox on_change callback failed")
 
     def _on_keypress(self, instr: str) -> None:
         new = self._value[: self._cursor] + instr + self._value[self._cursor :]

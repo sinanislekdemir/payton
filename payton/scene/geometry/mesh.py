@@ -10,6 +10,8 @@ from payton.scene.geometry.base import Object
 from payton.scene.material import DEFAULT, Material
 from payton.scene.types import VList
 
+logger = logging.getLogger(__name__)
+
 
 class Mesh(Object):
     """
@@ -214,15 +216,15 @@ class Mesh(Object):
         colors -- Per vertex colors (optional)
         """
         if len(vertices) != 3:
-            logging.error("A triangle must have 3 vertices")
+            logger.error("A triangle must have 3 vertices")
             return
 
         if normals is not None and len(normals) != 3:
-            logging.error("There must be one normal per vertex")
+            logger.error("There must be one normal per vertex")
             return
 
         if texcoords is not None and len(texcoords) != 3:
-            logging.error("There must be one texcoord per vertex")
+            logger.error("There must be one texcoord per vertex")
             return
 
         if normals is None:

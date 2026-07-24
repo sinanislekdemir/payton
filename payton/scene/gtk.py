@@ -105,4 +105,4 @@ else:
 
         def __init__(self, scene: Scene):
             """This shall fail."""
-            raise BaseException("PyGTK can not be initialized")
+            raise RuntimeError("PyGTK can not be initialized")

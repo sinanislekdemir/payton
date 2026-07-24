@@ -101,6 +101,8 @@ try:
 except ModuleNotFoundError:
     pass
 
+logger = logging.getLogger(__name__)
+
 S = TypeVar("S", bound="Scene")
 # Shadow Qualities
 SHADOW_NONE = 0
@@ -752,7 +754,7 @@ class Scene(Receiver):
             Instance implementing collision checks.
         """
         if not isinstance(tester, CollisionTest):
-            logging.error("tester must be an instance of CollisionTest")
+            logger.error("tester must be an instance of CollisionTest")
             return
 
         self.collisions[name] = tester
@@ -767,11 +769,11 @@ class Scene(Receiver):
         obj -- 3D Object to be added.
         """
         if not isinstance(obj, Object):
-            logging.error("Given object is not an instance of `scene.Object`")
+            logger.error("Given object is not an instance of `scene.Object`")
             return False
 
         if isinstance(obj, Shape2D):
-            logging.error("2D Shapes can't be added directly to the scene")
+            logger.error("2D Shapes can't be added directly to the scene")
             return False
 
         if isinstance(obj, Hud):
@@ -779,7 +781,7 @@ class Scene(Receiver):
             all objects"""
             with self._objects_lock:
                 if name in self.huds:
-                    logging.error(f"Given HUD name [{name}] already exists")
+                    logger.error(f"Given HUD name [{name}] already exists")
                     return False
                 self.huds[name] = obj
             obj.name = name
@@ -788,7 +790,7 @@ class Scene(Receiver):
 
         with self._objects_lock:
             if name in self.objects:
-                logging.error(f"Given object name [{name}] already exists")
+                logger.error(f"Given object name [{name}] already exists")
                 return False
             self.objects[name] = obj
         obj.name = name
@@ -824,7 +826,7 @@ class Scene(Receiver):
         :class:`Camera` instance.
         """
         if not isinstance(camera, Camera):
-            logging.error("Camera is not an instance of `scene.camera`")
+            logger.error("Camera is not an instance of `scene.camera`")
             return False
 
         self.cameras.append(camera)
@@ -861,7 +863,7 @@ class Scene(Receiver):
             If True the clock is never paused automatically.
         """
         if name in self.clocks:
-            logging.error(f"A clock named {name} already exists")
+            logger.error(f"A clock named {name} already exists")
             return
 
         c = Clock(period, callback, non_stop)
@@ -1073,7 +1075,7 @@ Payton requires at least OpenGL 3.3 support and above."""
                 self.window = sdl2.SDL_CreateWindow(*_window_args)
                 if self.window:
                     break
-                logging.info(
+                logger.info(
                     "MSAA %dx not available, trying next level", samples
                 )
             else:
@@ -1083,7 +1085,7 @@ Payton requires at least OpenGL 3.3 support and above."""
                 sdl2.SDL_GL_SetAttribute(
                     sdl2.SDL_GL_MULTISAMPLESAMPLES, 0
                 )
-                logging.info("MSAA not available, disabling antialiasing")
+                logger.info("MSAA not available, disabling antialiasing")
                 self.window = sdl2.SDL_CreateWindow(*_window_args)
         else:
             self.window = sdl2.SDL_CreateWindow(*_window_args)
@@ -1093,7 +1095,7 @@ Payton requires at least OpenGL 3.3 support and above."""
 
         self._context = sdl2.SDL_GL_CreateContext(self.window)
         if not self._context:
-            logging.error(
+            logger.error(
                 f"Failed to create OpenGL context: {sdl2.SDL_GetError().decode()}"
             )
             sdl2.SDL_DestroyWindow(self.window)
@@ -1109,9 +1111,9 @@ Payton requires at least OpenGL 3.3 support and above."""
         )
         self._active_msaa_samples = _actual_samples.value
         if self._active_msaa_samples > 1:
-            logging.info(f"Antialiasing enabled: {self._active_msaa_samples}x MSAA")
+            logger.info(f"Antialiasing enabled: {self._active_msaa_samples}x MSAA")
         else:
-            logging.info("Antialiasing disabled (0 samples granted by driver)")
+            logger.info("Antialiasing disabled (0 samples granted by driver)")
 
         self.event = sdl2.SDL_Event()
         self.running = True
@@ -1212,7 +1214,7 @@ Payton requires at least OpenGL 3.3 support and above."""
         """
         self.running = False
         for clock in self.clocks:
-            logging.debug(f"Kill clock [{clock}]")
+            logger.debug(f"Kill clock [{clock}]")
             self.clocks[clock].kill()
             self.clocks[clock].join()
 

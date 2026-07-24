@@ -135,7 +135,7 @@ class RagDoll(Object):
         """Parse joint from lines starting at index."""
         line = lines[index].strip()
 
-        if line.startswith("ROOT") or line.startswith("JOINT"):
+        if line.startswith(("ROOT", "JOINT")):
             joint_name = line.split()[1]
         elif line.startswith("End Site"):
             joint_name = "End Site"
@@ -170,7 +170,7 @@ class RagDoll(Object):
                 parts = line.split()
                 channel_count = int(parts[1])
                 joint.channels = parts[2 : 2 + channel_count]
-            elif line.startswith("JOINT") or line.startswith("End Site"):
+            elif line.startswith(("JOINT", "End Site")):
                 child_joint, index = self._parse_joint(lines, index)
                 child_joint.parent = joint
                 joint.children.append(child_joint)

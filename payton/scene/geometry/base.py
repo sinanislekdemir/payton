@@ -77,6 +77,8 @@ try:
 except ModuleNotFoundError:
     _BULLET = False
 
+logger = logging.getLogger(__name__)
+
 
 class Object:
     """Base 3D geometry object."""
@@ -400,7 +402,7 @@ class Object:
         """
         steps += 1
         if not self.track_motion:
-            raise Exception("track_motion should be True")
+            raise ValueError("track_motion should be True")
         if len(self._motion_path) < steps:
             return False
 
@@ -663,15 +665,15 @@ class Object:
         obj -- Object to add
         """
         if name in self.children:
-            logging.error(f"Name {name} exists in object children")
+            logger.error(f"Name {name} exists in object children")
             return False
         if not isinstance(obj, Object):
-            logging.error("Object type is not valid")
+            logger.error("Object type is not valid")
             return False
         self.children[name] = obj
         return True
 
-    @lru_cache(maxsize=10240)
+    @lru_cache(maxsize=10240)  # noqa: B019
     def _to_absolute(self, coordinate: tuple) -> Vector3D:
         return vector_transform(list(coordinate), self.matrix)
 
@@ -909,7 +911,7 @@ class Object:
                     vertices=self._vertices,
                     indices=self._total_indices,
                 )
-        except Exception:
+        except Exception:  # noqa: BLE001
             print(f"\nCould not activate Physics for {self}")
 
     def _build_constraints(self) -> None:
@@ -1063,7 +1065,7 @@ class Line(Object):
 
     def add_material(self, name: str, material: Material) -> None:
         """@TODO Implement this later! Not urgent."""
-        logging.error("Can't add materials to Line object")
+        logger.error("Can't add materials to Line object")
 
     @property
     def physics(self) -> bool:
@@ -1097,7 +1099,7 @@ class Line(Object):
         self._vertex_count = len(self._vertices)
         self.material._vertex_count = self._vertex_count
 
-        indices = list(map(lambda x: x + last_index, range(diff)))
+        indices = [x + last_index for x in range(diff)]
         self.material._indices.extend([indices])
         self._indices = self.material._indices
 

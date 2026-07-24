@@ -12,6 +12,8 @@ from payton.math.geometry import raycast_plane_intersect
 from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
 
+logger = logging.getLogger(__name__)
+
 BUTTON_LEFT = 1
 BUTTON_RIGHT = 2
 BUTTON_MIDDLE = 3
@@ -209,7 +211,7 @@ class Camera:
         h -- Height of the viewport
         """
         if self.target_object is not None:
-            logging.error("Camera has an active target, can not pan")
+            logger.error("Camera has an active target, can not pan")
             return
         px = math.ceil(w / 2)
         py = math.ceil(h / 2)

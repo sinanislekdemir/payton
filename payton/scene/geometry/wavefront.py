@@ -11,6 +11,8 @@ from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT, Material
 from payton.scene.types import IList, VList
 
+logger = logging.getLogger(__name__)
+
 
 class Wavefront(Mesh):
     def __init__(self, filename: str = "", **kwargs: Any) -> None:
@@ -31,7 +33,7 @@ class Wavefront(Mesh):
         Keyword arguments:
         filename -- filename to load"""
         if not os.path.isfile(filename):
-            logging.exception(f"File not found {filename}")
+            logger.exception(f"File not found {filename}")
             return False
 
         self.filename = filename
@@ -95,7 +97,8 @@ class Wavefront(Mesh):
         """
         if not os.path.isfile(filename):
             return
-        data = open(filename).read()
+        with open(filename) as f:
+            data = f.read()
         self.load_material(data)
 
     def load(self, obj_string: str) -> None:
@@ -151,7 +154,7 @@ class Wavefront(Mesh):
                     )
                     face.append([vertex, textcoord, normal])
                 if len(face) > 3:
-                    logging.error("Only triangular wavefronts are accepted")
+                    logger.error("Only triangular wavefronts are accepted")
                     return
 
                 _indices.append(face)
@@ -194,7 +197,7 @@ def export(mesh: Mesh, filename: str, name: str = "object") -> None:
     name -- Object name defined in exported file
     """
     if not isinstance(mesh, Mesh):
-        logging.exception("Object is not an instance of Mesh")
+        logger.exception("Object is not an instance of Mesh")
         return
     mat_filename = filename.replace(".obj", "") + ".mtl"
 
@@ -216,12 +219,12 @@ def export(mesh: Mesh, filename: str, name: str = "object") -> None:
     len_normals = len(mesh._normals) + 1
 
     material_data = ["# Payton Wavefront OBJ Expoerter"]
-    for name in mesh.materials:
-        if len(mesh.materials[name]._indices) == 0:
+    for mat_name in mesh.materials:
+        if len(mesh.materials[mat_name]._indices) == 0:
             continue
-        output.append(f"usemtl {name}")
+        output.append(f"usemtl {mat_name}")
         output.append("s off")
-        material = mesh.materials[name]
+        material = mesh.materials[mat_name]
         for indice in material._indices:
             f = [x + 1 for x in indice]
             t0 = str(f[0]) if len_texcoords > f[0] else ""
@@ -233,7 +236,7 @@ def export(mesh: Mesh, filename: str, name: str = "object") -> None:
             t2 = str(f[2]) if len_texcoords > f[2] else ""
             n2 = str(f[2]) if len_normals > f[2] else ""
             output.append(f"f {f[0]}/{t0}/{n0} {f[1]}/{t1}/{n1} {f[2]}/{t2}/{n2}")
-        material_data.append(f"newmtl {name}")
+        material_data.append(f"newmtl {mat_name}")
         material_data.append(
             f"Kd {material.color[0]} {material.color[1]} {material.color[2]}"
         )
@@ -243,5 +246,7 @@ def export(mesh: Mesh, filename: str, name: str = "object") -> None:
             copyfile(material.texture, path)
             material_data.append(f"map_Kd {base_name}")
 
-    open(filename, "w").write("\n".join(output))
-    open(mat_filename, "w").write("\n".join(material_data))
+    with open(filename, "w") as fh:
+        fh.write("\n".join(output))
+    with open(mat_filename, "w") as fh:
+        fh.write("\n".join(material_data))

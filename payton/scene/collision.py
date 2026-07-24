@@ -8,6 +8,8 @@ from payton.scene.geometry.base import Object
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.geometry.sphere import Sphere
 
+logger = logging.getLogger(__name__)
+
 
 class Collision:
     """Collision pair"""
@@ -69,7 +71,7 @@ class CollisionTest:
         Keyword arguments:
         obj -- Object to add"""
         if not isinstance(obj, Mesh):
-            logging.error("object must be an instance of Mesh")
+            logger.error("object must be an instance of Mesh")
             return
         self.objects.append(obj)
 
@@ -125,7 +127,7 @@ class CollisionTest:
         obj1 -- Object 1
         obj2 -- Object 2
         """
-        pair = set([obj1, obj2])
+        pair = {obj1, obj2}
         if pair in self._pairs:
             self._pairs.remove(pair)
 

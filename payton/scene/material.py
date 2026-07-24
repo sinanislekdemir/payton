@@ -164,7 +164,6 @@ class Material:
         return res
 
     def build(self) -> bool:
-        global _IMAGE_CACHE
         """Build the material"""
         self._initialized = True
         if os.path.isfile(self.texture):

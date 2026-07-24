@@ -12,6 +12,8 @@ except ModuleNotFoundError:
     _GTK_SUPPORTED = False
 from payton.scene.camera import BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 
+logger = logging.getLogger(__name__)
+
 
 class GTKController:
     """GTK controller for eventbox."""
@@ -127,7 +129,7 @@ class GTKController:
         if keyval == Gdk.KEY_space:
             for clock in self.scene.clocks:
                 c = self.scene.clocks[clock]
-                logging.debug(f"Pause clock [{clock}]")
+                logger.debug(f"Pause clock [{clock}]")
                 c.pause()
 
         if keyval == Gdk.KEY_h:

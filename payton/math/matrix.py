@@ -1,12 +1,10 @@
-from typing import Union
-
 import numpy as np
 
 from payton.math.vector import Vector3D
 
 DIFF = 0.0000001
 
-Matrix = Union[list[Vector3D], np.ndarray]
+Matrix = list[Vector3D]
 
 IDENTITY_MATRIX: Matrix = [
     [1.0, 0.0, 0.0, 0.0],
@@ -19,7 +17,7 @@ NP_IDENTITY_MATRIX = np.array(IDENTITY_MATRIX, dtype=np.float32)
 
 
 def matrix_to_position_and_quaternion(
-    matrix: Matrix,
+    matrix: np.ndarray | list[Vector3D],
 ) -> tuple[list[float], tuple[float, float, float, float]]:
     """Convert a 4x4 transformation matrix to position and quaternion.
 
@@ -30,13 +28,13 @@ def matrix_to_position_and_quaternion(
         tuple: (position, quaternion)
     """
     # Ensure the input is in the form of a numpy array
-    matrix = np.array(matrix)
+    mat: np.ndarray = np.array(matrix, dtype=np.float32)
 
     # Extract the position (translation) part
-    position = matrix[3, :3]
+    position = mat[3, :3]
 
     # Extract the rotation part
-    rotation_matrix = matrix[:3, :3]
+    rotation_matrix = mat[:3, :3]
     rotation_matrix = rotation_matrix.T
 
     # Calculate quaternion components
