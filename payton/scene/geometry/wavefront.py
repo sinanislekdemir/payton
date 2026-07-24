@@ -137,7 +137,7 @@ class Wavefront(Mesh):
             if command == "f":
                 # I guess this part of the code should be compatable
                 # with POLYGON as well but IDK.
-                face = []  # type: List[List[int]]
+                face = []  # type: list[list[int]]
                 for i in range(len(parts)):
                     if parts[i] in ["f", ""]:
                         continue

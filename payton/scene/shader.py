@@ -308,6 +308,7 @@ void main()
     }
 
     vec3 viewDir = normalize(camera_pos - l_fragpos);
+    float maxShadow = 0.0;
     vec3 result = 0.12 * color * ao;
 
     for (int i = 0; i < min(LIGHT_COUNT, 100); i++) {
@@ -329,10 +330,14 @@ void main()
         float shadow = 0.0;
         if (shadow_enabled && shadow_casts[i] == 1) {
             shadow = PointLightShadow(i, l_fragpos, light_pos[i]);
+            maxShadow = max(maxShadow, shadow);
         }
 
         result += (1.0 - shadow) * (diffuse + specular) * attenuation;
     }
+
+    result *= (1.0 - maxShadow * 0.5);
+    result = max(result, 0.03 * color * ao);
 
     result = clamp(result, 0.0, 1.0);
     result = pow(result, vec3(1.0 / 2.2));
