@@ -610,8 +610,8 @@ class Scene(Receiver):
 
         For each light that has ``cast_shadows=True``, renders the scene
         geometry from the light's perspective to the six faces of the
-        shadow cubemap.  Shadow maps that are not marked dirty are reused
-        across frames to avoid redundant rendering.
+        shadow cubemap.  Rendered every frame to capture object movement
+        and rotation.
         """
         face_size = self.shadow_quality if self.shadow_quality > 0 else 1024
         default_id = glGetIntegerv(GL_FRAMEBUFFER_BINDING)
@@ -622,9 +622,6 @@ class Scene(Receiver):
 
             if light._shadow_cubemap_tex <= 0 or light._shadow_face_size != face_size:
                 light.init_shadow_cubemap(face_size)
-
-            if not light._shadow_dirty:
-                continue
 
             proj = light.shadow_projection()
             shader = self.shaders[SHADOW_CUBE]
@@ -670,8 +667,6 @@ class Scene(Receiver):
             shader.end()
             glBindFramebuffer(GL_FRAMEBUFFER, default_id)
             glViewport(0, 0, self.window_width, self.window_height)
-
-            light._shadow_dirty = False
 
     def _render(self) -> None:
         """Main render routine invoked every frame.

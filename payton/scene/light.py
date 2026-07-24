@@ -87,7 +87,6 @@ class Light:
         self._shadow_cubemap_tex: int = 0
         self._shadow_cubemap_fbo: int = 0
         self._shadow_face_size: int = 0
-        self._shadow_dirty: bool = True
 
     @property
     def position(self) -> Vector3D:
@@ -103,7 +102,6 @@ class Light:
         """
         self._position = position
         self._position_np = np.array(self.position, dtype=np.float32)
-        self._shadow_dirty = True
 
     def to_dict(self) -> dict[str, Any]:
         """Convert the light into dictionary."""
