@@ -1,5 +1,4 @@
 from copy import deepcopy
-from typing import Dict, List, Tuple
 
 from payton.math.functions import (
     add_vectors,
@@ -29,13 +28,13 @@ def _smooth_normals(mesh: Mesh, precision: int = 5) -> None:
     precision -- Decimal places used when comparing vertex positions
     """
     # Map rounded position tuple → list of vertex indices at that position
-    pos_to_indices: Dict[Tuple, List[int]] = {}
+    pos_to_indices: dict[tuple, list[int]] = {}
     for idx, v in enumerate(mesh._vertices):
         key = tuple(round(c, precision) for c in v)
         pos_to_indices.setdefault(key, []).append(idx)
 
     # Accumulate face normals into each vertex bucket
-    accumulated: List[List[float]] = [[0.0, 0.0, 0.0] for _ in mesh._vertices]
+    accumulated: list[list[float]] = [[0.0, 0.0, 0.0] for _ in mesh._vertices]
     for face in mesh._indices:
         i0, i1, i2 = face[0], face[1], face[2]
         fn = mesh._normals[i0]  # flat normal already set by add_triangle
@@ -62,7 +61,7 @@ def _material_indices(mesh: Mesh) -> dict:
     total_in_mats = sum(len(m._indices) for m in mesh.materials.values())
     if total_in_mats == 0 and mesh._indices:
         # Material was replaced and indices are only on the mesh — reassign
-        result: Dict[str, List] = {name: [] for name in mesh.materials}
+        result: dict[str, list] = {name: [] for name in mesh.materials}
         result[DEFAULT] = list(mesh._indices)
         return result
     return {name: list(mat._indices) for name, mat in mesh.materials.items()}
@@ -155,12 +154,12 @@ def subdivide(original: Mesh, smooth: bool = True) -> Mesh:
         # Normals are omitted — add_triangle computes the correct flat
         # face normal automatically; _smooth_normals refines them afterwards.
         if has_texcoords:
-            tc0: List[float] = list(original._texcoords[i0])
-            tc1: List[float] = list(original._texcoords[i1])
-            tc2: List[float] = list(original._texcoords[i2])
-            tc01: List[float] = [(tc0[0] + tc1[0]) / 2.0, (tc0[1] + tc1[1]) / 2.0]
-            tc12: List[float] = [(tc1[0] + tc2[0]) / 2.0, (tc1[1] + tc2[1]) / 2.0]
-            tc20: List[float] = [(tc2[0] + tc0[0]) / 2.0, (tc2[1] + tc0[1]) / 2.0]
+            tc0: list[float] = list(original._texcoords[i0])
+            tc1: list[float] = list(original._texcoords[i1])
+            tc2: list[float] = list(original._texcoords[i2])
+            tc01: list[float] = [(tc0[0] + tc1[0]) / 2.0, (tc0[1] + tc1[1]) / 2.0]
+            tc12: list[float] = [(tc1[0] + tc2[0]) / 2.0, (tc1[1] + tc2[1]) / 2.0]
+            tc20: list[float] = [(tc2[0] + tc0[0]) / 2.0, (tc2[1] + tc0[1]) / 2.0]
             new.add_triangle(vertices=[v0, m01, m20], texcoords=[tc0, tc01, tc20])
             new.add_triangle(vertices=[m01, v1, m12], texcoords=[tc01, tc1, tc12])
             new.add_triangle(vertices=[m20, m12, v2], texcoords=[tc20, tc12, tc2])
@@ -177,7 +176,7 @@ def subdivide(original: Mesh, smooth: bool = True) -> Mesh:
     return new
 
 
-def loft(profiles: List[Line]) -> Mesh:
+def loft(profiles: list[Line]) -> Mesh:
     """Loft between multiple 3D profile lines to form a mesh.
 
     Profiles may have different vertex counts; additional vertices are
@@ -214,8 +213,8 @@ def loft(profiles: List[Line]) -> Mesh:
 
 
 def _interp_profile(
-    vertices: List[List[float]], target_count: int
-) -> List[List[float]]:
+    vertices: list[list[float]], target_count: int
+) -> list[list[float]]:
     """Interpolate a profile to *target_count* vertices by resampling evenly
     along its perimeter."""
     n = len(vertices)
@@ -285,7 +284,7 @@ def _merge_two(mesh1: Mesh, mesh2: Mesh) -> Mesh:
 
 def extrude_face(
     mesh: Mesh,
-    face_indices: List[int],
+    face_indices: list[int],
     distance: float,
     taper: float = 1.0,
     segments: int = 1,
@@ -383,7 +382,7 @@ def laplacian_smooth(mesh: Mesh, iterations: int = 1, factor: float = 0.5) -> Me
     """
     result = deepcopy(mesh)
 
-    adj: Dict[int, List[int]] = {i: [] for i in range(len(result._vertices))}
+    adj: dict[int, list[int]] = {i: [] for i in range(len(result._vertices))}
     for face in result._indices:
         for i in range(3):
             a, b = face[i], face[(i + 1) % 3]
@@ -434,9 +433,9 @@ def decimate(mesh: Mesh, ratio: float = 0.5) -> Mesh:
     size = [max(vmax[i] - vmin[i], 1e-10) for i in range(3)]
     cell_size = [size[i] / grid_size for i in range(3)]
 
-    cell_verts: Dict[Tuple[int, int, int], List[List[float]]] = {}
-    cell_norms: Dict[Tuple[int, int, int], List[List[float]]] = {}
-    cell_uvs: Dict[Tuple[int, int, int], List[List[float]]] = {}
+    cell_verts: dict[tuple[int, int, int], list[list[float]]] = {}
+    cell_norms: dict[tuple[int, int, int], list[list[float]]] = {}
+    cell_uvs: dict[tuple[int, int, int], list[list[float]]] = {}
 
     for i, v in enumerate(verts):
         cx = min(grid_size - 1, max(0, int((v[0] - vmin[0]) / cell_size[0])))
@@ -449,9 +448,9 @@ def decimate(mesh: Mesh, ratio: float = 0.5) -> Mesh:
         if i < len(mesh._texcoords):
             cell_uvs.setdefault(key, []).append(mesh._texcoords[i])
 
-    avg_verts: Dict[Tuple[int, int, int], List[float]] = {}
-    avg_norms: Dict[Tuple[int, int, int], List[float]] = {}
-    avg_uvs: Dict[Tuple[int, int, int], List[float]] = {}
+    avg_verts: dict[tuple[int, int, int], list[float]] = {}
+    avg_norms: dict[tuple[int, int, int], list[float]] = {}
+    avg_uvs: dict[tuple[int, int, int], list[float]] = {}
     for key, vlist in cell_verts.items():
         avg_verts[key] = scale_vector([sum(c) for c in zip(*vlist)], 1.0 / len(vlist))
         if key in cell_norms:
@@ -462,10 +461,10 @@ def decimate(mesh: Mesh, ratio: float = 0.5) -> Mesh:
             uv_sum = [sum(c) for c in zip(*cell_uvs[key])]
             avg_uvs[key] = [x / len(cell_uvs[key]) for x in uv_sum]
 
-    cell_to_idx: Dict[Tuple[int, int, int], int] = {}
-    new_verts: List[List[float]] = []
-    new_norms: List[List[float]] = []
-    new_uvs: List[List[float]] = []
+    cell_to_idx: dict[tuple[int, int, int], int] = {}
+    new_verts: list[list[float]] = []
+    new_norms: list[list[float]] = []
+    new_uvs: list[list[float]] = []
     for key, v in avg_verts.items():
         cell_to_idx[key] = len(new_verts)
         new_verts.append(v)

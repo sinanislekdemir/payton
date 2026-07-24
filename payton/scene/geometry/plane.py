@@ -1,7 +1,7 @@
 """Plane geometry module."""
 
 from itertools import product
-from typing import Any, List
+from typing import Any
 
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import SOLID, WHITE
@@ -74,9 +74,9 @@ class MatrixPlane(Mesh):
         self.y = y
         self.x = max(self.x, 2)
         self.y = max(self.y, 2)
-        self.grid: List[List[float]] = []
+        self.grid: list[list[float]] = []
         # List of List for X, Y and List[float] for color.
-        self.color_grid: List[List[List[float]]] = []
+        self.color_grid: list[list[list[float]]] = []
         self.populate_grid()
 
     def update_grid(self) -> None:

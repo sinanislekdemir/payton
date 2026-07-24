@@ -7,8 +7,9 @@ with the basic stuff"""
 
 import logging
 import time
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, cast
+from typing import Any, cast
 
 import numpy as np
 from PIL import Image, ImageDraw
@@ -16,7 +17,7 @@ from PIL import Image, ImageDraw
 from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Object
 from payton.scene.geometry.mesh import Mesh
-from payton.scene.gui.base import Shape2D, Text, Rectangle, text_size
+from payton.scene.gui.base import Rectangle, Shape2D, Text, text_size
 from payton.scene.shader import Shader
 from payton.scene.theme import SceneTheme
 
@@ -125,7 +126,7 @@ class WindowElement(Shape2D):
         left: int = 10,
         top: int = 10,
         align: WindowAlignment = WindowAlignment.FREE,
-        theme: Optional[Theme] = None,
+        theme: Theme | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the Window Element
@@ -167,8 +168,8 @@ class WindowElement(Shape2D):
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         if not self._init:
             self.draw()
@@ -214,8 +215,8 @@ class Window(WindowElement):
         left: int = 10,
         top: int = 10,
         align: WindowAlignment = WindowAlignment.FREE,
-        theme: Optional[Theme] = None,
-        **kwargs: Dict[str, Any],
+        theme: Theme | None = None,
+        **kwargs: dict[str, Any],
     ):
         """Initialize Window Frame
 
@@ -275,7 +276,7 @@ class Window(WindowElement):
     def stop_drag(self) -> None:
         self._dragging = False
 
-    def click(self, x: int, y: int) -> Optional[Mesh]:
+    def click(self, x: int, y: int) -> Mesh | None:
         if self._model_matrix is None or len(self._model_matrix) == 0:
             return None
         mm = self._model_matrix[3]
@@ -444,7 +445,7 @@ class ProgressBar(Panel):
         left: int = 10,
         top: int = 10,
         align: WindowAlignment = WindowAlignment.FREE,
-        theme: Optional[Theme] = None,
+        theme: Theme | None = None,
         value: float = 0.0,
         min_value: float = 0.0,
         max_value: float = 100.0,
@@ -590,11 +591,11 @@ class Slider(Panel):
         left: int = 10,
         top: int = 10,
         align: WindowAlignment = WindowAlignment.FREE,
-        theme: Optional[Theme] = None,
-        on_change: Optional[Callable] = None,
+        theme: Theme | None = None,
+        on_change: Callable | None = None,
         min_value: float = 0.0,
         max_value: float = 100.0,
-        value: Optional[float] = None,
+        value: float | None = None,
         **kwargs: Any,
     ):
         kwargs["on_click"] = self._start_slide
@@ -714,7 +715,7 @@ class Slider(Panel):
     def stop_drag(self) -> None:
         self._dragging = False
 
-    def click(self, x: int, y: int) -> Optional[Mesh]:
+    def click(self, x: int, y: int) -> Mesh | None:
         if self._model_matrix is None or len(self._model_matrix) == 0:
             return None
         mm = self._model_matrix[3]
@@ -833,8 +834,8 @@ class Button(Panel):
         left: int = 10,
         top: int = 10,
         align: WindowAlignment = WindowAlignment.FREE,
-        theme: Optional[Theme] = None,
-        on_click: Optional[Callable] = None,
+        theme: Theme | None = None,
+        on_click: Callable | None = None,
         **kwargs: Any,
     ):
         """Initialize the Button element
@@ -903,7 +904,7 @@ class Button(Panel):
         yi = max(int(self.size[1] / 2.0 - cy), 0)
 
         self.text.label = self._label
-        crop: List[int] = [0, 0, img_w, img_h]
+        crop: list[int] = [0, 0, img_w, img_h]
 
         # If text image is wider than the button, centre-crop horizontally.
         if img_w > self.size[0]:
@@ -952,8 +953,8 @@ class EditBox(Panel):
         left: int = 10,
         top: int = 10,
         align: WindowAlignment = WindowAlignment.FREE,
-        theme: Optional[Theme] = None,
-        on_change: Optional[Callable] = None,
+        theme: Theme | None = None,
+        on_change: Callable | None = None,
         multiline: bool = False,
         placeholder: str = "",
         **kwargs: Any,
@@ -1205,8 +1206,8 @@ class EditBox(Panel):
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         """Override render to handle cursor blinking each frame."""
         now = time.time()
@@ -1259,7 +1260,11 @@ class EditBox(Panel):
 # Pre-built UI theme presets matching the built-in SceneTheme presets.
 # Import the SceneTheme presets and derive coherent UI palettes from them.
 # ---------------------------------------------------------------------------
-from payton.scene.theme import THEME_BLENDER, THEME_GAMEENGINE, THEME_STUDIO  # noqa: E402
+from payton.scene.theme import (
+    THEME_BLENDER,
+    THEME_GAMEENGINE,
+    THEME_STUDIO,
+)
 
 UI_THEME_BLENDER: Theme = Theme.from_scene_theme(THEME_BLENDER)
 """UI theme that pairs with :data:`~payton.scene.theme.THEME_BLENDER`."""

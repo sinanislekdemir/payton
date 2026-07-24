@@ -1,6 +1,5 @@
 """Payton Line to Mesh module"""
 
-from typing import List
 
 from payton.math.functions import (
     add_vectors,
@@ -85,7 +84,7 @@ def rotate_line(line: Line, axis: Vector3D, angle: float, steps: int = 10) -> Me
     return mesh
 
 
-def lines_to_mesh(lines: List[Line]) -> Mesh:
+def lines_to_mesh(lines: list[Line]) -> Mesh:
     """Fill the gaps between several lines with the same number of vertices to form a mesh
 
     Assume that you have two lines and you want to form a wall between two of them

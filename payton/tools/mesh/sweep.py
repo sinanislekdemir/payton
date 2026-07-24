@@ -1,7 +1,6 @@
 """Sweep and tube mesh generation tools."""
 
 import math
-from typing import List, Optional
 
 from payton.math.functions import (
     add_vectors,
@@ -15,8 +14,8 @@ from payton.scene.geometry import Line, Mesh
 
 
 def _frenet_frame(
-    p: List[float], p_next: List[float], prev_frame: Optional[List[List[float]]]
-) -> List[List[float]]:
+    p: list[float], p_next: list[float], prev_frame: list[list[float]] | None
+) -> list[list[float]]:
     tangent = normalize_vector(sub_vector(p_next, p))
     if vector_norm(tangent) < 1e-10:
         if prev_frame is None:
@@ -57,7 +56,7 @@ def sweep(profile: Line, path: Line, closed: bool = False) -> Mesh:
     if len(profile_verts) < 2:
         raise ValueError("Profile must have at least 2 vertices")
 
-    transformed: List[List[List[float]]] = []
+    transformed: list[list[list[float]]] = []
     frame = None
 
     for i in range(len(path_verts)):
@@ -125,7 +124,7 @@ def tube(path: Line, radius: float, segments: int = 8) -> Mesh:
     radius -- Radius of the tube
     segments -- Number of radial segments (default 8)
     """
-    profile_verts: List[List[float]] = []
+    profile_verts: list[list[float]] = []
     for i in range(segments + 1):
         angle = 2.0 * math.pi * i / segments
         profile_verts.append([radius * math.cos(angle), radius * math.sin(angle), 0.0])

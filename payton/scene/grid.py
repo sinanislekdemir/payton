@@ -1,5 +1,5 @@
 import ctypes
-from typing import Any, List, Optional
+from typing import Any
 
 import numpy as np
 from OpenGL.GL import (
@@ -42,8 +42,8 @@ class Grid:
         self,
         xres: int = 20,
         yres: int = 20,
-        color: Optional[Vector3D] = None,
-        major_color: Optional[Vector3D] = None,
+        color: Vector3D | None = None,
+        major_color: Vector3D | None = None,
         major_interval: int = 5,
         **kwargs: Any,
     ) -> None:
@@ -58,10 +58,10 @@ class Grid:
         major_interval -- Unit interval between major grid lines (default 5).
         """
         self._color = [0.35, 0.35, 0.35, 1.0] if color is None else color
-        self._major_color: Optional[Vector3D] = major_color
+        self._major_color: Vector3D | None = major_color
         self._major_interval: int = max(1, major_interval)
         self.static: bool = True
-        self.matrix: List[float] = [
+        self.matrix: list[float] = [
             1.0,
             0.0,
             0.0,
@@ -79,15 +79,15 @@ class Grid:
             0.0,
             1.0,
         ]
-        self._vertices: List[float] = []
-        self._indices: List[int] = []
+        self._vertices: list[float] = []
+        self._indices: list[int] = []
         self._vertex_count: int = 0
-        self._model_matrix: Optional[np.ndarray] = None
+        self._model_matrix: np.ndarray | None = None
         self._material: Material = Material(display=1, lights=False)
         self._material.color = self._color
         self._xres: int = xres
         self._yres: int = yres
-        self._axis_lines: List[Line] = [
+        self._axis_lines: list[Line] = [
             Line(
                 vertices=[
                     [0.0, 0.0, 0.01],
@@ -110,8 +110,8 @@ class Grid:
                 color=[0.0, 0.0, 1.0],
             ),
         ]
-        self._major_lines: List[Line] = []
-        self._lines: List[Line] = self._axis_lines  # kept for back-compat
+        self._major_lines: list[Line] = []
+        self._lines: list[Line] = self._axis_lines  # kept for back-compat
 
         # Vertex Array Object pointer
         self._vao: int = -1
@@ -134,7 +134,7 @@ class Grid:
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
+        parent_matrix: np.ndarray | None = None,
     ) -> bool:
         """Render the grid"""
         if not self.visible:

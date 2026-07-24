@@ -1,6 +1,6 @@
 """Cube object module."""
 
-from typing import Any, Optional
+from typing import Any
 
 from payton.math.functions import min_max
 from payton.math.vector import Vector3D
@@ -24,8 +24,8 @@ class Cube(Mesh):
         width: float = 1.0,
         depth: float = 1.0,
         height: float = 1.0,
-        from_corner: Optional[Vector3D] = None,
-        to_corner: Optional[Vector3D] = None,
+        from_corner: Vector3D | None = None,
+        to_corner: Vector3D | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the Cube object.
@@ -135,7 +135,6 @@ class Cube(Mesh):
             self.materials[DEFAULT]._indices.append(ind)
         self._indices = self.materials[DEFAULT]._indices
 
-        return None
 
     def _create_collision_shape(self) -> None:
         self._bullet_shape_id = pybullet.createCollisionShape(

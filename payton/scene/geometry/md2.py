@@ -9,16 +9,12 @@ import logging
 import os
 import struct
 import time
+from collections.abc import Generator
 from copy import deepcopy
 from typing import (
     Any,
     BinaryIO,
-    Dict,
-    Generator,
-    List,
     NamedTuple,
-    Optional,
-    Tuple,
     cast,
 )
 
@@ -35,10 +31,9 @@ _VERSION = 8
 class MeshException(Exception):
     """Mesh relatex exceptions for MD2."""
 
-    pass
 
 
-def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> List[Mesh]:
+def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> list[Mesh]:
     """Interpolate two alike meshes.
 
     This is suitable to fill the blank frames of an animated object
@@ -56,7 +51,7 @@ def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> List[Mesh]:
         raise MeshException("Mesh 2 has children")
 
     # Generate meshes
-    results: List[Mesh] = [mesh_1]
+    results: list[Mesh] = [mesh_1]
 
     # Calculate vertex distances;
     distances = []
@@ -126,7 +121,7 @@ class MD2TriangleLayout(NamedTuple):
     tc_indices: np.ndarray = np.array([], dtype=np.float64)
 
 
-def _read_block(b: BinaryIO, format_str: str, count: int) -> List[Tuple]:
+def _read_block(b: BinaryIO, format_str: str, count: int) -> list[tuple]:
     def chunks(data: bytes, size: int) -> Generator:
         offset = 0
         while offset < len(data):
@@ -185,12 +180,12 @@ class MD2(Mesh):
         super().__init__(**kwargs)
         self.header: MD2Header = MD2Header()
         self.triangle_layout = MD2TriangleLayout()
-        self.skins: List[str] = []
+        self.skins: list[str] = []
         self.texture_filename = texture_filename
-        self.frames: List[MD2Frame] = []
-        self._frame_children: Dict[str, Mesh] = {}
+        self.frames: list[MD2Frame] = []
+        self._frame_children: dict[str, Mesh] = {}
         self.animation: str = ""
-        self.animations: Dict[str, List] = {}
+        self.animations: dict[str, list] = {}
 
         self._active_frame: int = 0
         self._frame_rate: float = 0
@@ -321,8 +316,8 @@ class MD2(Mesh):
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         """Render cycle for the MD2 Object.
 
@@ -483,7 +478,7 @@ class MD2(Mesh):
 
         return MD2Frame(name=name, vertices=vertices)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert the MD2 Object to Dictionary"""
         animation = self.animation
         if animation == "":

@@ -12,7 +12,6 @@ Three built-in presets are provided:
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 
 @dataclass
@@ -45,18 +44,18 @@ class SceneTheme:
         Default RGB colour of the scene's first light.
     """
 
-    background_top_color: List[float] = field(
+    background_top_color: list[float] = field(
         default_factory=lambda: [0.0, 0.0, 0.0, 1.0]
     )
-    background_bottom_color: List[float] = field(
+    background_bottom_color: list[float] = field(
         default_factory=lambda: [0.0, 0.1, 0.2, 1.0]
     )
     background_mode: int = 0
-    grid_color: List[float] = field(default_factory=lambda: [0.35, 0.35, 0.35])
-    grid_major_color: Optional[List[float]] = None
+    grid_color: list[float] = field(default_factory=lambda: [0.35, 0.35, 0.35])
+    grid_major_color: list[float] | None = None
     grid_major_interval: int = 5
-    light_position: List[float] = field(default_factory=lambda: [10.0, 7.0, 6.0])
-    light_color: List[float] = field(default_factory=lambda: [1.0, 1.0, 1.0])
+    light_position: list[float] = field(default_factory=lambda: [10.0, 7.0, 6.0])
+    light_color: list[float] = field(default_factory=lambda: [1.0, 1.0, 1.0])
 
 
 # ---------------------------------------------------------------------------

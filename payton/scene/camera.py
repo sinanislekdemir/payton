@@ -2,7 +2,7 @@
 
 import logging
 import math
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pyrr
@@ -20,10 +20,10 @@ BUTTON_MIDDLE = 3
 class Camera:
     def __init__(
         self,
-        position: Optional[Vector3D] = None,
-        target: Optional[Vector3D] = None,
-        up: Optional[Vector3D] = None,
-        target_object: Optional[Object] = None,
+        position: Vector3D | None = None,
+        target: Vector3D | None = None,
+        up: Vector3D | None = None,
+        target_object: Object | None = None,
         fov: float = 45.0,
         aspect_ratio: float = 1.33333,
         near: float = 0.1,
@@ -31,7 +31,7 @@ class Camera:
         zoom: float = 10.0,
         active: bool = False,
         perspective: bool = True,
-        viewport_size: Optional[Vector3D] = None,
+        viewport_size: Vector3D | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the camera
@@ -53,8 +53,8 @@ class Camera:
         self.target = [0.0, 0.0, 0.0] if target is None else target
         self.up = [0.0, 0.0, 1.0] if up is None else up
 
-        self.target_object: Optional[Object] = target_object
-        self._previous_target_location: Optional[Vector3D] = None
+        self.target_object: Object | None = target_object
+        self._previous_target_location: Vector3D | None = None
         self.fov: float = fov
         self.aspect_ratio: float = aspect_ratio
         self._near: float = near
@@ -74,11 +74,11 @@ class Camera:
             self._viewport_size = viewport_size
 
         # Store matrices for future reference.
-        self._projection: Optional[np.ndarray] = None
-        self._view: Optional[np.ndarray] = None
-        self._prev_intersection: Optional[np.ndarray] = None
+        self._projection: np.ndarray | None = None
+        self._view: np.ndarray | None = None
+        self._prev_intersection: np.ndarray | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert the camera to a dictionary"""
         return {
             "position": self.position,
@@ -290,10 +290,8 @@ class Camera:
             return
 
         if self.max_distance != -1:
-            if distance > self.max_distance:
-                distance = self.max_distance
-        if distance < self.min_distance:
-            distance = self.min_distance
+            distance = min(distance, self.max_distance)
+        distance = max(distance, self.min_distance)
 
         diff = sub_vector(self.position, self.target)
         _theta = math.acos(diff[2] / self.distance())
@@ -306,7 +304,7 @@ class Camera:
         ]
         self._use_cache = False
 
-    def render(self) -> Tuple[np.ndarray, np.ndarray]:
+    def render(self) -> tuple[np.ndarray, np.ndarray]:
         """Render the camera."""
         if (
             self._use_cache
@@ -388,7 +386,7 @@ class Camera:
 
     def screen_to_world(
         self, x: int, y: int, width: int, height: int
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Turn the screen coordinates into world coordinates.
 
         Imagine a point on the surface of the camera (your cursor),

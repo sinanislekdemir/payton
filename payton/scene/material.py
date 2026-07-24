@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 from OpenGL.GL import (
@@ -73,13 +73,13 @@ EMPTY_VERTEX_ARRAY = -3
 
 BASE_PARTICLE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "particle.png")
 
-_IMAGE_CACHE: Dict[str, int] = {}
+_IMAGE_CACHE: dict[str, int] = {}
 
 
 class Material:
     def __init__(
         self,
-        color: Optional[Vector3D] = None,
+        color: Vector3D | None = None,
         display: int = SOLID,
         lights: bool = True,
         texture: str = "",
@@ -105,19 +105,19 @@ class Material:
         self.opacity: float = opacity
         self.particle_size: float = 0.16
         self.culling = False
-        self._image: Optional[Image.Image] = None
+        self._image: Image.Image | None = None
         self._indices: IList = []
         self._vao: int = NO_VERTEX_ARRAY
-        self._vbos: List[int] = []
+        self._vbos: list[int] = []
 
         self._vertex_count: int = 0
         self._index_count: int = 0
 
         self._initialized: bool = False
-        self._texture: Optional[int] = None
-        self._particle_texture: Optional[int] = None
+        self._texture: int | None = None
+        self._particle_texture: int | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert the material into dictionary"""
         return {
             "color": self.color,
@@ -151,7 +151,7 @@ class Material:
         self._color_np = np.array(list(self._color), dtype=np.float32)
 
     @classmethod
-    def from_dict(cls, material_dictionary: Dict[str, Any]) -> "Material":
+    def from_dict(cls, material_dictionary: dict[str, Any]) -> "Material":
         """Import material from dictionary
 
         material_dictionary -- Dictionary to import"""
@@ -246,7 +246,7 @@ class Material:
         self,
         lit: bool,
         shader: Shader,
-        mode: Optional[int] = None,
+        mode: int | None = None,
     ) -> None:
         """Render the material
 

@@ -15,19 +15,19 @@ from payton.tools.mesh.line import extrude_line, lines_to_mesh, rotate_line
 from payton.tools.mesh.sweep import sweep, tube
 
 __all__ = [
+    "csg_difference",
+    "csg_intersect",
+    "csg_union",
+    "decimate",
+    "extrude_face",
     "extrude_line",
-    "rotate_line",
+    "laplacian_smooth",
     "lines_to_mesh",
+    "loft",
     "merge_mesh",
+    "mirror",
+    "rotate_line",
     "subdivide",
     "sweep",
     "tube",
-    "loft",
-    "mirror",
-    "extrude_face",
-    "laplacian_smooth",
-    "decimate",
-    "csg_union",
-    "csg_difference",
-    "csg_intersect",
 ]

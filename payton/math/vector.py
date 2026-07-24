@@ -1,4 +1,3 @@
-from typing import List
 
-Vector3D = List[float]
-Vector2D = List[float]
+Vector3D = list[float]
+Vector2D = list[float]

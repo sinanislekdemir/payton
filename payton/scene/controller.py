@@ -1,6 +1,6 @@
 # pylama:ignore=C901
 import logging
-from typing import Any, List, Optional
+from typing import Any
 
 import sdl2
 
@@ -26,8 +26,8 @@ class GUIController(BaseController):
 
     def __init__(self) -> None:
         super().__init__()
-        self._active_object: Optional[EditBox] = None
-        self._drag_window: Optional[Window] = None
+        self._active_object: EditBox | None = None
+        self._drag_window: Window | None = None
 
     def keyboard(self, event: sdl2.SDL_Event, scene: Any) -> bool:
         """
@@ -283,7 +283,7 @@ class Controller:
 
     def __init__(self) -> None:
         super().__init__()
-        self._controllers: List[BaseController] = []
+        self._controllers: list[BaseController] = []
 
     def add_controller(self, controller: BaseController) -> None:
         self._controllers.append(controller)

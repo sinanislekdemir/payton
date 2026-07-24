@@ -1,6 +1,6 @@
 import ctypes
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 from OpenGL.GL import (
@@ -29,6 +29,7 @@ from payton.math.vector import Vector3D
 DEFAULT_SHADER = "default"
 PARTICLE_SHADER = "particle"
 SHADOW_DEPTH = "shadow_depth"
+SHADOW_CUBE = "shadow_cube"
 
 simple_depth_vertex_shader = """
 #version 330 core
@@ -49,6 +50,44 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
+    outColor = vec4(0.0);
+}
+"""
+
+
+shadow_cube_vertex_shader = """
+#version 330 core
+layout(location = 0) in vec3 position;
+
+uniform mat4 model;
+uniform mat4 shadowView;
+uniform mat4 shadowProj;
+
+out vec3 v_worldPos;
+
+void main()
+{
+    vec4 worldPos = model * vec4(position, 1.0);
+    v_worldPos = worldPos.xyz;
+    gl_Position = shadowProj * shadowView * worldPos;
+}
+"""
+
+
+shadow_cube_fragment_shader = """
+#version 330 core
+
+in vec3 v_worldPos;
+
+uniform vec3  lightPos;
+uniform float shadowFar;
+
+out vec4 outColor;
+
+void main()
+{
+    float d = length(v_worldPos - lightPos);
+    gl_FragDepth = d / shadowFar;
     outColor = vec4(0.0);
 }
 """
@@ -172,11 +211,14 @@ in vec3 l_fragpos;
 in vec3 l_normal;
 in vec3 view_pos;
 
-uniform vec3 light_pos[100]; // assume 100 lights max.
+uniform vec3 light_pos[100];
 uniform vec3 light_color[100];
 uniform vec3 camera_pos;
 uniform bool shadow_enabled;
-uniform int shadow_steps;
+uniform int  shadow_casts[16];
+uniform float shadowBias[16];
+uniform float shadowFar[16];
+uniform int  pcfSamples;
 
 uniform int LIGHT_COUNT;
 
@@ -185,65 +227,49 @@ uniform int material_mode;
 uniform float opacity;
 uniform int lit;
 
-// Material properties for enhanced shading (with defaults to maintain compatibility)
 uniform float metallic;
 uniform float roughness;
 uniform float ao;
 
 uniform sampler2D tex_unit;
-uniform sampler2D sceneDepth;
-
-// Matrices needed for screen-space projection during ray-march
-// Use distinct names to avoid any cross-stage uniform conflicts
-uniform mat4 ss_proj;
-uniform mat4 ss_view;
+uniform samplerCubeShadow shadowCube[16];
 
 // Fog parameters (1 unit == 1 metre)
-uniform int   fog_enabled;   // 0 = off, 1 = on
-uniform int   fog_mode;      // 0 = linear, 1 = exponential, 2 = exp-squared
+uniform int   fog_enabled;
+uniform int   fog_mode;
 uniform vec3  fog_color;
-uniform float fog_near;      // linear mode: distance at which fog begins (metres)
-uniform float fog_far;       // linear mode: distance at which fog is fully opaque (metres)
-uniform float fog_density;   // exp / exp2 mode density factor
+uniform float fog_near;
+uniform float fog_far;
+uniform float fog_density;
 
-float ScreenSpaceShadow(vec3 worldPos, vec3 lightPos)
+float PointLightShadow(int lightIdx, vec3 worldPos, vec3 lightPos)
 {
-    vec3 dir = lightPos - worldPos;
-    float dist = length(dir);
-    if (dist < 0.001) return 0.0;
-    dir /= dist;
+    vec3 fragToLight = worldPos - lightPos;
+    float fragDist   = length(fragToLight);
+    if (fragDist >= shadowFar[lightIdx]) return 0.0;
 
-    int  kSteps     = max(shadow_steps, 1);
-    float bias      = 0.0002;
-    float startDist = 0.02;
+    vec3 dir = normalize(fragToLight);
+    float ref = fragDist / shadowFar[lightIdx] - shadowBias[lightIdx];
 
-    // Per-pixel jitter on the starting offset to break up
-    // aliasing / Moire patterns between neighbouring pixels.
-    float hash  = fract(sin(dot(gl_FragCoord.xy, vec2(127.1, 311.7))) * 43758.5453);
-    float travelled = startDist + hash * 0.005;
+    float shadow = 0.0;
+    int   kPcf   = max(pcfSamples, 1);
 
-    float stepRatio = pow(dist / startDist, 1.0 / float(kSteps));
-
-    for (int s = 0; s < 20; s++) {
-        if (s >= kSteps) break;
-
-        vec3 pos   = worldPos + dir * travelled;
-        vec4 clip  = ss_proj * ss_view * vec4(pos, 1.0);
-        vec3 ndc   = clip.xyz / clip.w;
-        vec2 uv    = ndc.xy * 0.5 + 0.5;
-
-        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) break;
-        if (ndc.z < -1.0 || ndc.z > 1.0) break;
-
-        float storedDepth = texture(sceneDepth, uv).r;
-        float sampledZ    = ndc.z * 0.5 + 0.5;
-
-        if (sampledZ > storedDepth + bias) return 1.0;
-
-        travelled *= stepRatio;
-        if (travelled >= dist) break;
+    if (kPcf <= 1) {
+        shadow = 1.0 - texture(shadowCube[lightIdx], vec4(dir, ref));
+    } else {
+        float diskRadius = 0.01 / float(kPcf);
+        for (int s = 0; s < 64; s++) {
+            if (s >= kPcf * kPcf) break;
+            float angle  = float(s) * 2.399963231728077;
+            float r      = sqrt((float(s) + 0.5) / float(kPcf * kPcf));
+            float sx     = r * cos(angle) * diskRadius;
+            float sy     = r * sin(angle) * diskRadius;
+            float sz     = r * diskRadius;
+            shadow += 1.0 - texture(shadowCube[lightIdx], vec4(dir + vec3(sx, sy, sz), ref));
+        }
+        shadow /= float(kPcf * kPcf);
     }
-    return 0.0;
+    return clamp(shadow, 0.0, 1.0);
 }
 
 void main()
@@ -251,7 +277,6 @@ void main()
     vec3 color;
     float alpha;
 
-    // Material color determination
     if (material_mode == 0 || material_mode == 2) {
         color = object_color;
         alpha = opacity;
@@ -271,53 +296,47 @@ void main()
     }
 
     if (lit == 0 || LIGHT_COUNT == 0) {
-        // Unlit or no lights - just show the color
         FragColor = vec4(color, alpha);
         return;
     }
-    
-    // Lighting calculations
+
     vec3 norm = normalize(l_normal);
-    
-    // Check for invalid normals
+
     if (length(l_normal) < 0.1) {
         FragColor = vec4(color, alpha);
         return;
     }
-    
+
     vec3 viewDir = normalize(camera_pos - l_fragpos);
     vec3 result = 0.12 * color * ao;
-    
+
     for (int i = 0; i < min(LIGHT_COUNT, 100); i++) {
         vec3 lightVector = light_pos[i] - l_fragpos;
         float distance = length(lightVector);
         vec3 lightDir = lightVector / max(distance, 0.0001);
-        
-        // Use a gentler falloff so the default scene scale doesn't look underlit.
+
         float attenuation = 1.0 / (1.0 + 0.02 * distance + 0.001 * distance * distance);
-        
-        // Diffuse
+
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = diff * light_color[i] * color;
-        
-        // Specular (Blinn-Phong)
+
         vec3 halfwayDir = normalize(lightDir + viewDir);
         float spec_strength = mix(0.35, 0.9, metallic);
         float shininess = mix(32.0, 96.0, 1.0 - roughness);
         float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
         vec3 specular = spec_strength * spec * light_color[i];
-        
-        float shadow = shadow_enabled ? ScreenSpaceShadow(l_fragpos, light_pos[i]) : 0.0;
+
+        float shadow = 0.0;
+        if (shadow_enabled && shadow_casts[i] == 1) {
+            shadow = PointLightShadow(i, l_fragpos, light_pos[i]);
+        }
 
         result += (1.0 - shadow) * (diffuse + specular) * attenuation;
     }
-    
-    result = clamp(result, 0.0, 1.0);
 
-    // Gamma correction
+    result = clamp(result, 0.0, 1.0);
     result = pow(result, vec3(1.0 / 2.2));
 
-    // Fog blending (applied after gamma so fog_color stays perceptually correct)
     if (fog_enabled == 1) {
         float dist = length(camera_pos - l_fragpos);
         float fog_factor;
@@ -332,7 +351,7 @@ void main()
         fog_factor = clamp(fog_factor, 0.0, 1.0);
         result = mix(fog_color, result, fog_factor);
     }
-    
+
     FragColor = vec4(result, alpha);
 }"""  # type: str
 
@@ -473,7 +492,7 @@ class Shader:
         fragment: str = default_fragment_shader,
         vertex: str = default_vertex_shader,
         geometry: str = "",
-        variables: Optional[List[str]] = None,
+        variables: list[str] | None = None,
         **kwargs: Any,
     ):
         """Initialize the shader
@@ -505,7 +524,11 @@ class Shader:
             "material_mode",
             "lit",
             "shadow_enabled",
-            "shadow_steps",
+            "shadow_casts",
+            "shadowBias",
+            "shadowFar",
+            "shadowCube",
+            "pcfSamples",
             "time",
             "resolution",
             "background_mode",
@@ -513,9 +536,6 @@ class Shader:
             "bot_color",
             "particle_size",
             "tex_unit",
-            "sceneDepth",
-            "ss_proj",
-            "ss_view",
             "fog_enabled",
             "fog_mode",
             "fog_color",
@@ -524,10 +544,10 @@ class Shader:
             "fog_density",
         ]
 
-        self.variables: List[str] = (
+        self.variables: list[str] = (
             default_vars if variables is None else variables + default_vars
         )
-        self._stack: Dict[str, int] = {}  # Variable stack.
+        self._stack: dict[str, int] = {}  # Variable stack.
         self._mode: int = self.NO_LIGHT_COLOR  # Lightless color material
         self._depth_pass = False
 

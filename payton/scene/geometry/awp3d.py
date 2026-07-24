@@ -10,7 +10,8 @@ Add-On.
 
 import os
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
+from typing import Any
 from zipfile import ZipFile
 
 import numpy as np
@@ -45,7 +46,7 @@ class AWP3D(Wavefront):
         self,
         filename: str = "",
         fps: int = 30,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        progress_callback: Callable[[int, int], None] | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize AWP3D.
@@ -56,7 +57,7 @@ class AWP3D(Wavefront):
         progress_callback -- Optional callback receiving (current, total) during loading
         """
         super().__init__(**kwargs)
-        self.frames: List[Wavefront] = []
+        self.frames: list[Wavefront] = []
         self._frame: int = 0
         self.num_frames: int = 0
         self._time: float = 0
@@ -69,7 +70,7 @@ class AWP3D(Wavefront):
         self._frame_period = 1.0 / fps
         self.animate = True
         self._time = 0.0
-        self.animations: Dict[str, Tuple[int, int]] = {}
+        self.animations: dict[str, tuple[int, int]] = {}
         self._needs_update = True
 
         if os.path.exists(filename):
@@ -138,7 +139,7 @@ class AWP3D(Wavefront):
     def load_file(
         self,
         filename: str,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        progress_callback: Callable[[int, int], None] | None = None,
     ) -> bool:
         """Load file into system.
 
@@ -190,7 +191,7 @@ class AWP3D(Wavefront):
         return self._load_max - self._load_min
 
     def load_next_frame(
-        self, progress_callback: Optional[Callable[[int, int], None]] = None
+        self, progress_callback: Callable[[int, int], None] | None = None
     ) -> bool:
         """Load the next frame during incremental loading.
 
@@ -225,8 +226,8 @@ class AWP3D(Wavefront):
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         """Render AWP3D."""
         if not self._visible:

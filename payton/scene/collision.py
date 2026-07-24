@@ -1,6 +1,7 @@
 import logging
+from collections.abc import Callable
 from itertools import combinations
-from typing import Any, Callable, List, Optional, Set
+from typing import Any
 
 from payton.math.geometry import distance
 from payton.scene.geometry.base import Object
@@ -46,7 +47,7 @@ class CollisionTest:
         self,
         callback: Callable,
         level: int = AABB,
-        objects: Optional[List[Mesh]] = None,
+        objects: list[Mesh] | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the test case.
@@ -57,10 +58,10 @@ class CollisionTest:
         level -- Level of the test (AABB, SPHERICAL, default AABB)
         objects -- List of objects inside the test case
         """
-        self.objects: List[Mesh] = [] if objects is None else objects
+        self.objects: list[Mesh] = [] if objects is None else objects
         self.callback: Callable = callback
         self.level: int = level
-        self._pairs: List[Set[Mesh]] = []
+        self._pairs: list[set[Mesh]] = []
 
     def add_object(self, obj: Mesh) -> None:
         """Add a mesh object to the test case

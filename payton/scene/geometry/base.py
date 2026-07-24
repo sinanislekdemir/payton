@@ -5,7 +5,7 @@ import ctypes
 import logging
 from copy import deepcopy
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, cast
 
 import numpy as np
 from OpenGL.GL import (
@@ -89,7 +89,7 @@ class Object:
         mass: float = 0,
         force_concave: bool = False,
         heightfield: bool = False,
-        **kwargs: Dict[str, Any],
+        **kwargs: dict[str, Any],
     ) -> None:
         """Initialize the object.
 
@@ -102,13 +102,13 @@ class Object:
         track_motion -- Set only if you really need to track the object's motion path.
                         This comes with an over-head.
         """
-        self.children: Dict[str, Object] = {}
+        self.children: dict[str, Object] = {}
 
         # store diffeerent materials
-        self.materials: Dict[str, Material] = {DEFAULT: Material()}
+        self.materials: dict[str, Material] = {DEFAULT: Material()}
 
         self._vao: int = NO_VERTEX_ARRAY
-        self._vbos: List[int] = []
+        self._vbos: list[int] = []
         self._no_missing_vao = False
 
         self.name = name
@@ -117,31 +117,31 @@ class Object:
         # BULLET PHYSICS
         self._bullet_id = -1
         self._bullet_shape_id = -1
-        self._bullet_dynamics: Dict[str, float] = {
+        self._bullet_dynamics: dict[str, float] = {
             "mass": mass,
         }
-        self._bullet_linear_velocity: List[float] = [0, 0, 0]
+        self._bullet_linear_velocity: list[float] = [0, 0, 0]
         self._bullet_force_concave = force_concave
         self._bullet_heightfield = heightfield
-        self._bullet_constraints: List[Dict[str, Any]] = []
+        self._bullet_constraints: list[dict[str, Any]] = []
 
         # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
         #                  -- 1 --  -- 2 --  -- 3 --  -- 4 --
 
-        self._vertices: List[Vector3D] = []  # Object vertex list
+        self._vertices: list[Vector3D] = []  # Object vertex list
 
         # @NOTE: we have separate indices for materials but this base
         #        index list holds all indice definitions for fast access
         self._indices: IList = []  # Indices
-        self._total_indices: List[int] = []
-        self._normals: List[
+        self._total_indices: list[int] = []
+        self._normals: list[
             Vector3D
         ] = []  # Vertex normals, 1 normal coordinate for 1 Vertex
-        self._texcoords: List[
+        self._texcoords: list[
             Vector2D
         ] = []  # Texture coordinates, 1 coordinate per Vertex
-        self._vertex_colors: List[Vector3D] = []  # per-vertex colors, optional.
+        self._vertex_colors: list[Vector3D] = []  # per-vertex colors, optional.
         self._has_vertex_colors: bool = False  # flag for using vertex colors
 
         # Vertices do not mean anything unless we define how to use them.
@@ -166,12 +166,12 @@ class Object:
         # Track object motion
         self.track_motion = track_motion
         # Motion path, stores every matrix change.
-        self._motion_path: List[Matrix] = []
+        self._motion_path: list[Matrix] = []
 
         if not isinstance(self, Line):
             # _motion_path_line is used to display the motion path in scene
             self._motion_path_line = Line()
-        self._previous_matrix: Optional[Union[np.ndarray, List[float]]] = None
+        self._previous_matrix: np.ndarray | list[float] | None = None
 
         # For raycast tests - bounding radius is the radius of the bounding
         # sphere.
@@ -183,7 +183,7 @@ class Object:
         self._needs_update: bool = False  # Object geometry has changed.
         self._hit: bool = False
 
-        self._absolute_vertices: Optional[List[Vector3D]] = None
+        self._absolute_vertices: list[Vector3D] | None = None
 
     def refresh(self) -> None:
         """Refresh the object.
@@ -406,7 +406,7 @@ class Object:
 
         self.matrix = self._motion_path[-steps]
         self._to_absolute.cache_clear()
-        del self._motion_path[-steps + 1 :]  # noqa
+        del self._motion_path[-steps + 1 :]
         self._absolute_vertices = None
         return True
 
@@ -428,7 +428,7 @@ class Object:
         self._to_absolute.cache_clear()
         self._absolute_vertices = None
 
-    def update_matrix(self, parent_matrix: Optional[np.ndarray] = None) -> None:
+    def update_matrix(self, parent_matrix: np.ndarray | None = None) -> None:
         """Update the objects matrix.
 
         Object's matrix is stored as Python's native List[List[float]] but
@@ -516,8 +516,8 @@ class Object:
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         """Render cycle of the object.
 
@@ -672,7 +672,7 @@ class Object:
         return True
 
     @lru_cache(maxsize=10240)
-    def _to_absolute(self, coordinate: Tuple) -> Vector3D:
+    def _to_absolute(self, coordinate: tuple) -> Vector3D:
         return vector_transform(list(coordinate), self.matrix)
 
     def to_absolute(self, coordinate: Vector3D) -> Vector3D:
@@ -687,7 +687,7 @@ class Object:
         """
         return self._to_absolute(tuple(coordinate))
 
-    def absolute_vertices(self) -> List[Vector3D]:
+    def absolute_vertices(self) -> list[Vector3D]:
         """
         Convert all object vertices into absolute vertices.
 
@@ -716,8 +716,8 @@ class Object:
             child.toggle_wireframe()
 
     def _calc_bounds(self) -> float:
-        bmin: Optional[Vector3D] = None
-        bmax: Optional[Vector3D] = None
+        bmin: Vector3D | None = None
+        bmax: Vector3D | None = None
         absolute_vertices = self.absolute_vertices()
         x = [v[0] for v in absolute_vertices]
         y = [v[1] for v in absolute_vertices]
@@ -947,7 +947,7 @@ class Object:
                 self._bullet_id, linearVelocity=self._bullet_linear_velocity
             )
 
-    def change_dynamics(self, **kwargs: Dict[str, Any]) -> None:
+    def change_dynamics(self, **kwargs: dict[str, Any]) -> None:
         """Apply change dynamics of bullet physics."""
         self._bullet_dynamics = {**self._bullet_dynamics, **kwargs}  # type: ignore
         if self._bullet_id != -1:
@@ -968,12 +968,12 @@ class Object:
         )
 
     @property
-    def linear_velocity(self) -> List[float]:
+    def linear_velocity(self) -> list[float]:
         """Return linear velocity."""
         return self._bullet_linear_velocity
 
     @linear_velocity.setter
-    def linear_velocity(self, val: List[float]) -> None:
+    def linear_velocity(self, val: list[float]) -> None:
         """Set linear velocity."""
         self._bullet_linear_velocity = val
         if self._bullet_id != -1:
@@ -981,7 +981,7 @@ class Object:
                 self._bullet_id, linearVelocity=self._bullet_linear_velocity
             )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert the object into a dictionary for export / debug."""
         return {
             "vertices": self._vertices,
@@ -1040,8 +1040,8 @@ class Line(Object):
 
     def __init__(
         self,
-        vertices: Optional[VList] = None,
-        color: Optional[Vector3D] = None,
+        vertices: VList | None = None,
+        color: Vector3D | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize a Line object.
@@ -1060,7 +1060,6 @@ class Line(Object):
 
     def toggle_wireframe(self) -> None:
         """Toggle Wireframe overwrite to disable mode change."""
-        pass
 
     def add_material(self, name: str, material: Material) -> None:
         """@TODO Implement this later! Not urgent."""
@@ -1075,8 +1074,8 @@ class Line(Object):
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         """Almost same as the Object Render but with explicitly defined OpenGL primitive type."""
         super().render(lit, shader, parent_matrix, GL_LINE_STRIP)
@@ -1105,7 +1104,7 @@ class Line(Object):
         self._needs_update = True
 
     def build_lines(
-        self, vertices: Optional[VList] = None, color: Optional[Vector3D] = None
+        self, vertices: VList | None = None, color: Vector3D | None = None
     ) -> None:
         """
         Build lines information.

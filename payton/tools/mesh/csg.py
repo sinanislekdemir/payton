@@ -5,7 +5,6 @@ combining two manifold meshes via triangle-level boolean operations.
 """
 
 from copy import deepcopy
-from typing import List, Optional, Tuple
 
 from payton.math.functions import (
     add_vectors,
@@ -19,7 +18,6 @@ from payton.math.functions import (
 )
 from payton.scene.geometry import Mesh
 
-
 # ---------------------------------------------------------------------------
 #  Internal helpers
 # ---------------------------------------------------------------------------
@@ -28,14 +26,14 @@ EPSILON = 1e-8
 
 
 def _plane(
-    v0: List[float], v1: List[float], v2: List[float]
-) -> Tuple[List[float], float]:
+    v0: list[float], v1: list[float], v2: list[float]
+) -> tuple[list[float], float]:
     n = plane_normal(v0, v1, v2)
     d = dot_product(n, v0)
     return (n, d)
 
 
-def _point_plane_side(p: List[float], plane_n: List[float], plane_d: float) -> float:
+def _point_plane_side(p: list[float], plane_n: list[float], plane_d: float) -> float:
     dist = dot_product(plane_n, p) - plane_d
     if abs(dist) < EPSILON:
         return 0.0
@@ -43,11 +41,11 @@ def _point_plane_side(p: List[float], plane_n: List[float], plane_d: float) -> f
 
 
 def _tri_plane_intersect(
-    tri: List[List[float]], plane_n: List[float], plane_d: float
-) -> Tuple[List[int], List[float]]:
+    tri: list[list[float]], plane_n: list[float], plane_d: float
+) -> tuple[list[int], list[float]]:
     sides = [_point_plane_side(v, plane_n, plane_d) for v in tri]
-    types: List[int] = []
-    t_vals: List[float] = []
+    types: list[int] = []
+    t_vals: list[float] = []
     edges = [(0, 1), (1, 2), (2, 0)]
     for (i, j), si, sj in zip(edges, sides, sides[1:] + sides[:1]):
         if si == 0:
@@ -62,13 +60,13 @@ def _tri_plane_intersect(
     return (types, t_vals)
 
 
-def _lerp3(a: List[float], b: List[float], t: float) -> List[float]:
+def _lerp3(a: list[float], b: list[float], t: float) -> list[float]:
     return [a[k] + (b[k] - a[k]) * t for k in range(3)]
 
 
 def _tri_tri_intersect(
-    ta: List[List[float]], tb: List[List[float]]
-) -> Optional[Tuple[List[float], List[float]]]:
+    ta: list[list[float]], tb: list[list[float]]
+) -> tuple[list[float], list[float]] | None:
     n1, d1 = _plane(ta[0], ta[1], ta[2])
     n2, d2 = _plane(tb[0], tb[1], tb[2])
 
@@ -90,7 +88,7 @@ def _tri_tri_intersect(
     line_pt = [c1 * n1[k] + c2 * n2[k] for k in range(3)]
 
     # Project triangle vertices onto the line direction to get intervals
-    def project_tri(tri: List[List[float]]) -> Tuple[float, float]:
+    def project_tri(tri: list[list[float]]) -> tuple[float, float]:
         pts = [dot_product(sub_vector(v, line_pt), line_dir) for v in tri]
         return (min(pts), max(pts))
 
@@ -102,8 +100,8 @@ def _tri_tri_intersect(
 
     # Check segments actually lie inside each triangle
     def clip_to_tri(
-        tri: List[List[float]], other_n: List[float], other_d: float
-    ) -> Optional[Tuple[float, float]]:
+        tri: list[list[float]], other_n: list[float], other_d: float
+    ) -> tuple[float, float] | None:
         types, t_vals = _tri_plane_intersect(tri, other_n, other_d)
         if len(types) < 2:
             return None
@@ -137,8 +135,8 @@ def _tri_tri_intersect(
 
 
 def _split_tri_by_line(
-    tri: List[List[float]], p1: List[float], p2: List[float]
-) -> List[List[List[float]]]:
+    tri: list[list[float]], p1: list[float], p2: list[float]
+) -> list[list[list[float]]]:
     """Split a triangle by a line segment. Returns up to 3 child triangles."""
     # Use barycentric coordinates to determine which side of the line each vertex is on
     line_dir = sub_vector(p2, p1)
@@ -171,10 +169,10 @@ def _split_tri_by_line(
 
 
 def _clip_poly_to_line(
-    poly: List[List[float]], line_pt: List[float], line_norm: List[float]
-) -> List[List[float]]:
+    poly: list[list[float]], line_pt: list[float], line_norm: list[float]
+) -> list[list[float]]:
     """Clip a polygon to the half-space defined by line_norm · (p - line_pt) >= 0."""
-    out: List[List[float]] = []
+    out: list[list[float]] = []
     n = len(poly)
     for i in range(n):
         curr = poly[i]
@@ -194,7 +192,7 @@ def _clip_poly_to_line(
     return out
 
 
-def _point_in_mesh(p: List[float], mesh: Mesh) -> bool:
+def _point_in_mesh(p: list[float], mesh: Mesh) -> bool:
     """Test if a point is inside a closed mesh using ray casting."""
     # Shoot ray in +X direction, count intersections
     ray_dir = [1.0, 0.0, 0.0]
@@ -216,8 +214,8 @@ def _point_in_mesh(p: List[float], mesh: Mesh) -> bool:
 
 
 def _ray_tri_intersect(
-    origin: List[float], direction: List[float], tri: List[List[float]]
-) -> Optional[float]:
+    origin: list[float], direction: list[float], tri: list[list[float]]
+) -> float | None:
     """Moeller–Trumbore ray-triangle intersection. Returns t or None."""
     edge1 = sub_vector(tri[1], tri[0])
     edge2 = sub_vector(tri[2], tri[0])
@@ -243,11 +241,11 @@ def _ray_tri_intersect(
 # ---------------------------------------------------------------------------
 
 
-def _centroid(tri: List[List[float]]) -> List[float]:
+def _centroid(tri: list[list[float]]) -> list[float]:
     return [sum(v[k] for v in tri) / 3.0 for k in range(3)]
 
 
-def _reject_near_zero(verts: List[List[float]]) -> bool:
+def _reject_near_zero(verts: list[list[float]]) -> bool:
     """Reject zero-area triangles."""
     if len(verts) < 3:
         return True
@@ -340,9 +338,9 @@ def _csg_simple(mesh_a: Mesh, mesh_b: Mesh, op: str) -> Mesh:
 
 
 def _split_all(
-    subject_tris: List[List[List[float]]],
-    cutter_tris: List[List[List[float]]],
-) -> List[List[List[float]]]:
+    subject_tris: list[list[list[float]]],
+    cutter_tris: list[list[list[float]]],
+) -> list[list[list[float]]]:
     """Split all triangles in *subject_tris* by all triangles in *cutter_tris*."""
     result = []
     for s_tri in subject_tris:
@@ -352,7 +350,7 @@ def _split_all(
             if inter is None:
                 continue
             p1, p2 = inter
-            new_pieces: List[List[List[float]]] = []
+            new_pieces: list[list[list[float]]] = []
             for piece in pieces:
                 new_pieces.extend(_split_tri_by_line(piece, p1, p2))
             pieces = new_pieces
@@ -360,7 +358,7 @@ def _split_all(
     return result
 
 
-def _tri_list_to_mesh(tris: List[List[List[float]]]) -> Mesh:
+def _tri_list_to_mesh(tris: list[list[list[float]]]) -> Mesh:
     m = Mesh()
     for tri in tris:
         m.add_triangle(vertices=tri)

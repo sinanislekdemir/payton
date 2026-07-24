@@ -3,7 +3,7 @@
 # pylama:ignore=C901
 import json
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from payton.math.functions import invert_vector, plane_normal, vector_angle
 from payton.scene.geometry.base import Object
@@ -42,7 +42,7 @@ class Mesh(Object):
         return True
 
     @classmethod
-    def from_dict(cls, object_dict: Dict[str, Any]) -> "Mesh":
+    def from_dict(cls, object_dict: dict[str, Any]) -> "Mesh":
         """
         Load the mesh from a dictionary.
 
@@ -196,9 +196,9 @@ class Mesh(Object):
         self,
         vertices: VList,
         material: str = DEFAULT,
-        normals: Optional[VList] = None,
-        texcoords: Optional[VList] = None,
-        colors: Optional[VList] = None,
+        normals: VList | None = None,
+        texcoords: VList | None = None,
+        colors: VList | None = None,
     ) -> None:
         """
         Add triangle to Mesh.
@@ -248,4 +248,3 @@ class Mesh(Object):
 
     def click(self, x: int, y: int) -> Optional["Mesh"]:
         """Click is not applicable."""
-        pass

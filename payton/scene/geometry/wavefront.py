@@ -5,7 +5,7 @@
 import logging
 import os
 from shutil import copyfile
-from typing import Any, List
+from typing import Any
 
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT, Material
@@ -105,11 +105,11 @@ class Wavefront(Mesh):
         obj_string -- Wavefront object definitions
         """
         _vertices: VList = []
-        _indices: List[IList] = []
-        _indice_materials: List[str] = []
+        _indices: list[IList] = []
+        _indice_materials: list[str] = []
         _normals: VList = []
         _texcoords: VList = []
-        lines: List[str] = obj_string.splitlines()
+        lines: list[str] = obj_string.splitlines()
         material = DEFAULT
         for line in lines:
             line = line.replace("  ", " ")
@@ -195,7 +195,7 @@ def export(mesh: Mesh, filename: str, name: str = "object") -> None:
     """
     if not isinstance(mesh, Mesh):
         logging.exception("Object is not an instance of Mesh")
-        return None
+        return
     mat_filename = filename.replace(".obj", "") + ".mtl"
 
     output = [

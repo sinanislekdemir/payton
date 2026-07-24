@@ -1,7 +1,8 @@
 import math
 import os
+from collections.abc import Callable
 from textwrap import wrap
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 import numpy as np
 from OpenGL.GL import GL_DEPTH_TEST, glDisable, glEnable
@@ -17,7 +18,7 @@ from payton.scene.shader import Shader
 S2 = TypeVar("S2", bound="Shape2D")
 
 
-def text_size(s: str, font: ImageFont | None) -> Tuple[int, int]:
+def text_size(s: str, font: ImageFont | None) -> tuple[int, int]:
     timg = Image.new("RGBA", (1, 1))
     d = ImageDraw.Draw(timg)
     size = d.textbbox((0, 0), s, font=font)
@@ -29,9 +30,9 @@ def text_size(s: str, font: ImageFont | None) -> Tuple[int, int]:
 class Shape2D(Mesh):
     def __init__(
         self,
-        position: List[int],
-        size: List[int],
-        on_click: Optional[Callable] = None,
+        position: list[int],
+        size: list[int],
+        on_click: Callable | None = None,
         opacity: float = 0.1,
         **kwargs: Any,
     ):
@@ -52,7 +53,7 @@ class Shape2D(Mesh):
         self.__position = position
         self.position = [float(x) for x in self.__position]
         self.size = size
-        self.on_click: Optional[Callable] = on_click
+        self.on_click: Callable | None = on_click
         self._font: ImageFont | None = None
         self.parent: Any = None
         self._scene_width: int = 0
@@ -81,18 +82,16 @@ class Shape2D(Mesh):
 
     def draw(self) -> None:
         """Placeholder for draw function"""
-        ...
 
     def draw_text(self) -> None:
         """Placeholder for draw text function"""
-        ...
 
     def render(
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         """Render cycle for the Shape 2D
 
@@ -130,7 +129,7 @@ class Shape2D(Mesh):
         for child in self.children.values():
             cast("Shape2D", child)._set_parent_size(self.size[0], self.size[1])
 
-    def click(self, x: int, y: int) -> Optional[Mesh]:
+    def click(self, x: int, y: int) -> Mesh | None:
         """Check for click event
 
         Keyword arguments:
@@ -161,8 +160,8 @@ class Shape2D(Mesh):
 class Rectangle(Shape2D):
     def __init__(
         self,
-        position: List[int],
-        size: List[int],
+        position: list[int],
+        size: list[int],
         **kwargs: Any,
     ):
         """Initialize Rectangle
@@ -194,11 +193,11 @@ class Rectangle(Shape2D):
 class Text(Rectangle):
     def __init__(
         self,
-        position: List[int],
-        size: List[int],
+        position: list[int],
+        size: list[int],
         label: str = "lorem",
-        bgcolor: Optional[Vector3D] = None,
-        color: Optional[Vector3D] = None,
+        bgcolor: Vector3D | None = None,
+        color: Vector3D | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize Text object (label)
@@ -242,8 +241,8 @@ class Text(Rectangle):
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         """Render the text object by initializing the text material if not initialized yet
 
@@ -258,7 +257,7 @@ class Text(Rectangle):
         super().render(lit, shader, parent_matrix)
 
     @property
-    def text_size(self) -> Tuple[int, int]:
+    def text_size(self) -> tuple[int, int]:
         """Return the text size in pixels"""
         if self.font is None:
             return (0, 0)
@@ -341,10 +340,10 @@ class Hud(Object):
         self.width: int = width
         self.height: int = height
         self._fontname: str = font
-        self.children: Dict[str, Object] = {}
+        self.children: dict[str, Object] = {}
         self._font_size: int = font_size
         self._font: ImageFont | None = None
-        self._projection_matrix: Optional[np.ndarray] = None
+        self._projection_matrix: np.ndarray | None = None
         if self._fontname != "":
             self.set_font(self._fontname, self._font_size)
         else:

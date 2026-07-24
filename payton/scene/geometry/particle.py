@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from payton.math.vector import Vector3D
 from payton.scene.geometry import Object
@@ -18,8 +18,8 @@ class ParticleSystem(Object):
         # hitting update will switch buffer into particles
         self.material.texture = BASE_PARTICLE
         self.particle_scale = particle_scale
-        self._previous_camera_position: Optional[Vector3D] = None
-        self.meta: List[Dict[str, Any]] = []
+        self._previous_camera_position: Vector3D | None = None
+        self.meta: list[dict[str, Any]] = []
         self.shader = PARTICLE_SHADER
 
     def toggle_wireframe(self) -> None:
@@ -33,7 +33,7 @@ class ParticleSystem(Object):
         """TODO: Enable particle physics for this."""
         return False
 
-    def add(self, vertex: Vector3D, **meta: Dict[str, Any]) -> None:
+    def add(self, vertex: Vector3D, **meta: dict[str, Any]) -> None:
         """Add a vertex/new particle to the particle system
 
         Note: each particle can hold a meta information as a Dict[str, Any] format.

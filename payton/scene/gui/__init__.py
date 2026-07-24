@@ -18,10 +18,12 @@ from payton.scene.gui.window import (
 )
 
 __all__ = [
+    "UI_THEME_BLENDER",
+    "UI_THEME_GAMEENGINE",
+    "UI_THEME_STUDIO",
     "Button",
     "EditBox",
     "Hud",
-    "info_box",
     "Panel",
     "ProgressBar",
     "Rectangle",
@@ -29,9 +31,7 @@ __all__ = [
     "Slider",
     "Text",
     "Theme",
-    "UI_THEME_BLENDER",
-    "UI_THEME_GAMEENGINE",
-    "UI_THEME_STUDIO",
     "Window",
     "WindowAlignment",
+    "info_box",
 ]

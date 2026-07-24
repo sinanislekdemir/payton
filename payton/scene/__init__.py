@@ -33,15 +33,15 @@ from payton.scene.scene import (
 from payton.scene.theme import THEME_BLENDER, THEME_GAMEENGINE, THEME_STUDIO, SceneTheme
 
 __all__ = [
-    "Scene",
-    "Background",
     "SHADOW_HIGH",
     "SHADOW_LOW",
     "SHADOW_MID",
     "SHADOW_NONE",
-    "physics_client",
-    "SceneTheme",
     "THEME_BLENDER",
-    "THEME_STUDIO",
     "THEME_GAMEENGINE",
+    "THEME_STUDIO",
+    "Background",
+    "Scene",
+    "SceneTheme",
+    "physics_client",
 ]

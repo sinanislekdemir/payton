@@ -1,7 +1,7 @@
 import math
+from collections.abc import Iterable
 from copy import deepcopy
 from functools import lru_cache
-from typing import Iterable, List, Tuple
 
 import numpy as np
 
@@ -122,7 +122,7 @@ def invert_vector(v: Vector3D) -> Vector3D:
     return [-v[0], -v[1], -v[2]]
 
 
-def min_max(vlist: List[Vector3D]) -> Tuple[Vector3D, Vector3D]:
+def min_max(vlist: list[Vector3D]) -> tuple[Vector3D, Vector3D]:
     """
     Calculate the smallest and biggest components of the given vector list.
 

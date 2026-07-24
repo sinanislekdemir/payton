@@ -1,7 +1,7 @@
 """Capsule module."""
 
 import math
-from typing import Any, List, Optional
+from typing import Any
 
 from payton.scene.geometry.mesh import Mesh
 from payton.scene.material import DEFAULT
@@ -20,9 +20,9 @@ class Capsule(Mesh):
 
     def __init__(
         self,
-        radius: Optional[float] = None,
-        radius_top: Optional[float] = None,
-        radius_bottom: Optional[float] = None,
+        radius: float | None = None,
+        radius_top: float | None = None,
+        radius_bottom: float | None = None,
         height: float = 1.0,
         meridians: int = 12,
         parallels: int = 6,
@@ -113,7 +113,7 @@ class Capsule(Mesh):
             v4 = [x2_top, y2_top, h_2]
 
             # Calculate normals for tapered surface correctly
-            def calculate_frustum_normal(angle: float) -> List[float]:
+            def calculate_frustum_normal(angle: float) -> list[float]:
                 """Calculate the normal for a frustum surface at given angle."""
                 # Direction vectors
                 cos_a, sin_a = math.cos(angle), math.sin(angle)
@@ -232,7 +232,7 @@ class Capsule(Mesh):
                 v4 = v_step * i
 
                 # Calculate normals (pointing outward from center)
-                def normalize(vec: List[float]) -> List[float]:
+                def normalize(vec: list[float]) -> list[float]:
                     length = math.sqrt(sum(v**2 for v in vec))
                     return [v / length if length > 0 else 0 for v in vec]
 

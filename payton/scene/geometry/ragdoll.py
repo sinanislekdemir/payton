@@ -6,7 +6,7 @@ Simple, clean implementation following bvh.py guidelines.
 import math
 from dataclasses import dataclass, field
 from time import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import numpy as np
 
@@ -20,9 +20,9 @@ class Joint:
     """Represents a joint in the BVH hierarchy - following bvh.py pattern."""
 
     name: str
-    offset: List[float]  # [x, y, z] offset from parent
-    channels: List[str]  # Rotation/position channels
-    children: List["Joint"] = field(default_factory=list)
+    offset: list[float]  # [x, y, z] offset from parent
+    channels: list[str]  # Rotation/position channels
+    children: list["Joint"] = field(default_factory=list)
     parent: Optional["Joint"] = None
     is_end_site: bool = False
 
@@ -35,17 +35,17 @@ class RagDoll(Object):
         super().__init__(**kwargs)
 
         # BVH data
-        self.root_joint: Optional[Joint] = None
-        self.joints: Dict[str, Joint] = {}
+        self.root_joint: Joint | None = None
+        self.joints: dict[str, Joint] = {}
 
         # Animation data - support multiple animations
-        self.animations: Dict[
-            str, Dict[str, Any]
+        self.animations: dict[
+            str, dict[str, Any]
         ] = {}  # animation_name -> {frame_data, frame_time, frames}
-        self.current_animation: Optional[str] = None
+        self.current_animation: str | None = None
 
         # Visual objects (capsules for bones)
-        self.joint_objects: Dict[str, Object] = {}
+        self.joint_objects: dict[str, Object] = {}
 
         # Animation state
         self._current_frame = 0
@@ -131,7 +131,7 @@ class RagDoll(Object):
             print(f"Error loading BVH: {e}")
             raise
 
-    def _parse_joint(self, lines: List[str], index: int) -> tuple[Joint, int]:
+    def _parse_joint(self, lines: list[str], index: int) -> tuple[Joint, int]:
         """Parse joint from lines starting at index."""
         line = lines[index].strip()
 
@@ -220,12 +220,12 @@ class RagDoll(Object):
 
         print(f"Switched to animation: {animation_name}")
 
-    def get_available_animations(self) -> List[str]:
+    def get_available_animations(self) -> list[str]:
         """Get list of available animation names."""
         return list(self.animations.keys())
 
     @property
-    def frame_data(self) -> List[List[float]]:
+    def frame_data(self) -> list[list[float]]:
         """Get frame data for current animation."""
         if self.current_animation is None:
             return []
@@ -253,7 +253,7 @@ class RagDoll(Object):
         self._create_bone_capsules(self.root_joint)
 
     def _build_joint_objects(
-        self, joint: Joint, parent_obj: Optional[Object], skip_root: bool = False
+        self, joint: Joint, parent_obj: Object | None, skip_root: bool = False
     ) -> None:
         """Build joint objects recursively."""
         if joint.is_end_site:
@@ -460,7 +460,7 @@ class RagDoll(Object):
             return (base_radius * 1.1, base_radius * 0.9)
 
     def _orient_capsule(
-        self, capsule: Object, direction: List[float], length: float
+        self, capsule: Object, direction: list[float], length: float
     ) -> None:
         """Orient capsule along direction vector using all three rotation axes."""
         if length < 0.001:
@@ -504,7 +504,7 @@ class RagDoll(Object):
         self._current_frame = frame_number
 
     def _apply_frame(
-        self, joint: Joint, frame_data: List[float], channel_index: int
+        self, joint: Joint, frame_data: list[float], channel_index: int
     ) -> int:
         """Apply frame data to joint and children."""
         if joint.is_end_site:
@@ -602,8 +602,8 @@ class RagDoll(Object):
         self,
         lit: bool,
         shader: Shader,
-        parent_matrix: Optional[np.ndarray] = None,
-        _primitive: Optional[int] = None,
+        parent_matrix: np.ndarray | None = None,
+        _primitive: int | None = None,
     ) -> None:
         """Render with animation update."""
         if not self._visible:

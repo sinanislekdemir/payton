@@ -1,8 +1,9 @@
-from typing import Any, Callable, List, Tuple
+from collections.abc import Callable
+from typing import Any
 
 from payton.math.vector import Vector3D
 
-VList = List[Vector3D]
-VListW = List[Vector3D]
-IList = List[List[int]]
-CPlane = Tuple[Vector3D, Vector3D, Callable[[Vector3D], Any]]
+VList = list[Vector3D]
+VListW = list[Vector3D]
+IList = list[list[int]]
+CPlane = tuple[Vector3D, Vector3D, Callable[[Vector3D], Any]]

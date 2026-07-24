@@ -1,4 +1,3 @@
-from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pyrr
@@ -105,7 +104,7 @@ def raycast_sphere_intersect(
 
 def _find_box_mid_for_intersection(
     start: GArray, box_a: GArray, box_b: GArray
-) -> Tuple[List[bool], List[float], bool]:
+) -> tuple[list[bool], list[float], bool]:
     is_middle = [False, False, False]
     plane = [0.0, 0.0, 0.0]
     result = True
@@ -125,7 +124,7 @@ def _find_box_mid_for_intersection(
 
 def raycast_box_intersect(
     start: GArray, direction: GArray, box_a: GArray, box_b: GArray
-) -> Optional[Vector3D]:
+) -> Vector3D | None:
     """Check if ray intersects given axis-aligned-box, returns point of intersection if True
 
     AABB - Axis Aligned Bounding Box means the given box is parallel to the X,Y,Z axises.
@@ -181,7 +180,7 @@ def point_on_line(point: Vector3D, start: Vector3D, end: Vector3D) -> bool:
 
 def raycast_plane_intersect(
     start: GArray, direction: GArray, plane_point: GArray, plane_normal: GArray
-) -> Optional[np.ndarray]:
+) -> np.ndarray | None:
     """Test if the given ray intersects with the defined plane, returns
     intersection point if True else None
 
@@ -208,7 +207,7 @@ def raycast_plane_intersect(
 
 def raycast_triangle_intersect(
     start: GArray, direction: GArray, p1: GArray, p2: GArray, p3: GArray
-) -> Tuple[Union[np.ndarray, None], Union[np.ndarray, None]]:
+) -> tuple[np.ndarray | None, np.ndarray | None]:
     """Returns intersection point, intersection normal
 
     Keyword arguments:
@@ -250,7 +249,7 @@ def ray_intersect_neg_z(
     p1: Vector3D,
     p2: Vector3D,
     p3: Vector3D,
-) -> Optional[float]:
+) -> float | None:
     """Möller–Trumbore specialized for ray direction ``[0, 0, -1]``.
 
     Tests a ray cast from ``(ox, oy, oz)`` straight down the negative-Z
@@ -321,7 +320,7 @@ def ray_intersect_pos_x(
     p1: Vector3D,
     p2: Vector3D,
     p3: Vector3D,
-) -> Optional[float]:
+) -> float | None:
     """Möller–Trumbore specialized for ray direction ``[1, 0, 0]``.
 
     Tests a ray cast from ``(ox, oy, oz)`` along the positive-X axis
@@ -392,7 +391,7 @@ def ray_intersect_pos_y(
     p1: Vector3D,
     p2: Vector3D,
     p3: Vector3D,
-) -> Optional[float]:
+) -> float | None:
     """Möller–Trumbore specialized for ray direction ``[0, 1, 0]``.
 
     Tests a ray cast from ``(ox, oy, oz)`` along the positive-Y axis
@@ -489,7 +488,7 @@ def line_triangle_intersect(
     return diff < DIFF and diff > -DIFF
 
 
-def point_inside_polygon(x: float, y: float, poly: List[Tuple[float, float]]) -> bool:
+def point_inside_polygon(x: float, y: float, poly: list[tuple[float, float]]) -> bool:
     """Check if a given point is inside the given polygon in 2D.
 
     This work is copied from Patrick Jordan's work;
