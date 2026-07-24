@@ -374,8 +374,8 @@ class Camera:
         if len(world_coordinates) == 3:
             world_coordinates.append(1)
         proj_matrix, view_matrix = self.render()
-        clip_space = vector_transform_4(world_coordinates, view_matrix)
-        clip_space = vector_transform_4(clip_space, proj_matrix)
+        clip_space = vector_transform_4(world_coordinates, view_matrix.tolist())
+        clip_space = vector_transform_4(clip_space, proj_matrix.tolist())
         div = clip_space[3]
         clip_space = [elem / div for elem in clip_space]
         clip_space = [
