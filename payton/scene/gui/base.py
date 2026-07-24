@@ -306,7 +306,12 @@ class Text(Rectangle):
             d.text((1, 1), self.label, fill=color)
 
         if any(self.crop):
-            img = img.crop((self.crop[0], self.crop[1], self.crop[2], self.crop[3]))
+            left = max(0, int(self.crop[0]))
+            upper = max(0, int(self.crop[1]))
+            right = min(img.size[0], int(self.crop[2]))
+            lower = min(img.size[1], int(self.crop[3]))
+            if left < right and upper < lower:
+                img = img.crop((left, upper, right, lower))
 
         del d
 
