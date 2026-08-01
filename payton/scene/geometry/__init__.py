@@ -5,6 +5,7 @@ from payton.scene.geometry.cube import Cube
 from payton.scene.geometry.cylinder import Cylinder
 from payton.scene.geometry.md2 import MD2
 from payton.scene.geometry.mesh import Mesh
+from payton.scene.geometry.navmesh import NavMesh
 from payton.scene.geometry.particle import ParticleSystem
 from payton.scene.geometry.plane import MatrixPlane, Plane
 from payton.scene.geometry.ragdoll import Joint, RagDoll
@@ -20,6 +21,7 @@ __all__ = [
     "Line",
     "MatrixPlane",
     "Mesh",
+    "NavMesh",
     "Object",
     "ParticleSystem",
     "Plane",
