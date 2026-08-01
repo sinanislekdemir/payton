@@ -21,6 +21,7 @@ module
 """
 
 # pylama:ignore=W
+from payton.scene.audio import AudioEngine, AudioListener, AudioSource
 from payton.scene.physics import physics_client
 from payton.scene.scene import (
     SHADOW_HIGH,
@@ -40,6 +41,9 @@ __all__ = [
     "THEME_BLENDER",
     "THEME_GAMEENGINE",
     "THEME_STUDIO",
+    "AudioEngine",
+    "AudioListener",
+    "AudioSource",
     "Background",
     "Scene",
     "SceneTheme",

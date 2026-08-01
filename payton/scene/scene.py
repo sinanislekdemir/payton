@@ -66,6 +66,7 @@ from payton.math.geometry import (
     raycast_triangle_intersect,
 )
 from payton.math.vector import Vector3D
+from payton.scene.audio import AudioEngine, AudioSource
 from payton.scene.camera import Camera
 from payton.scene.clock import Clock
 from payton.scene.collision import CollisionTest
@@ -211,6 +212,9 @@ class Scene(Receiver):
                 physics_force_continuous,
             )
 
+        self.audio_engine = AudioEngine()
+        """3-D spatial audio engine.  See :class:`~payton.scene.audio.AudioEngine`."""
+
         self.hudcam = Camera(
             active=True,
             position=[0, 0, 1.0],
@@ -265,7 +269,13 @@ class Scene(Receiver):
             SHADOW_CUBE: Shader(
                 fragment=shadow_cube_fragment_shader,
                 vertex=shadow_cube_vertex_shader,
-                variables=["model", "shadowView", "shadowProj", "lightPos", "shadowFar"],
+                variables=[
+                    "model",
+                    "shadowView",
+                    "shadowProj",
+                    "lightPos",
+                    "shadowFar",
+                ],
             ),
         }
         self.shaders[SHADOW_CUBE]._depth_pass = True
@@ -407,6 +417,56 @@ class Scene(Receiver):
         >>> scene.disable_fog()
         """
         self.fog_enabled = False
+
+    def playSound(
+        self,
+        position: Vector3D,
+        file: str,
+        loop: bool = False,
+        volume: float = 1.0,
+        pitch: float = 1.0,
+    ) -> AudioSource:
+        """Play a one-shot sound at a world position.
+
+        Parameters
+        ----------
+        position : Vector3D
+            World position for the sound source.
+        file : str
+            Path to a WAV, MP3, FLAC or Ogg Vorbis file.
+        loop : bool
+            If True the sound repeats indefinitely.
+        volume : float
+            Volume multiplier (0.0–1.0).
+        pitch : float
+            Playback speed factor. 1.0 is normal speed.
+
+        Returns
+        -------
+        AudioSource
+            Handle for controlling the sound instance.
+        """
+        return self.audio_engine.play_sound(
+            file=file,
+            position=position,
+            loop=loop,
+            volume=volume,
+            pitch=pitch,
+        )
+
+    def stopSound(self, source: AudioSource | None = None) -> None:
+        """Stop a scene-level sound, or all if *source* is None.
+
+        Parameters
+        ----------
+        source : AudioSource or None
+            The sound handle returned by :meth:`playSound`, or None to
+            stop every source that was played at scene level.
+        """
+        if source is not None:
+            source.stop()
+        else:
+            self.audio_engine.stop_all_from(None)
 
     def _step_physics(self, period: float, total: float) -> None:
         """Advance the physics simulation one step.
@@ -677,6 +737,22 @@ class Scene(Receiver):
         """
         self.shaders["default"].use()
 
+        # Sync audio listener to active camera
+        cam = self.active_camera
+        px, py, pz = cam.position
+        tx, ty, tz = cam.target
+        dx = tx - px
+        dy = ty - py
+        dz = tz - pz
+        n = (dx * dx + dy * dy + dz * dz) ** 0.5
+        if n > 0.0:
+            dx /= n
+            dy /= n
+            dz /= n
+        self.audio_engine.listener.position = [px, py, pz]
+        self.audio_engine.listener.forward = [dx, dy, dz]
+        self.audio_engine.listener.up = list(cam.up)
+
         # Free GL resources for objects removed from clock threads
         with self._objects_lock:
             if self._pending_destroy:
@@ -780,6 +856,7 @@ class Scene(Receiver):
                     return False
                 self.huds[name] = obj
             obj.name = name
+            obj._scene = self
             obj.set_size(self.window_width, self.window_height)
             return True
 
@@ -789,6 +866,7 @@ class Scene(Receiver):
                 return False
             self.objects[name] = obj
         obj.name = name
+        obj._scene = self
         return True
 
     def remove_object(self, name: str) -> Object | None:
@@ -811,6 +889,7 @@ class Scene(Receiver):
             if name not in self.objects:
                 return None
             obj = self.objects.pop(name)
+            obj._scene = None
             self._pending_destroy.append(obj)
         return obj
 
@@ -871,6 +950,7 @@ class Scene(Receiver):
         that new threads may be started after a context loss. It also
         destroys GL-owned resources such as the grid and HUD VAOs.
         """
+        self.audio_engine.stop()
         for shader in self.shaders.values():
             shader.program = -1
         self.background._shader.program = -1
@@ -1009,6 +1089,8 @@ Payton requires at least OpenGL 3.3 support and above."""
         for shader in self.shaders.values():
             shader.build()
 
+        self.audio_engine.start()
+
         return True
 
     def run(self, start_clocks: bool = False) -> int:
@@ -1045,9 +1127,7 @@ Payton requires at least OpenGL 3.3 support and above."""
             )
         elif self._antialiasing is not None and self._antialiasing > 0:
             sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
-            sdl2.SDL_GL_SetAttribute(
-                sdl2.SDL_GL_MULTISAMPLESAMPLES, self._antialiasing
-            )
+            sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, self._antialiasing)
 
         _window_args = (
             b"Payton Scene",
@@ -1061,25 +1141,15 @@ Payton requires at least OpenGL 3.3 support and above."""
         if self._antialiasing is None and not multisample_samples:
             # Auto-detect: probe descending MSAA levels until one sticks.
             for samples in (16, 8, 4, 2):
-                sdl2.SDL_GL_SetAttribute(
-                    sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1
-                )
-                sdl2.SDL_GL_SetAttribute(
-                    sdl2.SDL_GL_MULTISAMPLESAMPLES, samples
-                )
+                sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 1)
+                sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, samples)
                 self.window = sdl2.SDL_CreateWindow(*_window_args)
                 if self.window:
                     break
-                logger.info(
-                    "MSAA %dx not available, trying next level", samples
-                )
+                logger.info("MSAA %dx not available, trying next level", samples)
             else:
-                sdl2.SDL_GL_SetAttribute(
-                    sdl2.SDL_GL_MULTISAMPLEBUFFERS, 0
-                )
-                sdl2.SDL_GL_SetAttribute(
-                    sdl2.SDL_GL_MULTISAMPLESAMPLES, 0
-                )
+                sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLEBUFFERS, 0)
+                sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES, 0)
                 logger.info("MSAA not available, disabling antialiasing")
                 self.window = sdl2.SDL_CreateWindow(*_window_args)
         else:
@@ -1150,6 +1220,8 @@ Payton requires at least OpenGL 3.3 support and above."""
         for obj in list(self.objects.values()):
             obj.destroy()
 
+        self.audio_engine.stop()
+
         for clock in self.clocks:
             self.clocks[clock].kill()
             self.clocks[clock]._hold = True
@@ -1208,6 +1280,7 @@ Payton requires at least OpenGL 3.3 support and above."""
         existing clock threads.
         """
         self.running = False
+        self.audio_engine.stop()
         for clock in self.clocks:
             logger.debug(f"Kill clock [{clock}]")
             self.clocks[clock].kill()

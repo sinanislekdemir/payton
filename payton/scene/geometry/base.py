@@ -5,7 +5,7 @@ import ctypes
 import logging
 from copy import deepcopy
 from functools import lru_cache
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from OpenGL.GL import (
@@ -67,6 +67,10 @@ from payton.scene.material import (
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.scene.types import IList, VList
 
+if TYPE_CHECKING:
+    from payton.scene.audio import AudioSource
+    from payton.scene.scene import Scene
+
 _BULLET = False
 try:
     import pybullet
@@ -105,6 +109,8 @@ class Object:
                         This comes with an over-head.
         """
         self.children: dict[str, Object] = {}
+
+        self._scene: Scene | None = None
 
         # store diffeerent materials
         self.materials: dict[str, Material] = {DEFAULT: Material()}
@@ -490,6 +496,67 @@ class Object:
     def hide(self) -> None:
         """Hide the object (set visible = False)."""
         self._visible = False
+
+    def playSound(
+        self,
+        file: str,
+        loop: bool = False,
+        volume: float = 1.0,
+        pitch: float = 1.0,
+    ) -> "AudioSource":
+        """Play a sound at this object's world position.
+
+        The sound follows the object as it moves through the scene.
+
+        Parameters
+        ----------
+        file : str
+            Path to a WAV, MP3, FLAC or Ogg Vorbis file.
+        loop : bool
+            If True the sound repeats indefinitely.
+        volume : float
+            Volume multiplier (0.0–1.0).
+        pitch : float
+            Playback speed factor. 1.0 is normal speed.
+
+        Returns
+        -------
+        AudioSource
+            Handle for controlling the sound instance.
+        """
+        if self._scene is None:
+            from payton.scene.audio import AudioSource
+
+            return AudioSource(
+                np.array([], dtype=np.float32),
+                [0.0, 0.0, 0.0],
+                None,
+                volume,
+                pitch,
+                loop,
+                1.0,
+                True,
+                None,  # type: ignore[arg-type]
+            )
+        return self._scene.audio_engine.play_sound(
+            file=file, obj=self, loop=loop, volume=volume, pitch=pitch
+        )
+
+    def stopSound(self, source: "AudioSource | None" = None) -> None:
+        """Stop a sound on this object, or all if *source* is None.
+
+        Parameters
+        ----------
+        source : AudioSource or None
+            A handle returned by :meth:`playSound`, or None to stop
+            every sound attached to this object.
+        """
+        if self._scene is None:
+            return
+        if source is not None:
+            source.stop()
+        else:
+            self._scene.audio_engine.stop_all_from(self)
 
     def clone(self) -> "Object":
         """Create the clone of an object - deepcopy.

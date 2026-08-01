@@ -23,6 +23,7 @@ dependencies = [
     "PySDL2>=0.9.17",
     "Cython>=3.2.5",
     "numpy>=2.4.6",
+    "miniaudio>=1.50",
 ]
 
 [project.urls]
