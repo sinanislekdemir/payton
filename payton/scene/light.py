@@ -74,9 +74,7 @@ class Light:
         """
         self._position = [10.0, 7.0, 6.0] if position is None else position
         self._color = [1.0, 1.0, 1.0] if color is None else color
-        self._position_np: np.ndarray = np.array(
-            list(self._position), dtype=np.float32
-        )
+        self._position_np: np.ndarray = np.array(list(self._position), dtype=np.float32)
         self._color_np: np.ndarray = np.array(list(self._color), dtype=np.float32)
 
         self.active: bool = True
@@ -161,9 +159,7 @@ class Light:
         glTexParameteri(
             GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE
         )
-        glTexParameteri(
-            GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL
-        )
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL)
 
         self._shadow_cubemap_fbo = glGenFramebuffers(1)
         glBindFramebuffer(GL_FRAMEBUFFER, self._shadow_cubemap_fbo)

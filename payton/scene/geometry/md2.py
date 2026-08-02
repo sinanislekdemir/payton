@@ -34,7 +34,6 @@ class MeshException(Exception):
     """Mesh relatex exceptions for MD2."""
 
 
-
 def _interpolate(mesh_1: Mesh, mesh_2: Mesh, steps: int = 1) -> list[Mesh]:
     """Interpolate two alike meshes.
 

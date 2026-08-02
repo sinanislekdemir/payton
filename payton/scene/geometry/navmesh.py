@@ -148,7 +148,9 @@ class NavMeshGraph:
         bmax = tri.bbox_max
         return bmin[0] <= x <= bmax[0] and bmin[1] <= y <= bmax[1]
 
-    def _point_in_triangle(self, p: Vector3D, v0: Vector3D, v1: Vector3D, v2: Vector3D) -> bool:
+    def _point_in_triangle(
+        self, p: Vector3D, v0: Vector3D, v1: Vector3D, v2: Vector3D
+    ) -> bool:
         e0 = sub_vector(v2, v0)
         e1 = sub_vector(v1, v0)
         e2 = sub_vector(p, v0)
@@ -410,7 +412,9 @@ class NavMesh(Object):
         path = navmesh.graph.find_path(start, end)
     """
 
-    def __init__(self, max_slope: float = 45.0, max_step: float = 1.0, **kwargs: Any) -> None:
+    def __init__(
+        self, max_slope: float = 45.0, max_step: float = 1.0, **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
         self.graph = NavMeshGraph(max_slope=max_slope, max_step=max_step)
         self._path_line: Object | None = None

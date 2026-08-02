@@ -36,6 +36,7 @@ from OpenGL.GL import (
 )
 from PIL import Image
 
+import payton.scene.profiler as _profiler
 from payton.math.vector import Vector3D
 from payton.scene.shader import Shader
 from payton.scene.types import IList
@@ -220,6 +221,13 @@ class Material:
         )
         glGenerateMipmap(GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, 0)
+
+        bpp = 4 if mode == GL_RGBA else 3
+        tex_size = int(width * height * bpp * 1.33)
+        tex_id = self._texture if not particle else self._particle_texture
+        if tex_id is not None:
+            _profiler.register_texture_vram(tex_id, tex_size)
+
         return self._texture or -1
 
     def refresh(self) -> None:

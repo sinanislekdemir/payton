@@ -135,7 +135,6 @@ class Cube(Mesh):
             self.materials[DEFAULT]._indices.append(ind)
         self._indices = self.materials[DEFAULT]._indices
 
-
     def _create_collision_shape(self) -> None:
         self._bullet_shape_id = pybullet.createCollisionShape(
             pybullet.GEOM_BOX, halfExtents=[self._width, self._depth, self._height]

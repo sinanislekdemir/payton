@@ -59,6 +59,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
+import payton.scene.profiler as _profiler
 from payton.math.geometry import (
     distance_native,
     raycast_box_intersect,
@@ -78,6 +79,7 @@ from payton.scene.gui.help import help_win
 from payton.scene.gui.window import Theme
 from payton.scene.light import Light
 from payton.scene.physics import physics_client
+from payton.scene.profiler import FrameStats, Profiler, reset_frame_counters
 from payton.scene.receiver import Receiver
 from payton.scene.shader import (
     DEFAULT_SHADER,
@@ -185,6 +187,11 @@ class Scene(Receiver):
         self.huds: dict[str, Hud] = {"_help": Hud(width=width, height=height)}
         self.huds["_help"].add_child("help", help_win())
         self.huds["_help"].hide()
+
+        self._profiler = Profiler()
+        self.huds["_profiler"] = self._profiler
+        self._profiler.hide()
+        self.__frame_timer: float = -1.0
 
         self.__timer = -1.0
         self.cameras: list[Camera] = []
@@ -482,11 +489,13 @@ class Scene(Receiver):
         total : float
             Accumulated time since clock start (seconds).
         """
+        t0 = time.perf_counter()
         pybullet.stepSimulation()
         with self._objects_lock:
             objects_snapshot = list(self.objects.values())
         for child in objects_snapshot:
             child._bullet_physics()
+        _profiler.physics_time_ms = (time.perf_counter() - t0) * 1000.0
 
     @property
     def shadow_samples(self) -> int:
@@ -680,6 +689,8 @@ class Scene(Receiver):
             if not light.active or not light.cast_shadows:
                 continue
 
+            _profiler.shadow_passes += 1
+
             if light._shadow_cubemap_tex <= 0 or light._shadow_face_size != face_size:
                 light.init_shadow_cubemap(face_size)
 
@@ -735,6 +746,9 @@ class Scene(Receiver):
         renders background, 3D scene, HUD elements and particle passes.
         Also updates per-frame FPS counters and runs collision checks.
         """
+        frame_start = time.perf_counter()
+        reset_frame_counters()
+
         self.shaders["default"].use()
 
         # Sync audio listener to active camera
@@ -783,6 +797,7 @@ class Scene(Receiver):
         self.background.render(
             self.window_width, self.window_height, self.active_camera
         )
+        _profiler.draw_calls += 1
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
 
@@ -813,6 +828,23 @@ class Scene(Receiver):
             self.__timer = time.time()
             self.fps = self.__fps_counter
             self.__fps_counter = 0
+
+        frame_end = time.perf_counter()
+
+        if self._profiler._visible:
+            stats = FrameStats(
+                fps=self.fps,
+                frame_time_ms=(frame_end - frame_start) * 1000.0,
+                draw_calls=_profiler.draw_calls,
+                triangles=_profiler.triangles,
+                objects=len(self.objects),
+                shadow_passes=_profiler.shadow_passes,
+                vram_mb=_profiler.estimate_vram_mb(),
+                gpu_time_ms=0.0,
+                physics_time_ms=_profiler.physics_time_ms,
+            )
+            self._profiler.set_stats(stats)
+            self._profiler.update()
 
     def add_collision_test(self, name: str, tester: CollisionTest) -> None:
         """Register a named :class:`CollisionTest`.

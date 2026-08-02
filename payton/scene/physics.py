@@ -13,4 +13,3 @@ except ModuleNotFoundError:
 
 class PhysicsException(Exception):
     """Raise this exception when needed."""
-

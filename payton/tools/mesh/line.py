@@ -1,6 +1,5 @@
 """Payton Line to Mesh module"""
 
-
 from payton.math.functions import (
     add_vectors,
     create_rotation_matrix_raw,

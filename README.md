@@ -126,6 +126,15 @@ Payton bridges the gap between "I need to see my 3D idea *right now*" and "I'm b
 -   Motion capture data (BVH file support)
 -   Fog effects
 -   World-to-screen coordinate projection
+-   3D Spatial Audio engine (powered by miniaudio)
+    -   Positional audio with distance attenuation
+    -   WAV/MP3/FLAC/OGG support
+-   NavMesh pathfinding engine
+    -   A* graph-based navigation
+    -   Slope and step constraints
+-   Built-in Profiler overlay (press `P` to cycle: FPS → details → verbose → hide)
+    -   Real-time FPS / frame time / draw calls / triangles
+    -   VRAM estimate, shadow pass count, physics timing
 -   Extensive examples for every feature
 
 ## Install
@@ -217,6 +226,7 @@ This will create your first empty scene and show it inside an SDL window.
 | Space | UnPause / Pause Scene Clocks |
 | G | Show / Hide Grid |
 | W | Change Display Mode (Solid / Wireframe / Points) |
+| P | Cycle Profiler (FPS > Details > Verbose > Hide) |
 | F2 | Previous Camera |
 | F3 | Next Camera |
 | F12 | Take Screenshot (saves PNG in current directory) |
@@ -311,6 +321,10 @@ You can either download the whole repository [as a zip file](https://github.com/
   * [World to Screen Projection](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/36_world_to_screen.py)
   * [Fog Effect](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/41_fog.py)
   * [Minecraft-like Scene](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/40_minecraft_like.py)
+  * [Multi-Shadow](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/42_multi_shadow.py)
+  * [NavMesh Pathfinding](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/43_navmesh.py)
+  * [NavMesh Maze](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/44_navmesh_maze.py)
+  * [3D Spatial Audio](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/45_3d_audio.py)
 * Mesh Tools
   * [Extrude Line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/01_extrude_line.py)
   * [Rotate Line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/02_rotate_line.py)

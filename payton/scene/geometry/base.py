@@ -18,6 +18,7 @@ from OpenGL.GL import (
     GL_FRONT_AND_BACK,
     GL_LINE,
     GL_LINE_STRIP,
+    GL_LINES,
     GL_POINTS,
     GL_TRIANGLES,
     GL_UNSIGNED_INT,
@@ -37,6 +38,7 @@ from OpenGL.GL import (
     glVertexAttribPointer,
 )
 
+import payton.scene.profiler as _profiler
 from payton.math.functions import (
     add_vectors,
     create_rotation_matrix,
@@ -380,6 +382,8 @@ class Object:
         This method frees the graphics card memory/buffer used for the rendering.
         And sets the virtual pointers to zero to make them re-usable again.
         """
+        _profiler.unregister_object_vram(id(self))
+
         for material in self.materials.values():
             if material._vao > NO_VERTEX_ARRAY:
                 glDeleteVertexArrays(1, [self._vao])
@@ -663,6 +667,12 @@ class Object:
                     GL_UNSIGNED_INT,
                     indice_0,
                 )
+
+                _profiler.draw_calls += 1
+                if primitive == GL_TRIANGLES:
+                    _profiler.triangles += material._vertex_count // 3
+                elif primitive == GL_LINES:
+                    _profiler.triangles += max(material._vertex_count // 2, 1)
 
                 if pmode != GL_FILL:
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -954,6 +964,17 @@ class Object:
             glBindBuffer(GL_ARRAY_BUFFER, 0)
 
         self._total_indices = cast(list[int], total_indices.tolist())
+
+        gpu_mem = int(self._buffer_size * 2)
+        if len(self._texcoords) == len(self._vertices):
+            gpu_mem += int(self._t_buffer_size)
+        if len(self._vertex_colors) == len(self._vertices):
+            gpu_mem += int(self._buffer_size)
+        for material in self.materials.values():
+            if len(material._indices) > 0:
+                gpu_mem += len(material._indices) * 4
+        _profiler.register_object_vram(id(self), gpu_mem)
+
         self._needs_update = False
         self._build_collision_shape()
         return True

@@ -26,6 +26,7 @@ from OpenGL.GL import (
     glVertexAttribPointer,
 )
 
+import payton.scene.profiler as _profiler
 from payton.math.vector import Vector3D
 from payton.scene.geometry.base import Line
 from payton.scene.material import Material
@@ -121,6 +122,7 @@ class Grid:
 
     def destroy(self) -> bool:
         """Destroy the grid object and free the graphics card memory area"""
+        _profiler.unregister_object_vram(id(self))
         if self._vao > -1:
             glDeleteVertexArrays(1, [self._vao])
             self._vao = -1
@@ -158,6 +160,8 @@ class Grid:
                 GL_UNSIGNED_INT,
                 ctypes.c_void_p(0),
             )
+            _profiler.draw_calls += 1
+            _profiler.triangles += max(self._vertex_count // 2, 1)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             glBindVertexArray(0)
 
@@ -275,6 +279,9 @@ class Grid:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos[1])
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
         self._vertex_count = len(indices)
+
+        gpu_mem = vertices.nbytes + indices.nbytes
+        _profiler.register_object_vram(id(self), gpu_mem)
 
         glBindVertexArray(0)
         # glDisableVertexAttribArray(0)

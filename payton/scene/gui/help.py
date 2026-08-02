@@ -20,6 +20,7 @@ G: Show/Hide Grid
 W: Display mode (wireframe/solid)
 F2: Previous Camera F3: Next Camera
 F12: Capture a screenshot
+P: Cycle Profiler (FPS > Details > Verbose > Hide)
     """
     help_window = Window(
         align=WindowAlignment.RIGHT,

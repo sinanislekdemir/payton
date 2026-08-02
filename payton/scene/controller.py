@@ -207,6 +207,11 @@ class SceneController(BaseController):
             if key == sdl2.SDLK_F12:
                 scene.screenshot()
 
+            if key == sdl2.SDLK_p:
+                prof = scene.huds.get("_profiler")
+                if prof is not None:
+                    prof.cycle()
+
             if key in [sdl2.SDLK_F2, sdl2.SDLK_F3]:
                 active = 0
                 for i in range(len(scene.cameras)):
