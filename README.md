@@ -1,209 +1,26 @@
-# Payton 3D SDK
+<div align="center">
 
+# Payton 3D
 
-https://github.com/user-attachments/assets/3904c4a3-d683-4816-a31d-3af958e42813
+### From *"what if..."* to *"whoa, I just built that"* — in Python.
 
+A batteries-included 3D graphics toolkit for **rapid prototyping, creative coding, simulation, data visualization, and play**. Real 3D, sane defaults, zero ceremony.
 
-
+[![PyPI](https://img.shields.io/pypi/v/payton?color=3776AB&label=PyPI)](https://pypi.org/project/payton/)
+[![Python](https://img.shields.io/pypi/pyversions/payton?color=3776AB)](https://pypi.org/project/payton/)
+[![License](https://img.shields.io/pypi/l/payton?color=success)](https://github.com/sinanislekdemir/payton/blob/master/LICENSE)
 [![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
 [![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
 
+**[Three lines to 3D](#-three-lines-to-3d)** · **[What's inside](#-whats-inside)** · **[Showcase](#-showcase)** · **[Examples](#-example-index)** · **[Install](#-install)**
 
-[Payton 3D SDK Screencast](https://github.com/sinanislekdemir/payton/assets/1842484/a18c8e43-61e9-48c3-a92a-4988716a1919)
+</div>
 
-Personally, I don't really read long descriptive documentation unless necessary. I prefer things simple and self-explanatory. Therefore, instead of writing lengthy documentation, I create simple examples to demonstrate each feature of Payton without requiring deep dives into the internals.
+https://github.com/user-attachments/assets/3904c4a3-d683-4816-a31d-3af958e42813
 
-Examples can be downloaded from the [Payton Github Page](https://github.com/sinanislekdemir/payton/tree/master/examples).
+---
 
-You can either download the entire repository [as a zip file](https://github.com/sinanislekdemir/payton/archive/master.zip) or you can simply `git clone` it.
-
-## 🎭 Motion Capture Data
-
-Payton includes support for BVH (Biovision Hierarchy) motion capture files. For extensive motion capture datasets, you can find thousands of BVH files from the [Bandai Namco Research Motion Dataset](https://github.com/BandaiNamcoResearchInc/Bandai-Namco-Research-Motiondataset). The example BVH files included with Payton are sourced from this dataset.
-
-Payton is a 3D Software Development Kit designed as a general-purpose playground for programming. With Payton, users can quickly kickstart their ideas and create tools for next-level development, including map editors, small animations, algorithms, or artificial intelligence for games. Unlike complex game engines and libraries that can be time-consuming to set up, Payton comes with sensible pre-configured defaults, making it unique and simple to use.
-
-Payton is not intended to be a full-featured game engine or complete 3D environment, as there are already plenty of excellent tools available for those purposes. Instead, it excels at rapid prototyping and tool development, allowing users to easily visualize their concepts and achieve their goals. Users can seamlessly transition from Payton to other platforms when their projects outgrow its scope.
-
-While 2D graphs and charts are useful for reports, many scenarios require visualizing data in 3 or 4 dimensions. Payton enables users to extend their graphics into higher dimensions and process real-time data from sensors, cameras, or any other data source. These sources can include thermometers, random number generators, IoT devices with speed sensors, maps, vehicle diagnostic ports, or even time-based mathematical formulas. Although projects can become complex, Payton is designed to remain accessible to beginners who can follow the tutorials to develop their programming skills.
-
-## Why Payton?
-
-Python 3D libraries traditionally fall into two extremes: **too low-level** (where you must manually implement cameras, lighting, and scene management) or **too heavy** (where you fight a massive production engine's learning curve before seeing results). Payton sits deliberately in the sweet spot between them.
-
-**vs Pygame**: Pygame is strictly a 2D library. While you can initialize an OpenGL context within it, every standard 3D feature—camera orbit, lighting, shadows, material systems, scene hierarchies, collision detection, and UI—must be built entirely from scratch. Payton provides all of these out of the box. When your project requires true 3D (rather than 2D sprites in a 3D space), Payton saves you hundreds of lines of boilerplate code.
-
-**vs Panda3D**: Panda3D is a production-grade game engine featuring a steep learning curve, a complex deployment pipeline, and an architecture heavily rooted in C++ design patterns. Payton is the exact opposite: it requires just 3 lines of code to launch an interactive 3D scene, offers a purely Pythonic API, and works with zero-config defaults. This makes Payton ideal for *rapid prototyping, tool-building, data visualization, simulation, and education*—scenarios where you need results in minutes, not hours. If a project eventually outgrows Payton's scope, transitioning to Panda3D, Ursina, or Unity is the natural next step.
-
-Payton bridges the gap between "I need to see my 3D idea *right now*" and "I'm building a commercial game." It shines brightest when speed-to-visual, simplicity, and minimal boilerplate matter more than high-end rendering polish or deep engine extensibility.
-
-## Contents of this Document:
-
-- [Payton 3D SDK](#payton-3d-sdk)
-  - [Why Payton?](#why-payton)
-  - [Contents of this Document:](#contents-of-this-document)
-  - [Features:](#features)
-  - [Install](#install)
-    - [Requirements:](#requirements)
-    - [Install using Pip:](#install-using-pip)
-      - [AWP3D Format and Exporter](#awp3d-format-and-exporter)
-      - [Using Payton with Anaconda](#using-payton-with-anaconda)
-    - [Upgrade to the latest version:](#upgrade-to-the-latest-version)
-  - [Getting Started](#getting-started)
-    - [Your first code](#your-first-code)
-  - [Controls](#controls)
-  - [Examples](#examples)
-  - [Example Index](#example-index)
-  - [Contribution](#contribution)
-  - [Screenshots and Videos](#screenshots-and-videos)
-  - [Troubleshooting](#troubleshooting)
-  - [Some free-thoughts and decisions:](#some-free-thoughts-and-decisions)
-
-
-## Features:
-
--   3D Math Library
--   Various base geometries:
-    -   Cube
-    -   Cylinder (tapered support)
-    -   Capsule (tapered support)
-    -   Triangular Mesh
-    -   Plane / MatrixPlane
-    -   Lines / Better Lines
-    -   Particle System
-    -   Sphere
-    -   Dynamic Grid
--   Clean default scene
--   Screenshot capture (programmatic or via F12 key)
--   Pre-defined keyboard-mouse and camera controls
--   Pre-defined environment
--   Clock system for parallel tasks and time-based operations
--   Simple collision detection
--   Optional Physics Engine
-    -   Bullet Physics integration (cubes, joints, ragdoll, bouncing ball)
--   Extendable controllers
--   Pre-defined lighting with screen-space shadows (multi-light support)
--   Material support
--   Clickable objects and virtual planes
--   Shader support (custom shaders, particle shader)
--   Scene theme system with presets
-    -   THEME_BLENDER
-    -   THEME_STUDIO
-    -   THEME_GAMEENGINE
--   GUI System with theme support
-    -   HUD (heads-up display)
-    -   Window (draggable, alignable)
-    -   Panel
-    -   Button
-    -   EditBox (multi-line, placeholder, cursor, clipboard)
-    -   ProgressBar
-    -   Slider
-    -   Text / Rectangle / Shape2D
-    -   UI theme presets (UI_THEME_BLENDER, UI_THEME_STUDIO, UI_THEME_GAMEENGINE)
--   3D File formats:
-    -   AWP3D Animated High-Poly 3D Object
-    -   Wavefront OBJ
-    -   Quake 2 MD2 with Animations
-    -   JSON scene export/import
--   Mesh Generation Tools
-    -   Extrude Line in 3D
-    -   Rotate Line around an axis in 3D
-    -   Fill between lines (lines_to_mesh)
-    -   Sweep path along 3D curve
-    -   Tube generation
-    -   Loft between profiles
--   Mesh modifiers:
-    -   Merge Mesh
-    -   Subdivide Mesh
-    -   Mirror
-    -   Extrude Face
-    -   Laplacian Smooth
-    -   Decimate
--   Constructive Solid Geometry (CSG)
-    -   Union
-    -   Difference
-    -   Intersection
--   Motion capture data (BVH file support)
--   Fog effects
--   World-to-screen coordinate projection
--   3D Spatial Audio engine (powered by miniaudio)
-    -   Positional audio with distance attenuation
-    -   WAV/MP3/FLAC/OGG support
--   NavMesh pathfinding engine
-    -   A* graph-based navigation
-    -   Slope and step constraints
--   Built-in Profiler overlay (press `P` to cycle: FPS → details → verbose → hide)
-    -   Real-time FPS / frame time / draw calls / triangles
-    -   VRAM estimate, shadow pass count, physics timing
--   Extensive examples for every feature
-
-## Install
-
-### Requirements:
-
-- LibSDL2 `sudo apt install libsdl2-dev` for Debian/Ubuntu-based Linux distributions. For other platforms, please consult your preferred package manager.
-- ImageMagick `sudo apt install imagemagick` for Debian/Ubuntu-based Linux distributions. For other platforms, please consult your preferred package manager.
-- Python 3.10+
-- A graphics card that supports OpenGL 3.3+
-
-### Install using Pip:
-
-From a bash terminal:
-```bash
-pip install payton
-```
-
-This should install all dependencies. If you encounter permission errors, you are likely installing the library system-wide and may be missing some permissions. If you prefer not to use pipenv or virtualenv, you might want to run the above command as `sudo pip3 install payton`.
-
-### Optional Bullet Physics Integration
-
-Payton supports Bullet Physics at a basic level for solid geometries.
-
-```bash
-pip install pybullet
-```
-
-Once Bullet Physics is successfully installed in the same environment as Payton, it will be automatically activated, and you will be able to use its basic properties.
-Check out the relevant examples.
-
-### Optional GTK3 Integration
-
-Instead of SDL2, you can use GTK3 (along with all nice GTK3 widgets) with Payton.
-![https://raw.githubusercontent.com/sinanislekdemir/payton/assets/assets/gtk3.jpg](https://raw.githubusercontent.com/sinanislekdemir/payton/assets/assets/gtk3.png)
-
-You need to [install Python GTK3 Bindings](https://pygobject.readthedocs.io/en/latest/getting_started.html).
-
-#### AWP3D Format and Exporter
-
-AWP3D is simply a ZIP file containing every frame as a Wavefront object. To export your animated Blender objects as AWP3D files, you can use the exporter add-on available here:
-
-[https://github.com/sinanislekdemir/payton/tree/master/plugins](https://github.com/sinanislekdemir/payton/tree/master/plugins)
-
-#### Using Payton with Anaconda
-
-As of version `0.0.10`, Payton is installable on Anaconda. From the Anaconda Prompt:
-
-```bash
-pip install payton
-```
-
-This is sufficient to install Payton and its dependencies on Anaconda.
-
-Payton will be available for use with Spyder or JupyterLab locally.
-
-![](https://islekdemir.com/payton/anaconda.png)
-
-### Upgrade to the latest version:
-
-Payton is under active maintenance. This means I am spending time fixing bugs and making improvements. Therefore, you might want to upgrade it occasionally.
-
-    pip3 install payton --upgrade
-    
-This should do the trick!
-
-## Getting Started
-
-### Your first code
+## ⚡ Three lines to 3D
 
 ```python
 from payton.scene import Scene
@@ -212,188 +29,341 @@ scene = Scene()
 scene.run()
 ```
 
-This will create your first empty scene and show it inside an SDL window.
+That is a **live, interactive 3D scene**: a camera you can orbit, lighting, shadows, a ground grid, and a render loop — all configured for you. Want a spinning cube on top of that? Add four more lines:
 
-## Controls
+```python
+from payton.scene import Scene
+from payton.scene.geometry import Cube
+
+scene = Scene()
+cube = Cube(width=2, depth=2, height=2)
+cube.position = [0, 0, 1]
+scene.add_object("cube", cube)
+scene.run()
+```
+
+No engine bootstrapping. No asset pipeline. No 300-line "hello world". Just Python, and something beautiful on screen before your coffee gets cold.
+
+---
+
+## 🧭 Why Payton?
+
+Python 3D libraries usually live at two extremes: **too low-level** (you hand-build cameras, lighting, materials, and scene management before you see a single triangle) or **too heavy** (you fight a production engine's learning curve for a weekend before you see results). Payton sits deliberately in the sweet spot between them.
+
+| | The usual story | The Payton story |
+| --- | --- | --- |
+| **First render** | Hours of setup | Three lines |
+| **Camera + lighting + shadows** | Build it yourself | Included |
+| **Materials, GUI, physics, audio** | Glue five libraries together | Included, optional |
+| **Learning curve** | Engine-specific patterns | Plain, Pythonic API |
+| **Best for** | Shipping a AAA title | *Seeing* your idea right now |
+
+**vs Pygame:** Pygame is a 2D library. The moment you want true 3D you must build camera orbit, lighting, shadows, materials, hierarchies, collision, and UI from scratch. Payton ships all of it, so you write your idea instead of your boilerplate.
+
+**vs Panda3D:** Panda3D is a production engine with a C++-rooted architecture and a steep deployment curve. Payton is the opposite — three lines to a window, zero-config defaults, and a purely Pythonic feel. It's built for *prototyping, tool-building, visualization, simulation, and education*, where results in minutes beat polish in weeks. If your project outgrows Payton, moving on to Panda3D, Ursina, or Unity is the natural next step.
+
+Payton bridges the gap between *"I need to see my 3D idea right now"* and *"I'm building a commercial game."* It shines when **speed-to-visual** matters most.
+
+---
+
+## 📦 What's inside
+
+Everything is optional and off until you need it — but it's all there, waiting.
+
+<table>
+<tr><td valign="top" width="50%">
+
+**🎨 Rendering & scene**
+- Clean default scene, environment & camera controls
+- Perspective / orthographic cameras, multiple cameras
+- Multi-light lighting with screen-space shadows
+- Scene theme presets (Blender / Studio / GameEngine)
+- Fog, background & time-of-day
+- Built-in profiler overlay (`P`)
+
+**🧊 Geometry**
+- Cube, Sphere, Cylinder, Capsule (tapered), Plane
+- Arbitrary triangular meshes, lines, point clouds
+- Particle systems (billboard clouds)
+- Dynamic grid
+- OBJ, Quake II MD2, AWP3D, JSON scene I/O
+
+</td><td valign="top" width="50%">
+
+**🛠️ Mesh toolkit**
+- Extrude, rotate-around-axis, sweep, tube, loft, lines-to-mesh
+- Merge, subdivide, mirror, extrude face
+- Laplacian smooth, decimate
+- Constructive Solid Geometry (union / difference / intersection)
+
+**🕹️ Interaction & systems**
+- Object picking, clickable planes, world↔screen projection
+- Collision detection (AABB / sphere)
+- Optional Bullet physics (joints, ragdoll, bouncing)
+- NavMesh A* pathfinding with slope & step limits
+- 3D spatial audio (miniaudio: WAV / MP3 / FLAC / OGG)
+- BVH motion-capture playback
+- Threaded clocks for animation & timed tasks
+- HUD + full GUI (windows, buttons, sliders, edit boxes, progress bars)
+- Extendable event controller chain
+
+</td></tr>
+</table>
+
+---
+
+## 🚀 Install
+
+### Requirements
+
+- Python **3.11+**
+- A GPU with **OpenGL 3.3+**
+- **LibSDL2** — `sudo apt install libsdl2-dev` (Debian/Ubuntu)
+- **ImageMagick** — `sudo apt install imagemagick` (Debian/Ubuntu)
+
+For other platforms, use your preferred package manager.
+
+### Install with pip
+
+```bash
+pip install payton
+```
+
+If you hit permission errors, you're installing system-wide — use a virtualenv, or run `sudo pip3 install payton`.
+
+### Upgrade
+
+Payton is under active maintenance:
+
+```bash
+pip3 install payton --upgrade
+```
+
+### Optional: Bullet Physics
+
+```bash
+pip install pybullet
+```
+
+Installed in the same environment, Payton detects and activates it automatically.
+
+### Optional: GTK3 instead of SDL2
+
+Use Payton with native GTK3 widgets. Install the [Python GTK3 bindings](https://pygobject.readthedocs.io/en/latest/getting_started.html), then use the GTK integration.
+
+![GTK3 integration](https://raw.githubusercontent.com/sinanislekdemir/payton/assets/assets/gtk3.png)
+
+### Using Payton with Anaconda
+
+Since `0.0.10`, Payton installs cleanly on Anaconda — just `pip install payton` from the Anaconda Prompt. It's then available in Spyder and JupyterLab locally.
+
+![](https://islekdemir.com/payton/anaconda.png)
+
+### AWP3D format & Blender exporter
+
+AWP3D is a ZIP of one Wavefront OBJ per animation frame. The Blender add-on for exporting animated meshes lives in [`plugins/`](https://github.com/sinanislekdemir/payton/tree/master/plugins).
+
+---
+
+## 🎮 Controls
+
+The default scene is immediately explorable — no setup required.
 
 | Key / Action | Description |
 | --- | --- |
-| Mouse Wheel | Zoom In - Zoom Out|
-| Right Mouse Button Drag | Rotate Scene |
-| Middle Mouse Button Drag | Pan Scene |
-| Escape | Quit Simulation |
-| C | Change Camera Mode (Perspective / Orthographic) |
-| Space | UnPause / Pause Scene Clocks |
-| G | Show / Hide Grid |
-| W | Change Display Mode (Solid / Wireframe / Points) |
-| P | Cycle Profiler (FPS > Details > Verbose > Hide) |
-| F2 | Previous Camera |
-| F3 | Next Camera |
-| F12 | Take Screenshot (saves PNG in current directory) |
-| H | Open / Close Help Window |
+| Mouse Wheel | Zoom in / out |
+| Right Mouse Drag | Rotate scene |
+| Middle Mouse Drag | Pan scene |
+| Escape | Quit |
+| C | Toggle camera mode (perspective / orthographic) |
+| Space | Pause / resume scene clocks |
+| G | Show / hide grid |
+| W | Cycle display mode (solid / wireframe / points) |
+| P | Cycle profiler (FPS → details → verbose → hide) |
+| F2 / F3 | Previous / next camera |
+| F12 | Screenshot (saves PNG in the current directory) |
+| H | Open / close help window |
 
-## Environment variables
+### Environment variables
 
-Some options can be configured using environment variables.
+- `SDL_WINDOW_WIDTH` — window width
+- `SDL_WINDOW_HEIGHT` — window height
+- `GL_MULTISAMPLEBUFFERS` — multisample buffer count for antialiasing (usually 1–2)
+- `GL_MULTISAMPLESAMPLES` — multisample sample count for antialiasing (usually 1–16)
 
-- `SDL_WINDOW_WIDTH`: Set window width.
-- `SDL_WINDOW_HEIGHT`: Set window height.
-- `GL_MULTISAMPLEBUFFERS`: Set OpenGL multisample buffer count for antialiasing. (usually 1 or 2)
-- `GL_MULTISAMPLESAMPLES`: Set OpenGL multisample sampling count for antialiasing. (usually 1-16)
+Set both `GL_MULTISAMPLEBUFFERS` **and** `GL_MULTISAMPLESAMPLES`, or graphics can look pixelated. There are no defaults because the ideal values vary by GPU.
 
-Without `GL_MULTISAMPLEBUFFERS` AND `GL_MULTISAMPLESAMPLES`, you may notice pixelated graphics. There are no default values set for these because they can vary between graphics cards.
+---
 
-## Troubleshooting
+## 🖼️ Showcase
 
-On some older systems or where decent graphics drivers are not installed, you can try running Payton code with MESA. It runs fine, though there will be some performance decrease. However, this will not be noticeable for basic applications.
+A tiny sample of what falls out of this toolkit:
 
-To enforce MESA 3.3, you can run Payton with:
+![Example](https://github.com/sinanislekdemir/payton/blob/assets/assets/02.jpg?raw=true)
+![Example](https://github.com/sinanislekdemir/payton/blob/assets/assets/04.jpg?raw=true)
+![Example](https://github.com/sinanislekdemir/payton/blob/assets/assets/05.jpg?raw=true)
+![Example](https://github.com/sinanislekdemir/payton/blob/assets/assets/11.jpg?raw=true)
+![AWP3D](https://github.com/sinanislekdemir/payton/blob/assets/assets/awp3d.jpg?raw=true)
+![Bullet physics](https://github.com/sinanislekdemir/payton/blob/assets/assets/bullet.jpg?raw=true)
+![Time of day](https://github.com/sinanislekdemir/payton/blob/assets/assets/day.jpg?raw=true)
+![Engrave / heightmap](https://github.com/sinanislekdemir/payton/blob/assets/assets/engrave.jpg?raw=true)
+![Explosion](https://github.com/sinanislekdemir/payton/blob/assets/assets/explosion.jpg?raw=true)
+![GUI](https://github.com/sinanislekdemir/payton/blob/assets/assets/gui.jpg?raw=true)
+![Quake II](https://github.com/sinanislekdemir/payton/blob/assets/assets/quake.jpg?raw=true)
+![Ripple](https://github.com/sinanislekdemir/payton/blob/assets/assets/ripple.jpg?raw=true)
+![Spotlight](https://github.com/sinanislekdemir/payton/blob/assets/assets/spot.jpg?raw=true)
 
+**Watch it in motion:**
+
+[![Payton showcase](https://islekdemir.com/payton/youtube.png)](https://www.youtube.com/watch?v=bKQ9G1J5JYM)
+
+[![Payton screencast](http://i3.ytimg.com/vi/3ATRVLNuCew/maxresdefault.jpg)](https://www.youtube.com/watch?v=3ATRVLNuCew)
+
+[![Bullet physics demo](https://www.islekdemir.com/snapshot.jpg)](https://www.youtube.com/watch?v=Zt2vnUMLYVs)
+
+*Tested on Windows 10 (Paperspace) — works as expected.*
+
+---
+
+## 📖 Examples
+
+I don't read long descriptive documentation unless I have to. I like things simple and self-explanatory. So instead of writing walls of docs, I write **simple, runnable examples** for every feature — ready to tweak, break, and learn from.
+
+Grab them from the [examples folder](https://github.com/sinanislekdemir/payton/tree/master/examples), or clone the whole repository [as a zip](https://github.com/sinanislekdemir/payton/archive/master.zip):
+
+```bash
+git clone https://github.com/sinanislekdemir/payton.git
+cd payton && pip install -e .
+python examples/basics/01_scene.py
 ```
+
+---
+
+## 🗂️ Example Index
+
+### Basics
+* [Scene — your first window](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/01_scene.py)
+* Objects
+  * [Adding a cube](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/02_cube.py)
+  * [Adding multiple cubes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/03_cubes.py)
+  * [Parent–child relations](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/05_children.py)
+  * [Cylinder](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/18_cylinder.py)
+  * [Capsule](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/39_capsule.py)
+  * [Loading complex triangular objects (monkey)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/06_monkey.py)
+  * [Complex meshes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/09_mesh.py)
+  * [Point cloud](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/11_point_cloud.py)
+  * [Particle system](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/11_particle_system.py)
+  * [Plane object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/13_plane.py)
+  * [Line object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/17_line.py)
+  * [Better lines](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/33_better_lines.py)
+  * [Mesh plane](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/32_mesh_plane.py)
+  * [Quake 2 objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/26_quake2.py)
+  * [Ragdoll](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/28_ragdoll.py)
+* [Clocks (timed animation)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/04_clock.py)
+* [Object picking with the mouse](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/07_picking.py)
+* [Loading textures](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/08_texture.py)
+* [Vertex colors](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/10_vertex_colors.py)
+* Collision detection
+  * [Simple](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_collision.py)
+  * [Detailed](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_1_collision_detailed.py)
+* Physics engine
+  * [Bullet hello world](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/01_bullet_hello.py)
+  * [Point-to-point joint](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/02_joint_p2p.py)
+  * [Bullet cubes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/37_bullet_cubes.py)
+  * [Bouncing ball](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/38_bouncingball.py)
+* [GTK3 + Payton integration](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/03_gtk.py)
+* [Rotating objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/14_rotate.py)
+* [Graphical User Interface (GUI)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/15_gui.py)
+* [Custom keyboard shortcuts](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/16_keyboard.py)
+* [Multiple cameras](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/19_multiple_cameras.py)
+* [Changing the background](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/20_background.py)
+* [Click plane (cursor in world coordinates)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/21_click_plane.py)
+* [Object motion history](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/22_go_back.py)
+* [Motion capture (BVH)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/23_motion.py)
+* [BVH viewer](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/bvh_viewer.py)
+* [Object-oriented approach](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/24_object_oriented.py)
+* [Materials](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/25_materials.py)
+* [Export / import a scene to JSON](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/27_json.py)
+* [Changing time of day](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/29_day.py)
+* [Near and far planes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/30_near_far_plane.py)
+* [Spotlight](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/31_spotlight.py)
+* [AWP3D](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/34_awp3d.py)
+* [AWP3D animation ranges](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/35_awp3d_range.py)
+* [World-to-screen projection](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/36_world_to_screen.py)
+* [Fog effect](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/41_fog.py)
+* [Minecraft-like voxel scene](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/40_minecraft_like.py)
+* [Multi-shadow](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/42_multi_shadow.py)
+* [NavMesh pathfinding](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/43_navmesh.py)
+* [NavMesh maze](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/44_navmesh_maze.py)
+* [3D spatial audio](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/45_3d_audio.py)
+
+### Mesh tools
+* [Extrude line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/01_extrude_line.py)
+* [Rotate line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/02_rotate_line.py)
+* [Lines to mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/03_lines_to_mesh.py)
+* [Merge mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/04_merge_mesh.py)
+* [Subdivide mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/05_subdivide.py)
+* [Sweep](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/06_sweep.py)
+* [Loft](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/07_loft.py)
+* [Tube](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/08_tube.py)
+* [Mirror](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/09_mirror.py)
+* [Extrude face](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/10_extrude_face.py)
+* [Laplacian smooth](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/11_laplacian_smooth.py)
+* [Decimate](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/12_decimate.py)
+* [CSG operations](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/13_csg.py)
+
+### Mid-level
+* [Popping balloons (game)](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/balloon.py)
+* [Build a mesh from a heightmap](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/engrave.py)
+* [A more complex Quake scene](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/quake2.py)
+* [Ripple (mesh grid)](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/ripple.py)
+* [RPG-like controls](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/rpg.py)
+* [Custom shader](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/shader.py)
+
+### High-level
+* Multiplayer
+  * [Server backend](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/server.py)
+  * [3D block-building client](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/client3D.py)
+* [Heightmap terrain](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/heightmap/heightmap.py)
+* [Cyberarena](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/cyberarena/main.py)
+* [3D object designer tool](https://github.com/sinanislekdemir/payton/blob/master/examples/designer/main.py)
+
+---
+
+## 🎭 Motion capture data
+
+Payton reads **BVH (Biovision Hierarchy)** files. For extensive datasets, the [Bandai Namco Research Motion Dataset](https://github.com/BandaiNamcoResearchInc/Bandai-Namco-Research-Motiondataset) offers thousands of BVH files — the bundled example files come from there.
+
+---
+
+## 🧪 Troubleshooting
+
+On older systems or machines without proper GPU drivers, try running under MESA. It works fine with some performance cost — usually unnoticeable for simple scenes:
+
+```bash
 MESA_GL_VERSION_OVERRIDE=3.3 python <path-to-your-payton-code>
 ```
 
-## Examples
+---
 
-Personally, I don’t really read the long descriptive documentation unless necessary. I like things simple and self-explaining. Therefore, instead of writing long documentations, I write simple examples to use each feature of Payton without digging much into the internals.
+## 🤝 Contributing
 
-Examples can be downloaded from [Payton Github Page](https://github.com/sinanislekdemir/payton/tree/master/examples).
+Contributions are welcome. A few house rules keep the codebase consistent:
 
-You can either download the whole repository [as a zip file](https://github.com/sinanislekdemir/payton/archive/master.zip) or you can just `git clone` it.
+* Use type hints throughout the main library; examples are exempt.
+* Keep example code plain and simple.
+* Every new feature needs sensible defaults and an example.
+* Run `make check` before pushing.
+* `isort .` is encouraged but not mandatory.
+* Some methods are intentionally longer and more complex — to reduce code jumps / stack switches and run faster.
 
-*Tested on Windows 10 Paperspace, seems to be working as expected*
-![https://user-images.githubusercontent.com/1842484/84317888-38767780-ab76-11ea-8337-a102d7c59275.png](https://user-images.githubusercontent.com/1842484/84317888-38767780-ab76-11ea-8337-a102d7c59275.png)
+---
 
-*Supports PyBullet solid geometry physics*
-[![https://www.youtube.com/watch?v=Zt2vnUMLYVs](https://www.islekdemir.com/snapshot.jpg)](https://www.youtube.com/watch?v=Zt2vnUMLYVs)
+## 🧠 Some free thoughts and decisions
 
-## Example Index
+I chose `List[float]` for vectors because:
 
-* Basic Examples
-  * [Scene](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/01_scene.py)
-  * Objects
-    * [Adding a cube](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/02_cube.py)
-    * [Adding multiple cubes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/03_cubes.py)
-    * [Object parent-child relations](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/05_children.py)
-    * [Cylinder object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/18_cylinder.py)
-    * [Capsule object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/39_capsule.py)
-    * [How to load complex triangular objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/06_monkey.py)
-    * [Complex meshes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/09_mesh.py)
-    * [Point cloud](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/11_point_cloud.py)
-    * [Particle System](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/11_particle_system.py)
-    * [Plane Object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/13_plane.py)
-    * [Line object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/17_line.py)
-    * [Better Lines Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/33_better_lines.py)
-    * [Mesh plane](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/32_mesh_plane.py)
-    * [Quake 2 Objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/26_quake2.py)
-    * [Ragdoll Object](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/28_ragdoll.py)
-  * [How to use "clock"](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/04_clock.py)
-  * [Object picking using mouse](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/07_picking.py)
-  * [Load textures](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/08_texture.py)
-  * [Vertex colors](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/10_vertex_colors.py)
-  * Collision Detection
-    * [Simple example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_collision.py)
-    * [Complex example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_1_collision_detailed.py)
-  * Physics Engine
-    * [Cubes example](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/01_bullet_hello.py)
-    * [Joint example](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/02_joint_p2p.py)
-    * [Bullet Cubes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/37_bullet_cubes.py)
-    * [Bouncing Ball](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/38_bouncingball.py)
-  * [GTK3 Python OpenGL Payton Integration](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/03_gtk.py)
-  * [Rotating Objects](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/14_rotate.py)
-  * [Graphical User Interface (GUI)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/15_gui.py)
-  * [Custom keyboard shortcuts](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/16_keyboard.py)
-  * [Using multiple cameras](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/19_multiple_cameras.py)
-  * [Changing background](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/20_background.py)
-  * [Click plane (get cursor location in world coordinates)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/21_click_plane.py)
-  * [Using object motion history](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/22_go_back.py)
-  * [Motion Capture (BVH)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/23_motion.py)
-  * [BVH Viewer](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/bvh_viewer.py)
-  * [Object Oriented Approach](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/24_object_oriented.py)
-  * [Materials](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/25_materials.py)
-  * [Exporting and importing your scene to json](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/27_json.py)
-  * [Changing time of day](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/29_day.py)
-  * [Near and Far Planes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/30_near_far_plane.py)
-  * [Spotlight Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/31_spotlight.py)
-  * [Mesh Plane Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/32_mesh_playne.py)
-  * [AWP3D Example](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/34_awp3d.py)
-  * [AWP3D Example Ranges](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/35_awp3d_range.py)
-  * [World to Screen Projection](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/36_world_to_screen.py)
-  * [Fog Effect](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/41_fog.py)
-  * [Minecraft-like Scene](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/40_minecraft_like.py)
-  * [Multi-Shadow](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/42_multi_shadow.py)
-  * [NavMesh Pathfinding](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/43_navmesh.py)
-  * [NavMesh Maze](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/44_navmesh_maze.py)
-  * [3D Spatial Audio](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/45_3d_audio.py)
-* Mesh Tools
-  * [Extrude Line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/01_extrude_line.py)
-  * [Rotate Line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/02_rotate_line.py)
-  * [Lines to Mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/03_lines_to_mesh.py)
-  * [Merge Mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/04_merge_mesh.py)
-  * [Subdivide Mesh](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/05_subdivide.py)
-  * [Sweep](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/06_sweep.py)
-  * [Loft](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/07_loft.py)
-  * [Tube](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/08_tube.py)
-  * [Mirror](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/09_mirror.py)
-  * [Extrude Face](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/10_extrude_face.py)
-  * [Laplacian Smooth](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/11_laplacian_smooth.py)
-  * [Decimate](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/12_decimate.py)
-  * [CSG Operations](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/13_csg.py)
-* Mid Level
-  * [Popping the baloons game](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/balloon.py)
-  * [Build mesh using heightmap](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/engrave.py)
-  * [Fetch Instagram Images and build 3D Wall](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/instagram.py)
-  * [A bit more complex Quake Example](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/quake2.py)
-  * [Ripple Example (Mesh Grid)](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/ripple.py)
-  * [RPG-like Controls](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/rpg.py)
-  * [Custom Shader](https://github.com/sinanislekdemir/payton/blob/master/examples/mid-level/shader.py)
-* High Level
-  * Multiplayer
-    * [Server backend for a multiplayer game](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/server.py)
-    * [3D Blocks building game multiplayer](https://github.com/sinanislekdemir/payton/blob/master/examples/high-level/multiplayer/client3D.py)
-  * [3D object designer tool](https://github.com/sinanislekdemir/payton/blob/master/examples/designer/main.py)
+* I needed something **mutable**. Otherwise the number of memory copies and swaps would be excessive — so `Tuple` and `NamedTuple` were out.
+* `dataclass` adds overhead when converting to C-type floats and arrays in memory.
 
-## Contribution
-
-* Please keep using type hints in the main library.
-* Type hinting can be ignored for examples.
-* Example code should be plain and simple.
-* Every new feature should include sensible defaults.
-  * Nothing should be too verbose to use.
-* Make sure that `make check` passes before pushing your code.
-* Running `isort .` is not mandatory but highly encouraged.
-* Every new feature should have example code.
-* There is a reason why some methods are longer than they should be and complex.
-  * To reduce code jumps and stack switches.
-  * To run faster.
-
-## Screenshots and Videos
-
-[![](https://islekdemir.com/payton/youtube.png)](https://www.youtube.com/watch?v=bKQ9G1J5JYM)
-
-[![](http://i3.ytimg.com/vi/3ATRVLNuCew/maxresdefault.jpg)](https://www.youtube.com/watch?v=3ATRVLNuCew)
-
-## Examples Showcase:
-
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/02.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/02.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/04.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/04.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/05.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/05.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/11.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/11.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/awp3d.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/awp3d.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/bullet.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/bullet.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/day.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/day.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/engrave.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/engrave.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/explosion.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/explosion.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/gui.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/gui.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/quake.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/quake.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/ripple.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/ripple.jpg?raw=true)
-![https://github.com/sinanislekdemir/payton/blob/assets/assets/spot.jpg?raw=true](https://github.com/sinanislekdemir/payton/blob/assets/assets/spot.jpg?raw=true)
-
-## Some free thoughts and decisions:
-
-I've chosen to use `List[float]` type for Vectors because:
-
-* I needed something mutable. Otherwise, the number of memory copies and swaps would be too much. So, I've ruled out `Tuple` and `NamedTuple`.
-* `dataclass` has overhead when converting to C-type floats and arrays in memory.
-
-So, to gain some performance, I have created the main library with the risk of non-strict vector lengths.
+To gain performance, the core library accepts the (small) risk of non-strict vector lengths. It's a deliberate trade: **speed over ceremony**.
