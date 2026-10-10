@@ -342,7 +342,32 @@ class Camera:
 
         self._projection = proj_matrix
         eye = np.array(list(self.position), dtype=np.float32)
+        eye = self._apply_target_following(eye)
 
+        target = np.array(list(self.target), dtype=np.float32)
+        up = np.array(list(self.up), dtype=np.float32)
+        view_matrix = pyrr.matrix44.create_look_at(eye[:3], target[:3], up[:3])
+        self._view = view_matrix
+        self._use_cache = True
+        return proj_matrix, view_matrix
+
+    def _apply_target_following(self, eye: np.ndarray) -> np.ndarray:
+        """Move the camera to follow :attr:`target_object`, if defined.
+
+        This is called from :meth:`render` right before the view matrix is
+        built. Subclasses (e.g. :class:`Camera2D`) can override it to change
+        how the camera tracks a target.
+
+        Parameters
+        ----------
+        eye : numpy.ndarray
+            The current camera eye position.
+
+        Returns
+        -------
+        numpy.ndarray
+            The (possibly updated) camera eye position.
+        """
         if self.target_object:
             # I believe there is a bug at mypy about @property methods
             if self._previous_target_location is None:
@@ -354,13 +379,7 @@ class Camera:
             eye = np.array(list(self.position), dtype=np.float32)
             self.target = self.target_object.position
             self._previous_target_location = self.target_object.position
-
-        target = np.array(list(self.target), dtype=np.float32)
-        up = np.array(list(self.up), dtype=np.float32)
-        view_matrix = pyrr.matrix44.create_look_at(eye[:3], target[:3], up[:3])
-        self._view = view_matrix
-        self._use_cache = True
-        return proj_matrix, view_matrix
+        return eye
 
     def world_to_screen(self, world_coordinates: Vector3D) -> Vector3D:
         """Turn the world coordinates into screen coordinates.
@@ -438,3 +457,150 @@ class Camera:
 
         ray_dir = pyrr.vector.normalize(ray_end[0:4])
         return (eye, ray_dir)
+
+
+class Camera2D(Camera):
+    """A side-view camera locked to the X-Z plane.
+
+    The camera always looks from negative Y towards +Y with +Z pointing up,
+    so the X-Z plane is the visible "scene" plane. X is the screen
+    horizontal, Z is the screen vertical. This is a natural fit for
+    platformers, graph drawing and 2-D animation.
+
+    The projection is always orthographic; :attr:`perspective` is forced to
+    ``False`` and can not be changed. Rotation is disabled to keep the axis
+    lock. Panning and zooming behave like the base :class:`Camera`.
+
+    Keyword arguments:
+    position -- Camera position. Defaults to ``[0, -depth, 0]``.
+    target -- Where the camera points. Defaults to ``[position[0], 0, position[2]]``.
+    up -- Up direction of the camera. Defaults to ``[0, 0, 1]``.
+    target_object -- Camera follows this object along X-Z if defined.
+    depth -- Fixed distance (signed, negative) of the camera on the Y axis.
+    zoom -- Orthographic zoom ratio.
+    near -- Nearest visible distance.
+    far -- Furthest visible distance.
+    aspect_ratio -- Aspect ratio of the camera.
+    active -- Is this the active camera in the scene?
+    viewport_size -- Size of the viewport in pixels.
+    """
+
+    def __init__(
+        self,
+        position: Vector3D | None = None,
+        target: Vector3D | None = None,
+        up: Vector3D | None = None,
+        target_object: Object | None = None,
+        depth: float = 10.0,
+        zoom: float = 10.0,
+        near: float = 1.0,
+        far: float = 100.0,
+        aspect_ratio: float = 1.33333,
+        active: bool = False,
+        viewport_size: Vector3D | None = None,
+        **kwargs: Any,
+    ) -> None:
+        self._depth: float = -abs(depth)
+        if position is None:
+            position = [0.0, self._depth, 0.0]
+        if target is None:
+            target = [position[0], 0.0, position[2]]
+        if up is None:
+            up = [0.0, 0.0, 1.0]
+        super().__init__(
+            position=position,
+            target=target,
+            up=up,
+            target_object=target_object,
+            zoom=zoom,
+            near=near,
+            far=far,
+            aspect_ratio=aspect_ratio,
+            active=active,
+            perspective=False,
+            viewport_size=viewport_size,
+            **kwargs,
+        )
+
+    @property
+    def depth(self) -> float:
+        """Signed distance of the camera on the Y axis (always negative)."""
+        return self._depth
+
+    @depth.setter
+    def depth(self, depth: float) -> None:
+        """Set the camera depth (distance from the X-Z plane).
+
+        Keyword arguments:
+        depth -- Distance in units. Only the magnitude is used; the camera
+            is always kept in front of the scene, at negative Y.
+        """
+        self._depth = -abs(depth)
+        self.position = [self.position[0], self._depth, self.position[2]]
+        self._use_cache = False
+
+    @property
+    def perspective(self) -> bool:
+        """Always ``False``; 2-D cameras are locked to orthographic."""
+        return False
+
+    @perspective.setter
+    def perspective(self, perspective: bool) -> None:
+        """Ignore attempts to enable perspective projection.
+
+        Keyword arguments:
+        perspective -- Ignored. A warning is logged if ``True`` is given.
+        """
+        if perspective:
+            logger.debug("Camera2D is locked to orthographic projection")
+        self._perspective = False
+        self._use_cache = False
+
+    @property
+    def zoom(self) -> float:
+        """Return the zoom factor as a float."""
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self, zoom_ratio: float) -> None:
+        """Set the zoom factor, clamped to a small positive minimum.
+
+        Keyword arguments:
+        zoom_ratio -- Zoom ratio to be set
+        """
+        self._zoom = max(zoom_ratio, 0.01)
+        self._use_cache = False
+
+    def rotate_around_target(self, phi: float, theta: float) -> None:
+        """Rotation is disabled for 2-D cameras to keep the X-Z axis lock.
+
+        Keyword arguments:
+        phi -- Ignored
+        theta -- Ignored
+        """
+        logger.debug("Camera2D rotation is disabled")
+
+    def _apply_target_following(self, eye: np.ndarray) -> np.ndarray:
+        """Track :attr:`target_object` along the X-Z plane.
+
+        Unlike the base camera, the depth (Y) stays fixed and the camera
+        X/Z is snapped to the target object's X/Z, so the view direction is
+        always +Y.
+
+        Parameters
+        ----------
+        eye : numpy.ndarray
+            The current camera eye position.
+
+        Returns
+        -------
+        numpy.ndarray
+            The updated camera eye position.
+        """
+        if self.target_object is not None:
+            target_x = self.target_object.position[0]
+            target_z = self.target_object.position[2]
+            self.position = [target_x, self._depth, target_z]
+            self.target = [target_x, 0.0, target_z]
+            eye = np.array(list(self.position), dtype=np.float32)
+        return eye

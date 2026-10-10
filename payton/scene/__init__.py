@@ -4,6 +4,7 @@
 
 * SDL2 Window
   * Scene (`payton.scene.scene.Scene`)
+    * Scene2D (`payton.scene.scene2d.Scene2D`)
     * Geometry (`payton.scene.geometry`)
     * Grid (`payton.scene.grid`)
     * Background (`payton.scene.scene.Background`)
@@ -31,6 +32,7 @@ from payton.scene.scene import (
     Background,
     Scene,
 )
+from payton.scene.scene2d import Scene2D
 from payton.scene.theme import THEME_BLENDER, THEME_GAMEENGINE, THEME_STUDIO, SceneTheme
 
 __all__ = [
@@ -46,6 +48,7 @@ __all__ = [
     "AudioSource",
     "Background",
     "Scene",
+    "Scene2D",
     "SceneTheme",
     "physics_client",
 ]

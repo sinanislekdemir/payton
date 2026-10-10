@@ -62,23 +62,11 @@ class Grid:
         self._major_color: Vector3D | None = major_color
         self._major_interval: int = max(1, major_interval)
         self.static: bool = True
-        self.matrix: list[float] = [
-            1.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
+        self.matrix: list[list[float]] = [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
         ]
         self._vertices: list[float] = []
         self._indices: list[int] = []
@@ -166,9 +154,9 @@ class Grid:
             glBindVertexArray(0)
 
         for line in self._major_lines:
-            line.render(False, shader, None)
+            line.render(False, shader, self._model_matrix)
         for line in self._axis_lines:
-            line.render(False, shader, None)
+            line.render(False, shader, self._model_matrix)
         return True
 
     def resize(self, xres: int, yres: int, spacing: float = 1.0) -> None:
@@ -189,7 +177,7 @@ class Grid:
         xend = xres * spacing / 2.0
         yend = yres * spacing / 2.0
         self._model_matrix = np.asfortranarray(
-            np.array(self.matrix, dtype=np.float32), dtype=np.float32
+            np.array(self.matrix, dtype=np.float32).reshape((4, 4)), dtype=np.float32
         )
         for j in range(yres):
             y = ystart + (j * spacing)

@@ -76,6 +76,7 @@ Everything is optional and off until you need it — but it's all there, waiting
 **🎨 Rendering & scene**
 - Clean default scene, environment & camera controls
 - Perspective / orthographic cameras, multiple cameras
+- 2-D side-view `Scene2D` (locked orthographic X-Z camera)
 - Multi-light lighting with screen-space shadows
 - Scene theme presets (Blender / Studio / GameEngine)
 - Fog, background & time-of-day
@@ -296,6 +297,8 @@ python examples/basics/01_scene.py
 * [NavMesh pathfinding](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/43_navmesh.py)
 * [NavMesh maze](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/44_navmesh_maze.py)
 * [3D spatial audio](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/45_3d_audio.py)
+* [2-D side-view scene (Scene2D, platformer camera)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/46_scene2d.py)
+* [2-D side-view bullet physics (Scene2D)](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/47_scene2d_physics.py)
 
 ### Mesh tools
 * [Extrude line](https://github.com/sinanislekdemir/payton/blob/master/examples/tools/01_extrude_line.py)
