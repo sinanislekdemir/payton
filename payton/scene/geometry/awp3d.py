@@ -17,6 +17,7 @@ from zipfile import ZipFile
 import numpy as np
 
 from payton.scene.geometry import Wavefront
+from payton.scene.internal_physics import BoxShape, Shape
 from payton.scene.material import POINTS
 from payton.scene.shader import DEFAULT_SHADER, PARTICLE_SHADER, Shader
 from payton.tools.bar import progress
@@ -272,6 +273,25 @@ class AWP3D(Wavefront):
         self._bullet_shape_id = pybullet.createCollisionShape(
             pybullet.GEOM_BOX, halfExtents=[width, depth, height]
         )
+
+    def _default_physics_shape(self) -> Shape | None:
+        """AWP3D collides as a box based on the first frame's bounds."""
+        if not self.frames:
+            return None
+        vmin, vmax = self.frames[0].bounding_box
+        half = (
+            abs(vmax[0] - vmin[0]) / 2.0,
+            abs(vmax[1] - vmin[1]) / 2.0,
+            abs(vmax[2] - vmin[2]) / 2.0,
+        )
+        center = (
+            (vmin[0] + vmax[0]) / 2.0,
+            (vmin[1] + vmax[1]) / 2.0,
+            (vmin[2] + vmax[2]) / 2.0,
+        )
+        if max(half) <= 0.0:
+            return None
+        return BoxShape(half_extents=half, center=center)
 
     @property
     def physics(self) -> bool:

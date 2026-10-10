@@ -7,4 +7,8 @@ my simple functions here.
 
 This math module has no requirements, so it can be used separately in other
 projects.
+
+Some of the vector, matrix and rotation routines are adapted from GLScene
+(https://github.com/glscene/GLScene), which is distributed under the Mozilla
+Public License.  See the repository's ``THIRD_PARTY_NOTICES.md`` for details.
 """

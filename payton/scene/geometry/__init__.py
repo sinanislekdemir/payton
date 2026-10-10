@@ -11,8 +11,20 @@ from payton.scene.geometry.plane import MatrixPlane, Plane
 from payton.scene.geometry.ragdoll import Joint, RagDoll
 from payton.scene.geometry.sphere import Sphere
 from payton.scene.geometry.wavefront import Wavefront
+from payton.scene.internal_physics import (
+    COLLISION_AUTO,
+    COLLISION_BOX,
+    COLLISION_CAPSULE,
+    COLLISION_SHAPES,
+    COLLISION_SPHERE,
+)
 
 __all__ = [
+    "COLLISION_AUTO",
+    "COLLISION_BOX",
+    "COLLISION_CAPSULE",
+    "COLLISION_SHAPES",
+    "COLLISION_SPHERE",
     "MD2",
     "Capsule",
     "Cube",

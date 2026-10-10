@@ -7,6 +7,7 @@ from typing import Any, Optional
 
 from payton.math.functions import invert_vector, plane_normal, vector_angle
 from payton.scene.geometry.base import Object
+from payton.scene.internal_physics import BoxShape, Shape
 from payton.scene.material import DEFAULT, Material
 from payton.scene.types import VList
 
@@ -42,6 +43,13 @@ class Mesh(Object):
     def physics(self) -> bool:
         """Is a physics responding object."""
         return True
+
+    def _default_physics_shape(self) -> Shape | None:
+        """Generic meshes use a box built from their local bounds."""
+        center, half = self._local_bounds()
+        if max(half) <= 0.0:
+            return None
+        return BoxShape(half_extents=half, center=center)
 
     @classmethod
     def from_dict(cls, object_dict: dict[str, Any]) -> "Mesh":

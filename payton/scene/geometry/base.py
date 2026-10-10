@@ -57,6 +57,18 @@ from payton.math.matrix import (
     matrix_to_position_and_quaternion,
 )
 from payton.math.vector import Vector2D, Vector3D
+from payton.scene.internal_physics import (
+    COLLISION_AUTO,
+    COLLISION_BOX,
+    COLLISION_CAPSULE,
+    COLLISION_SHAPES,
+    COLLISION_SPHERE,
+    BoxShape,
+    CapsuleShape,
+    RigidBody,
+    Shape,
+    SphereShape,
+)
 from payton.scene.material import (
     DEFAULT,
     NO_INDICE,
@@ -97,6 +109,7 @@ class Object:
         mass: float = 0,
         force_concave: bool = False,
         heightfield: bool = False,
+        collision_approximation: str = COLLISION_AUTO,
         **kwargs: dict[str, Any],
     ) -> None:
         """Initialize the object.
@@ -109,6 +122,11 @@ class Object:
         visible -- Set if the object is visible or not.
         track_motion -- Set only if you really need to track the object's motion path.
                         This comes with an over-head.
+        mass -- Physics mass. Zero (the default) makes the object static.
+        collision_approximation -- How the built-in physics engine should
+            approximate this object's collision shape. One of ``"auto"``,
+            ``"box"``, ``"sphere"`` or ``"capsule"``. Defaults to ``"auto"``
+            which uses the object's natural shape.
         """
         self.children: dict[str, Object] = {}
 
@@ -134,6 +152,11 @@ class Object:
         self._bullet_force_concave = force_concave
         self._bullet_heightfield = heightfield
         self._bullet_constraints: list[dict[str, Any]] = []
+
+        # BUILT-IN PHYSICS
+        self._collision_approximation: str = COLLISION_AUTO
+        self.collision_approximation = collision_approximation
+        self._internal_body: RigidBody | None = None
 
         # Object vertices. Each vertex has 3 decimals (X, Y, Z). Vertices
         # are continuous. [X, Y, Z, X, Y, Z, X, Y, Z, X, ... ]
@@ -220,6 +243,111 @@ class Object:
         mat -- Material to set
         """
         self.materials[DEFAULT] = mat
+
+    @property
+    def collision_approximation(self) -> str:
+        """Collision shape the built-in physics engine uses for this object.
+
+        One of ``"auto"``, ``"box"``, ``"sphere"`` or ``"capsule"``.  The
+        default ``"auto"`` picks the object's natural shape (a ``Cube`` is a
+        box, a ``Sphere`` is a sphere and so on).  Set it explicitly to treat a
+        complex mesh as a simpler shape -- for example a car as a box or a
+        character as a capsule.
+        """
+        return self._collision_approximation
+
+    @collision_approximation.setter
+    def collision_approximation(self, value: str) -> None:
+        value = str(value).lower()
+        if value not in COLLISION_SHAPES:
+            logger.error(
+                "Unknown collision approximation %r; expected one of %s",
+                value,
+                ", ".join(COLLISION_SHAPES),
+            )
+            return
+        self._collision_approximation = value
+
+    def _local_bounds(
+        self,
+    ) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
+        """Axis-aligned bounds of the local vertices as ``(center, half_extents)``.
+
+        Meshes are not required to be centred on their local origin, so the
+        center matters: a collision approximation must bound the *actual*
+        geometry, not just extend symmetrically around the origin.
+        """
+        if not self._vertices:
+            return (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)
+        coords = np.asarray(self._vertices, dtype=np.float64)
+        low = coords.min(axis=0)
+        high = coords.max(axis=0)
+        center = (low + high) * 0.5
+        half = (high - low) * 0.5
+        return (
+            (float(center[0]), float(center[1]), float(center[2])),
+            (float(half[0]), float(half[1]), float(half[2])),
+        )
+
+    def _local_half_extents(self) -> tuple[float, float, float]:
+        """Half extents of the local bounding box."""
+        _center, half = self._local_bounds()
+        return half
+
+    def _local_bounding_radius(self) -> float:
+        """Radius of the smallest sphere (about the bounds center) covering vertices."""
+        if not self._vertices:
+            return 0.0
+        center, _half = self._local_bounds()
+        coords = np.asarray(self._vertices, dtype=np.float64) - np.asarray(center)
+        return float(np.sqrt(np.einsum("ij,ij->i", coords, coords)).max())
+
+    def _approximation_shape(self, kind: str) -> Shape | None:
+        """Build a simplified collision shape bounding the object's local geometry."""
+        if kind == COLLISION_SPHERE:
+            center, _half = self._local_bounds()
+            return SphereShape(
+                radius=max(self._local_bounding_radius(), 1e-4), center=center
+            )
+        if kind == COLLISION_CAPSULE:
+            center, (hx, hy, hz) = self._local_bounds()
+            radius = max(hx, hy, 1e-4)
+            return CapsuleShape(
+                radius=radius, half_height=max(hz - radius, 0.0), center=center
+            )
+        if kind == COLLISION_BOX:
+            center, (hx, hy, hz) = self._local_bounds()
+            return BoxShape(
+                half_extents=(max(hx, 1e-4), max(hy, 1e-4), max(hz, 1e-4)),
+                center=center,
+            )
+        return None
+
+    def _default_physics_shape(self) -> Shape | None:
+        """Natural collision shape of this object, or None when not collidable."""
+        return None
+
+    def _physics_shape(self) -> Shape | None:
+        """Collision shape for the built-in engine, honouring the approximation."""
+        if self._collision_approximation != COLLISION_AUTO:
+            return self._approximation_shape(self._collision_approximation)
+        return self._default_physics_shape()
+
+    def _apply_physics_transform(
+        self, position: np.ndarray, rotation: np.ndarray
+    ) -> None:
+        """Copy a physics transform onto this object.
+
+        ``rotation`` is a 3x3 rotation matrix (columns are the world basis
+        vectors).  Used by both the Bullet and built-in engines.
+        """
+        rows = rotation.T.tolist()
+        self.matrix[0][:3] = rows[0]
+        self.matrix[1][:3] = rows[1]
+        self.matrix[2][:3] = rows[2]
+        self.matrix[3][:3] = position.tolist()
+        self._absolute_vertices = None
+        self._to_absolute.cache_clear()
 
     def add_material(self, name: str, material: Material) -> None:
         """Add a material to the object.
@@ -708,6 +836,8 @@ class Object:
                 pos,
                 quat,
             )
+        if self._internal_body is not None and with_physics:
+            self._internal_body.sync_from_object()
 
     @property
     def position(self) -> Vector3D:
@@ -1042,6 +1172,32 @@ class Object:
         self._bullet_dynamics = {**self._bullet_dynamics, **kwargs}  # type: ignore
         if self._bullet_id != -1:
             pybullet.changeDynamics(self._bullet_id, -1, **kwargs)
+        body = self._internal_body
+        if body is not None:
+            supported = {
+                "mass",
+                "restitution",
+                "lateralFriction",
+                "linearDamping",
+                "angularDamping",
+            }
+            for key in kwargs:
+                if key not in supported:
+                    logger.debug(
+                        "change_dynamics(%r) is not supported by the built-in "
+                        "physics engine and will be ignored",
+                        key,
+                    )
+            if "mass" in kwargs:
+                body.set_mass(float(cast(Any, kwargs["mass"])))
+            if "restitution" in kwargs:
+                body.restitution = float(cast(Any, kwargs["restitution"]))
+            if "lateralFriction" in kwargs:
+                body.friction = float(cast(Any, kwargs["lateralFriction"]))
+            if "linearDamping" in kwargs:
+                body.linear_damping = float(cast(Any, kwargs["linearDamping"]))
+            if "angularDamping" in kwargs:
+                body.angular_damping = float(cast(Any, kwargs["angularDamping"]))
 
     def constraint_point(
         self, target: "Object", local_point: Vector3D, target_point: Vector3D
@@ -1070,6 +1226,8 @@ class Object:
             pybullet.resetBaseVelocity(
                 self._bullet_id, linearVelocity=self._bullet_linear_velocity
             )
+        if self._internal_body is not None:
+            self._internal_body.set_velocity(val)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert the object into a dictionary for export / debug."""
@@ -1102,6 +1260,8 @@ class Object:
         self._bullet_dynamics["mass"] = val
         if self._bullet_id != -1:
             pybullet.changeDynamics(self._bullet_id, -1, **self._bullet_dynamics)
+        if self._internal_body is not None:
+            self._internal_body.set_mass(val)
 
     def _bullet_physics(self) -> bool:
         """Responds to physics."""

@@ -4,6 +4,7 @@ from itertools import product
 from typing import Any
 
 from payton.scene.geometry.mesh import Mesh
+from payton.scene.internal_physics import PlaneShape, Shape
 from payton.scene.material import SOLID, WHITE
 
 _BULLET = False
@@ -43,6 +44,10 @@ class Plane(Mesh):
         self._bullet_shape_id = pybullet.createCollisionShape(
             pybullet.GEOM_PLANE, planeNormal=self.matrix[2][:3]
         )
+
+    def _default_physics_shape(self) -> Shape | None:
+        """A plane is an infinite half-space with a local +Z normal."""
+        return PlaneShape(normal=(0.0, 0.0, 1.0))
 
 
 class MatrixPlane(Mesh):

@@ -100,7 +100,7 @@ Everything is optional and off until you need it — but it's all there, waiting
 **🕹️ Interaction & systems**
 - Object picking, clickable planes, world↔screen projection
 - Collision detection (AABB / sphere)
-- Optional Bullet physics (joints, ragdoll, bouncing)
+- Physics: built-in engine (no dependencies) with optional Bullet upgrade (joints, ragdoll, bouncing)
 - NavMesh A* pathfinding with slope & step limits
 - 3D spatial audio (miniaudio: WAV / MP3 / FLAC / OGG)
 - BVH motion-capture playback
@@ -139,6 +139,23 @@ Payton is under active maintenance:
 ```bash
 pip3 install payton --upgrade
 ```
+
+### Physics
+
+Payton includes a small, dependency-free physics engine that is used
+automatically when PyBullet is not installed. Both engines read the same object
+parameters, so no scene code changes are needed to switch. Force the built-in
+engine with `Scene(use_internal_physics=True)`.
+
+> **Note — accuracy & performance.** The built-in engine is a deliberately
+> small, **pure-Python** implementation: keeping Payton dependency-free was a
+> conscious design choice. Because of that it **will fall short** of a native
+> engine for anything demanding — large scenes, fast collisions/tunnelling,
+> joints, and long stacking chains. Solid sequential-impulse contacts and warm
+> starting are implemented, but Python's per-operation overhead caps how many
+> iterations it can afford, and it has no continuous collision detection.
+> **For the best physics accuracy and performance, use PyBullet** (below) and
+> let Payton select it automatically.
 
 ### Optional: Bullet Physics
 
@@ -268,6 +285,11 @@ python examples/basics/01_scene.py
   * [Simple](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_collision.py)
   * [Detailed](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/12_1_collision_detailed.py)
 * Physics engine
+  * Built-in engine (no dependencies)
+    * [Hello world](https://github.com/sinanislekdemir/payton/blob/master/examples/physics/01_internal_hello.py)
+    * [Collapsing tower](https://github.com/sinanislekdemir/payton/blob/master/examples/physics/02_internal_cubes.py)
+    * [Boxes, spheres and capsules](https://github.com/sinanislekdemir/payton/blob/master/examples/physics/03_internal_shapes.py)
+    * [Choosing a collision shape](https://github.com/sinanislekdemir/payton/blob/master/examples/physics/04_collision_approximation.py)
   * [Bullet hello world](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/01_bullet_hello.py)
   * [Point-to-point joint](https://github.com/sinanislekdemir/payton/blob/master/examples/additional/02_joint_p2p.py)
   * [Bullet cubes](https://github.com/sinanislekdemir/payton/blob/master/examples/basics/37_bullet_cubes.py)
@@ -349,6 +371,20 @@ MESA_GL_VERSION_OVERRIDE=3.3 python <path-to-your-payton-code>
 
 ---
 
+## 🙏 Acknowledgements
+
+* The built-in physics engine (`payton/scene/internal_physics.py`) adapts the
+  algorithms of [qu3e](https://github.com/RandyGaul/qu3e) by **Randy Gaul**
+  (zlib licence) and the sequential-impulse method of **Erin Catto** / Box2D.
+  See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for the full notices.
+* The math helpers (`payton/math/`) adapt parts of
+  [GLScene](https://github.com/glscene/GLScene) by Mike Lischke / Eric Grange
+  (Mozilla Public License).
+* The bundled BVH motion-capture samples come from the
+  [Bandai Namco Research Motion Dataset](https://github.com/BandaiNamcoResearchInc/Bandai-Namco-Research-Motiondataset).
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome. A few house rules keep the codebase consistent:
@@ -370,3 +406,10 @@ I chose `List[float]` for vectors because:
 * `dataclass` adds overhead when converting to C-type floats and arrays in memory.
 
 To gain performance, the core library accepts the (small) risk of non-strict vector lengths. It's a deliberate trade: **speed over ceremony**.
+
+Payton is also **pure Python on purpose — no Cython, no C extensions, no build
+step**. `pip install payton` must never require a compiler (gcc/g++/MSVC) or a
+toolchain, because setting one up is one of the hardest things for a newcomer.
+The built-in physics engine is pure Python for the same reason; the price is
+performance, so for demanding physics install **PyBullet**, which ships prebuilt
+wheels.

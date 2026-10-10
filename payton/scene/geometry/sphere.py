@@ -4,6 +4,7 @@ from typing import Any
 
 from payton.math.functions import plane_normal
 from payton.scene.geometry.mesh import Mesh
+from payton.scene.internal_physics import Shape, SphereShape
 from payton.scene.material import DEFAULT
 
 _BULLET = False
@@ -97,3 +98,7 @@ class Sphere(Mesh):
         self._bullet_shape_id = pybullet.createCollisionShape(
             pybullet.GEOM_SPHERE, radius=self.radius
         )
+
+    def _default_physics_shape(self) -> Shape | None:
+        """A sphere collides as an exact sphere."""
+        return SphereShape(radius=self.radius)

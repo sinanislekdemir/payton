@@ -2,5 +2,4 @@ Pillow>=12.2.0
 PyOpenGL>=3.1.10
 pyrr>=0.10.3
 PySDL2>=0.9.17
-Cython>=3.2.5
 numpy>=2.4.6

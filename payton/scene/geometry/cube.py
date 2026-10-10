@@ -5,6 +5,7 @@ from typing import Any
 from payton.math.functions import min_max
 from payton.math.vector import Vector3D
 from payton.scene.geometry.mesh import Mesh
+from payton.scene.internal_physics import BoxShape, Shape
 from payton.scene.material import DEFAULT
 
 _BULLET = False
@@ -139,3 +140,7 @@ class Cube(Mesh):
         self._bullet_shape_id = pybullet.createCollisionShape(
             pybullet.GEOM_BOX, halfExtents=[self._width, self._depth, self._height]
         )
+
+    def _default_physics_shape(self) -> Shape | None:
+        """A cube collides as an exact box."""
+        return BoxShape(half_extents=(self._width, self._depth, self._height))

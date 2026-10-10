@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Payton"
-version = "1.6.1"
+version = "1.7.0"
 description = "3D Graphics Programming Toolkit"
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -21,7 +21,6 @@ dependencies = [
     "PyOpenGL>=3.1.10",
     "pyrr>=0.10.3",
     "PySDL2>=0.9.17",
-    "Cython>=3.2.5",
     "numpy>=2.4.6",
     "miniaudio>=1.50",
 ]

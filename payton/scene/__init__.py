@@ -23,6 +23,14 @@ module
 
 # pylama:ignore=W
 from payton.scene.audio import AudioEngine, AudioListener, AudioSource
+from payton.scene.internal_physics import (
+    COLLISION_AUTO,
+    COLLISION_BOX,
+    COLLISION_CAPSULE,
+    COLLISION_SHAPES,
+    COLLISION_SPHERE,
+    InternalPhysicsWorld,
+)
 from payton.scene.physics import physics_client
 from payton.scene.scene import (
     SHADOW_HIGH,
@@ -36,6 +44,11 @@ from payton.scene.scene2d import Scene2D
 from payton.scene.theme import THEME_BLENDER, THEME_GAMEENGINE, THEME_STUDIO, SceneTheme
 
 __all__ = [
+    "COLLISION_AUTO",
+    "COLLISION_BOX",
+    "COLLISION_CAPSULE",
+    "COLLISION_SHAPES",
+    "COLLISION_SPHERE",
     "SHADOW_HIGH",
     "SHADOW_LOW",
     "SHADOW_MID",
@@ -47,6 +60,7 @@ __all__ = [
     "AudioListener",
     "AudioSource",
     "Background",
+    "InternalPhysicsWorld",
     "Scene",
     "Scene2D",
     "SceneTheme",

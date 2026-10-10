@@ -4,6 +4,7 @@ import math
 from typing import Any
 
 from payton.scene.geometry.mesh import Mesh
+from payton.scene.internal_physics import CapsuleShape, Shape
 from payton.scene.material import DEFAULT
 
 _BULLET = False
@@ -289,3 +290,8 @@ class Capsule(Mesh):
             self._bullet_shape_id = pybullet.createCollisionShape(
                 pybullet.GEOM_CAPSULE, radius=collision_radius, height=self.height
             )
+
+    def _default_physics_shape(self) -> Shape | None:
+        """A capsule collides as an exact capsule (using the larger radius)."""
+        radius = max(self.radius_top, self.radius_bottom)
+        return CapsuleShape(radius=radius, half_height=self.height / 2.0)

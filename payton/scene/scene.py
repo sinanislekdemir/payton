@@ -77,8 +77,9 @@ from payton.scene.grid import Grid
 from payton.scene.gui import Hud, Shape2D
 from payton.scene.gui.help import help_win
 from payton.scene.gui.window import Theme
+from payton.scene.internal_physics import InternalPhysicsWorld
 from payton.scene.light import Light
-from payton.scene.physics import physics_client
+from payton.scene.physics import pybullet_available
 from payton.scene.profiler import FrameStats, Profiler, reset_frame_counters
 from payton.scene.receiver import Receiver
 from payton.scene.shader import (
@@ -138,6 +139,7 @@ class Scene(Receiver):
         height: int = 600,
         on_select: Callable | None = None,
         physics_force_continuous: bool = False,
+        use_internal_physics: bool = False,
         theme: SceneTheme | None = None,
         antialiasing: int | None = None,
         **kwargs: Any,
@@ -155,6 +157,12 @@ class Scene(Receiver):
             callback receives a list of selected :class:`Object` instances.
         physics_force_continuous : bool, optional
             If True, forces the physics clock to run continuously.
+        use_internal_physics : bool, optional
+            Force the built-in, dependency-free physics engine instead of
+            PyBullet.  When False (the default) Payton uses PyBullet if it is
+            installed, and falls back to the built-in engine otherwise.  This
+            flag is mainly useful for testing the built-in engine even when
+            PyBullet is present.
         theme : SceneTheme or None, optional
             Visual theme for the scene.  Pass one of the built-in presets
             (``THEME_BLENDER``, ``THEME_STUDIO``, ``THEME_GAMEENGINE``) or a
@@ -199,7 +207,13 @@ class Scene(Receiver):
         self._physics_params = PhysicsParams(0, 0, -10)
         self.clocks: dict[str, Clock] = {}
 
-        if physics_client is not None:
+        # Choose the physics backend: PyBullet when available (unless the
+        # built-in engine is forced), otherwise the built-in internal engine.
+        use_bullet = pybullet_available and not use_internal_physics
+        self.physics_backend: str = "bullet" if use_bullet else "internal"
+        self._physics_world: InternalPhysicsWorld | None = None
+
+        if use_bullet:
             pybullet.setGravity(
                 self._physics_params.gravity_x,
                 self._physics_params.gravity_y,
@@ -212,12 +226,22 @@ class Scene(Receiver):
             pybullet.connect(pybullet.DIRECT)
             pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_KEYBOARD_SHORTCUTS, 0)
             pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
-            self.create_clock(
-                "_bullet_physics",
-                1.0 / 120.0,
-                self._step_physics,
-                physics_force_continuous,
+        else:
+            self._physics_world = InternalPhysicsWorld(
+                gravity=(
+                    self._physics_params.gravity_x,
+                    self._physics_params.gravity_y,
+                    self._physics_params.gravity_z,
+                ),
+                time_step=1.0 / 120.0,
             )
+
+        self.create_clock(
+            "_bullet_physics",
+            1.0 / 120.0,
+            self._step_physics,
+            physics_force_continuous,
+        )
 
         self.audio_engine = AudioEngine()
         """3-D spatial audio engine.  See :class:`~payton.scene.audio.AudioEngine`."""
@@ -476,11 +500,11 @@ class Scene(Receiver):
             self.audio_engine.stop_all_from(None)
 
     def _step_physics(self, period: float, total: float) -> None:
-        """Advance the physics simulation one step.
+        """Advance the active physics backend one step.
 
-        This method is intended to be called from a Clock. It advances the
-        PyBullet simulation and forwards a physics tick to every object that
-        implements the ``_bullet_physics`` hook.
+        This method is intended to be called from a Clock.  It advances either
+        the PyBullet simulation or the built-in engine and copies the resulting
+        transforms back onto the scene objects.
 
         Parameters
         ----------
@@ -490,11 +514,14 @@ class Scene(Receiver):
             Accumulated time since clock start (seconds).
         """
         t0 = time.perf_counter()
-        pybullet.stepSimulation()
-        with self._objects_lock:
-            objects_snapshot = list(self.objects.values())
-        for child in objects_snapshot:
-            child._bullet_physics()
+        if self._physics_world is not None:
+            self._physics_world.step(period)
+        else:
+            pybullet.stepSimulation()
+            with self._objects_lock:
+                objects_snapshot = list(self.objects.values())
+            for child in objects_snapshot:
+                child._bullet_physics()
         _profiler.physics_time_ms = (time.perf_counter() - t0) * 1000.0
 
     @property
@@ -899,6 +926,8 @@ class Scene(Receiver):
             self.objects[name] = obj
         obj.name = name
         obj._scene = self
+        if self._physics_world is not None:
+            self._physics_world.add_object(obj)
         return True
 
     def remove_object(self, name: str) -> Object | None:
@@ -923,6 +952,8 @@ class Scene(Receiver):
             obj = self.objects.pop(name)
             obj._scene = None
             self._pending_destroy.append(obj)
+        if self._physics_world is not None:
+            self._physics_world.remove_object(obj)
         return obj
 
     def add_camera(self, camera: Camera) -> bool:

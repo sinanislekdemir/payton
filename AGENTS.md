@@ -32,7 +32,8 @@ payton/                          # Main package
 │   ├── material.py              # Material — color, texture, display mode, PBR props
 │   ├── shader.py                # Shader compile, uniform setters, inline GLSL
 │   ├── grid.py                  # Ground-plane grid
-│   ├── physics.py               # Optional pybullet physics
+│   ├── physics.py               # Physics backend resolver (pybullet or built-in)
+│   ├── internal_physics.py      # Dependency-free rigid-body engine (boxes/spheres/capsules/planes)
 │   ├── theme.py                 # SceneTheme presets
 │   ├── receiver.py              # Receiver base (Scene inherits)
 │   ├── font/                    # Embedded fonts
@@ -58,7 +59,8 @@ examples/
 ├── basics/                      # 41 numbered examples
 ├── mid-level/                   # Balloon, quake2, shader, RPG, ripple, engrave
 ├── high-level/                  # Cyberarena, heightmap, multiplayer
-├── additional/                  # Bullet physics, GTK
+├── additional/                  # GTK and PyBullet-only demos
+├── physics/                     # Built-in physics engine examples
 ├── designer/                    # Scene designer GUI
 ├── tools/                       # Mesh tool examples
 └── PyFRP/                       # First-person RPG demo
