@@ -50,6 +50,8 @@ _CUBEMAP_FACES = [
     (GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, [0.0, 0.0, -1.0], [0.0, -1.0, 0.0]),
 ]
 
+__all__ = ["Light"]
+
 
 class Light:
     def __init__(

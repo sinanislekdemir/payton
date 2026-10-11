@@ -23,6 +23,10 @@ fmt:
 	ruff check payton --fix
 	ruff format payton
 
+ai:
+	@python tools/gen_ai_catalog.py
+	@python tools/sync_ai_examples.py
+
 help:
 	@echo "Make Payton"
 	@echo "make requirements  # Install all requirements"
@@ -30,3 +34,4 @@ help:
 	@echo "make lint          # Run code linters for errors"
 	@echo "make clean         # Remove __pycache__ dirs"
 	@echo "make fmt           # Format the source code using black + isort"
+	@echo "make ai            # Regenerate payton/ai/api.json (AI API catalog)"

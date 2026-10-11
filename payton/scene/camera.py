@@ -18,6 +18,8 @@ BUTTON_LEFT = 1
 BUTTON_RIGHT = 2
 BUTTON_MIDDLE = 3
 
+__all__ = ["BUTTON_LEFT", "BUTTON_MIDDLE", "BUTTON_RIGHT", "Camera", "Camera2D"]
+
 
 class Camera:
     def __init__(

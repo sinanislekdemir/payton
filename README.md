@@ -4,15 +4,16 @@
 
 ### From *"what if..."* to *"whoa, I just built that"* — in Python.
 
-A batteries-included 3D graphics toolkit for **rapid prototyping, creative coding, simulation, data visualization, and play**. Real 3D, sane defaults, zero ceremony.
+A batteries-included 3D graphics toolkit for **rapid prototyping, creative coding, simulation, data visualization, and play**. Real 3D, sane defaults, zero ceremony. **AI-ready** — every wheel ships its own docs, API catalog, and examples, so assistants get it right the first time.
 
 [![PyPI](https://img.shields.io/pypi/v/payton?color=3776AB&label=PyPI)](https://pypi.org/project/payton/)
 [![Python](https://img.shields.io/pypi/pyversions/payton?color=3776AB)](https://pypi.org/project/payton/)
+[![AI-ready](https://img.shields.io/badge/AI--ready-docs%20in%20every%20wheel-8A2BE2)](#-ai-ready-by-design)
 [![License](https://img.shields.io/pypi/l/payton?color=success)](https://github.com/sinanislekdemir/payton/blob/master/LICENSE)
 [![Downloads](https://pepy.tech/badge/payton/month)](https://pepy.tech/project/payton)
 [![Downloads](https://pepy.tech/badge/payton/week)](https://pepy.tech/project/payton)
 
-**[Three lines to 3D](#-three-lines-to-3d)** · **[What's inside](#-whats-inside)** · **[Showcase](#-showcase)** · **[Examples](#-example-index)** · **[Install](#-install)**
+**[Three lines to 3D](#-three-lines-to-3d)** · **[What's inside](#-whats-inside)** · **[AI-ready](#-ai-ready-by-design)** · **[Showcase](#-showcase)** · **[Examples](#-example-index)** · **[Install](#-install)**
 
 </div>
 
@@ -56,6 +57,7 @@ Python 3D libraries usually live at two extremes: **too low-level** (you hand-bu
 | **Camera + lighting + shadows** | Build it yourself | Included |
 | **Materials, GUI, physics, audio** | Glue five libraries together | Included, optional |
 | **Learning curve** | Engine-specific patterns | Plain, Pythonic API |
+| **AI assistants** | Guess APIs, hallucinate signatures | Docs, API catalog & examples ship in the wheel |
 | **Best for** | Shipping a AAA title | *Seeing* your idea right now |
 
 **vs Pygame:** Pygame is a 2D library. The moment you want true 3D you must build camera orbit, lighting, shadows, materials, hierarchies, collision, and UI from scratch. Payton ships all of it, so you write your idea instead of your boilerplate.
@@ -240,6 +242,49 @@ A tiny sample of what falls out of this toolkit:
 [![Bullet physics demo](https://www.islekdemir.com/snapshot.jpg)](https://www.youtube.com/watch?v=Zt2vnUMLYVs)
 
 *Tested on Windows 10 (Paperspace) — works as expected.*
+
+---
+
+## 🤖 AI-ready by design
+
+Most libraries expect an AI to guess. **Payton teaches it.** Every wheel ships a
+machine-readable description of the library *inside the package*, so assistants
+like Claude, Cursor, Copilot and Codex get the API right the first time — no
+cloning, no scraping, no guessing.
+
+**Your assistant can read the whole library offline:**
+
+```bash
+python -m payton            # a concise, task-oriented Markdown primer
+python -m payton --catalog  # the public API (signatures + summaries) as JSON
+python -m payton --examples # 29 curated, self-contained examples
+```
+
+```python
+import payton.ai
+print(payton.ai.context())                     # the primer
+api = payton.ai.catalog()                      # {module: {symbol: {signature, summary}}}
+print(payton.ai.example("basics_04_clock"))    # full, runnable example source
+```
+
+**What makes it AI-ready**
+
+- 📦 **Docs in the wheel** — `payton/llms.txt` and `payton/AGENTS.md` ship with
+  the package, so context survives `pip install payton`.
+- 🔎 **Machine-readable API catalog** — every public class, function and constant
+  with real signatures and summaries (`payton/ai/api.json`).
+- 🧩 **Curated examples inside the wheel** — self-contained programs, readable as
+  plain text via `payton.ai.example(...)`.
+- ✅ **PEP 561 typed** — inline type hints (`py.typed`) flow straight into
+  autocompletion and type checkers.
+- 🗣️ **Agent-friendly API** — predictable, Pythonic names (`Scene`, `Object`,
+  `Cube`, `material.color`) and zero-config defaults.
+
+**Give your assistant permanent context** — add one line to your project's
+`AGENTS.md` (or `CLAUDE.md`, `.cursorrules`, …):
+
+> For Payton APIs, run `python -m payton`, `python -m payton --catalog` and
+> `python -m payton --examples`.
 
 ---
 

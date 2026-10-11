@@ -11,6 +11,10 @@ Both **must** pass cleanly. If mypy fails, check `MYPYPATH` for SDL stubs.
 
 Other targets: `make requirements` (pip install), `make development` (editable install), `make clean` (remove `__pycache__`).
 
+If you change the **public API** (add/remove a public class, function, method, or
+`__all__` entry), run `make ai` to regenerate `payton/ai/api.json` — the
+machine-readable catalog consumed by `payton.ai.catalog()`.
+
 ## Project Structure
 
 ```

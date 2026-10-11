@@ -6,6 +6,8 @@ from typing import Any
 # SAFE_ASSUMPTION constant is a wait time between each clock cycle.
 SAFE_ASSUMPTION = 0.01
 
+__all__ = ["SAFE_ASSUMPTION", "Clock", "ClockException"]
+
 
 class ClockException(Exception):
     pass

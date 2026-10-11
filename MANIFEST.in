@@ -1,5 +1,10 @@
 include payton/scene/gui/monofonto.ttf
 include payton/scene/particle.png
 include payton/scene/font/Glametrix.otf
+include payton/py.typed
+include payton/llms.txt
+include payton/AGENTS.md
+include payton/ai/api.json
+recursive-include payton/examples *.py *.md
 include LICENSE
 include THIRD_PARTY_NOTICES.md

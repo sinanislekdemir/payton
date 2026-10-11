@@ -484,6 +484,14 @@ void main()
 }
 """  # type: str
 
+__all__ = [
+    "DEFAULT_SHADER",
+    "PARTICLE_SHADER",
+    "SHADOW_CUBE",
+    "SHADOW_DEPTH",
+    "Shader",
+]
+
 
 class Shader:
     NO_LIGHT_COLOR = 0  # type: int

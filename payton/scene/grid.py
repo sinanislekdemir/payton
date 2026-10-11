@@ -32,6 +32,8 @@ from payton.scene.geometry.base import Line
 from payton.scene.material import Material
 from payton.scene.shader import Shader
 
+__all__ = ["Grid"]
+
 
 class Grid:
     """Grid is an exceptional object in Payton, which is not extended from

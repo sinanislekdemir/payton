@@ -1,0 +1,345 @@
+# Payton — AI-ready guide
+
+> This file ships **inside the installed `payton` package**. Read it to learn how
+> to use Payton correctly and idiomatically.
+>
+> Fetch it programmatically, or from the shell:
+>
+> ```python
+> import payton.ai
+> print(payton.ai.context())
+> ```
+>
+> ```bash
+> python -m payton              # this document
+> python -m payton --catalog    # machine-readable JSON API catalog
+> python -m payton --examples   # list bundled, self-contained examples
+> python -m payton --version
+> ```
+>
+> The full API catalog also lives at `payton/ai/api.json` inside the package, and
+> curated examples ship under `payton/examples/`.
+
+## What Payton is
+
+Payton is a **batteries-included, pure-Python 3D graphics toolkit** for rapid
+prototyping, creative coding, simulation, data visualization and games. It ships
+camera, lighting, shadows, materials, GUI, collision, physics and audio so you
+write your idea instead of boilerplate.
+
+* Requires **Python >= 3.11** and a GPU with **OpenGL 3.3+**.
+* Needs the system **SDL2** library (`libsdl2` / `libsdl2-dev`) and **ImageMagick**.
+* Optional: `pip install pybullet` for a faster, more accurate physics backend
+  (Payton auto-detects it; otherwise a dependency-free built-in engine is used).
+* Pure Python — no compiler, no C extension, no build step.
+
+## Install and minimal program
+
+```bash
+pip install payton
+```
+
+```python
+from payton.scene import Scene
+
+scene = Scene()
+scene.run()
+```
+
+That opens a live, interactive 3D window (orbit camera, light, shadows, grid).
+Add a cube in four more lines:
+
+```python
+from payton.scene import Scene
+from payton.scene.geometry import Cube
+
+scene = Scene()
+cube = Cube(width=2, depth=2, height=2)
+cube.position = [0, 0, 1]
+scene.add_object("cube", cube)
+scene.run()
+```
+
+## Mental model
+
+* **`Scene` is the root container.** It owns `objects` (name → `Object`),
+  `cameras`, `lights`, `clocks`, `huds`, `collisions` and the render loop.
+  Everything is registered with `scene.add_object(name, obj)`.
+* **`Object` is the base of every 3D thing** (`payton.scene.geometry.Object`):
+  a 4×4 transform matrix, geometry buffers, children, and optional physics body.
+  Primitives (`Cube`, `Sphere`, `Cylinder`, `Capsule`, `Plane`, `Line`, `Mesh`,
+  `Wavefront`, `MD2`, `ParticleSystem`, `NavMesh`, `RagDoll`) all extend it.
+* **Coordinate system:** right-handed, **Z is up**, 1 unit = 1 metre.
+* **Transform:** `obj.position` (`[x, y, z]`), `obj.rotate_around_x/y/z(radians)`,
+  `obj.scale(x, y, z)`, `obj.direction` (unit vector) / `obj.direct_to(point)`,
+  `obj.forward(distance)`.
+* **Vectors are mutable `List[float]`.** Editing `obj.position` in place does not
+  update the matrix — assign a new list: `obj.position = [x, y, z]`. After
+  changing *vertices* (not the matrix), call `obj.refresh()`.
+* **Hierarchy:** `obj.add_child(name, child)` — children follow the parent's
+  matrix, visibility and toggles.
+* **Clocks** (`scene.create_clock(name, period, callback)`) are background
+  threads that call `callback(period, total_elapsed_seconds)` repeatedly. Use
+  them for animation. The callback receives two floats.
+* **Defaults everywhere:** every feature has sensible defaults; `Scene()` is a
+  complete, runnable app.
+
+## Canonical imports
+
+Always use these public paths (the API catalog is keyed by them):
+
+```python
+from payton.scene import Scene, Scene2D, Background, SceneTheme
+from payton.scene import THEME_BLENDER, THEME_STUDIO, THEME_GAMEENGINE
+from payton.scene import SHADOW_NONE, SHADOW_LOW, SHADOW_MID, SHADOW_HIGH
+from payton.scene.geometry import (  # 3D objects
+    Object, Cube, Sphere, Cylinder, Capsule, Plane, MatrixPlane,
+    Line, Mesh, Wavefront, MD2, ParticleSystem, NavMesh, RagDoll, Joint,
+)
+from payton.scene.camera import Camera, Camera2D
+from payton.scene.clock import Clock
+from payton.scene.collision import CollisionTest, Collision
+from payton.scene.grid import Grid
+from payton.scene.light import Light
+from payton.scene.material import Material  # + color constants: RED, BLUE, WHITE, ...
+from payton.scene.gui import (  # 2D overlay UI
+    Hud, Window, Button, EditBox, Slider, ProgressBar, Panel, Text, Rectangle,
+    Shape2D, Theme, WindowAlignment, info_box,
+)
+from payton.tools.mesh import (  # mesh toolkit
+    extrude_line, rotate_line, lines_to_mesh, extrude_face, sweep, tube, loft,
+    merge_mesh, subdivide, mirror, laplacian_smooth, decimate,
+    csg_union, csg_difference, csg_intersect,
+)
+from payton.math.vector import Vector3D, Vector2D
+```
+
+## Recipes
+
+### Add and place an object
+
+```python
+from payton.scene import Scene
+from payton.scene.geometry import Cube
+
+scene = Scene()
+cube = Cube(width=1, depth=1, height=1)
+cube.position = [2, 0, 0.5]
+cube.rotate_around_z(0.785)      # radians
+cube.material.color = [1.0, 0.0, 0.0]
+scene.add_object("cube", cube)
+scene.run()
+```
+
+### Animate with a clock
+
+```python
+import math
+
+def spin(period: float, total: float) -> None:
+    scene.objects["cube"].rotate_around_z(0.02)
+
+scene.create_clock("spin", 0.01, spin)
+scene.run(start_clocks=True)     # `start_clocks=True` unpauses clocks at start
+```
+
+Clocks run in their own thread — keep callbacks fast, and never touch OpenGL
+there. Remove a running clock with `scene.clocks["spin"].kill()`.
+
+### Materials, textures, display modes
+
+```python
+cube.material.color = [0.2, 0.6, 1.0]
+cube.material.texture = "brick.png"     # path, loaded with Pillow
+cube.material.display = 1               # 0 solid, 1 wireframe, 2 points
+cube.material.lights = True             # set False for unlit/emissive
+```
+
+### Cameras and lighting
+
+```python
+scene.active_camera.position = [8, 8, 8]
+scene.active_camera.target_object = cube      # follow an object
+scene.create_camera()                         # add another camera (F2/F3 cycles)
+scene.lights[0].position = [20, 20, 40]
+scene.lights[0].color = [1.0, 1.0, 1.0]
+```
+
+### Theme and fog
+
+```python
+from payton.scene import Scene, THEME_BLENDER
+
+scene = Scene(theme=THEME_BLENDER)   # THEME_STUDIO, THEME_GAMEENGINE
+scene.enable_fog()
+scene.fog_near, scene.fog_far = 10.0, 60.0
+```
+
+### Mouse selection (picking)
+
+```python
+def on_select(objects: list) -> None:
+    for obj in objects:
+        obj.material.color = [1.0, 1.0, 1.0]
+
+scene = Scene(on_select=on_select)
+```
+
+### Collision detection
+
+```python
+from payton.scene.collision import CollisionTest
+
+def hit(collision, pairs) -> None:
+    for a, b in pairs:
+        a.material.color = [1.0, 0.0, 0.0]
+
+test = CollisionTest(callback=hit)
+test.add_object(cube)
+scene.add_collision_test("test", test)
+```
+
+### Physics
+
+```python
+scene = Scene()                       # uses PyBullet when installed
+# scene = Scene(use_internal_physics=True)  # force the built-in engine
+cube.mass = 1.0                        # 0 (default) = static / never moves
+cube.change_dynamics(restitution=0.8, lateralFriction=0.5)
+cube.linear_velocity = [0, 0, 5]
+scene.run(start_clocks=True)          # physics runs on a clock
+```
+
+### GUI / HUD
+
+```python
+from payton.scene.gui import Hud, Window, Button, Slider, WindowAlignment
+
+hud = Hud()
+win = Window("Controls", width=220, height=200, align=WindowAlignment.LEFT)
+win.add_child("btn", Button("Reset", width=200, height=30, left=10, top=40,
+                            on_click=lambda: print("clicked")))
+win.add_child("sld", Slider("X", width=200, height=30, left=10, top=80,
+                            min_value=-5, max_value=5, on_change=lambda v: None))
+hud.add_child("win", win)
+scene.add_object("hud", hud)
+```
+
+### Load a 3D model
+
+```python
+from payton.scene.geometry import Wavefront, MD2
+
+obj = Wavefront("model.obj")            # Wavefront OBJ
+model = MD2("model.md2", texture_filename="skin.png")   # Quake II
+```
+
+### Mesh toolkit
+
+```python
+from payton.scene.geometry import Line
+from payton.tools.mesh import extrude_line, subdivide, csg_difference
+
+profile = Line(vertices=[[0, 0, 0], [1, 0, 0], [1, 1, 0]])
+shape = extrude_line(profile, direction=[0, 0, 1], distance=3)
+smooth = subdivide(shape)
+```
+
+### 2D side-view scene
+
+```python
+from payton.scene import Scene2D
+
+scene = Scene2D()                     # locked orthographic X-Z camera
+scene.follow(player_object)           # camera tracks the player
+scene.run()
+```
+
+### Spatial audio
+
+```python
+source = scene.playSound(position=[0, 0, 1], file="boom.wav", volume=0.8)
+obj.playSound("loop.ogg", loop=True)  # attach a sound to an object
+obj.stopSound()
+```
+
+### Serialization
+
+```python
+data = scene.to_dict()                # JSON-serializable nested dict
+```
+
+## Public API catalog
+
+For the exact signature and docstring of any public symbol, use the generated
+catalog instead of guessing:
+
+```python
+import payton.ai
+catalog = payton.ai.catalog()
+print(catalog["modules"]["payton.scene"]["symbols"]["Scene"]["methods"])
+```
+
+or `python -m payton --catalog`. The catalog covers, among others:
+`payton.scene`, `payton.scene.geometry`, `payton.scene.gui`, `payton.scene.camera`,
+`payton.scene.clock`, `payton.scene.collision`, `payton.scene.grid`,
+`payton.scene.light`, `payton.scene.material`, `payton.scene.shader`,
+`payton.tools.mesh`.
+
+For working code, prefer the bundled examples over guessing:
+
+```python
+import payton.ai
+print(payton.ai.examples())                   # e.g. ["basics_01_scene.py", ...]
+print(payton.ai.example("tools_13_csg"))      # full source text
+```
+
+## Examples
+
+The repository ships 60+ numbered examples under `examples/`. A **curated,
+self-contained subset ships inside this package** — no clone required:
+
+```python
+import payton.ai
+print(payton.ai.examples())                    # bundled file names
+print(payton.ai.example("basics_04_clock"))    # full source of one example
+```
+
+```bash
+python -m payton --examples                 # list bundled examples
+python -m payton --example basics_04_clock  # print one
+```
+
+Bundled coverage includes: minimal scene, objects, clocks/animation, picking,
+vertex colors, particles, collision, planes, GUI, keyboard input, lines,
+backgrounds, click planes, mesh plane, world-to-screen projection, physics
+(bouncing ball, built-in engine), capsules, fog, multi-shadow, NavMesh,
+`Scene2D`, custom shaders, ripple, and mesh tools (extrude, sweep, CSG).
+
+The **full** set (all 60+) lives in the repository:
+
+* `examples/basics/` — scene, objects, clocks, picking, textures, GUI, cameras,
+  materials, collision, physics, fog, navmesh, audio, `Scene2D`.
+* `examples/physics/` — the dependency-free physics engine.
+* `examples/tools/` — the mesh toolkit (extrude, loft, CSG, decimate, ...).
+* `examples/mid-level/` — games and demos (balloon, quake2, ripple, shader, RPG).
+* `examples/high-level/` — heightmap terrain, multiplayer, cyberarena, designer.
+
+Browse the index in `README.md`, or scrape the repo:
+`https://github.com/sinanislekdemir/payton/tree/master/examples`.
+
+## Pitfalls and rules
+
+* `Scene.run()` blocks until the window closes; put setup **before** it.
+* Clocks are threads: keep callbacks fast and do not call OpenGL from them.
+  Mutating `obj.position = [...]` is safe; replacing geometry needs `refresh()`.
+* `scene.objects[name]` and `scene.huds[name]` are the registries; a missing
+  name raises `KeyError`.
+* `Object.clone()` deep-copies OpenGL buffer handles — do not clone live objects
+  casually.
+* Import GL constants **individually** (`from OpenGL.GL import GL_TRIANGLES`),
+  never `from OpenGL.GL import *`.
+* Type hints use `Optional[X]` / `List` / `Dict` / `Tuple` from `typing`; this
+  library supports Python 3.11+ and ships inline types (`py.typed`).
+* On machines without proper GPU drivers, run under MESA:
+  `MESA_GL_VERSION_OVERRIDE=3.3 python your_app.py`.

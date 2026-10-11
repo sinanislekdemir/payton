@@ -1,0 +1,23 @@
+# Payton
+
+> Payton is a batteries-included, pure-Python 3D graphics toolkit for rapid
+> prototyping, creative coding, simulation, data visualization and games.
+> Real 3D, sane defaults, zero ceremony: `Scene().run()` is a complete app.
+
+## Docs
+
+- [AI-ready guide (full primer)](https://raw.githubusercontent.com/sinanislekdemir/payton/master/payton/llms.txt): The canonical, task-oriented guide that ships inside the package. Load this first.
+- [Machine-readable API catalog (JSON)](https://raw.githubusercontent.com/sinanislekdemir/payton/master/payton/ai/api.json): Public modules, classes and functions with signatures and summaries.
+- [README](https://raw.githubusercontent.com/sinanislekdemir/payton/master/README.md): Features, install, controls and the full example index.
+
+## Examples
+
+- [Basics](https://github.com/sinanislekdemir/payton/tree/master/examples/basics): Scene, objects, clocks, picking, textures, GUI, cameras, materials, collision, physics, fog, navmesh, audio, Scene2D.
+- [Mesh tools](https://github.com/sinanislekdemir/payton/tree/master/examples/tools): Extrude, loft, sweep, CSG, subdivide, decimate and more.
+- [Physics](https://github.com/sinanislekdemir/payton/tree/master/examples/physics): The dependency-free physics engine.
+- [Mid-level](https://github.com/sinanislekdemir/payton/tree/master/examples/mid-level) and [High-level](https://github.com/sinanislekdemir/payton/tree/master/examples/high-level): Games, terrain, multiplayer, designer tool.
+
+## Optional
+
+- [Contributing guide](https://github.com/sinanislekdemir/payton/blob/master/CONTRIBUTING.md): How to build, lint and contribute.
+- [Third-party notices](https://github.com/sinanislekdemir/payton/blob/master/THIRD_PARTY_NOTICES.md): Attribution for adapted algorithms.

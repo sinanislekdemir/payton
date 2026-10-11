@@ -1,4 +1,17 @@
 # pylama:ignore=W
+"""Payton geometry module.
+
+Public 3-D primitives and loaders, all extending :class:`Object`:
+
+* `Cube`, `Sphere`, `Cylinder`, `Capsule`, `Plane`, `MatrixPlane`
+* `Line`, `Mesh` (base for custom geometry), `ParticleSystem`
+* `Wavefront` (OBJ), `MD2` (Quake II), `NavMesh`, `RagDoll` / `Joint`
+* `COLLISION_AUTO`, `COLLISION_BOX`, `COLLISION_SPHERE`, `COLLISION_CAPSULE`
+  for the built-in physics collision approximation.
+
+Add instances to a scene with ``scene.add_object(name, obj)``.
+"""
+
 from payton.scene.geometry.base import Line, Object
 from payton.scene.geometry.capsule import Capsule
 from payton.scene.geometry.cube import Cube

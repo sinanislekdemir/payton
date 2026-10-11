@@ -10,6 +10,8 @@ from payton.scene.geometry.sphere import Sphere
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["Collision", "CollisionTest"]
+
 
 class Collision:
     """Collision pair"""

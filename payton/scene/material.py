@@ -74,6 +74,39 @@ EMPTY_VERTEX_ARRAY = -3
 
 BASE_PARTICLE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "particle.png")
 
+__all__ = [
+    "BASE_PARTICLE",
+    "BLACK",
+    "BLUE",
+    "CRIMSON",
+    "DARK_GRAY",
+    "DEEP_PINK",
+    "DEFAULT",
+    "EMPTY_VERTEX_ARRAY",
+    "GOLD",
+    "GREEN",
+    "LIGHT_GRAY",
+    "LIGHT_STEEL_BLUE",
+    "NAVY",
+    "NO_INDICE",
+    "NO_VERTEX_ARRAY",
+    "ORANGE",
+    "ORCHID",
+    "PINK",
+    "POINTS",
+    "PURPLE",
+    "RED",
+    "ROYAL_BLUE",
+    "SOLID",
+    "STEEL_BLUE",
+    "TURQUOISE",
+    "VIOLET_RED",
+    "WHITE",
+    "WIREFRAME",
+    "YELLOW",
+    "Material",
+]
+
 _IMAGE_CACHE: dict[str, int] = {}
 
 
