@@ -1,4 +1,4 @@
-Pillow>=12.2.0
+Pillow>=13.0.0
 PyOpenGL>=3.1.10
 pyrr>=0.10.3
 PySDL2>=0.9.17
